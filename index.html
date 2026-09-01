@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neo Arcade</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="title-wrap">
+          <h1>Neo Arcade</h1>
+          <p>Playable on GitHub Pages — no install, no backend, works in any desktop browser.</p>
+        </div>
+        <div class="badge" id="modeBadge">Mode: 5x5 Battle</div>
+      </div>
+
+      <div class="controls">
+        <div class="left-controls">
+          <select id="modeSelect" aria-label="Select game mode">
+            <option value="ttt5">5x5 Battle — connect 4</option>
+            <option value="ttt3">Classic 3x3 — connect 3</option>
+            <option value="connect4">Connect Four</option>
+          </select>
+
+          <button class="primary" id="newGameBtn">New Game</button>
+          <button class="danger" id="resetScoreBtn">Reset Score</button>
+        </div>
+
+        <div class="right-controls">
+          <button id="themeBtn">Neon UI</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="board-wrap">
+        <div class="status">
+          <span id="statusText">X’s turn</span>
+          <small id="subText">5x5 board — connect 4 to win</small>
+        </div>
+
+        <div class="board-area">
+          <div class="column-bar" id="columnBar"></div>
+          <div class="board" id="board"></div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="panel">
+          <h3>Scoreboard</h3>
+          <div class="score-grid">
+            <div class="score-card x">
+              <div class="label">Player X</div>
+              <div class="value" id="scoreX">0</div>
+            </div>
+            <div class="score-card o">
+              <div class="label">Player O</div>
+              <div class="value" id="scoreO">0</div>
+            </div>
+            <div class="score-card draws">
+              <div class="label">Draws</div>
+              <div class="value" id="scoreDraws">0</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>How to play</h3>
+          <div class="hint">
+            <p>• Choose a mode from the dropdown.</p>
+            <p>• <b>5x5 Battle</b>: connect <b>4</b> in a row to win.</p>
+            <p>• <b>Classic 3x3</b>: connect <b>3</b> in a row to win.</p>
+            <p>• <b>Connect Four</b>: drop pieces into columns and connect <b>4</b>.</p>
+            <p>• This is a static site, so it works great with GitHub Pages.</p>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      Built with HTML, CSS, and JavaScript. Easy to expand with more games later.
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
