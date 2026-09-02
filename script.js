@@ -45,7 +45,7 @@ const hubState = {
   game: "ttt3",
   opponent: "ai",
   difficulty: "medium",
-  timer: "off", // Strictly 'off' by default
+  timer: "off",
   theme: "dark"
 };
 
