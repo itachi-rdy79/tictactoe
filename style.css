@@ -1,51 +1,52 @@
 :root {
   --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* Default dynamic fallback values (injected automatically by script.js) */
+  /* Dynamic reload defaults */
   --dyn-accent: #10b981;
   --dyn-border: #34d399;
   --dyn-shadow: #059669;
-  --dyn-tint: rgba(16, 185, 129, 0.15);
+  --dyn-tint: rgba(16, 185, 129, 0.18);
+  --dyn-light-bg: #ecfdf5;
 
-  /* Theme: Dark (Dynamic Neon Accent, No Gold, No Blue, No Pink) */
-  --bg: #090c12;
-  --surface: rgba(17, 24, 39, 0.82);
+  /* Theme: Dark (Pure Solid Black Canvas) */
+  --bg: #000000;
+  --surface: rgba(14, 18, 27, 0.88);
   --surface-border: var(--dyn-border);
   --text: #f8fafc;
   --muted: #94a3b8;
   --brand: var(--dyn-accent);
 
-  --btn-bg: rgba(30, 41, 59, 0.75);
-  --btn-border: rgba(255, 255, 255, 0.14);
+  --btn-bg: rgba(26, 32, 46, 0.82);
+  --btn-border: rgba(255, 255, 255, 0.16);
   --btn-text: #e2e8f0;
 
   --btn-active-bg: var(--dyn-accent);
   --btn-active-border: var(--dyn-border);
-  --btn-active-text: #05140f;
-  --btn-active-shadow: 0 4px 0 var(--dyn-shadow), 0 0 18px var(--dyn-tint);
+  --btn-active-text: #000000;
+  --btn-active-shadow: 0 4px 0 var(--dyn-shadow), 0 0 20px var(--dyn-tint);
 
   --accent: var(--dyn-accent);
   --x: var(--dyn-accent);
   --o: #e2e8f0;
-  --tile-bg: rgba(24, 33, 49, 0.85);
+  --tile-bg: rgba(18, 24, 38, 0.9);
   --tile-border: #334155;
-  --shadow: 0 12px 36px rgba(0, 0, 0, 0.75);
+  --shadow: 0 14px 38px rgba(0, 0, 0, 0.9);
 
-  --turn-bg: rgba(17, 24, 39, 0.9);
+  --turn-bg: rgba(14, 18, 27, 0.92);
   --turn-border: var(--dyn-accent);
   --turn-text: var(--dyn-accent);
 }
 
 body[data-theme="light"] {
-  /* Theme: Light (Clean Canvas with Dynamic Accent) */
-  --bg: #f8fafc;
-  --surface: rgba(255, 255, 255, 0.9);
+  /* Theme: Light (Dimmed Background to Match Dynamic Palette) */
+  --bg: var(--dyn-light-bg);
+  --surface: rgba(255, 255, 255, 0.92);
   --surface-border: var(--dyn-border);
   --text: #0f172a;
-  --muted: #64748b;
-  --brand: var(--dyn-accent);
+  --muted: #475569;
+  --brand: var(--dyn-shadow);
 
-  --btn-bg: rgba(241, 245, 249, 0.95);
+  --btn-bg: rgba(255, 255, 255, 0.95);
   --btn-border: #cbd5e1;
   --btn-text: #0f172a;
 
@@ -57,7 +58,7 @@ body[data-theme="light"] {
   --accent: var(--dyn-accent);
   --x: var(--dyn-accent);
   --o: #475569;
-  --tile-bg: #f1f5f9;
+  --tile-bg: rgba(255, 255, 255, 0.9);
   --tile-border: #94a3b8;
   --shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 
@@ -69,13 +70,13 @@ body[data-theme="light"] {
 body[data-theme="itachi"] {
   /* Theme: Itachi (Pure Obsidian & Blood Crimson) */
   --bg: #050002;
-  --surface: rgba(18, 3, 7, 0.86);
+  --surface: rgba(18, 3, 7, 0.88);
   --surface-border: rgba(225, 29, 72, 0.45);
   --text: #ffe4e6;
   --muted: #fb7185;
   --brand: #ff2a55;
 
-  --btn-bg: rgba(38, 5, 13, 0.8);
+  --btn-bg: rgba(38, 5, 13, 0.82);
   --btn-border: #5c0f1c;
   --btn-text: #ffffff;
 
@@ -87,9 +88,9 @@ body[data-theme="itachi"] {
   --accent: #e11d48;
   --x: #ff1e42;
   --o: #ffffff;
-  --tile-bg: rgba(26, 4, 10, 0.9);
+  --tile-bg: rgba(26, 4, 10, 0.92);
   --tile-border: #4c0d18;
-  --shadow: 0 14px 40px rgba(0, 0, 0, 0.9);
+  --shadow: 0 14px 40px rgba(0, 0, 0, 0.95);
 
   --turn-bg: rgba(18, 3, 7, 0.92);
   --turn-border: #e11d48;
@@ -112,9 +113,10 @@ body {
   background-color: var(--bg);
   overflow: hidden;
   position: relative;
+  transition: background-color 0.3s ease;
 }
 
-/* Itachi Moon & Mist Background Vector Art */
+/* Itachi Moon Vector Art */
 .itachi-bg-art {
   position: fixed;
   inset: 0;
@@ -211,7 +213,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   font-weight: 900 !important;
 }
 
-/* Buttons */
+/* Tactile Buttons */
 .seg {
   display: flex !important;
   gap: clamp(4px, 0.6vw, 8px) !important;
@@ -348,6 +350,31 @@ body[data-theme="itachi"] .itachi-bg-art {
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* Idle Warning Animation (> 60s without move) */
+.turn-pill.idle-nudge {
+  animation: pillPulse 1.2s infinite ease-in-out;
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6) !important;
+}
+
+@keyframes pillPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.board-shell.idle-shake {
+  animation: boardNudge 2.5s infinite ease-in-out;
+}
+
+@keyframes boardNudge {
+  0%, 100% { transform: translateY(0); }
+  10%, 30% { transform: translateY(-3px); }
+  20%, 40% { transform: translateY(3px); }
+  50% { transform: translateY(0); }
 }
 
 .hidden {
@@ -409,15 +436,15 @@ body[data-theme="itachi"] .itachi-bg-art {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: width 0.2s ease;
+  transition: width 0.2s ease, min-height 0.2s ease;
 }
 
-/* Expanded Wordle Shell */
+/* Large Wordle Frame */
 .board-shell.wordle-mode {
   width: min(94vmin, 620px) !important;
   aspect-ratio: auto !important;
-  min-height: min(78vh, 600px) !important;
-  padding: 18px 22px !important;
+  min-height: min(80vh, 630px) !important;
+  padding: 20px 24px !important;
 }
 
 .captured-strip {
@@ -528,7 +555,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   background: color-mix(in srgb, var(--accent) 70%, transparent);
 }
 
-/* Prominent, Large Wordle Arena */
+/* Wordle Arena with Distinct Vertical Gap */
 .wordle-arena {
   width: 100%;
   height: 100%;
@@ -536,21 +563,21 @@ body[data-theme="itachi"] .itachi-bg-art {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 20px; /* Strong separation between grid and keyboard */
 }
 
 .wordle-board {
   display: grid;
   grid-template-rows: repeat(6, 1fr);
-  gap: 7px;
+  gap: 8px;
   width: min(94%, 390px);
-  height: min(60vh, 420px);
+  height: min(56vh, 410px);
 }
 
 .wordle-row {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 7px;
+  gap: 8px;
 }
 
 .wordle-tile {
@@ -572,18 +599,18 @@ body[data-theme="itachi"] .itachi-bg-art {
   transform: scale(1.08);
 }
 
-/* NYT / Wordle Reference Colors */
 .wordle-tile.correct { background: #538d4e !important; color: #ffffff !important; border-color: #538d4e !important; }
 .wordle-tile.present { background: #b59f3b !important; color: #ffffff !important; border-color: #b59f3b !important; }
 .wordle-tile.absent  { background: #3a3a3c !important; color: #ffffff !important; border-color: #3a3a3c !important; }
 
-/* Large Wordle Virtual Keyboard */
+/* Wordle Virtual Keyboard with Clean Top Margin */
 .wordle-keyboard {
   display: flex;
   flex-direction: column;
   gap: 6px;
   width: 100%;
   max-width: 530px;
+  margin-top: 14px; /* Distinct space between board and keyboard */
 }
 
 .kb-row {
@@ -680,7 +707,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   z-index: 90;
   display: grid;
   place-items: center;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
 }
 
 .win-modal {

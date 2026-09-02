@@ -46,13 +46,13 @@ const themeMenu = document.getElementById("themeMenu");
 const themeCurrentIcon = document.getElementById("themeCurrentIcon");
 const themeCurrentText = document.getElementById("themeCurrentText");
 
-/* ---------- Dynamic Colors on Reload (No Blue, No Pink, No Gold) ---------- */
+/* ---------- Dynamic Colors on Reload (Light Dimmed & Dark Black) ---------- */
 const DYNAMIC_PALETTES = [
-  { accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.18)" }, // Neon Emerald
-  { accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.18)" }, // Sunset Amber
-  { accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.18)" }, // Cyber Violet
-  { accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.18)" }, // Arcade Teal
-  { accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.18)" }  // Electric Lime
+  { accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.18)", lightBg: "#eefcf6" }, // Emerald
+  { accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.18)", lightBg: "#fef9ee" }, // Amber
+  { accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.18)", lightBg: "#f5f3ff" }, // Violet
+  { accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.18)", lightBg: "#f0fdfa" }, // Teal
+  { accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.18)", lightBg: "#f7fee7" }  // Lime
 ];
 
 function applyRandomPalette() {
@@ -62,6 +62,7 @@ function applyRandomPalette() {
   root.style.setProperty("--dyn-border", chosen.border);
   root.style.setProperty("--dyn-shadow", chosen.shadow);
   root.style.setProperty("--dyn-tint", chosen.tint);
+  root.style.setProperty("--dyn-light-bg", chosen.lightBg);
 }
 applyRandomPalette();
 
@@ -78,6 +79,34 @@ const hubState = {
 };
 
 let scoreA = 0, scoreB = 0, scoreD = 0, streak = 0;
+
+/* ---------- Idle Watchdog (> 60s without move when timer is OFF) ---------- */
+let idleSeconds = 0;
+let idleInterval = null;
+
+function resetIdleWatchdog() {
+  idleSeconds = 0;
+  statusPill.classList.remove("idle-nudge");
+  boardWrap.classList.remove("idle-shake");
+}
+
+function startIdleWatchdog() {
+  if (idleInterval) clearInterval(idleInterval);
+  idleSeconds = 0;
+  idleInterval = setInterval(() => {
+    // Only check when timer is off and not in game over / AI turn
+    if (hubState.timer === "off") {
+      idleSeconds++;
+      if (idleSeconds >= 60) {
+        statusPill.classList.add("idle-nudge");
+        boardWrap.classList.add("idle-shake");
+        if (!statusPill.textContent.includes("Take your turn!")) {
+          statusPill.textContent = "⏳ Take your turn!";
+        }
+      }
+    }
+  }, 1000);
+}
 
 /* ---------- State Management ---------- */
 function modeFromHub() {
@@ -195,7 +224,7 @@ function loadScores() {
 
 function updateStreak(winA) { streak = winA ? streak + 1 : 0; }
 
-/* ---------- Timer Logic (Integers Only) ---------- */
+/* ---------- Timer Logic ---------- */
 let turnTimer = null;
 let turnTimeLeft = 0;
 let turnTimeTotal = 0;
@@ -226,6 +255,7 @@ function renderRadial() {
 
 function startTurnTimer() {
   stopTurnTimer();
+  resetIdleWatchdog();
 
   if (hubState.timer === "off" || hubState.game === "wordle") {
     showTimerInactive();
@@ -258,6 +288,7 @@ function startTurnTimer() {
 
 /* ---------- Win Modal ---------- */
 function showWinScreen(msg) {
+  resetIdleWatchdog();
   winMessage.textContent = msg.toUpperCase();
   winOverlay.classList.remove("hidden");
 }
@@ -269,7 +300,7 @@ function hideWinScreen() {
 winRestartBtn.addEventListener("click", () => { hideWinScreen(); initBoard(); });
 winOverlay.addEventListener("click", (e) => { if (e.target === winOverlay) hideWinScreen(); });
 
-/* ---------- Tic-Tac-Toe ---------- */
+/* ---------- Tic-Tac-Toe Engine ---------- */
 let tttBoard = [], tttSize = 3, tttWinLen = 3, tttTurn = "X", tttOver = false, tttWinningCells = [];
 let tttSnapshots = [];
 
@@ -317,6 +348,7 @@ function initTTT(size) {
 }
 
 function renderTTT() {
+  resetIdleWatchdog();
   boardWrap.classList.remove("wordle-mode");
   tttBoardEl.classList.remove("hidden");
   chessBoardEl.classList.add("hidden");
@@ -417,6 +449,7 @@ function aiTTTMove() {
 
 function finishTTT(winner, line) {
   stopTurnTimer();
+  resetIdleWatchdog();
   tttOver = true;
   tttWinningCells = [...line];
   drawWinLineTTT(line);
@@ -444,6 +477,7 @@ function onTTTClick(i) {
   if (tttOver || tttBoard[i]) return;
   if (aiMode && tttTurn === "O") return;
 
+  resetIdleWatchdog();
   saveTTTSnapshot();
   tttBoard[i] = tttTurn;
   const r = getTTTResult(tttBoard);
@@ -525,6 +559,7 @@ function getPseudoMoves(board, r, c) {
 }
 
 function renderChess() {
+  resetIdleWatchdog();
   boardWrap.classList.remove("wordle-mode");
   clearWinLine();
   tttBoardEl.classList.add("hidden");
@@ -619,6 +654,7 @@ function onChessClick(r, c) {
   if (chessOver) return;
   if (aiMode && chessTurn === "b") return;
 
+  resetIdleWatchdog();
   const p = chessBoard[r][c];
   if (!chessSelected) {
     if (p && p.color === chessTurn) chessSelected = { r, c };
@@ -714,6 +750,7 @@ let wordleGrid = [];
 let wordleOver = false;
 
 function initWordle() {
+  resetIdleWatchdog();
   clearWinLine();
   stopTurnTimer();
   showTimerInactive();
@@ -764,7 +801,7 @@ function renderWordle() {
       btn.className = `kb-key ${k.length > 1 ? "wide" : ""}`;
       btn.dataset.key = k;
       if (k === "DEL") {
-        btn.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`;
       } else {
         btn.textContent = k;
       }
@@ -777,6 +814,7 @@ function renderWordle() {
 
 function handleWordleKey(k) {
   if (wordleOver || hubState.game !== "wordle") return;
+  resetIdleWatchdog();
 
   if (k === "DEL" || k === "BACKSPACE") {
     if (wordleCol > 0) {
@@ -885,14 +923,20 @@ function onTimerExpired() {
 }
 
 /* ---------- Action Controls ---------- */
-newGameBtn.addEventListener("click", initBoard);
+newGameBtn.addEventListener("click", () => {
+  resetIdleWatchdog();
+  initBoard();
+});
+
 resetScoreBtn.addEventListener("click", () => {
+  resetIdleWatchdog();
   scoreA = 0; scoreB = 0; scoreD = 0; streak = 0;
   persistScores();
   renderScores();
 });
 
 undoBtn.addEventListener("click", () => {
+  resetIdleWatchdog();
   if (hubState.game === "wordle") {
     handleWordleKey("DEL");
     return;
@@ -965,6 +1009,7 @@ function initBoard() {
   hideWinScreen();
   stopTurnTimer();
   clearWinLine();
+  resetIdleWatchdog();
 
   hubFromMode(modeSelect.value);
   if (hubState.game === "wordle") initWordle();
@@ -993,4 +1038,5 @@ function initBoard() {
   if (hubState.timer === "off") showTimerInactive();
 
   initBoard();
+  startIdleWatchdog();
 })();
