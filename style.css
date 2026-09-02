@@ -24,6 +24,10 @@
   --tile-bg: #161d2b;
   --tile-border: #2a364d;
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+
+  --turn-bg: #141a24;
+  --turn-border: #d4af37;
+  --turn-text: #f5d061;
 }
 
 body[data-theme="light"] {
@@ -47,9 +51,13 @@ body[data-theme="light"] {
   --accent: #10b981;
   --x: #0f766e;
   --o: #059669;
-  --tile-bg: #ffffff;
-  --tile-border: #cbd5e1;
+  --tile-bg: #e2e8f0;
+  --tile-border: #94a3b8;
   --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+
+  --turn-bg: #ecfdf5;
+  --turn-border: #10b981;
+  --turn-text: #065f46;
 }
 
 body[data-theme="itachi"] {
@@ -76,6 +84,10 @@ body[data-theme="itachi"] {
   --tile-bg: #18060a;
   --tile-border: #450a14;
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+
+  --turn-bg: #140508;
+  --turn-border: #e11d48;
+  --turn-text: #ff8098;
 }
 
 * {
@@ -88,7 +100,6 @@ html, body {
   padding: 0;
 }
 
-/* Strict Solid Background: Strips all gradients, radial halos, and color bleed */
 body {
   font-family: var(--font);
   color: var(--text);
@@ -103,7 +114,6 @@ body::after {
   content: none !important;
 }
 
-/* Common Solid Containers */
 .top-hud,
 .quick-dock,
 .turn-pill,
@@ -118,7 +128,7 @@ body::after {
   -webkit-backdrop-filter: none !important;
 }
 
-/* Scaled-Up Top HUD Dashboard */
+/* Top HUD Dashboard */
 .top-hud {
   height: 90px !important;
   padding: 0 32px !important;
@@ -156,6 +166,13 @@ body::after {
   display: flex !important;
   align-items: center !important;
   gap: 12px !important;
+  transition: opacity 0.2s ease;
+}
+
+/* Disabled State for Difficulty on Local 2P (Prevents Layout Shifting) */
+.group.disabled {
+  opacity: 0.35 !important;
+  pointer-events: none !important;
 }
 
 .group-label {
@@ -166,7 +183,7 @@ body::after {
   font-weight: 900 !important;
 }
 
-/* Large, Tactile Buttons */
+/* Large Tactile Buttons */
 .seg {
   display: flex !important;
   gap: 12px !important;
@@ -189,7 +206,7 @@ body::after {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  transition: transform 0.08s ease, filter 0.15s ease !important;
+  transition: transform 0.08s ease, filter 0.15s ease, background 0.15s ease !important;
 }
 
 .seg-btn:hover {
@@ -273,21 +290,26 @@ body::after {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .status-wrap {
-  min-height: 54px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
 }
 
+/* High-Contrast Turn Pill */
 .turn-pill {
   border-radius: 9999px !important;
-  padding: 12px 28px !important;
-  font-size: 1.18rem !important;
+  padding: 10px 30px !important;
+  font-size: 1.2rem !important;
   font-weight: 900 !important;
   letter-spacing: 0.5px !important;
+  background-color: var(--turn-bg) !important;
+  border: 2px solid var(--turn-border) !important;
+  color: var(--turn-text) !important;
 }
 
 .hidden {
@@ -297,16 +319,16 @@ body::after {
 /* Radial Timer */
 .radial-wrap {
   position: relative;
-  width: 105px;
-  height: 105px;
+  width: 95px;
+  height: 95px;
   border-radius: 9999px;
   display: grid;
   place-items: center;
 }
 
 .radial {
-  width: 95px;
-  height: 95px;
+  width: 88px;
+  height: 88px;
   transform: rotate(-90deg);
 }
 
@@ -327,20 +349,20 @@ body::after {
 
 .radial-text {
   position: absolute;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 900;
 }
 
-/* Board Arena */
+/* Board Arena & Tile Contrast */
 .board-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .board-shell {
-  width: min(68vmin, 520px) !important;
+  width: min(75vmin, 580px) !important;
   aspect-ratio: 1 / 1 !important;
   border-radius: 20px !important;
   padding: 14px !important;
@@ -349,7 +371,7 @@ body::after {
 }
 
 .captured-strip {
-  width: min(68vmin, 520px) !important;
+  width: min(75vmin, 580px) !important;
   border-radius: 12px !important;
   padding: 10px 18px !important;
   font-size: 1.05rem !important;
@@ -375,12 +397,21 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.08s ease, border-color 0.15s ease;
+  transition: transform 0.08s ease, border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .ttt-cell:hover {
+  background-color: #cbd5e1;
   border-color: var(--accent);
   transform: scale(1.02);
+}
+
+body[data-theme="dark"] .ttt-cell:hover {
+  background-color: #222c3d;
+}
+
+body[data-theme="itachi"] .ttt-cell:hover {
+  background-color: #2b0b12;
 }
 
 .ttt-cell.x { color: var(--x); }

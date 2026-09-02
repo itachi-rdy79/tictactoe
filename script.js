@@ -93,7 +93,9 @@ function syncHud() {
   setActive(opponentPills, "opponent", hubState.opponent);
   setActive(difficultyPills, "difficulty", hubState.difficulty);
   setActive(timerPills, "timer", hubState.timer);
-  difficultyGroup.style.display = hubState.opponent === "ai" ? "flex" : "none";
+
+  // Keep difficulty visible but disabled on Local 2P to prevent layout shifts
+  difficultyGroup.classList.toggle("disabled", hubState.opponent !== "ai");
 }
 
 /* ---------- Theme Handling ---------- */
