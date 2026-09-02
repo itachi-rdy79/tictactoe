@@ -1189,8 +1189,8 @@ function initBoard() {
   persistHub();
 }
 
-/* ---------- App Boot (Fixed Initialization Sequence) ---------- */
-(function boot() {
+/* ---------- App Boot with DOM Safety ---------- */
+function boot() {
   loadHub();
 
   if (!hubState.timer) hubState.timer = "off";
@@ -1205,7 +1205,12 @@ function initBoard() {
 
   if (hubState.timer === "off") showTimerInactive();
 
-  // Ensures board shell state classes and container cells render immediately on initial load
   initBoard();
   startIdleWatchdog();
-})();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
