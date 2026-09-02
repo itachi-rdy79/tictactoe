@@ -67,8 +67,8 @@ function applyRandomPalette() {
 applyRandomPalette();
 
 /* ---------- Custom SVGs for Itachi Sharingan & Crow ---------- */
-const SHARINGAN_SVG = `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#e11d48"/><circle cx="50" cy="50" r="38" fill="none" stroke="#000" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="#000"/><circle cx="50" cy="24" r="7" fill="#000"/><path d="M50 24 Q57 32 50 37" stroke="#000" stroke-width="3" fill="none"/><circle cx="27" cy="63" r="7" fill="#000"/><path d="M27 63 Q23 72 30 75" stroke="#000" stroke-width="3" fill="none"/><circle cx="73" cy="63" r="7" fill="#000"/><path d="M73 63 Q77 72 70 75" stroke="#000" stroke-width="3" fill="none"/></svg>`;
-const CROW_SVG = `<svg viewBox="0 0 100 100"><path d="M15 50 C25 25, 60 20, 85 40 C75 45, 65 48, 55 46 C68 55, 75 65, 80 80 C60 70, 40 75, 20 62 C30 62, 40 58, 45 52 C30 52, 20 54, 15 50 Z" fill="currentColor"/><circle cx="70" cy="38" r="3" fill="#e11d48"/></svg>`;
+const SHARINGAN_SVG = `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ff0033"/><circle cx="50" cy="50" r="38" fill="none" stroke="#000" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="#000"/><circle cx="50" cy="24" r="7" fill="#000"/><path d="M50 24 Q57 32 50 37" stroke="#000" stroke-width="3" fill="none"/><circle cx="27" cy="63" r="7" fill="#000"/><path d="M27 63 Q23 72 30 75" stroke="#000" stroke-width="3" fill="none"/><circle cx="73" cy="63" r="7" fill="#000"/><path d="M73 63 Q77 72 70 75" stroke="#000" stroke-width="3" fill="none"/></svg>`;
+const CROW_SVG = `<svg viewBox="0 0 100 100"><path d="M15 50 C25 25, 60 20, 85 40 C75 45, 65 48, 55 46 C68 55, 75 65, 80 80 C60 70, 40 75, 20 62 C30 62, 40 58, 45 52 C30 52, 20 54, 15 50 Z" fill="currentColor"/><circle cx="70" cy="38" r="3" fill="#ff0033"/></svg>`;
 
 const hubState = {
   game: "ttt3",
@@ -198,6 +198,7 @@ function setTheme(theme) {
   themeMenu.querySelectorAll(".theme-item").forEach(b => b.classList.toggle("active", b.dataset.theme === theme));
   persistHub();
   if (hubState.game.startsWith("ttt")) renderTTT();
+  if (hubState.game === "chess") renderChess();
 }
 
 themeTrigger.addEventListener("click", (e) => {
@@ -362,7 +363,9 @@ function initTTT(size) {
 
 function renderTTT() {
   resetIdleWatchdog();
-  boardWrap.classList.remove("wordle-mode");
+  boardWrap.classList.remove("wordle-mode", "chess-mode");
+  capturedTop.classList.remove("chess-mode");
+  capturedBottom.classList.remove("chess-mode");
   tttBoardEl.classList.remove("hidden");
   chessBoardEl.classList.add("hidden");
   wordleGameEl.classList.add("hidden");
@@ -506,9 +509,14 @@ function onTTTClick(i) {
   }
 }
 
-/* ---------- Chess Engine ---------- */
+/* ---------- 3D Chess Engine & Pieces ---------- */
 let chessBoard = [], chessTurn = "w", chessSelected = null, chessOver = false, whiteCaptured = [], blackCaptured = [], chessSnapshots = [];
-const CHESS_U = { wp: "♙", wr: "♖", wn: "♘", wb: "♗", wq: "♕", wk: "♔", bp: "♟", br: "✜", bn: "♞", bb: "♝", bq: "♛", bk: "♚" };
+
+// Clean 3D Solid Unicode Chess Glyph Set
+const CHESS_U = { 
+  wp: "♟", wr: "♜", wn: "♞", wb: "♝", wq: "♛", wk: "♚", 
+  bp: "♟", br: "♜", bn: "♞", bb: "♝", bq: "♛", bk: "♚" 
+};
 const PIECE_VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 
 function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
@@ -574,6 +582,10 @@ function getPseudoMoves(board, r, c) {
 function renderChess() {
   resetIdleWatchdog();
   boardWrap.classList.remove("wordle-mode");
+  boardWrap.classList.add("chess-mode");
+  capturedTop.classList.add("chess-mode");
+  capturedBottom.classList.add("chess-mode");
+
   clearWinLine();
   tttBoardEl.classList.add("hidden");
   wordleGameEl.classList.add("hidden");
@@ -588,8 +600,13 @@ function renderChess() {
     cell.className = "chess-cell " + (((r + c) % 2 === 0) ? "light" : "dark");
     if (chessSelected && chessSelected.r === r && chessSelected.c === c) cell.classList.add("selected");
     if (hints.some(m => m.r === r && m.c === c)) cell.classList.add("hint");
+    
     const p = chessBoard[r][c];
-    cell.textContent = p ? CHESS_U[p.color + p.type] : "";
+    if (p) {
+      cell.textContent = CHESS_U[p.color + p.type];
+      cell.classList.add(p.color === "w" ? "white-piece" : "black-piece");
+    }
+    
     cell.addEventListener("click", () => onChessClick(r, c));
     chessBoardEl.appendChild(cell);
   }
@@ -727,7 +744,6 @@ const WORDLE_TIERS = {
   ]
 };
 
-/* Exhaustive Word Validation Set (Guarantees AISLE and all standard vocabulary exist) */
 const VALID_DICTIONARY_WORDS = new Set([
   ...WORDLE_TIERS.easy, ...WORDLE_TIERS.medium, ...WORDLE_TIERS.hard,
   "ABOUT","ABOVE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT",
@@ -793,7 +809,11 @@ function initWordle() {
   clearWinLine();
   stopTurnTimer();
   showTimerInactive();
+  boardWrap.classList.remove("chess-mode");
+  capturedTop.classList.remove("chess-mode");
+  capturedBottom.classList.remove("chess-mode");
   boardWrap.classList.add("wordle-mode");
+
   tttBoardEl.classList.add("hidden");
   chessBoardEl.classList.add("hidden");
   capturedTop.classList.add("hidden");
@@ -887,7 +907,7 @@ function handleWordleKey(k) {
 }
 
 function checkWordleRow() {
-  const guess = wordleGrid[wordleRow].join("").toUpperCase();
+  const guess = wordleGrid[wordleRow].join("");
   const currentRowEl = document.getElementById(`wr-${wordleRow}`);
 
   if (!VALID_DICTIONARY_WORDS.has(guess)) {

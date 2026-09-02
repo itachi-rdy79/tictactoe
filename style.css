@@ -35,6 +35,12 @@
   --turn-bg: rgba(14, 18, 27, 0.92);
   --turn-border: var(--dyn-accent);
   --turn-text: var(--dyn-accent);
+
+  /* Chess Colors - Default */
+  --chess-light: #dce4ee;
+  --chess-dark: #64748b;
+  --chess-piece-white: #ffffff;
+  --chess-piece-black: #0f172a;
 }
 
 body[data-theme="light"] {
@@ -65,36 +71,47 @@ body[data-theme="light"] {
   --turn-bg: var(--dyn-tint);
   --turn-border: var(--dyn-accent);
   --turn-text: var(--dyn-shadow);
+
+  --chess-light: #f1f5f9;
+  --chess-dark: #94a3b8;
+  --chess-piece-white: #ffffff;
+  --chess-piece-black: #0f172a;
 }
 
 body[data-theme="itachi"] {
-  /* Theme: Itachi (Pure Obsidian & Blood Crimson) */
-  --bg: #050002;
-  --surface: rgba(18, 3, 7, 0.88);
-  --surface-border: rgba(225, 29, 72, 0.45);
-  --text: #ffe4e6;
+  /* Theme: Itachi (Pure Deep Pitch Black & Blood-Crimson) */
+  --bg: #020001;
+  --surface: rgba(14, 0, 3, 0.92);
+  --surface-border: #e11d48;
+  --text: #fff1f2;
   --muted: #fb7185;
-  --brand: #ff2a55;
+  --brand: #ff0033;
 
-  --btn-bg: rgba(38, 5, 13, 0.82);
-  --btn-border: #5c0f1c;
-  --btn-text: #ffffff;
+  --btn-bg: rgba(28, 2, 7, 0.9);
+  --btn-border: #660017;
+  --btn-text: #fff1f2;
 
-  --btn-active-bg: #e11d48;
-  --btn-active-border: #fb7185;
+  --btn-active-bg: #ff0033;
+  --btn-active-border: #ff3366;
   --btn-active-text: #ffffff;
-  --btn-active-shadow: 0 4px 0 #9f1239, 0 0 20px rgba(225, 29, 72, 0.6);
+  --btn-active-shadow: 0 4px 0 #99001f, 0 0 24px rgba(255, 0, 51, 0.75);
 
-  --accent: #e11d48;
-  --x: #ff1e42;
+  --accent: #ff0033;
+  --x: #ff0033;
   --o: #ffffff;
-  --tile-bg: rgba(26, 4, 10, 0.92);
-  --tile-border: #4c0d18;
-  --shadow: 0 14px 40px rgba(0, 0, 0, 0.95);
+  --tile-bg: rgba(20, 1, 5, 0.95);
+  --tile-border: #550014;
+  --shadow: 0 16px 45px rgba(255, 0, 51, 0.25), 0 20px 50px rgba(0, 0, 0, 0.98);
 
-  --turn-bg: rgba(18, 3, 7, 0.92);
-  --turn-border: #e11d48;
-  --turn-text: #ff8098;
+  --turn-bg: rgba(18, 1, 4, 0.96);
+  --turn-border: #ff0033;
+  --turn-text: #ff4d6d;
+
+  /* Chess Colors - Itachi Blood Moon Squares */
+  --chess-light: #2b0008;
+  --chess-dark: #0d0003;
+  --chess-piece-white: #ffffff;
+  --chess-piece-black: #ff0033;
 }
 
 * {
@@ -117,7 +134,7 @@ body {
   transition: background-color 0.3s ease;
 }
 
-/* Itachi Moon Vector Art */
+/* Itachi Moon Vector Art (Red & Black Blood Moon) */
 .itachi-bg-art {
   position: fixed;
   inset: 0;
@@ -126,7 +143,7 @@ body {
   display: none;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 50% 45%, #2a0309 0%, #100104 60%, #030001 100%);
+  background: radial-gradient(circle at 50% 45%, #2a0007 0%, #120003 55%, #020001 100%);
 }
 
 body[data-theme="itachi"] .itachi-bg-art {
@@ -134,9 +151,9 @@ body[data-theme="itachi"] .itachi-bg-art {
 }
 
 .itachi-moon-svg {
-  width: min(88vmin, 680px);
-  height: min(88vmin, 680px);
-  filter: drop-shadow(0 0 60px rgba(225, 29, 72, 0.45));
+  width: min(92vmin, 740px);
+  height: min(92vmin, 740px);
+  filter: drop-shadow(0 0 80px rgba(255, 0, 51, 0.55));
 }
 
 /* Glass Island Surfaces */
@@ -160,7 +177,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   z-index: 10;
 }
 
-/* Scaled-Up Top HUD */
+/* Top HUD Dashboard */
 .top-hud {
   height: 84px !important;
   padding: 0 clamp(16px, 2.5vw, 32px) !important;
@@ -186,35 +203,20 @@ body[data-theme="itachi"] .itachi-bg-art {
   flex-shrink: 1;
 }
 
-/* Brand Logo (Konohagakure Headband Emblem) */
-.brand-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  color: inherit;
-  margin-right: 6px;
-  cursor: pointer;
-  transition: transform 0.15s ease;
-}
-
-.brand-logo:hover {
-  transform: scale(1.05);
-}
-
-.konoha-emblem {
-  width: 44px;
-  height: 44px;
-  filter: drop-shadow(0 0 10px rgba(255, 123, 0, 0.65));
-}
-
-.brand-title {
-  font-size: clamp(1.6rem, 2.3vw, 2.1rem) !important;
+/* Brand Text (Adapts to site's dynamic/active color) */
+.brand {
+  font-size: clamp(1.8rem, 2.4vw, 2.3rem) !important;
   font-weight: 900 !important;
-  letter-spacing: 0.8px !important;
-  background: linear-gradient(135deg, #ffd000 0%, #ff7b00 50%, #e61e00 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--brand) !important;
+  letter-spacing: 1px !important;
+  margin-right: 12px;
+  line-height: 1;
+  transition: color 0.3s ease;
+  text-shadow: 0 0 16px var(--dyn-tint);
+}
+
+body[data-theme="itachi"] .brand {
+  text-shadow: 0 0 18px rgba(255, 0, 51, 0.7);
 }
 
 .group {
@@ -237,7 +239,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   font-weight: 900 !important;
 }
 
-/* Scaled-Up Tactile Buttons */
+/* Tactile Buttons */
 .seg {
   display: flex !important;
   gap: clamp(6px, 0.8vw, 10px) !important;
@@ -453,7 +455,7 @@ body[data-theme="itachi"] .itachi-bg-art {
 }
 
 .board-shell {
-  width: min(72vmin, 540px);
+  width: min(74vmin, 560px);
   aspect-ratio: 1 / 1;
   border-radius: 28px !important;
   padding: 16px !important;
@@ -465,7 +467,14 @@ body[data-theme="itachi"] .itachi-bg-art {
   transition: width 0.25s ease, max-width 0.25s ease;
 }
 
-/* Wordle Card: Massive, Spacious, No-Collision Frame */
+/* Massive Chess Frame */
+.board-shell.chess-mode {
+  width: min(88vmin, 680px) !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: 18px !important;
+}
+
+/* Wordle Frame */
 .board-shell.wordle-mode {
   width: min(96vw, 640px) !important;
   max-width: 640px !important;
@@ -476,11 +485,15 @@ body[data-theme="itachi"] .itachi-bg-art {
 }
 
 .captured-strip {
-  width: min(72vmin, 540px) !important;
+  width: min(74vmin, 560px);
   border-radius: 9999px !important;
   padding: 8px 18px !important;
-  font-size: 1rem !important;
+  font-size: 1.05rem !important;
   font-weight: 700 !important;
+}
+
+.captured-strip.chess-mode {
+  width: min(88vmin, 680px) !important;
 }
 
 /* TTT Board */
@@ -550,37 +563,94 @@ body[data-theme="itachi"] .itachi-bg-art {
   to { stroke-dashoffset: 0; }
 }
 
-/* Chess Board */
+/* ---------- Large 3D Chess Board & Pieces ---------- */
 .chess-board {
   width: 100%;
   height: 100%;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  border-radius: 14px;
+  border-radius: 18px;
   overflow: hidden;
-  border: 1.5px solid var(--surface-border);
+  border: 3px solid var(--surface-border);
+  box-shadow: inset 0 6px 14px rgba(0, 0, 0, 0.4);
 }
 
 .chess-cell {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(24px, 3.8vmin, 40px);
+  font-size: clamp(34px, 5.8vmin, 58px) !important; /* Larger 3D Pieces */
   cursor: pointer;
   user-select: none;
   position: relative;
+  transition: transform 0.12s ease, filter 0.12s ease;
 }
 
-.chess-cell.light { background: #dce4ee; color: #1e293b; }
-.chess-cell.dark { background: #64748b; color: #f8fafc; }
-.chess-cell.selected { box-shadow: inset 0 0 0 4px var(--accent); }
+.chess-cell.light {
+  background: var(--chess-light);
+}
+
+.chess-cell.dark {
+  background: var(--chess-dark);
+}
+
+/* 3D Embossed Piece Styles */
+.chess-cell.white-piece {
+  color: var(--chess-piece-white);
+  text-shadow: 
+    0 1px 0 #cbd5e1,
+    0 2px 0 #94a3b8,
+    0 3px 0 #64748b,
+    0 4px 6px rgba(0, 0, 0, 0.5),
+    0 0 10px rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+}
+
+.chess-cell.black-piece {
+  color: var(--chess-piece-black);
+  text-shadow: 
+    0 1px 0 #334155,
+    0 2px 0 #1e293b,
+    0 3px 0 #020617,
+    0 4px 8px rgba(0, 0, 0, 0.7);
+  transform: translateY(-2px);
+}
+
+body[data-theme="itachi"] .chess-cell.black-piece {
+  color: #ff0033 !important;
+  text-shadow: 
+    0 1px 0 #b30024,
+    0 2px 0 #80001a,
+    0 3px 0 #4d000f,
+    0 5px 12px rgba(255, 0, 51, 0.75) !important;
+}
+
+body[data-theme="itachi"] .chess-cell.white-piece {
+  color: #ffffff !important;
+  text-shadow: 
+    0 1px 0 #ffe4e6,
+    0 2px 0 #fda4af,
+    0 4px 10px rgba(255, 255, 255, 0.6) !important;
+}
+
+.chess-cell:hover {
+  filter: brightness(1.18);
+  transform: translateY(-3px) scale(1.04);
+}
+
+.chess-cell.selected {
+  box-shadow: inset 0 0 0 4px var(--accent);
+  background: rgba(225, 29, 72, 0.25) !important;
+}
+
 .chess-cell.hint::after {
   content: "";
-  width: 22%;
-  height: 22%;
+  width: 26%;
+  height: 26%;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--accent) 70%, transparent);
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
 }
 
 /* Scaled-Up Wordle Arena */
@@ -615,7 +685,6 @@ body[data-theme="itachi"] .itachi-bg-art {
   40%, 80% { transform: translateX(8px); }
 }
 
-/* Enlarged Tiles (64px - 74px) */
 .wordle-tile {
   width: clamp(62px, 8.8vmin, 74px);
   height: clamp(62px, 8.8vmin, 74px);
@@ -637,12 +706,11 @@ body[data-theme="itachi"] .itachi-bg-art {
   transform: scale(1.12);
 }
 
-/* NYT Official Tile Tints */
 .wordle-tile.correct { background: #538d4e !important; color: #ffffff !important; border-color: #538d4e !important; }
 .wordle-tile.present { background: #b59f3b !important; color: #ffffff !important; border-color: #b59f3b !important; }
 .wordle-tile.absent  { background: #3a3a3c !important; color: #ffffff !important; border-color: #3a3a3c !important; }
 
-/* Large Virtual Keyboard (Guaranteed 34px Separation from Bottom Tile Row) */
+/* Wordle Virtual Keyboard */
 .wordle-keyboard {
   display: flex;
   flex-direction: column;
