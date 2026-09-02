@@ -7,13 +7,9 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body data-theme="dark" class="style-b">
-  <!-- =========================
-       STYLE B: TOP HUD
-  ========================== -->
   <header class="hud" id="hud">
     <div class="hud-left">
       <div class="brand">GAP</div>
-
       <nav class="seg game-seg" id="gameTypePills" aria-label="Game Selector">
         <button class="seg-btn active" data-game="ttt3" type="button">3x3 TTT</button>
         <button class="seg-btn" data-game="ttt5" type="button">5x5 TTT</button>
@@ -23,16 +19,15 @@
 
     <div class="hud-center">
       <div class="hud-group">
-        <span class="hud-label">Opponent</span>
+        <span class="hud-label">OPPONENT</span>
         <div class="seg" id="opponentPills">
           <button class="seg-btn" data-opponent="local" type="button">2P</button>
           <button class="seg-btn active" data-opponent="ai" type="button">AI</button>
         </div>
       </div>
 
-      <!-- style-b target -->
       <div class="hud-group" id="difficultyGroup">
-        <span class="hud-label">Difficulty</span>
+        <span class="hud-label">DIFFICULTY</span>
         <div class="seg" id="difficultyPills">
           <button class="seg-btn" data-difficulty="easy" type="button">Easy</button>
           <button class="seg-btn active" data-difficulty="medium" type="button">Med</button>
@@ -40,17 +35,17 @@
         </div>
       </div>
 
-      <!-- legacy fallback target -->
-      <div class="hub-row" id="difficultyRow" style="display:none;"></div>
-
       <div class="hud-group">
-        <span class="hud-label">Timer</span>
+        <span class="hud-label">TIMER</span>
         <div class="seg" id="timerPills">
           <button class="seg-btn active" data-timer="off" type="button">Off</button>
-          <button class="seg-btn" data-timer="5" type="button">5s</button>
-          <button class="seg-btn" data-timer="10" type="button">10s</button>
+          <button class="seg-btn" data-timer="15" type="button">15s</button>
+          <button class="seg-btn" data-timer="30" type="button">30s</button>
+          <button class="seg-btn" data-timer="45" type="button">45s</button>
+          <button class="seg-btn" data-timer="60" type="button">60s</button>
         </div>
       </div>
+      <div class="hub-row" id="difficultyRow" style="display:none;"></div>
     </div>
 
     <div class="hud-right">
@@ -64,16 +59,21 @@
         <span><b id="streakBadge">🔥 Streak: 0</b></span>
       </div>
 
-      <div class="hud-icons">
-        <button id="themeToggleBtn" class="icon-btn" type="button" title="Theme">🧑‍🎤</button>
-        <button id="audioToggleBtn" class="icon-btn" type="button" title="Audio">🔊</button>
+      <div class="theme-picker" id="themePicker">
+        <button class="theme-trigger" id="themeTrigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span id="themeCurrentIcon">🌙</span>
+          <span id="themeCurrentText">Dark</span>
+          <span class="theme-caret">⌄</span>
+        </button>
+        <div class="theme-menu" id="themeMenu" role="listbox">
+          <button class="theme-item active" data-theme="dark" type="button">🌙 Dark</button>
+          <button class="theme-item" data-theme="light" type="button">☀️ Light</button>
+          <button class="theme-item" data-theme="itachi" type="button">✇ Itachi</button>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- =========================
-       STYLE B: STUDIO STAGE
-  ========================== -->
   <main class="stage" id="stage">
     <section class="stage-inner">
       <div class="status-pill" id="status">X's Turn</div>
@@ -113,10 +113,7 @@
     </section>
   </main>
 
-  <!-- =========================
-       LEGACY HIDDEN TARGETS
-       (kept so old JS never breaks)
-  ========================== -->
+  <!-- Legacy hidden targets -->
   <div class="container" style="display:none;">
     <header class="topbar">
       <h1>GAP</h1>
@@ -131,7 +128,6 @@
     <div id="capturedPanel" class="captured" style="display:none;"></div>
   </div>
 
-  <!-- Hidden compatibility selects -->
   <select id="modeSelect" hidden>
     <option value="ttt3-2p">Tic-Tac-Toe 3x3 (2 Players)</option>
     <option value="ttt3-ai" selected>Tic-Tac-Toe 3x3 vs Computer</option>
@@ -150,18 +146,8 @@
   <select id="themeSelect" hidden>
     <option value="dark" selected>🌙 Dark</option>
     <option value="light">☀️ Light</option>
-    <option value="itachi">🧑‍🎤 Itachi</option>
+    <option value="itachi">✇ Itachi</option>
   </select>
-
-  <!-- Optional old custom dropdown targets (hidden) -->
-  <div id="themeWrap" class="gselect" style="display:none;">
-    <button class="gselect-btn" type="button">
-      <span class="gselect-label">Theme</span>
-      <span class="gselect-value" id="themeValueText">🌙 Dark</span>
-      <span class="gselect-caret">⌄</span>
-    </button>
-    <div class="gselect-menu" id="themeMenu"></div>
-  </div>
 
   <div id="winOverlay" class="win-overlay hidden">
     <div class="win-screen">
