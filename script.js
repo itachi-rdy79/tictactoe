@@ -42,6 +42,7 @@ const els = {
   dropdownText: document.getElementById("dropdownText"),
   modeBadge: document.getElementById("modeBadge"),
   statusText: document.getElementById("statusText"),
+  detailText: document.getElementById("detailText"),
   subText: document.getElementById("subText"),
   board: document.getElementById("board"),
   columnBar: document.getElementById("columnBar"),
@@ -164,14 +165,33 @@ function updateScoreboard() {
 
 function updateStatusTextForNewGame() {
   if (modeKey === "tttAI") {
-    els.statusText.textContent = "Your turn";
+    setStatus("Your turn");
   } else if (modeKey === "chess") {
-    els.statusText.textContent = "White to move";
+    setStatus("White to move");
   } else if (modeKey === "connect4" || modeKey === "ttt3" || modeKey === "ttt5") {
-    els.statusText.textContent = "X's turn";
+    setStatus("X's turn");
   } else {
-    els.statusText.textContent = "X's turn";
+    setStatus("X's turn");
   }
+}
+
+function setStatus(message, detail = "") {
+  els.statusText.textContent = message;
+  els.detailText.textContent = detail;
+  els.detailText.hidden = !detail;
+}
+
+function formatBoardCellLabel(index, columns) {
+  const row = Math.floor(index / columns);
+  const col = index % columns;
+  return `${String.fromCharCode(65 + row)}${col + 1}`;
+}
+
+function getWinningSequenceText(cells) {
+  const mode = getMode();
+  const columns = mode.type === "connect4" ? mode.cols : mode.size;
+  const labels = cells.map(cell => formatBoardCellLabel(cell, columns));
+  return `${cells.length} in a row: ${labels.join(" → ")}`;
 }
 
 function render() {
@@ -339,12 +359,14 @@ function makeTTTMove(index) {
     gameActive = false;
     winningCells = result.cells;
     scores[modeKey][result.winner] += 1;
-    els.statusText.textContent =
+    setStatus(
       modeKey === "tttAI" && result.winner === "X"
         ? "You win!"
         : modeKey === "tttAI" && result.winner === "O"
         ? "Computer wins!"
-        : `Player ${result.winner} wins!`;
+        : `Player ${result.winner} wins!`,
+      getWinningSequenceText(result.cells)
+    );
 
     saveScores();
     render();
@@ -355,7 +377,7 @@ function makeTTTMove(index) {
   if (tttBoard.every(Boolean)) {
     gameActive = false;
     scores[modeKey].draws += 1;
-    els.statusText.textContent = "It's a draw!";
+    setStatus("It's a draw!");
     saveScores();
     render();
     updateScoreboard();
@@ -364,7 +386,7 @@ function makeTTTMove(index) {
 
   if (modeKey === "tttAI") {
     currentPlayer = "O";
-    els.statusText.textContent = "Computer thinking...";
+    setStatus("Computer thinking...");
     render();
 
     if (aiTimer) clearTimeout(aiTimer);
@@ -377,7 +399,7 @@ function makeTTTMove(index) {
   }
 
   currentPlayer = currentPlayer === "X" ? "O" : "X";
-  els.statusText.textContent = `${currentPlayer}'s turn`;
+  setStatus(`${currentPlayer}'s turn`);
   render();
 }
 
@@ -394,7 +416,7 @@ function aiMove() {
     gameActive = false;
     winningCells = result.cells;
     scores.tttAI.O += 1;
-    els.statusText.textContent = "Computer wins!";
+    setStatus("Computer wins!", getWinningSequenceText(result.cells));
     saveScores();
     render();
     updateScoreboard();
@@ -404,7 +426,7 @@ function aiMove() {
   if (tttBoard.every(Boolean)) {
     gameActive = false;
     scores.tttAI.draws += 1;
-    els.statusText.textContent = "It's a draw!";
+    setStatus("It's a draw!");
     saveScores();
     render();
     updateScoreboard();
@@ -412,7 +434,7 @@ function aiMove() {
   }
 
   currentPlayer = "X";
-  els.statusText.textContent = "Your turn";
+  setStatus("Your turn");
   render();
 }
 
@@ -492,7 +514,7 @@ function dropConnect4(col) {
     gameActive = false;
     winningCells = result.cells;
     scores[modeKey][result.winner] += 1;
-    els.statusText.textContent = `Player ${result.winner} wins!`;
+    setStatus(`Player ${result.winner} wins!`, getWinningSequenceText(result.cells));
     saveScores();
     render();
     updateScoreboard();
@@ -502,7 +524,7 @@ function dropConnect4(col) {
   if (c4Board.every(row => row.every(Boolean))) {
     gameActive = false;
     scores[modeKey].draws += 1;
-    els.statusText.textContent = "It's a draw!";
+    setStatus("It's a draw!");
     saveScores();
     render();
     updateScoreboard();
@@ -510,7 +532,7 @@ function dropConnect4(col) {
   }
 
   currentPlayer = currentPlayer === "X" ? "O" : "X";
-  els.statusText.textContent = `${currentPlayer}'s turn`;
+  setStatus(`${currentPlayer}'s turn`);
   render();
 }
 
@@ -866,10 +888,10 @@ function finishChessTurn(lastMoverColor) {
     if (inCheck) {
       const winnerKey = lastMoverColor === "w" ? "X" : "O";
       scores.chess[winnerKey] += 1;
-      els.statusText.textContent = `${colorName(lastMoverColor)} wins by checkmate!`;
+      setStatus(`${colorName(lastMoverColor)} wins by checkmate!`);
     } else {
       scores.chess.draws += 1;
-      els.statusText.textContent = "Stalemate! It's a draw.";
+      setStatus("Stalemate! It's a draw.");
     }
 
     saveScores();
@@ -878,9 +900,9 @@ function finishChessTurn(lastMoverColor) {
   }
 
   if (inCheck) {
-    els.statusText.textContent = `${colorName(opponent)} is in check`;
+    setStatus(`${colorName(opponent)} is in check`);
   } else {
-    els.statusText.textContent = `${colorName(opponent)} to move`;
+    setStatus(`${colorName(opponent)} to move`);
   }
 }
 /* ---------------- End Chess ---------------- */
