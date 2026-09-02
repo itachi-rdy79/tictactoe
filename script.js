@@ -45,7 +45,7 @@ const hubState = {
   game: "ttt3",
   opponent: "ai",
   difficulty: "medium",
-  timer: "off",
+  timer: "off", // Strictly Off by default
   theme: "dark"
 };
 
@@ -81,7 +81,8 @@ function loadHub() {
   const saved = JSON.parse(localStorage.getItem("hubState") || "null");
   if (saved) Object.assign(hubState, saved);
 
-  if (!["off", "15", "30", "45", "60"].includes(hubState.timer)) hubState.timer = "off";
+  // Strictly lock allowed timer values: Off, 30, 60, 90
+  if (!["off", "30", "60", "90"].includes(hubState.timer)) hubState.timer = "off";
   if (!["dark", "light", "itachi"].includes(hubState.theme)) hubState.theme = "dark";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
@@ -94,13 +95,13 @@ function syncHud() {
   setActive(difficultyPills, "difficulty", hubState.difficulty);
   setActive(timerPills, "timer", hubState.timer);
 
-  // Keep difficulty visible but disabled on Local 2P to prevent layout shifts
+  // Keep difficulty visible but disabled on local mode to prevent layout jumps
   difficultyGroup.classList.toggle("disabled", hubState.opponent !== "ai");
 }
 
 /* ---------- Theme Handling ---------- */
 function themeMeta(theme) {
-  if (theme === "light") return { icon: "☀️", text: "Light" };
+  if (theme === "light") return { icon: "🌊", text: "Ocean" };
   if (theme === "itachi") return { icon: "✇", text: "Itachi" };
   return { icon: "🌙", text: "Dark" };
 }
@@ -153,7 +154,7 @@ function loadScores() {
 
 function updateStreak(winA) { streak = winA ? streak + 1 : 0; }
 
-/* ---------- Timer Logic ---------- */
+/* ---------- Timer Logic (Integers Only) ---------- */
 let turnTimer = null;
 let turnTimeLeft = 0;
 let turnTimeTotal = 0;
@@ -179,7 +180,8 @@ function renderRadial() {
   const pct = Math.max(0, turnTimeLeft / turnTimeTotal);
   ringFg.style.strokeDasharray = `${CIRC}`;
   ringFg.style.strokeDashoffset = `${CIRC * (1 - pct)}`;
-  radialText.textContent = Math.max(0, turnTimeLeft).toFixed(1);
+  // Whole integer seconds display only
+  radialText.textContent = `${Math.ceil(Math.max(0, turnTimeLeft))}s`;
 }
 
 function startTurnTimer() {

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GAP — Arcade Gaming Hub</title>
-  <link rel="stylesheet" href="style.css?v=3.3" />
+  <link rel="stylesheet" href="style.css?v=4.0" />
 </head>
 <body data-theme="dark">
   <!-- Top HUD Dashboard -->
@@ -42,12 +42,20 @@
         <button class="theme-trigger seg-btn" id="themeTrigger" type="button" aria-expanded="false">
           <span id="themeCurrentIcon">🌙</span>
           <span id="themeCurrentText">Dark</span>
-          <span class="caret">⌄</span>
         </button>
         <div class="theme-menu" id="themeMenu">
-          <button class="theme-item active" data-theme="dark" type="button">🌙 Dark</button>
-          <button class="theme-item" data-theme="light" type="button">☀️ Light</button>
-          <button class="theme-item" data-theme="itachi" type="button">✇ Itachi</button>
+          <button class="theme-item active" data-theme="dark" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            Dark
+          </button>
+          <button class="theme-item" data-theme="light" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            Ocean Light
+          </button>
+          <button class="theme-item" data-theme="itachi" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="6" r="2"/><circle cx="6.8" cy="15" r="2"/><circle cx="17.2" cy="15" r="2"/></svg>
+            Itachi
+          </button>
         </div>
       </div>
     </div>
@@ -63,7 +71,7 @@
           <circle class="ring-bg" cx="60" cy="60" r="50"></circle>
           <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="50"></circle>
         </svg>
-        <div class="radial-text" id="radialText">15.0</div>
+        <div class="radial-text" id="radialText">30s</div>
       </div>
     </section>
 
@@ -86,10 +94,9 @@
       <span class="dock-label">Timer</span>
       <div class="seg" id="timerPills">
         <button class="seg-btn active" data-timer="off" type="button">Off</button>
-        <button class="seg-btn" data-timer="15" type="button">15s</button>
         <button class="seg-btn" data-timer="30" type="button">30s</button>
-        <button class="seg-btn" data-timer="45" type="button">45s</button>
         <button class="seg-btn" data-timer="60" type="button">60s</button>
+        <button class="seg-btn" data-timer="90" type="button">90s</button>
       </div>
     </div>
 
@@ -110,7 +117,7 @@
     </div>
   </footer>
 
-  <!-- Hidden state persistence inputs -->
+  <!-- Hidden state storage -->
   <select id="modeSelect" hidden>
     <option value="ttt3-2p">TTT3 Local</option>
     <option value="ttt3-ai" selected>TTT3 AI</option>
@@ -130,7 +137,7 @@
     <option value="itachi">Itachi</option>
   </select>
 
-  <!-- Win Modal Overlay -->
+  <!-- Win Modal -->
   <div id="winOverlay" class="win-overlay hidden">
     <div class="win-modal">
       <h2 id="winMessage">Winner</h2>
