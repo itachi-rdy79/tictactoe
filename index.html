@@ -4,10 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GAP — Arcade Gaming Hub</title>
-  <link rel="stylesheet" href="style.css?v=7.0" />
+  <link rel="stylesheet" href="style.css?v=8.0" />
 </head>
 <body data-theme="dark">
-  <!-- Top Floating Glass Command Island -->
+  <!-- Itachi Dynamic Vector Art Background -->
+  <div class="itachi-bg-art" aria-hidden="true">
+    <svg class="itachi-moon-svg" viewBox="0 0 400 400">
+      <defs>
+        <radialGradient id="redMoonGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ff1a40" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="#b91c1c" stop-opacity="0.75"/>
+          <stop offset="95%" stop-color="#7f1d1d" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="mistGlow" cx="50%" cy="65%" r="55%">
+          <stop offset="0%" stop-color="#e11d48" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <!-- Atmospheric Red Mist -->
+      <circle cx="200" cy="240" r="180" fill="url(#mistGlow)"/>
+      <!-- Glowing Red Sharingan Moon -->
+      <circle cx="200" cy="180" r="105" fill="url(#redMoonGlow)"/>
+      <circle cx="200" cy="180" r="105" fill="none" stroke="#ff2a55" stroke-width="3" opacity="0.85"/>
+      <circle cx="200" cy="180" r="62" fill="none" stroke="#220005" stroke-width="5" opacity="0.7"/>
+      <!-- Mangekyo Blades -->
+      <g fill="#140105" opacity="0.85">
+        <path d="M200 180 C200 125, 235 90, 260 85 C230 115, 220 155, 200 180 Z"/>
+        <path d="M200 180 C150 190, 110 230, 95 250 C125 230, 165 220, 200 180 Z" transform="rotate(120 200 180)"/>
+        <path d="M200 180 C150 190, 110 230, 95 250 C125 230, 165 220, 200 180 Z" transform="rotate(240 200 180)"/>
+      </g>
+      <!-- Centered Itachi Silhouette -->
+      <g fill="#070002">
+        <path d="M200 120 C192 120 186 126 186 134 C186 142 191 146 193 150 C182 153 175 160 172 170 C169 180 168 200 165 230 C162 260 155 310 150 350 C175 345 225 345 250 350 C245 310 238 260 235 230 C232 200 231 180 228 170 C225 160 218 153 207 150 C209 146 214 142 214 134 C214 126 208 120 200 120 Z"/>
+        <!-- Sharingan Eyes -->
+        <circle cx="196" cy="133" r="1.8" fill="#ff2a55"/>
+        <circle cx="204" cy="133" r="1.8" fill="#ff2a55"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Top Floating Command Island -->
   <header class="top-hud glass-island">
     <div class="hud-left">
       <div class="brand">GAP</div>
@@ -81,13 +118,13 @@
     <section class="board-area">
       <div class="captured-strip glass-panel hidden" id="capturedTop"><b>White captured:</b> <span id="whiteCaptured"></span></div>
 
-      <!-- Main Board Container -->
+      <!-- Main Dynamic Shell -->
       <section class="board-shell glass-island" id="boardWrap">
         <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
         <div id="tttBoard" class="ttt-board"></div>
         <div id="chessBoard" class="chess-board hidden"></div>
         
-        <!-- Large Wordle Board -->
+        <!-- Large Scaled Wordle Container -->
         <div id="wordleGame" class="wordle-arena hidden">
           <div id="wordleBoard" class="wordle-board"></div>
           <div id="wordleKeyboard" class="wordle-keyboard"></div>
@@ -98,7 +135,7 @@
     </section>
   </main>
 
-  <!-- Bottom Floating Glass Quick-Dock -->
+  <!-- Bottom Floating Quick-Dock -->
   <footer class="quick-dock glass-island">
     <div class="dock-block" id="timerGroup">
       <span class="dock-label">Timer</span>
@@ -136,7 +173,7 @@
     </div>
   </footer>
 
-  <!-- Hidden state selectors -->
+  <!-- Hidden State Elements -->
   <select id="modeSelect" hidden>
     <option value="ttt3-2p">TTT3 Local</option>
     <option value="ttt3-ai" selected>TTT3 AI</option>
@@ -165,6 +202,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=7.0"></script>
+  <script src="script.js?v=8.0"></script>
 </body>
 </html>

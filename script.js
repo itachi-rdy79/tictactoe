@@ -46,7 +46,26 @@ const themeMenu = document.getElementById("themeMenu");
 const themeCurrentIcon = document.getElementById("themeCurrentIcon");
 const themeCurrentText = document.getElementById("themeCurrentText");
 
-/* ---------- Custom SVGs for Itachi Mode ---------- */
+/* ---------- Dynamic Colors on Reload (No Blue, No Pink, No Gold) ---------- */
+const DYNAMIC_PALETTES = [
+  { accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.18)" }, // Neon Emerald
+  { accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.18)" }, // Sunset Amber
+  { accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.18)" }, // Cyber Violet
+  { accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.18)" }, // Arcade Teal
+  { accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.18)" }  // Electric Lime
+];
+
+function applyRandomPalette() {
+  const chosen = DYNAMIC_PALETTES[Math.floor(Math.random() * DYNAMIC_PALETTES.length)];
+  const root = document.documentElement;
+  root.style.setProperty("--dyn-accent", chosen.accent);
+  root.style.setProperty("--dyn-border", chosen.border);
+  root.style.setProperty("--dyn-shadow", chosen.shadow);
+  root.style.setProperty("--dyn-tint", chosen.tint);
+}
+applyRandomPalette();
+
+/* ---------- Custom SVGs for Itachi Sharingan & Crow ---------- */
 const SHARINGAN_SVG = `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#e11d48"/><circle cx="50" cy="50" r="38" fill="none" stroke="#000" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="#000"/><circle cx="50" cy="24" r="7" fill="#000"/><path d="M50 24 Q57 32 50 37" stroke="#000" stroke-width="3" fill="none"/><circle cx="27" cy="63" r="7" fill="#000"/><path d="M27 63 Q23 72 30 75" stroke="#000" stroke-width="3" fill="none"/><circle cx="73" cy="63" r="7" fill="#000"/><path d="M73 63 Q77 72 70 75" stroke="#000" stroke-width="3" fill="none"/></svg>`;
 const CROW_SVG = `<svg viewBox="0 0 100 100"><path d="M15 50 C25 25, 60 20, 85 40 C75 45, 65 48, 55 46 C68 55, 75 65, 80 80 C60 70, 40 75, 20 62 C30 62, 40 58, 45 52 C30 52, 20 54, 15 50 Z" fill="currentColor"/><circle cx="70" cy="38" r="3" fill="#e11d48"/></svg>`;
 
@@ -250,7 +269,7 @@ function hideWinScreen() {
 winRestartBtn.addEventListener("click", () => { hideWinScreen(); initBoard(); });
 winOverlay.addEventListener("click", (e) => { if (e.target === winOverlay) hideWinScreen(); });
 
-/* ---------- Tic-Tac-Toe (Sharingan & Crow for Itachi) ---------- */
+/* ---------- Tic-Tac-Toe ---------- */
 let tttBoard = [], tttSize = 3, tttWinLen = 3, tttTurn = "X", tttOver = false, tttWinningCells = [];
 let tttSnapshots = [];
 
@@ -298,6 +317,7 @@ function initTTT(size) {
 }
 
 function renderTTT() {
+  boardWrap.classList.remove("wordle-mode");
   tttBoardEl.classList.remove("hidden");
   chessBoardEl.classList.add("hidden");
   wordleGameEl.classList.add("hidden");
@@ -505,6 +525,7 @@ function getPseudoMoves(board, r, c) {
 }
 
 function renderChess() {
+  boardWrap.classList.remove("wordle-mode");
   clearWinLine();
   tttBoardEl.classList.add("hidden");
   wordleGameEl.classList.add("hidden");
@@ -635,61 +656,58 @@ function onChessClick(r, c) {
   }
 }
 
-/* ---------- Comprehensive Offline Wordle Dictionary ---------- */
+/* ---------- Comprehensive Offline Wordle Engine ---------- */
 const WORD_LIST = [
-  "ABOUT","ABOVE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT",
-  "AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIKE","ALIVE","ALLOW","ALONE","ALONG",
-  "ALTER","AMONG","ANGER","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE",
-  "ARISE","ARRAY","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWAIT","AWAKE","AWARD",
-  "AWARE","BADLY","BAKER","BASES","BASIC","BASIS","BEACH","BEGAN","BEGIN","BEGUN",
-  "BEING","BELOW","BENCH","BILLY","BIRTH","BLACK","BLAME","BLIND","BLOCK","BLOOD",
-  "BOARD","BOOST","BOOTH","BOUND","BRAIN","BRAND","BREAD","BREAK","BREED","BRIEF",
-  "BRING","BROAD","BROKE","BROWN","BUILD","BUILT","BUYER","CABLE","CALIF","CARRY",
-  "CATCH","CAUSE","CHAIN","CHAIR","CHART","CHASE","CHEAP","CHECK","CHEST","CHIEF",
-  "CHILD","CHINA","CHOSE","CIVIL","CLAIM","CLASS","CLEAN","CLEAR","CLICK","CLOCK",
-  "CLOSE","COACH","COAST","COULD","COUNT","COURT","COVER","CRAFT","CRASH","CREAM",
-  "CRIME","CROSS","CROWD","CROWN","CURLY","CYCLE","DAILY","DANCE","DATED","DEALT",
-  "DEATH","DEBUT","DELAY","DEPTH","DOING","DOUBT","DOZEN","DRAFT","DRAMA","DRAWN",
-  "DREAM","DRESS","DRILL","DRINK","DRIVE","DROVE","DYING","EAGER","EARLY","EARTH",
-  "EIGHT","ELITE","EMPTY","ENEMY","ENJOY","ENTER","ENTRY","EQUAL","ERROR","EVENT",
-  "EVERY","EXACT","EXIST","EXTRA","FAITH","FALSE","FAULT","FIBER","FIELD","FIFTH",
-  "FIFTY","FIGHT","FINAL","FIRST","FIXED","FLASH","FLEET","FLOOR","FLUID","FOCUS",
-  "FORCE","FORTH","FORTY","FORUM","FOUND","FRAME","FRANK","FRAUD","FRESH","FRONT",
-  "FRUIT","FULLY","FUNNY","GIANT","GIVEN","GLASS","GLOBE","GOING","GRACE","GRADE",
-  "GRAND","GRANT","GRASS","GRAVE","GREAT","GREEN","GROSS","GROUP","GROWN","GUARD",
-  "GUESS","GUEST","GUIDE","HAPPY","HARRY","HEART","HEAVY","HENCE","HENRY","HORSE",
-  "HOTEL","HOUSE","HUMAN","IDEAL","IMAGE","INDEX","INNER","INPUT","ISSUE","JAPAN",
-  "JIMMY","JOINT","JONES","JUDGE","KNOWN","LABEL","LARGE","LASER","LATER","LAUGH",
-  "LAYER","LEARN","LEASE","LEAST","LEAVE","LEGAL","LEVEL","LIGHT","LIMIT","LINKS",
-  "LIVES","LOCAL","LOGIC","LOOSE","LOWER","LUCKY","LUNCH","MAGIC","MAJOR","MAKER",
-  "MARCH","MATCH","MAYBE","MAYOR","MEANT","MEDIA","METAL","MIGHT","MINOR","MINUS",
-  "MIXED","MODEL","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVIE",
-  "MUSIC","NEEDS","NEVER","NIGHT","NOISE","NORTH","NOTED","NOVEL","NURSE","OCCUR",
-  "OCEAN","OFFER","OFTEN","ORDER","OTHER","OUGHT","PAINT","PANEL","PAPER","PARTY",
-  "PEACE","PETER","PHASE","PHONE","PHOTO","PIECE","PILOT","PITCH","PLACE","PLAIN",
-  "PLANE","PLANT","PLATE","POINT","POUND","POWER","PRESS","PRICE","PRIDE","PRIME",
-  "PRINT","PRIOR","PRIZE","PROOF","PROUD","PROVE","QUEEN","QUICK","QUIET","QUITE",
-  "RADIO","RAISE","RANGE","RAPID","RATIO","REACH","READY","REFER","RIGHT","RIVAL",
-  "RIVER","ROBIN","ROGER","ROMAN","ROUGH","ROUND","ROUTE","ROYAL","RURAL","SCALE",
-  "SCENE","SCOPE","SCORE","SENSE","SERVE","SEVEN","SHALL","SHAPE","SHARE","SHARP",
-  "SHEET","SHELF","SHELL","SHIFT","SHIRT","SHOCK","SHOOT","SHORT","SHOWN","SIGHT",
-  "SINCE","SIXTH","SIXTY","SIZED","SKILL","SLEEP","SLIDE","SMALL","SMART","SMILE",
-  "SMITH","SMOKE","SOLID","SOLVE","SORRY","SOUND","SOUTH","SPACE","SPARE","SPEAK",
-  "SPEED","SPEND","SPENT","SPLIT","SPOKE","SPORT","STAFF","STAGE","STAKE","STAND",
-  "START","STATE","STEAM","STEEL","STICK","STILL","STOCK","STONE","STOOD","STORE",
-  "STORM","STORY","STRIP","STUCK","STUDY","STUFF","STYLE","SUGAR","SUITE","SUPER",
-  "SWEET","TABLE","TAKEN","TASTE","TAXES","TEACH","TEETH","TERRY","TEXAS","THANK",
-  "THEFT","THEIR","THEME","THERE","THESE","THICK","THING","THINK","THIRD","THOSE",
-  "THREE","THREW","THROW","TIGHT","TIMES","TIRED","TITLE","TODAY","TOPIC","TOTAL",
-  "TOUCH","TOUGH","TOWER","TRACK","TRADE","TRAIN","TREAT","TREND","TRIAL","TRIED",
-  "TRIES","TRUCK","TRULY","TRUST","TRUTH","TWICE","UNDER","UNDUE","UNION","UNITY",
-  "UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VALID","VALUE","VIDEO","VIRUS",
-  "VISIT","VITAL","VOICE","WASTE","WATCH","WATER","WHEEL","WHERE","WHICH","WHILE",
-  "WHITE","WHOLE","WHOSE","WOMAN","WOMEN","WORLD","WORRY","WORSE","WORST","WORTH",
-  "WOULD","WOUND","WRITE","WRONG","WROTE","YIELD","YOUNG","YOUTH"
+  "CHAIR","PIPER","ABOUT","ADMIT","ADOPT","AFTER","AGREE","AHEAD","ALARM","ALERT",
+  "ALIKE","ALIVE","ALLOW","ALONE","ALONG","ANGER","ANGLE","ANGRY","APPLE","APPLY",
+  "ARENA","ARGUE","ARISE","ARRAY","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWAKE",
+  "AWARD","AWARE","BADLY","BAKER","BASIC","BASIS","BEACH","BEGAN","BEGIN","BEGUN",
+  "BEING","BELOW","BENCH","BIRTH","BLACK","BLAME","BLIND","BLOCK","BLOOD","BOARD",
+  "BOOST","BOOTH","BOUND","BRAIN","BRAND","BREAD","BREAK","BREED","BRIEF","BRING",
+  "BROAD","BROKE","BROWN","BUILD","BUILT","BUYER","CABLE","CARRY","CATCH","CAUSE",
+  "CHAIN","CHART","CHASE","CHEAP","CHECK","CHEST","CHIEF","CHILD","CHOSE","CIVIL",
+  "CLAIM","CLASS","CLEAN","CLEAR","CLICK","CLOCK","CLOSE","COACH","COAST","COUNT",
+  "COURT","COVER","CRAFT","CRASH","CREAM","CRIME","CROSS","CROWD","CROWN","CYCLE",
+  "DAILY","DANCE","DATED","DEALT","DEATH","DEBUT","DELAY","DEPTH","DOING","DOUBT",
+  "DOZEN","DRAFT","DRAMA","DRAWN","DREAM","DRESS","DRILL","DRINK","DRIVE","DROVE",
+  "DYING","EAGER","EARLY","EARTH","EIGHT","ELITE","EMPTY","ENEMY","ENJOY","ENTER",
+  "ENTRY","EQUAL","ERROR","EVENT","EVERY","EXACT","EXIST","EXTRA","FAITH","FALSE",
+  "FAULT","FIBER","FIELD","FIFTH","FIFTY","FIGHT","FINAL","FIRST","FIXED","FLASH",
+  "FLEET","FLOOR","FLUID","FOCUS","FORCE","FORTH","FORTY","FORUM","FOUND","FRAME",
+  "FRANK","FRAUD","FRESH","FRONT","FRUIT","FULLY","FUNNY","GIANT","GIVEN","GLASS",
+  "GLOBE","GOING","GRACE","GRADE","GRAND","GRANT","GRASS","GRAVE","GREAT","GREEN",
+  "GROSS","GROUP","GROWN","GUARD","GUESS","GUEST","GUIDE","HAPPY","HEART","HEAVY",
+  "HENCE","HORSE","HOTEL","HOUSE","HUMAN","IDEAL","IMAGE","INDEX","INNER","INPUT",
+  "ISSUE","JOINT","JUDGE","KNOWN","LABEL","LARGE","LASER","LATER","LAUGH","LAYER",
+  "LEARN","LEASE","LEAST","LEAVE","LEGAL","LEVEL","LIGHT","LIMIT","LINKS","LIVES",
+  "LOCAL","LOGIC","LOOSE","LOWER","LUCKY","LUNCH","MAGIC","MAJOR","MAKER","MARCH",
+  "MATCH","MAYBE","MAYOR","MEANT","MEDIA","METAL","MIGHT","MINOR","MINUS","MIXED",
+  "MODEL","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVIE","MUSIC",
+  "NEEDS","NEVER","NIGHT","NOISE","NORTH","NOTED","NOVEL","NURSE","OCCUR","OCEAN",
+  "OFFER","OFTEN","ORDER","OTHER","OUGHT","PAINT","PANEL","PAPER","PARTY","PEACE",
+  "PHASE","PHONE","PHOTO","PIECE","PILOT","PITCH","PLACE","PLAIN","PLANE","PLANT",
+  "PLATE","POINT","POUND","POWER","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR",
+  "PRIZE","PROOF","PROUD","PROVE","QUEEN","QUICK","QUIET","QUITE","RADIO","RAISE",
+  "RANGE","RAPID","RATIO","REACH","READY","REFER","RIGHT","RIVAL","RIVER","ROUGH",
+  "ROUND","ROUTE","ROYAL","RURAL","SCALE","SCENE","SCOPE","SCORE","SENSE","SERVE",
+  "SEVEN","SHALL","SHAPE","SHARE","SHARP","SHEET","SHELF","SHELL","SHIFT","SHIRT",
+  "SHOCK","SHOOT","SHORT","SHOWN","SIGHT","SINCE","SIXTH","SIXTY","SIZED","SKILL",
+  "SLEEP","SLIDE","SMALL","SMART","SMILE","SMOKE","SOLID","SOLVE","SORRY","SOUND",
+  "SOUTH","SPACE","SPARE","SPEAK","SPEED","SPEND","SPENT","SPLIT","SPOKE","SPORT",
+  "STAFF","STAGE","STAKE","STAND","START","STATE","STEAM","STEEL","STICK","STILL",
+  "STOCK","STONE","STOOD","STORE","STORM","STORY","STRIP","STUCK","STUDY","STUFF",
+  "STYLE","SUGAR","SUITE","SUPER","SWEET","TABLE","TAKEN","TASTE","TAXES","TEACH",
+  "TEETH","THANK","THEFT","THEIR","THEME","THERE","THESE","THICK","THING","THINK",
+  "THIRD","THOSE","THREE","THREW","THROW","TIGHT","TIMES","TIRED","TITLE","TODAY",
+  "TOPIC","TOTAL","TOUCH","TOUGH","TOWER","TRACK","TRADE","TRAIN","TREAT","TREND",
+  "TRIAL","TRIED","TRIES","TRUCK","TRULY","TRUST","TRUTH","TWICE","UNDER","UNDUE",
+  "UNION","UNITY","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VALID","VALUE",
+  "VIDEO","VIRUS","VISIT","VITAL","VOICE","WASTE","WATCH","WATER","WHEEL","WHERE",
+  "WHICH","WHILE","WHITE","WHOLE","WHOSE","WOMAN","WOMEN","WORLD","WORRY","WORSE",
+  "WORST","WORTH","WOULD","WOUND","WRITE","WRONG","WROTE","YIELD","YOUNG","YOUTH"
 ];
 
-let wordleTarget = "LIGHT";
+let wordleTarget = "CHAIR";
 let wordleRow = 0;
 let wordleCol = 0;
 let wordleGrid = [];
@@ -699,6 +717,7 @@ function initWordle() {
   clearWinLine();
   stopTurnTimer();
   showTimerInactive();
+  boardWrap.classList.add("wordle-mode");
   tttBoardEl.classList.add("hidden");
   chessBoardEl.classList.add("hidden");
   capturedTop.classList.add("hidden");
@@ -743,8 +762,12 @@ function renderWordle() {
     row.forEach(k => {
       const btn = document.createElement("button");
       btn.className = `kb-key ${k.length > 1 ? "wide" : ""}`;
-      btn.textContent = k;
       btn.dataset.key = k;
+      if (k === "DEL") {
+        btn.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`;
+      } else {
+        btn.textContent = k;
+      }
       btn.addEventListener("click", () => handleWordleKey(k));
       kbRow.appendChild(btn);
     });
@@ -759,7 +782,9 @@ function handleWordleKey(k) {
     if (wordleCol > 0) {
       wordleCol--;
       wordleGrid[wordleRow][wordleCol] = "";
-      document.getElementById(`wt-${wordleRow}-${wordleCol}`).textContent = "";
+      const tile = document.getElementById(`wt-${wordleRow}-${wordleCol}`);
+      tile.textContent = "";
+      tile.classList.remove("pop");
     }
     return;
   }
@@ -771,7 +796,10 @@ function handleWordleKey(k) {
 
   if (/^[A-Z]$/.test(k) && wordleCol < 5) {
     wordleGrid[wordleRow][wordleCol] = k;
-    document.getElementById(`wt-${wordleRow}-${wordleCol}`).textContent = k;
+    const tile = document.getElementById(`wt-${wordleRow}-${wordleCol}`);
+    tile.textContent = k;
+    tile.classList.add("pop");
+    setTimeout(() => tile.classList.remove("pop"), 150);
     wordleCol++;
   }
 }
@@ -812,7 +840,7 @@ function checkWordleRow() {
     streak++;
     persistScores();
     renderScores();
-    showWinScreen("Splendid! Word Solved!");
+    showWinScreen("Word Solved! Splendid!");
     return;
   }
 
@@ -825,7 +853,7 @@ function checkWordleRow() {
     streak = 0;
     persistScores();
     renderScores();
-    showWinScreen(`Word was ${wordleTarget}`);
+    showWinScreen(`The Word was: ${wordleTarget}`);
   }
 }
 
@@ -948,7 +976,7 @@ function initBoard() {
   persistHub();
 }
 
-/* ---------- Boot ---------- */
+/* ---------- App Boot ---------- */
 (function boot() {
   loadHub();
 

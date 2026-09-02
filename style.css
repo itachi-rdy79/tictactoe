@@ -1,91 +1,97 @@
 :root {
   --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* Theme: Dark (Cyber Cyan & Matte Slate) */
-  --bg: #090d14;
-  --surface: rgba(18, 24, 38, 0.78);
-  --surface-border: rgba(6, 182, 212, 0.3);
+  /* Default dynamic fallback values (injected automatically by script.js) */
+  --dyn-accent: #10b981;
+  --dyn-border: #34d399;
+  --dyn-shadow: #059669;
+  --dyn-tint: rgba(16, 185, 129, 0.15);
+
+  /* Theme: Dark (Dynamic Neon Accent, No Gold, No Blue, No Pink) */
+  --bg: #090c12;
+  --surface: rgba(17, 24, 39, 0.82);
+  --surface-border: var(--dyn-border);
   --text: #f8fafc;
   --muted: #94a3b8;
-  --brand: #06b6d4;
+  --brand: var(--dyn-accent);
 
-  --btn-bg: rgba(26, 35, 52, 0.75);
-  --btn-border: rgba(6, 182, 212, 0.35);
+  --btn-bg: rgba(30, 41, 59, 0.75);
+  --btn-border: rgba(255, 255, 255, 0.14);
   --btn-text: #e2e8f0;
 
-  --btn-active-bg: #06b6d4;
-  --btn-active-border: #22d3ee;
-  --btn-active-text: #04121a;
-  --btn-active-shadow: 0 4px 0 #0e7490, 0 0 18px rgba(6, 182, 212, 0.45);
+  --btn-active-bg: var(--dyn-accent);
+  --btn-active-border: var(--dyn-border);
+  --btn-active-text: #05140f;
+  --btn-active-shadow: 0 4px 0 var(--dyn-shadow), 0 0 18px var(--dyn-tint);
 
-  --accent: #06b6d4;
-  --x: #22d3ee;
-  --o: #38bdf8;
-  --tile-bg: rgba(20, 28, 44, 0.85);
+  --accent: var(--dyn-accent);
+  --x: var(--dyn-accent);
+  --o: #e2e8f0;
+  --tile-bg: rgba(24, 33, 49, 0.85);
   --tile-border: #334155;
-  --shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+  --shadow: 0 12px 36px rgba(0, 0, 0, 0.75);
 
-  --turn-bg: rgba(18, 24, 38, 0.85);
-  --turn-border: #06b6d4;
-  --turn-text: #22d3ee;
+  --turn-bg: rgba(17, 24, 39, 0.9);
+  --turn-border: var(--dyn-accent);
+  --turn-text: var(--dyn-accent);
 }
 
 body[data-theme="light"] {
-  /* Theme: Light (Clean Ocean Blue) */
-  --bg: #f0f7ff;
-  --surface: rgba(255, 255, 255, 0.82);
-  --surface-border: rgba(147, 197, 253, 0.7);
+  /* Theme: Light (Clean Canvas with Dynamic Accent) */
+  --bg: #f8fafc;
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-border: var(--dyn-border);
   --text: #0f172a;
-  --muted: #475569;
-  --brand: #0284c7;
+  --muted: #64748b;
+  --brand: var(--dyn-accent);
 
-  --btn-bg: rgba(255, 255, 255, 0.9);
+  --btn-bg: rgba(241, 245, 249, 0.95);
   --btn-border: #cbd5e1;
   --btn-text: #0f172a;
 
-  --btn-active-bg: #0284c7;
-  --btn-active-border: #0369a1;
+  --btn-active-bg: var(--dyn-accent);
+  --btn-active-border: var(--dyn-border);
   --btn-active-text: #ffffff;
-  --btn-active-shadow: 0 4px 0 #075985, 0 0 16px rgba(2, 132, 199, 0.35);
+  --btn-active-shadow: 0 4px 0 var(--dyn-shadow), 0 0 18px var(--dyn-tint);
 
-  --accent: #0284c7;
-  --x: #0369a1;
-  --o: #0284c7;
-  --tile-bg: #e2e8f0;
+  --accent: var(--dyn-accent);
+  --x: var(--dyn-accent);
+  --o: #475569;
+  --tile-bg: #f1f5f9;
   --tile-border: #94a3b8;
-  --shadow: 0 10px 25px rgba(2, 132, 199, 0.12);
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 
-  --turn-bg: #e0f2fe;
-  --turn-border: #0284c7;
-  --turn-text: #0369a1;
+  --turn-bg: var(--dyn-tint);
+  --turn-border: var(--dyn-accent);
+  --turn-text: var(--dyn-shadow);
 }
 
 body[data-theme="itachi"] {
-  /* Theme: Itachi (Pure Obsidian & Crimson) */
-  --bg: #060102;
-  --surface: rgba(22, 5, 9, 0.82);
-  --surface-border: rgba(225, 29, 72, 0.4);
+  /* Theme: Itachi (Pure Obsidian & Blood Crimson) */
+  --bg: #050002;
+  --surface: rgba(18, 3, 7, 0.86);
+  --surface-border: rgba(225, 29, 72, 0.45);
   --text: #ffe4e6;
   --muted: #fb7185;
   --brand: #ff2a55;
 
-  --btn-bg: rgba(43, 8, 16, 0.75);
+  --btn-bg: rgba(38, 5, 13, 0.8);
   --btn-border: #5c0f1c;
   --btn-text: #ffffff;
 
   --btn-active-bg: #e11d48;
   --btn-active-border: #fb7185;
   --btn-active-text: #ffffff;
-  --btn-active-shadow: 0 4px 0 #9f1239, 0 0 18px rgba(225, 29, 72, 0.6);
+  --btn-active-shadow: 0 4px 0 #9f1239, 0 0 20px rgba(225, 29, 72, 0.6);
 
   --accent: #e11d48;
   --x: #ff1e42;
   --o: #ffffff;
-  --tile-bg: rgba(28, 7, 12, 0.85);
-  --tile-border: #450a14;
-  --shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
+  --tile-bg: rgba(26, 4, 10, 0.9);
+  --tile-border: #4c0d18;
+  --shadow: 0 14px 40px rgba(0, 0, 0, 0.9);
 
-  --turn-bg: rgba(22, 5, 9, 0.85);
+  --turn-bg: rgba(18, 3, 7, 0.92);
   --turn-border: #e11d48;
   --turn-text: #ff8098;
 }
@@ -103,24 +109,42 @@ html, body {
 body {
   font-family: var(--font);
   color: var(--text);
-  background-color: var(--bg) !important;
-  background-image: none !important;
+  background-color: var(--bg);
   overflow: hidden;
+  position: relative;
 }
 
-body::before,
-body::after {
-  display: none !important;
-  content: none !important;
+/* Itachi Moon & Mist Background Vector Art */
+.itachi-bg-art {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 45%, #2a0309 0%, #100104 60%, #030001 100%);
 }
 
-/* Glassmorphism Containers */
+body[data-theme="itachi"] .itachi-bg-art {
+  display: flex !important;
+}
+
+.itachi-moon-svg {
+  width: min(88vmin, 680px);
+  height: min(88vmin, 680px);
+  filter: drop-shadow(0 0 60px rgba(225, 29, 72, 0.45));
+}
+
+/* Glass Island Surfaces */
 .glass-island {
   background: var(--surface) !important;
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 2px solid var(--surface-border) !important;
   box-shadow: var(--shadow) !important;
+  position: relative;
+  z-index: 10;
 }
 
 .glass-panel {
@@ -129,9 +153,11 @@ body::after {
   -webkit-backdrop-filter: blur(16px);
   border: 1.5px solid var(--surface-border) !important;
   box-shadow: var(--shadow) !important;
+  position: relative;
+  z-index: 10;
 }
 
-/* Top HUD Floating Island */
+/* Top HUD */
 .top-hud {
   height: 76px !important;
   padding: 0 clamp(14px, 2vw, 24px) !important;
@@ -299,6 +325,8 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  position: relative;
+  z-index: 5;
 }
 
 .status-wrap {
@@ -322,16 +350,11 @@ body::after {
   gap: 8px;
 }
 
-.turn-pill svg {
-  display: inline-block;
-  vertical-align: middle;
-}
-
 .hidden {
   display: none !important;
 }
 
-/* Radial Timer (Integer Format) */
+/* Radial Timer */
 .radial-wrap {
   position: relative;
   width: 86px;
@@ -368,7 +391,7 @@ body::after {
   font-weight: 900;
 }
 
-/* Board Arena */
+/* Board Arena & Dynamic Sizing */
 .board-area {
   display: flex;
   flex-direction: column;
@@ -377,8 +400,8 @@ body::after {
 }
 
 .board-shell {
-  width: min(76vmin, 580px) !important;
-  aspect-ratio: 1 / 1 !important;
+  width: min(72vmin, 540px);
+  aspect-ratio: 1 / 1;
   border-radius: 24px !important;
   padding: 14px !important;
   position: relative;
@@ -386,10 +409,19 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: width 0.2s ease;
+}
+
+/* Expanded Wordle Shell */
+.board-shell.wordle-mode {
+  width: min(94vmin, 620px) !important;
+  aspect-ratio: auto !important;
+  min-height: min(78vh, 600px) !important;
+  padding: 18px 22px !important;
 }
 
 .captured-strip {
-  width: min(76vmin, 580px) !important;
+  width: min(72vmin, 540px) !important;
   border-radius: 9999px !important;
   padding: 6px 16px !important;
   font-size: 0.95rem !important;
@@ -420,24 +452,16 @@ body::after {
 }
 
 .ttt-cell:hover {
-  background-color: #cbd5e1;
+  filter: brightness(1.1);
   border-color: var(--accent);
   transform: scale(1.02);
-}
-
-body[data-theme="dark"] .ttt-cell:hover {
-  background-color: #1e293b;
-}
-
-body[data-theme="itachi"] .ttt-cell:hover {
-  background-color: #2b0b12;
 }
 
 .ttt-cell.x { color: var(--x); }
 .ttt-cell.o { color: var(--o); }
 .ttt-cell.win {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent), inset 0 0 16px rgba(6, 182, 212, 0.4);
+  box-shadow: 0 0 0 3px var(--accent), inset 0 0 16px var(--dyn-tint);
 }
 
 .ttt-cell svg {
@@ -504,7 +528,7 @@ body[data-theme="itachi"] .ttt-cell:hover {
   background: color-mix(in srgb, var(--accent) 70%, transparent);
 }
 
-/* Enlarged Wordle Arena */
+/* Prominent, Large Wordle Arena */
 .wordle-arena {
   width: 100%;
   height: 100%;
@@ -512,81 +536,103 @@ body[data-theme="itachi"] .ttt-cell:hover {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 6px;
+  gap: 12px;
 }
 
 .wordle-board {
   display: grid;
   grid-template-rows: repeat(6, 1fr);
-  gap: 6px;
-  width: min(92%, 350px);
-  height: min(68%, 350px);
+  gap: 7px;
+  width: min(94%, 390px);
+  height: min(60vh, 420px);
 }
 
 .wordle-row {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  gap: 7px;
 }
 
 .wordle-tile {
   aspect-ratio: 1 / 1;
-  border: 2.5px solid var(--tile-border);
-  border-radius: 10px;
+  border: 3px solid var(--tile-border);
+  border-radius: 8px;
   background: var(--tile-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(20px, 3.2vmin, 28px);
+  font-size: clamp(24px, 4.2vmin, 34px);
   font-weight: 900;
   text-transform: uppercase;
+  color: var(--text);
+  transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.wordle-tile.correct { background: #10b981 !important; color: #fff !important; border-color: #059669 !important; }
-.wordle-tile.present { background: #f59e0b !important; color: #fff !important; border-color: #d97706 !important; }
-.wordle-tile.absent  { background: #475569 !important; color: #cbd5e1 !important; border-color: #334155 !important; }
+.wordle-tile.pop {
+  transform: scale(1.08);
+}
 
+/* NYT / Wordle Reference Colors */
+.wordle-tile.correct { background: #538d4e !important; color: #ffffff !important; border-color: #538d4e !important; }
+.wordle-tile.present { background: #b59f3b !important; color: #ffffff !important; border-color: #b59f3b !important; }
+.wordle-tile.absent  { background: #3a3a3c !important; color: #ffffff !important; border-color: #3a3a3c !important; }
+
+/* Large Wordle Virtual Keyboard */
 .wordle-keyboard {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   width: 100%;
-  margin-top: 6px;
+  max-width: 530px;
 }
 
 .kb-row {
   display: flex;
   justify-content: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .kb-key {
-  height: 42px;
+  height: 48px;
   padding: 0 10px;
   border-radius: 8px;
   border: 1px solid var(--btn-border);
   background: var(--btn-bg);
   color: var(--text);
-  font-weight: 800;
-  font-size: 0.9rem;
+  font-weight: 900;
+  font-size: 1rem;
   cursor: pointer;
   text-transform: uppercase;
   flex: 1;
-  max-width: 44px;
+  max-width: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.08s ease, filter 0.1s ease;
+}
+
+.kb-key:hover {
+  filter: brightness(1.15);
+}
+
+.kb-key:active {
+  transform: translateY(2px);
 }
 
 .kb-key.wide {
-  max-width: 65px;
-  flex: 1.5;
-  font-size: 0.76rem;
+  max-width: 76px;
+  flex: 1.6;
+  font-size: 0.85rem;
 }
 
-.kb-key.correct { background: #10b981 !important; color: #fff !important; }
-.kb-key.present { background: #f59e0b !important; color: #fff !important; }
-.kb-key.absent  { background: #334155 !important; color: #94a3b8 !important; }
+.kb-key svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.kb-key.correct { background: #538d4e !important; color: #ffffff !important; border-color: #538d4e !important; }
+.kb-key.present { background: #b59f3b !important; color: #ffffff !important; border-color: #b59f3b !important; }
+.kb-key.absent  { background: #3a3a3c !important; color: #cbd5e1 !important; border-color: #3a3a3c !important; }
 
 /* Bottom Quick Dock */
 .quick-dock {
