@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GAP — Glass UI Arcade</title>
+  <title>GAP — Arcade Gaming Hub</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body data-theme="dark">
-  <!-- Top HUD -->
-  <header class="top-hud glass">
+  <!-- Top HUD Dashboard -->
+  <header class="top-hud">
     <div class="hud-left">
       <div class="brand">GAP</div>
       <div class="seg" id="gameTypePills">
@@ -44,7 +44,7 @@
           <span id="themeCurrentText">Dark</span>
           <span class="caret">⌄</span>
         </button>
-        <div class="theme-menu glass" id="themeMenu">
+        <div class="theme-menu" id="themeMenu">
           <button class="theme-item active" data-theme="dark" type="button">🌙 Dark</button>
           <button class="theme-item" data-theme="light" type="button">☀️ Light</button>
           <button class="theme-item" data-theme="itachi" type="button">✇ Itachi</button>
@@ -56,9 +56,9 @@
   <!-- Arena -->
   <main class="arena">
     <section class="status-wrap">
-      <div class="turn-pill glass" id="statusPill">X's Turn</div>
+      <div class="turn-pill" id="statusPill">X's Turn</div>
 
-      <div class="radial-wrap glass hidden" id="radialWrap">
+      <div class="radial-wrap hidden" id="radialWrap">
         <svg class="radial" viewBox="0 0 120 120">
           <circle class="ring-bg" cx="60" cy="60" r="50"></circle>
           <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="50"></circle>
@@ -68,20 +68,20 @@
     </section>
 
     <section class="board-area">
-      <div class="captured-strip glass hidden" id="capturedTop"><b>White captured:</b> <span id="whiteCaptured"></span></div>
+      <div class="captured-strip hidden" id="capturedTop"><b>White captured:</b> <span id="whiteCaptured"></span></div>
 
-      <section class="board-shell glass" id="boardWrap">
+      <section class="board-shell" id="boardWrap">
         <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
         <div id="tttBoard" class="ttt-board"></div>
         <div id="chessBoard" class="chess-board hidden"></div>
       </section>
 
-      <div class="captured-strip glass hidden" id="capturedBottom"><b>Black captured:</b> <span id="blackCaptured"></span></div>
+      <div class="captured-strip hidden" id="capturedBottom"><b>Black captured:</b> <span id="blackCaptured"></span></div>
     </section>
   </main>
 
   <!-- Bottom Dock -->
-  <footer class="quick-dock glass">
+  <footer class="quick-dock">
     <div class="dock-block">
       <span class="dock-label">Timer</span>
       <div class="seg" id="timerPills">
@@ -110,7 +110,7 @@
     </div>
   </footer>
 
-  <!-- Hidden state -->
+  <!-- Hidden state storage elements -->
   <select id="modeSelect" hidden>
     <option value="ttt3-2p">TTT3 Local</option>
     <option value="ttt3-ai" selected>TTT3 AI</option>
@@ -130,9 +130,9 @@
     <option value="itachi">Itachi</option>
   </select>
 
-  <!-- Win Modal -->
+  <!-- Win Modal Overlay -->
   <div id="winOverlay" class="win-overlay hidden">
-    <div class="win-modal glass">
+    <div class="win-modal">
       <h2 id="winMessage">Winner</h2>
       <button id="winRestartBtn" class="seg-btn" type="button">Continue</button>
     </div>

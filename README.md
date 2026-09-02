@@ -1,42 +1,27 @@
-# GAP — Glass UI Arcade (Offline-First)
+# GAP 
 
-Fully offline arcade UI with **Floating Glass HUD + Arena + Bottom Dock** and zero external dependencies.
+A responsive, fully offline browser arcade featuring **Tic-Tac-Toe (3×3 & 5×5)** and **Chess** against local players or minimax-powered AI[cite: 1, 3]. Built with solid tactile theme surfaces, instant turn switching, and zero external dependencies[cite: 1, 2].
 
-## Offline Guarantee
-- No Google Fonts
-- No CDN CSS/JS
-- No external icon libraries
-- Uses native system font stack only
-- Works by opening `index.html` directly
+## Features
+- **Games**: 3×3 Tic-Tac-Toe, 5×5 Tic-Tac-Toe, and full piece movement Chess[cite: 1, 3].
+- **AI Engine**: Minimax algorithm with depth scaling based on difficulty level (Easy, Medium, Hard)[cite: 3].
+- **Turn Timers**: Optional blitz turn timer (15s, 30s, 45s, 60s), strictly defaulted to Off[cite: 1, 2, 3].
+- **Tactile Theme Engine**: 
+  - **Dark**: Solid matte slate background with metallic gold tactile controls.
+  - **Light**: Crisp off-white background with vivid emerald controls.
+  - **Itachi**: Pure obsidian background with fiery crimson accents.
+- **Score Persistence**: Tracks local wins, losses, draws, and win streaks across game modes using `localStorage`[cite: 2, 3].
+- **Move Tools**: Undo turns, reset match history, and instant board restart[cite: 1, 3].
 
-## Themes
-### Dark (Black + Gold)
-- Background: `#08080a` + warm amber orb glows
-- Glass: `rgba(18, 18, 20, 0.7)`
-- Active buttons: gold metallic highlight
+## 100% Offline Guarantee
+- Zero external CDNs[cite: 2].
+- No remote web fonts (uses native system font stacks)[cite: 2].
+- No third-party CSS or JS dependencies[cite: 2].
+- Runs directly by opening `index.html` in any modern web browser[cite: 2].
 
-### Light (White + Emerald)
-- Background: `#f8fafc` + emerald/jade orb glows
-- Glass: `rgba(255, 255, 255, 0.75)`
-- Active buttons: vivid green emphasis
-
-### Itachi
-- Crimson/ruby glows
-- Obsidian glass
-- Red active borders and accents
-
-## UX Requirements Implemented
-- Scaled controls (44–48px button height)
-- Top HUD: Brand + Game, Opponent, Difficulty, Theme
-- Bottom dock: Timer + Reset Score + Undo + New Game + scoreboard
-- Center arena board with zero desktop vertical scroll
-- Board sizing: `width: min(72vmin, 540px); aspect-ratio: 1/1`
-
-## Timer Logic (Fixed)
-- Default: `timer = "off"`
-- Off is active on first load
-- Radial countdown hidden while timer is Off
-- Countdown starts only if 15/30/45/60 selected
-
-## Run
-Open `index.html` in a browser.
+## Project Structure
+```text
+├── index.html       # Semantic HUD, Arena stage, and Quick-Dock layout
+├── style.css        # Theme variables, tactile 3D buttons, and responsive grid rules
+├── script.js        # Game engines (TTT/Chess), minimax AI, and UI state handlers
+└── README.md        # Documentation and deployment instructions
