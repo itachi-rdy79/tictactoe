@@ -36,7 +36,10 @@ const MODES = {
 };
 
 const els = {
-  modeSelect: document.getElementById("modeSelect"),
+  customDropdown: document.getElementById("customDropdown"),
+  dropdownTrigger: document.getElementById("dropdownTrigger"),
+  dropdownMenu: document.getElementById("dropdownMenu"),
+  dropdownText: document.getElementById("dropdownText"),
   modeBadge: document.getElementById("modeBadge"),
   statusText: document.getElementById("statusText"),
   subText: document.getElementById("subText"),
@@ -893,10 +896,49 @@ els.newGameBtn.addEventListener("click", initBoard);
 
 els.resetScoreBtn.addEventListener("click", resetCurrentScores);
 
-els.modeSelect.addEventListener("change", () => {
-  modeKey = els.modeSelect.value;
-  initBoard();
+// Custom Dropdown Handler
+els.dropdownTrigger.addEventListener("click", () => {
+  els.customDropdown.classList.toggle("open");
 });
+
+// Dropdown Item Selection
+document.querySelectorAll(".dropdown-item").forEach(item => {
+  item.addEventListener("click", () => {
+    const value = item.getAttribute("data-value");
+    modeKey = value;
+    
+    // Update display
+    els.dropdownText.textContent = item.textContent;
+    
+    // Update active item styling
+    document.querySelectorAll(".dropdown-item").forEach(i => i.classList.remove("active"));
+    item.classList.add("active");
+    
+    // Close dropdown
+    els.customDropdown.classList.remove("open");
+    
+    // Start new game
+    initBoard();
+  });
+});
+
+// Close dropdown when clicking outside
+document.addEventListener("click", (e) => {
+  if (!els.customDropdown.contains(e.target)) {
+    els.customDropdown.classList.remove("open");
+  }
+});
+
+// Set initial active item
+function setActiveDropdownItem() {
+  document.querySelectorAll(".dropdown-item").forEach(item => {
+    if (item.getAttribute("data-value") === modeKey) {
+      item.classList.add("active");
+    } else {
+      item.classList.remove("active");
+    }
+  });
+}
 
 function applyTheme() {
   document.body.className = currentTheme + "-theme";
@@ -919,3 +961,4 @@ els.themeBtn.addEventListener("click", () => {
 // Start the game
 applyTheme();
 initBoard();
+setActiveDropdownItem();

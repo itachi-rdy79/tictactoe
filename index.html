@@ -19,13 +19,19 @@
 
       <div class="controls">
         <div class="left-controls">
-          <select id="modeSelect" aria-label="Select game mode">
-            <option value="ttt5">5x5 Battle — connect 4</option>
-            <option value="ttt3">Classic 3x3 — connect 3</option>
-            <option value="tttAI">Tic Tac Toe vs AI – unbeatable</option>
-            <option value="connect4">Connect Four</option>
-            <option value="chess">Chess – 2 Player</option>
-          </select>
+          <div class="custom-dropdown" id="customDropdown">
+            <button class="dropdown-trigger" id="dropdownTrigger" aria-label="Select game mode">
+              <span id="dropdownText">5x5 Battle — connect 4</span>
+              <span class="dropdown-icon">▼</span>
+            </button>
+            <div class="dropdown-menu" id="dropdownMenu">
+              <div class="dropdown-item" data-value="ttt5">5x5 Battle — connect 4</div>
+              <div class="dropdown-item" data-value="ttt3">Classic 3x3 — connect 3</div>
+              <div class="dropdown-item" data-value="tttAI">Tic Tac Toe vs AI – unbeatable</div>
+              <div class="dropdown-item" data-value="connect4">Connect Four</div>
+              <div class="dropdown-item" data-value="chess">Chess – 2 Player</div>
+            </div>
+          </div>
 
           <button class="primary" id="newGameBtn">New Game</button>
           <button class="danger" id="resetScoreBtn">Reset Score</button>
