@@ -22,7 +22,9 @@
           <select id="modeSelect" aria-label="Select game mode">
             <option value="ttt5">5x5 Battle — connect 4</option>
             <option value="ttt3">Classic 3x3 — connect 3</option>
+            <option value="ttAI">Tic Tac Toe vs AI – unbeatable</option>
             <option value="connect4">Connect Four</option>
+            <option value="chess">Chess – 2 Player</option>
           </select>
 
           <button class="primary" id="newGameBtn">New Game</button>
@@ -53,11 +55,11 @@
           <h3>Scoreboard</h3>
           <div class="score-grid">
             <div class="score-card x">
-              <div class="label">Player X</div>
+              <div class="label" id="scoreLabelX">Player X</div>
               <div class="value" id="scoreX">0</div>
             </div>
             <div class="score-card o">
-              <div class="label">Player O</div>
+              <div class="label" id="scoreLabelO">Player O</div>
               <div class="value" id="scoreO">0</div>
             </div>
             <div class="score-card draws">
