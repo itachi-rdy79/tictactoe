@@ -1,1015 +1,490 @@
-const MODES = {
-  ttt5: {
-    type: "grid",
-    name: "5x5 Battle",
-    size: 5,
-    win: 4,
-    sub: "5x5 board — connect 4 to win"
-  },
-  ttt3: {
-    type: "grid",
-    name: "Classic 3x3",
-    size: 3,
-    win: 3,
-    sub: "3x3 board — connect 3 to win"
-  },
-  tttAI: {
-    type: "ai",
-    name: "Tic Tac Toe vs AI",
-    size: 3,
-    win: 3,
-    sub: "3x3 board — you play X, computer plays O"
-  },
-  connect4: {
-    type: "connect4",
-    name: "Connect Four",
-    cols: 7,
-    rows: 6,
-    win: 4,
-    sub: "7x6 board — connect 4 to win"
-  },
-  chess: {
-    type: "chess",
-    name: "Chess",
-    sub: "2-player chess — click a piece, then click a legal square"
-  }
-};
+// ------------------------------
+// Game Hub: TicTacToe + Chess
+// ------------------------------
+const modeSelect = document.getElementById("modeSelect");
+const difficultyWrap = document.getElementById("difficultyWrap");
+const difficultySelect = document.getElementById("difficultySelect");
+const resetBtn = document.getElementById("resetBtn");
+const statusEl = document.getElementById("status");
+const thinkingEl = document.getElementById("aiThinking");
 
-const els = {
-  customDropdown: document.getElementById("customDropdown"),
-  dropdownTrigger: document.getElementById("dropdownTrigger"),
-  dropdownMenu: document.getElementById("dropdownMenu"),
-  dropdownText: document.getElementById("dropdownText"),
-  modeBadge: document.getElementById("modeBadge"),
-  statusText: document.getElementById("statusText"),
-  detailText: document.getElementById("detailText"),
-  subText: document.getElementById("subText"),
-  board: document.getElementById("board"),
-  columnBar: document.getElementById("columnBar"),
-  newGameBtn: document.getElementById("newGameBtn"),
-  resetScoreBtn: document.getElementById("resetScoreBtn"),
-  themeBtn: document.getElementById("themeBtn"),
-  scoreX: document.getElementById("scoreX"),
-  scoreO: document.getElementById("scoreO"),
-  scoreDraws: document.getElementById("scoreDraws"),
-  scoreLabelX: document.getElementById("scoreLabelX"),
-  scoreLabelO: document.getElementById("scoreLabelO"),
-  winnerScreen: document.getElementById("winnerScreen"),
-  restartBtn: document.getElementById("restartBtn")
-};
+const tttBoardEl = document.getElementById("tttBoard");
+const chessBoardEl = document.getElementById("chessBoard");
 
-function defaultScores() {
-  return {
-    ttt5: { X: 0, O: 0, draws: 0 },
-    ttt3: { X: 0, O: 0, draws: 0 },
-    tttAI: { X: 0, O: 0, draws: 0 },
-    connect4: { X: 0, O: 0, draws: 0 },
-    chess: { X: 0, O: 0, draws: 0 }
-  };
-}
+const capturedPanel = document.getElementById("capturedPanel");
+const whiteCapturedEl = document.getElementById("whiteCaptured");
+const blackCapturedEl = document.getElementById("blackCaptured");
 
-function loadScores() {
-  const saved = JSON.parse(localStorage.getItem("neoArcadeScores") || "null");
-  const base = defaultScores();
+// -------- Tic Tac Toe state --------
+let ttt = Array(9).fill(null);
+let tttTurn = "X";
+let tttOver = false;
 
-  if (saved) {
-    for (const key of Object.keys(base)) {
-      base[key] = { ...base[key], ...(saved[key] || {}) };
-    }
-  }
-
-  return base;
-}
-
-function saveScores() {
-  localStorage.setItem("neoArcadeScores", JSON.stringify(scores));
-}
-
-let scores = loadScores();
-let modeKey = "ttt5";
-let currentPlayer = "X"; // X/O for grid games, w/b for chess
-let gameActive = true;
-let winningCells = [];
-let aiTimer = null;
-let currentTheme = localStorage.getItem("neoArcadeTheme") || "dark";
-
-let tttBoard = [];
-let c4Board = [];
+// -------- Chess state --------
 let chessBoard = [];
-let selectedChess = null;
-let legalChessMoves = [];
+let chessTurn = "w"; // w | b
+let selected = null; // {r,c}
+let whiteCaptured = [];
+let blackCaptured = [];
+let chessOver = false;
 
-const chessSymbols = {
-  wK: "♔", wQ: "♕", wR: "♖", wB: "♗", wN: "♘", wP: "♙",
-  bK: "♚", bQ: "♛", bR: "♜", bB: "♝", bN: "♞", bP: "♟"
+const PIECE_UNICODE = {
+  wp: "♙", wr: "♖", wn: "♘", wb: "♗", wq: "♕", wk: "♔",
+  bp: "♟", br: "♜", bn: "♞", bb: "♝", bq: "♛", bk: "♚"
 };
 
-function getMode() {
-  return MODES[modeKey];
+function pieceKey(p){ return p ? `${p.color}${p.type}` : null; }
+function inBounds(r,c){ return r>=0 && r<8 && c>=0 && c<8; }
+function cloneBoard(b){ return b.map(row => row.map(cell => cell ? {...cell} : null)); }
+
+function setStatus(msg){ statusEl.textContent = msg; }
+
+// ------------------------------
+// Mode handling
+// ------------------------------
+function currentMode(){ return modeSelect.value; }
+
+function updateModeUI() {
+  const mode = currentMode();
+  const aiMode = mode === "tttAI" || mode === "chessAI";
+  difficultyWrap.style.display = aiMode ? "inline-flex" : "none";
+
+  if (mode.startsWith("ttt")) {
+    tttBoardEl.style.display = "grid";
+    chessBoardEl.style.display = "none";
+    capturedPanel.style.display = "none";
+    thinkingEl.style.display = "none";
+  } else {
+    tttBoardEl.style.display = "none";
+    chessBoardEl.style.display = "grid";
+    capturedPanel.style.display = "grid";
+  }
 }
 
-function colorName(c) {
-  if (c === "w") return "White";
-  if (c === "b") return "Black";
-  return c;
+// ------------------------------
+// Tic Tac Toe
+// ------------------------------
+const TTT_WINS = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+];
+
+function tttWinner(board){
+  for(const [a,b,c] of TTT_WINS){
+    if(board[a] && board[a]===board[b] && board[b]===board[c]) return board[a];
+  }
+  if(board.every(Boolean)) return "draw";
+  return null;
 }
 
-function showWinnerBanner(message = "WINNER!") {
-  if (!els.winnerScreen) return;
-  const winnerText = els.winnerScreen.querySelector(".winner-text");
-  if (winnerText) winnerText.textContent = message;
-  els.winnerScreen.hidden = false;
-  requestAnimationFrame(() => {
-    els.winnerScreen.classList.add("show");
+function renderTTT(){
+  tttBoardEl.innerHTML = "";
+  ttt.forEach((v,i)=>{
+    const cell = document.createElement("button");
+    cell.className = "ttt-cell";
+    cell.textContent = v || "";
+    cell.onclick = ()=> onTttClick(i);
+    tttBoardEl.appendChild(cell);
   });
+
+  const w = tttWinner(ttt);
+  if (w === "draw") setStatus("Tic-Tac-Toe: Draw!");
+  else if (w) setStatus(`Tic-Tac-Toe: ${w} wins!`);
+  else setStatus(`Tic-Tac-Toe: ${tttTurn}'s turn`);
 }
 
-function hideWinnerBanner() {
-  if (!els.winnerScreen) return;
-  els.winnerScreen.classList.remove("show");
-  els.winnerScreen.hidden = true;
-}
-
-function initBoard() {
-  if (aiTimer) {
-    clearTimeout(aiTimer);
-    aiTimer = null;
+function onTttClick(i){
+  if (!currentMode().startsWith("ttt")) return;
+  if (tttOver || ttt[i]) return;
+  ttt[i] = tttTurn;
+  const w = tttWinner(ttt);
+  if (w) {
+    tttOver = true;
+    renderTTT();
+    return;
   }
+  tttTurn = tttTurn === "X" ? "O" : "X";
+  renderTTT();
 
-  const mode = getMode();
-  gameActive = true;
-  winningCells = [];
-  selectedChess = null;
-  legalChessMoves = [];
-  hideWinnerBanner();
-
-  if (mode.type === "grid" || mode.type === "ai") {
-    currentPlayer = "X";
-    tttBoard = Array(mode.size * mode.size).fill(null);
-  } else if (mode.type === "connect4") {
-    currentPlayer = "X";
-    c4Board = Array.from({ length: mode.rows }, () => Array(mode.cols).fill(null));
-  } else if (mode.type === "chess") {
-    currentPlayer = "w";
-    chessBoard = createChessBoard();
+  if (currentMode()==="tttAI" && tttTurn==="O" && !tttOver) {
+    thinkingEl.style.display = "block";
+    setTimeout(()=>{
+      tttAIMove();
+      thinkingEl.style.display = "none";
+    }, aiDelayForDifficulty(difficultySelect.value));
   }
-
-  els.modeBadge.textContent = `Mode: ${mode.name}`;
-  els.subText.textContent = mode.sub;
-  updateScoreboardLabels();
-  updateStatusTextForNewGame();
-  render();
-  updateScoreboard();
 }
 
-function updateScoreboardLabels() {
-  if (modeKey === "tttAI") {
-    els.scoreLabelX.textContent = "You";
-    els.scoreLabelO.textContent = "Computer";
-  } else if (modeKey === "chess") {
-    els.scoreLabelX.textContent = "White";
-    els.scoreLabelO.textContent = "Black";
+function tttAIMove(){
+  const empty = ttt.map((v,i)=>v?null:i).filter(v=>v!==null);
+  if(!empty.length) return;
+  const diff = difficultySelect.value;
+
+  let pick;
+  if (diff==="easy" && Math.random()<0.55) {
+    pick = empty[Math.floor(Math.random()*empty.length)];
   } else {
-    els.scoreLabelX.textContent = "Player X";
-    els.scoreLabelO.textContent = "Player O";
+    // quick optimal move preference
+    pick = bestTttMove();
   }
+
+  ttt[pick] = "O";
+  const w = tttWinner(ttt);
+  if (w) tttOver = true;
+  else tttTurn = "X";
+  renderTTT();
 }
 
-function updateScoreboard() {
-  const s = scores[modeKey];
-  els.scoreX.textContent = s.X;
-  els.scoreO.textContent = s.O;
-  els.scoreDraws.textContent = s.draws;
-}
-
-function updateStatusTextForNewGame() {
-  if (modeKey === "tttAI") {
-    setStatus("Your turn");
-  } else if (modeKey === "chess") {
-    setStatus("White to move");
-  } else if (modeKey === "connect4" || modeKey === "ttt3" || modeKey === "ttt5") {
-    setStatus("X's turn");
-  } else {
-    setStatus("X's turn");
-  }
-}
-
-function setStatus(message, detail = "") {
-  els.statusText.textContent = message;
-  els.detailText.textContent = detail;
-  els.detailText.hidden = !detail;
-}
-
-function formatBoardCellLabel(index, columns) {
-  const row = Math.floor(index / columns);
-  const col = index % columns;
-  return `${String.fromCharCode(65 + row)}${col + 1}`;
-}
-
-function getWinningSequenceText(cells) {
-  const mode = getMode();
-  const columns = mode.type === "connect4" ? mode.cols : mode.size;
-  const labels = cells.map(cell => formatBoardCellLabel(cell, columns));
-  return `${cells.length} in a row: ${labels.join(" → ")}`;
-}
-
-function render() {
-  const mode = getMode();
-  els.board.innerHTML = "";
-  els.columnBar.innerHTML = "";
-
-  if (mode.type === "grid" || mode.type === "ai") {
-    els.columnBar.style.display = "none";
-    els.board.style.display = "grid";
-    els.board.style.gridTemplateColumns = `repeat(${mode.size}, minmax(0, 1fr))`;
-
-    tttBoard.forEach((value, index) => {
-      const cell = document.createElement("button");
-      cell.className = "cell";
-
-      if (value) cell.classList.add(value.toLowerCase());
-      if (winningCells.includes(index)) cell.classList.add("win");
-
-      cell.textContent = value || "";
-      cell.disabled =
-        !gameActive ||
-        !!value ||
-        (modeKey === "tttAI" && currentPlayer === "O");
-
-      cell.addEventListener("click", () => makeTTTMove(index));
-      els.board.appendChild(cell);
-    });
-  } else if (mode.type === "connect4") {
-    els.columnBar.style.display = "grid";
-    els.columnBar.style.gridTemplateColumns = `repeat(${mode.cols}, minmax(0, 1fr))`;
-    els.board.style.display = "grid";
-    els.board.style.gridTemplateColumns = `repeat(${mode.cols}, minmax(0, 1fr))`;
-
-    for (let c = 0; c < mode.cols; c++) {
-      const btn = document.createElement("button");
-      btn.className = "drop-btn";
-      btn.textContent = "↓";
-      btn.disabled = !gameActive;
-      btn.title = `Drop in column ${c + 1}`;
-      btn.addEventListener("click", () => dropConnect4(c));
-      els.columnBar.appendChild(btn);
-    }
-
-    for (let r = 0; r < mode.rows; r++) {
-      for (let c = 0; c < mode.cols; c++) {
-        const cell = document.createElement("div");
-        const value = c4Board[r][c];
-        const flatIndex = r * mode.cols + c;
-
-        cell.className = "piece " + (value ? value.toLowerCase() : "empty");
-        if (winningCells.includes(flatIndex)) cell.classList.add("win");
-        cell.textContent = value || "•";
-
-        els.board.appendChild(cell);
-      }
-    }
-  } else if (mode.type === "chess") {
-    els.columnBar.style.display = "none";
-    els.board.style.display = "grid";
-    els.board.style.gridTemplateColumns = "repeat(8, minmax(0, 1fr))";
-
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const cell = document.createElement("button");
-        const piece = chessBoard[r][c];
-        const isLight = (r + c) % 2 === 0;
-
-        cell.className = `piece chess-square ${isLight ? "light" : "dark"}`;
-
-        if (selectedChess && selectedChess.r === r && selectedChess.c === c) {
-          cell.classList.add("selected");
-        }
-
-        const target = legalChessMoves.find(m => m.r === r && m.c === c);
-        if (target) {
-          cell.classList.add(piece ? "capture" : "target");
-        }
-
-        if (piece) {
-          cell.innerHTML = `<span class="${piece[0] === 'w' ? 'white-piece' : 'black-piece'}">${chessSymbols[piece]}</span>`;
-        } else if (target) {
-          cell.textContent = "•";
-          cell.style.color = "#fbbf24";
-        } else {
-          cell.textContent = "";
-        }
-
-        cell.disabled = !gameActive;
-        cell.addEventListener("click", () => handleChessClick(r, c));
-        els.board.appendChild(cell);
-      }
+function bestTttMove(){
+  let bestScore = -Infinity, move = null;
+  for(let i=0;i<9;i++){
+    if(!ttt[i]){
+      ttt[i]="O";
+      const score=minimaxTTT(ttt,false);
+      ttt[i]=null;
+      if(score>bestScore){bestScore=score; move=i;}
     }
   }
+  return move ?? ttt.findIndex(x=>!x);
 }
-
-function getGridWinningLines(size, win) {
-  const lines = [];
-
-  // Horizontal
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c <= size - win; c++) {
-      const line = [];
-      for (let k = 0; k < win; k++) line.push(r * size + (c + k));
-      lines.push(line);
+function minimaxTTT(board,isMax){
+  const w=tttWinner(board);
+  if(w==="O") return 10;
+  if(w==="X") return -10;
+  if(w==="draw") return 0;
+  if(isMax){
+    let best=-Infinity;
+    for(let i=0;i<9;i++) if(!board[i]){
+      board[i]="O";
+      best=Math.max(best,minimaxTTT(board,false));
+      board[i]=null;
     }
-  }
-
-  // Vertical
-  for (let c = 0; c < size; c++) {
-    for (let r = 0; r <= size - win; r++) {
-      const line = [];
-      for (let k = 0; k < win; k++) line.push((r + k) * size + c);
-      lines.push(line);
-    }
-  }
-
-  // Diagonal down-right
-  for (let r = 0; r <= size - win; r++) {
-    for (let c = 0; c <= size - win; c++) {
-      const line = [];
-      for (let k = 0; k < win; k++) line.push((r + k) * size + (c + k));
-      lines.push(line);
-    }
-  }
-
-  // Diagonal down-left
-  for (let r = 0; r <= size - win; r++) {
-    for (let c = win - 1; c < size; c++) {
-      const line = [];
-      for (let k = 0; k < win; k++) line.push((r + k) * size + (c - k));
-      lines.push(line);
-    }
-  }
-
-  return lines;
-}
-
-function getGridWinnerOnBoard(board, size, win) {
-  const lines = getGridWinningLines(size, win);
-
-  for (const line of lines) {
-    const first = board[line[0]];
-    if (!first) continue;
-
-    if (line.every(i => board[i] === first)) {
-      return { winner: first, cells: line };
-    }
-  }
-
-  return null;
-}
-
-function makeTTTMove(index) {
-  if (!gameActive || tttBoard[index]) return;
-
-  // In AI mode, human is always X
-  if (modeKey === "tttAI" && currentPlayer !== "X") return;
-
-  tttBoard[index] = currentPlayer;
-  const mode = getMode();
-  const result = getGridWinnerOnBoard(tttBoard, mode.size, mode.win);
-
-  if (result) {
-    gameActive = false;
-    winningCells = result.cells;
-    scores[modeKey][result.winner] += 1;
-    const winMessage =
-      modeKey === "tttAI" && result.winner === "X"
-        ? "You win!"
-        : modeKey === "tttAI" && result.winner === "O"
-        ? "Computer wins!"
-        : `Player ${result.winner} wins!`;
-
-    setStatus(winMessage, getWinningSequenceText(result.cells));
-    showWinnerBanner("WINNER!");
-
-    saveScores();
-    render();
-    updateScoreboard();
-    return;
-  }
-
-  if (tttBoard.every(Boolean)) {
-    gameActive = false;
-    scores[modeKey].draws += 1;
-    setStatus("It's a draw!");
-    hideWinnerBanner();
-    saveScores();
-    render();
-    updateScoreboard();
-    return;
-  }
-
-  if (modeKey === "tttAI") {
-    currentPlayer = "O";
-    setStatus("Computer thinking...");
-    render();
-
-    if (aiTimer) clearTimeout(aiTimer);
-    aiTimer = setTimeout(() => {
-      aiTimer = null;
-      aiMove();
-    }, 350);
-
-    return;
-  }
-
-  currentPlayer = currentPlayer === "X" ? "O" : "X";
-  setStatus(`${currentPlayer}'s turn`);
-  render();
-}
-
-function aiMove() {
-  if (!gameActive || modeKey !== "tttAI" || currentPlayer !== "O") return;
-
-  const move = getBestAIMove();
-  if (move === null) return;
-
-  tttBoard[move] = "O";
-  const result = getGridWinnerOnBoard(tttBoard, 3, 3);
-
-  if (result) {
-    gameActive = false;
-    winningCells = result.cells;
-    scores.tttAI.O += 1;
-    setStatus("Computer wins!", getWinningSequenceText(result.cells));
-    showWinnerBanner("WINNER!");
-    saveScores();
-    render();
-    updateScoreboard();
-    return;
-  }
-
-  if (tttBoard.every(Boolean)) {
-    gameActive = false;
-    scores.tttAI.draws += 1;
-    setStatus("It's a draw!");
-    hideWinnerBanner();
-    saveScores();
-    render();
-    updateScoreboard();
-    return;
-  }
-
-  currentPlayer = "X";
-  setStatus("Your turn");
-  render();
-}
-
-function getBestAIMove() {
-  let bestScore = -Infinity;
-  let bestMove = null;
-
-  for (let i = 0; i < tttBoard.length; i++) {
-    if (tttBoard[i]) continue;
-
-    tttBoard[i] = "O";
-    const score = minimax(tttBoard, 0, false);
-    tttBoard[i] = null;
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestMove = i;
-    }
-  }
-
-  return bestMove;
-}
-
-function minimax(board, depth, isMaximizing) {
-  const result = getGridWinnerOnBoard(board, 3, 3);
-
-  if (result) {
-    if (result.winner === "O") return 10 - depth;
-    if (result.winner === "X") return depth - 10;
-  }
-
-  if (board.every(Boolean)) return 0;
-
-  if (isMaximizing) {
-    let best = -Infinity;
-
-    for (let i = 0; i < board.length; i++) {
-      if (board[i]) continue;
-      board[i] = "O";
-      best = Math.max(best, minimax(board, depth + 1, false));
-      board[i] = null;
-    }
-
     return best;
-  } else {
-    let best = Infinity;
-
-    for (let i = 0; i < board.length; i++) {
-      if (board[i]) continue;
-      board[i] = "X";
-      best = Math.min(best, minimax(board, depth + 1, true));
-      board[i] = null;
+  }else{
+    let best=Infinity;
+    for(let i=0;i<9;i++) if(!board[i]){
+      board[i]="X";
+      best=Math.min(best,minimaxTTT(board,true));
+      board[i]=null;
     }
-
     return best;
   }
 }
 
-function dropConnect4(col) {
-  const mode = getMode();
-  if (!gameActive) return;
+// ------------------------------
+// Chess setup + rendering
+// ------------------------------
+function initChess(){
+  chessBoard = Array.from({length:8},()=>Array(8).fill(null));
 
-  let rowToPlace = -1;
-  for (let r = mode.rows - 1; r >= 0; r--) {
-    if (!c4Board[r][col]) {
-      rowToPlace = r;
-      break;
-    }
+  const back = ["r","n","b","q","k","b","n","r"];
+  for(let c=0;c<8;c++){
+    chessBoard[0][c] = {color:"b", type:back[c]};
+    chessBoard[1][c] = {color:"b", type:"p"};
+    chessBoard[6][c] = {color:"w", type:"p"};
+    chessBoard[7][c] = {color:"w", type:back[c]};
   }
 
-  if (rowToPlace === -1) return;
-
-  c4Board[rowToPlace][col] = currentPlayer;
-
-  const result = checkConnect4Winner();
-  if (result) {
-    gameActive = false;
-    winningCells = result.cells;
-    scores[modeKey][result.winner] += 1;
-    setStatus(`Player ${result.winner} wins!`, getWinningSequenceText(result.cells));
-    showWinnerBanner("WINNER!");
-    saveScores();
-    render();
-    updateScoreboard();
-    return;
-  }
-
-  if (c4Board.every(row => row.every(Boolean))) {
-    gameActive = false;
-    scores[modeKey].draws += 1;
-    setStatus("It's a draw!");
-    hideWinnerBanner();
-    saveScores();
-    render();
-    updateScoreboard();
-    return;
-  }
-
-  currentPlayer = currentPlayer === "X" ? "O" : "X";
-  setStatus(`${currentPlayer}'s turn`);
-  render();
+  chessTurn = "w";
+  selected = null;
+  whiteCaptured = [];
+  blackCaptured = [];
+  chessOver = false;
+  renderCaptured();
 }
 
-function checkConnect4Winner() {
-  const { rows, cols, win } = getMode();
-  const directions = [
-    [0, 1],   // right
-    [1, 0],   // down
-    [1, 1],   // diagonal down-right
-    [1, -1]   // diagonal down-left
-  ];
-
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const player = c4Board[r][c];
-      if (!player) continue;
-
-      for (const [dr, dc] of directions) {
-        const cells = [[r, c]];
-        let ok = true;
-
-        for (let k = 1; k < win; k++) {
-          const nr = r + dr * k;
-          const nc = c + dc * k;
-
-          if (
-            nr < 0 || nr >= rows ||
-            nc < 0 || nc >= cols ||
-            c4Board[nr][nc] !== player
-          ) {
-            ok = false;
-            break;
-          }
-
-          cells.push([nr, nc]);
-        }
-
-        if (ok) {
-          return {
-            winner: player,
-            cells: cells.map(([rr, cc]) => rr * cols + cc)
-          };
-        }
-      }
-    }
-  }
-
-  return null;
+function renderCaptured(){
+  whiteCapturedEl.innerHTML = whiteCaptured.map(p=>PIECE_UNICODE[pieceKey(p)]).join(" ");
+  blackCapturedEl.innerHTML = blackCaptured.map(p=>PIECE_UNICODE[pieceKey(p)]).join(" ");
 }
 
-/* ---------------- Chess ---------------- */
+function renderChess(){
+  chessBoardEl.innerHTML = "";
+  for(let r=0;r<8;r++){
+    for(let c=0;c<8;c++){
+      const cell = document.createElement("div");
+      cell.className = "chess-cell " + ((r+c)%2===0?"light":"dark");
+      if(selected && selected.r===r && selected.c===c) cell.classList.add("selected");
 
-function createChessBoard() {
-  return [
-    ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-    ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
-    ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
-  ];
-}
-
-function cloneChessBoard(board) {
-  return board.map(row => row.slice());
-}
-
-function inBounds(r, c) {
-  return r >= 0 && r < 8 && c >= 0 && c < 8;
-}
-
-function pieceColor(piece) {
-  return piece ? piece[0] : null;
-}
-
-function pieceType(piece) {
-  return piece ? piece[1] : null;
-}
-
-function isSquareAttacked(board, r, c, byColor) {
-  const enemy = byColor;
-
-  // Pawns
-  const pawnDir = enemy === "w" ? -1 : 1;
-  const pawnRow = r - pawnDir;
-  for (const dc of [-1, 1]) {
-    const pc = c + dc;
-    if (inBounds(pawnRow, pc) && board[pawnRow][pc] === `${enemy}P`) return true;
-  }
-
-  // Knights
-  const knightOffsets = [
-    [-2, -1], [-2, 1], [-1, -2], [-1, 2],
-    [1, -2], [1, 2], [2, -1], [2, 1]
-  ];
-  for (const [dr, dc] of knightOffsets) {
-    const rr = r + dr, cc = c + dc;
-    if (inBounds(rr, cc) && board[rr][cc] === `${enemy}N`) return true;
-  }
-
-  // Bishops / Queens diagonals
-  const diagDirs = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
-  for (const [dr, dc] of diagDirs) {
-    let rr = r + dr, cc = c + dc;
-    while (inBounds(rr, cc)) {
-      const p = board[rr][cc];
-      if (p) {
-        if (pieceColor(p) === enemy && (pieceType(p) === "B" || pieceType(p) === "Q")) return true;
-        break;
-      }
-      rr += dr;
-      cc += dc;
+      const p = chessBoard[r][c];
+      cell.textContent = p ? PIECE_UNICODE[pieceKey(p)] : "";
+      cell.onclick = ()=>onChessClick(r,c);
+      chessBoardEl.appendChild(cell);
     }
   }
-
-  // Rooks / Queens orthogonals
-  const lineDirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-  for (const [dr, dc] of lineDirs) {
-    let rr = r + dr, cc = c + dc;
-    while (inBounds(rr, cc)) {
-      const p = board[rr][cc];
-      if (p) {
-        if (pieceColor(p) === enemy && (pieceType(p) === "R" || pieceType(p) === "Q")) return true;
-        break;
-      }
-      rr += dr;
-      cc += dc;
-    }
-  }
-
-  // King
-  for (let dr = -1; dr <= 1; dr++) {
-    for (let dc = -1; dc <= 1; dc++) {
-      if (dr === 0 && dc === 0) continue;
-      const rr = r + dr, cc = c + dc;
-      if (inBounds(rr, cc) && board[rr][cc] === `${enemy}K`) return true;
-    }
-  }
-
-  return false;
+  setStatus(chessOver ? "Chess: Game over" : `Chess: ${chessTurn==="w"?"White":"Black"} to move`);
 }
 
-function findKing(board, color) {
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      if (board[r][c] === `${color}K`) return { r, c };
-    }
-  }
-  return null;
-}
+function onChessClick(r,c){
+  const mode = currentMode();
+  if (!mode.startsWith("chess") || chessOver) return;
 
-function isInCheck(board, color) {
-  const king = findKing(board, color);
-  if (!king) return true;
-  const enemy = color === "w" ? "b" : "w";
-  return isSquareAttacked(board, king.r, king.c, enemy);
-}
-
-function generatePseudoMoves(board, r, c) {
-  const piece = board[r][c];
-  if (!piece) return [];
-  const color = pieceColor(piece);
-  const type = pieceType(piece);
-  const moves = [];
-  const enemy = color === "w" ? "b" : "w";
-
-  if (type === "P") {
-    const dir = color === "w" ? -1 : 1;
-    const startRow = color === "w" ? 6 : 1;
-
-    // forward 1
-    const nr1 = r + dir;
-    if (inBounds(nr1, c) && !board[nr1][c]) {
-      moves.push([nr1, c]);
-
-      // forward 2
-      const nr2 = r + dir * 2;
-      if (r === startRow && !board[nr2][c]) {
-        moves.push([nr2, c]);
-      }
-    }
-
-    // captures
-    for (const dc of [-1, 1]) {
-      const nr = r + dir;
-      const nc = c + dc;
-      if (inBounds(nr, nc) && board[nr][nc] && pieceColor(board[nr][nc]) === enemy) {
-        moves.push([nr, nc]);
-      }
-    }
-  }
-
-  if (type === "N") {
-    const offsets = [
-      [-2, -1], [-2, 1], [-1, -2], [-1, 2],
-      [1, -2], [1, 2], [2, -1], [2, 1]
-    ];
-    for (const [dr, dc] of offsets) {
-      const nr = r + dr, nc = c + dc;
-      if (!inBounds(nr, nc)) continue;
-      if (!board[nr][nc] || pieceColor(board[nr][nc]) === enemy) moves.push([nr, nc]);
-    }
-  }
-
-  const slideDirs = {
-    B: [[-1, -1], [-1, 1], [1, -1], [1, 1]],
-    R: [[-1, 0], [1, 0], [0, -1], [0, 1]],
-    Q: [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]]
-  };
-
-  if (slideDirs[type]) {
-    for (const [dr, dc] of slideDirs[type]) {
-      let nr = r + dr, nc = c + dc;
-      while (inBounds(nr, nc)) {
-        if (!board[nr][nc]) {
-          moves.push([nr, nc]);
-        } else {
-          if (pieceColor(board[nr][nc]) === enemy) moves.push([nr, nc]);
-          break;
-        }
-        nr += dr;
-        nc += dc;
-      }
-    }
-  }
-
-  if (type === "K") {
-    for (let dr = -1; dr <= 1; dr++) {
-      for (let dc = -1; dc <= 1; dc++) {
-        if (dr === 0 && dc === 0) continue;
-        const nr = r + dr, nc = c + dc;
-        if (!inBounds(nr, nc)) continue;
-        if (!board[nr][nc] || pieceColor(board[nr][nc]) === enemy) moves.push([nr, nc]);
-      }
-    }
-  }
-
-  return moves;
-}
-
-function generateLegalChessMoves(board, r, c) {
-  const piece = board[r][c];
-  if (!piece || pieceColor(piece) !== currentPlayer) return [];
-
-  const color = pieceColor(piece);
-  const type = pieceType(piece);
-  const pseudo = generatePseudoMoves(board, r, c);
-
-  const legal = [];
-  for (const [nr, nc] of pseudo) {
-    const copy = cloneChessBoard(board);
-    copy[nr][nc] = copy[r][c];
-    copy[r][c] = null;
-
-    // promotion to queen
-    if (type === "P") {
-      if ((color === "w" && nr === 0) || (color === "b" && nr === 7)) {
-        copy[nr][nc] = `${color}Q`;
-      }
-    }
-
-    if (!isInCheck(copy, color)) legal.push({ r: nr, c: nc });
-  }
-
-  return legal;
-}
-
-function getAllLegalChessMoves(board, color) {
-  const prev = currentPlayer;
-  currentPlayer = color;
-
-  const moves = [];
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      if (board[r][c] && pieceColor(board[r][c]) === color) {
-        const legal = generateLegalChessMoves(board, r, c);
-        for (const m of legal) moves.push({ from: { r, c }, to: m });
-      }
-    }
-  }
-
-  currentPlayer = prev;
-  return moves;
-}
-
-function handleChessClick(r, c) {
-  if (!gameActive) return;
+  // in chessAI, human plays white only
+  if (mode==="chessAI" && chessTurn==="b") return;
 
   const piece = chessBoard[r][c];
-
-  if (!selectedChess) {
-    if (piece && pieceColor(piece) === currentPlayer) {
-      selectedChess = { r, c };
-      legalChessMoves = generateLegalChessMoves(chessBoard, r, c);
-      render();
-    }
+  if (!selected) {
+    if (piece && piece.color===chessTurn) selected={r,c};
+    renderChess();
     return;
   }
 
-  // clicking own piece changes selection
-  if (piece && pieceColor(piece) === currentPlayer) {
-    selectedChess = { r, c };
-    legalChessMoves = generateLegalChessMoves(chessBoard, r, c);
-    render();
+  const from = selected;
+  const moves = getPseudoMoves(chessBoard, from.r, from.c);
+  const legal = moves.find(m=>m.r===r && m.c===c);
+
+  if (!legal) {
+    if (piece && piece.color===chessTurn) selected={r,c};
+    else selected=null;
+    renderChess();
     return;
   }
 
-  const target = legalChessMoves.find(m => m.r === r && m.c === c);
-  if (!target) {
-    selectedChess = null;
-    legalChessMoves = [];
-    render();
-    return;
-  }
+  makeMove(chessBoard, {fromR:from.r, fromC:from.c, toR:r, toC:c}, true);
+  selected = null;
+  chessTurn = chessTurn==="w" ? "b" : "w";
+  renderChess();
 
-  performChessMove(selectedChess.r, selectedChess.c, r, c);
-}
-
-function performChessMove(fr, fc, tr, tc) {
-  const piece = chessBoard[fr][fc];
-  const color = pieceColor(piece);
-  const type = pieceType(piece);
-
-  chessBoard[tr][tc] = piece;
-  chessBoard[fr][fc] = null;
-
-  // pawn promotion
-  if (type === "P") {
-    if ((color === "w" && tr === 0) || (color === "b" && tr === 7)) {
-      chessBoard[tr][tc] = `${color}Q`;
-    }
-  }
-
-  selectedChess = null;
-  legalChessMoves = [];
-
-  // switch turns
-  currentPlayer = color === "w" ? "b" : "w";
-  finishChessTurn(color);
-  render();
-}
-
-function finishChessTurn(lastMoverColor) {
-  const opponent = currentPlayer;
-  const inCheck = isInCheck(chessBoard, opponent);
-  const allMoves = getAllLegalChessMoves(chessBoard, opponent);
-
-  if (allMoves.length === 0) {
-    gameActive = false;
-
-    if (inCheck) {
-      const winnerKey = lastMoverColor === "w" ? "X" : "O";
-      scores.chess[winnerKey] += 1;
-      setStatus(`${colorName(lastMoverColor)} wins by checkmate!`);
-      showWinnerBanner("WINNER!");
-    } else {
-      scores.chess.draws += 1;
-      setStatus("Stalemate! It's a draw.");
-      hideWinnerBanner();
-    }
-
-    saveScores();
-    updateScoreboard();
-    return;
-  }
-
-  if (inCheck) {
-    setStatus(`${colorName(opponent)} is in check`);
-  } else {
-    setStatus(`${colorName(opponent)} to move`);
+  if (mode==="chessAI" && chessTurn==="b" && !chessOver) {
+    aiChessMove();
   }
 }
-/* ---------------- End Chess ---------------- */
 
-function resetCurrentScores() {
-  scores[modeKey] = { X: 0, O: 0, draws: 0 };
-  saveScores();
-  updateScoreboard();
-  initBoard();
-}
+// ------------------------------
+// Chess move logic (pseudo-legal)
+// ------------------------------
+function getPseudoMoves(board, r, c){
+  const p = board[r][c];
+  if(!p) return [];
+  const moves = [];
 
-els.newGameBtn.addEventListener("click", initBoard);
-els.resetScoreBtn.addEventListener("click", resetCurrentScores);
-if (els.restartBtn) {
-  els.restartBtn.addEventListener("click", initBoard);
-}
-
-// Custom Dropdown Handler
-els.dropdownTrigger.addEventListener("click", () => {
-  els.customDropdown.classList.toggle("open");
-});
-
-// Dropdown Item Selection
-document.querySelectorAll(".dropdown-item").forEach(item => {
-  item.addEventListener("click", () => {
-    const value = item.getAttribute("data-value");
-    modeKey = value;
-
-    // Update display
-    els.dropdownText.textContent = item.textContent;
-
-    // Update active item styling
-    document.querySelectorAll(".dropdown-item").forEach(i => i.classList.remove("active"));
-    item.classList.add("active");
-
-    // Close dropdown
-    els.customDropdown.classList.remove("open");
-
-    // Start new game
-    initBoard();
-  });
-});
-
-// Close dropdown when clicking outside
-document.addEventListener("click", (e) => {
-  if (!els.customDropdown.contains(e.target)) {
-    els.customDropdown.classList.remove("open");
-  }
-});
-
-// Set initial active item
-function setActiveDropdownItem() {
-  document.querySelectorAll(".dropdown-item").forEach(item => {
-    if (item.getAttribute("data-value") === modeKey) {
-      item.classList.add("active");
-    } else {
-      item.classList.remove("active");
-    }
-  });
-}
-
-function applyTheme() {
-  document.body.className = currentTheme + "-theme";
-  const themeLabels = {
-    dark: "🌙 Dark",
-    light: "☀️ Light",
-    void: "✨ Void"
+  const push = (nr,nc)=>{
+    if(!inBounds(nr,nc)) return;
+    const t = board[nr][nc];
+    if(!t || t.color!==p.color) moves.push({r:nr,c:nc});
   };
-  els.themeBtn.textContent = themeLabels[currentTheme] || "Dark";
-  localStorage.setItem("neoArcadeTheme", currentTheme);
+
+  if(p.type==="p"){
+    const dir = p.color==="w" ? -1 : 1;
+    const start = p.color==="w" ? 6 : 1;
+    if(inBounds(r+dir,c) && !board[r+dir][c]) moves.push({r:r+dir,c});
+    if(r===start && !board[r+dir][c] && !board[r+2*dir][c]) moves.push({r:r+2*dir,c});
+    for(const dc of [-1,1]){
+      const nr=r+dir, nc=c+dc;
+      if(inBounds(nr,nc) && board[nr][nc] && board[nr][nc].color!==p.color) moves.push({r:nr,c:nc});
+    }
+  } else if (p.type==="n"){
+    [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(([dr,dc])=>push(r+dr,c+dc));
+  } else if (p.type==="k"){
+    for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+      if(dr||dc) push(r+dr,c+dc);
+    }
+  } else {
+    const dirs = [];
+    if (p.type==="b" || p.type==="q") dirs.push([-1,-1],[-1,1],[1,-1],[1,1]);
+    if (p.type==="r" || p.type==="q") dirs.push([-1,0],[1,0],[0,-1],[0,1]);
+
+    for(const [dr,dc] of dirs){
+      let nr=r+dr,nc=c+dc;
+      while(inBounds(nr,nc)){
+        if(!board[nr][nc]) moves.push({r:nr,c:nc});
+        else{
+          if(board[nr][nc].color!==p.color) moves.push({r:nr,c:nc});
+          break;
+        }
+        nr+=dr; nc+=dc;
+      }
+    }
+  }
+  return moves;
 }
 
-els.themeBtn.addEventListener("click", () => {
-  const themes = ["dark", "light", "void"];
-  const currentIndex = themes.indexOf(currentTheme);
-  currentTheme = themes[(currentIndex + 1) % themes.length];
-  applyTheme();
+function makeMove(board, mv, realMove=false){
+  const piece = board[mv.fromR][mv.fromC];
+  const target = board[mv.toR][mv.toC];
+
+  if (target && realMove) {
+    if (target.color==="w") whiteCaptured.push(target);
+    else blackCaptured.push(target);
+    if (target.type==="k") chessOver = true;
+    renderCaptured();
+  }
+
+  board[mv.toR][mv.toC] = piece;
+  board[mv.fromR][mv.fromC] = null;
+
+  // promotion to queen
+  if (piece.type==="p" && (mv.toR===0 || mv.toR===7)) {
+    piece.type = "q";
+  }
+}
+
+function getAllMovesForColor(board, color){
+  const moves = [];
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
+    const p = board[r][c];
+    if(!p || p.color!==color) continue;
+    const pm = getPseudoMoves(board,r,c);
+    pm.forEach(m=>moves.push({fromR:r,fromC:c,toR:m.r,toC:m.c}));
+  }
+  return moves;
+}
+
+// ------------------------------
+// Chess AI
+// ------------------------------
+const pieceValue = { p:100, n:320, b:330, r:500, q:900, k:20000 };
+
+function evaluate(board){
+  let score = 0;
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
+    const p = board[r][c];
+    if(!p) continue;
+    const v = pieceValue[p.type] || 0;
+    // AI is black => maximize black advantage
+    score += (p.color==="b" ? v : -v);
+  }
+  return score;
+}
+
+function movePriority(board, mv){
+  // cheap move ordering: captures first, king captures highest
+  const t = board[mv.toR][mv.toC];
+  if(!t) return 0;
+  return (pieceValue[t.type] || 0) + (t.type==="k" ? 50000 : 0);
+}
+
+function minimax(board, depth, alpha, beta, maximizing){
+  if(depth===0) return {score:evaluate(board), move:null};
+
+  const color = maximizing ? "b" : "w";
+  let moves = getAllMovesForColor(board, color);
+
+  if(!moves.length) return {score:evaluate(board), move:null};
+
+  // order moves (hard-mode improvement base)
+  moves = moves.sort((a,b)=>movePriority(board,b)-movePriority(board,a));
+
+  let bestMove = null;
+
+  if(maximizing){
+    let best = -Infinity;
+    for(const mv of moves){
+      const b2 = cloneBoard(board);
+      makeMove(b2,mv,false);
+      const val = minimax(b2, depth-1, alpha, beta, false).score;
+      if(val>best){ best=val; bestMove=mv; }
+      alpha = Math.max(alpha,val);
+      if(beta<=alpha) break;
+    }
+    return {score:best, move:bestMove};
+  } else {
+    let best = Infinity;
+    for(const mv of moves){
+      const b2 = cloneBoard(board);
+      makeMove(b2,mv,false);
+      const val = minimax(b2, depth-1, alpha, beta, true).score;
+      if(val<best){ best=val; bestMove=mv; }
+      beta = Math.min(beta,val);
+      if(beta<=alpha) break;
+    }
+    return {score:best, move:bestMove};
+  }
+}
+
+function aiDelayForDifficulty(diff){
+  if(diff==="easy") return 300;
+  if(diff==="medium") return 650;
+  return 950;
+}
+
+function depthForDifficulty(diff){
+  if(diff==="easy") return 1;
+  if(diff==="medium") return 2;
+  return 3;
+}
+
+function aiPickMoveWithPersonality(board, diff){
+  const legal = getAllMovesForColor(board, "b");
+  if(!legal.length) return null;
+
+  // score all moves at small lookahead for personality shaping
+  const depth = depthForDifficulty(diff);
+  const scored = legal.map(mv=>{
+    const b2 = cloneBoard(board);
+    makeMove(b2,mv,false);
+    const sc = minimax(b2, Math.max(0,depth-1), -Infinity, Infinity, false).score;
+    return {mv, sc};
+  }).sort((a,b)=>b.sc-a.sc);
+
+  if(diff==="hard") return scored[0].mv;
+
+  if(diff==="medium"){
+    if(Math.random()<0.75) return scored[0].mv;
+    return (scored[1]?.mv || scored[0].mv);
+  }
+
+  // easy
+  if(Math.random()<0.55){
+    const k = Math.min(legal.length, 4);
+    return legal[Math.floor(Math.random()*k)];
+  }
+  return scored[0].mv;
+}
+
+function aiChessMove(){
+  thinkingEl.style.display = "block";
+  const diff = difficultySelect.value;
+  const wait = aiDelayForDifficulty(diff);
+
+  setTimeout(()=>{
+    if(chessOver || currentMode()!=="chessAI" || chessTurn!=="b"){
+      thinkingEl.style.display = "none";
+      return;
+    }
+
+    const mv = aiPickMoveWithPersonality(chessBoard, diff);
+    if(!mv){
+      thinkingEl.style.display = "none";
+      return;
+    }
+
+    makeMove(chessBoard, mv, true);
+    chessTurn = "w";
+    renderChess();
+    thinkingEl.style.display = "none";
+  }, wait);
+}
+
+// ------------------------------
+// Reset / init
+// ------------------------------
+function resetCurrentMode(){
+  const mode = currentMode();
+
+  if (mode.startsWith("ttt")) {
+    ttt = Array(9).fill(null);
+    tttTurn = "X";
+    tttOver = false;
+    renderTTT();
+  } else {
+    initChess();
+    renderChess();
+  }
+}
+
+modeSelect.addEventListener("change", ()=>{
+  updateModeUI();
+  resetCurrentMode();
 });
 
-// Start the game
-applyTheme();
-initBoard();
-setActiveDropdownItem();
+difficultySelect.addEventListener("change", ()=>{
+  // no immediate action needed; used at AI turn time
+});
+
+resetBtn.addEventListener("click", resetCurrentMode);
+
+// boot
+updateModeUI();
+resetCurrentMode();

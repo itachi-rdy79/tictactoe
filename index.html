@@ -3,103 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GAP</title>
+  <title>Game Hub - Tic Tac Toe & Chess</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app">
-    <header class="topbar">
-      <div class="brand">
-        <div class="title-wrap">
-          <h1>GAP</h1>
-        </div>
-        <div class="badge" id="modeBadge">Mode: 5x5 Battle</div>
+    <h1>Game Hub</h1>
+
+    <div class="controls">
+      <label for="modeSelect">Mode:</label>
+      <select id="modeSelect">
+        <option value="ttt2p">Tic-Tac-Toe (2 Players)</option>
+        <option value="tttAI">Tic-Tac-Toe vs Computer</option>
+        <option value="chess2p">Chess (2 Players)</option>
+        <option value="chessAI">Chess vs Computer</option>
+      </select>
+
+      <div id="difficultyWrap" class="inline">
+        <label for="difficultySelect">Difficulty:</label>
+        <select id="difficultySelect">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
       </div>
 
-      <div class="controls">
-        <div class="left-controls">
-          <div class="custom-dropdown" id="customDropdown">
-            <button class="dropdown-trigger" id="dropdownTrigger" aria-label="Select game mode">
-              <span id="dropdownText">5x5 Battle — connect 4</span>
-              <span class="dropdown-icon">▼</span>
-            </button>
-            <div class="dropdown-menu" id="dropdownMenu">
-              <div class="dropdown-item" data-value="ttt5">5x5 Battle — connect 4</div>
-              <div class="dropdown-item" data-value="ttt3">Classic 3x3 — connect 3</div>
-              <div class="dropdown-item" data-value="tttAI">Tic Tac Toe vs AI – unbeatable</div>
-              <div class="dropdown-item" data-value="connect4">Connect Four</div>
-              <div class="dropdown-item" data-value="chess">Chess – 2 Player</div>
-            </div>
-          </div>
+      <button id="resetBtn">Reset</button>
+    </div>
 
-          <button class="primary" id="newGameBtn">New Game</button>
-          <button class="danger" id="resetScoreBtn">Reset Score</button>
-        </div>
+    <div id="status">Welcome! Choose a mode and play.</div>
+    <div id="aiThinking" class="thinking" style="display:none;">AI thinking...</div>
 
-        <div class="right-controls">
-          <button id="themeBtn">Neon UI</button>
-        </div>
+    <div id="tttBoard" class="ttt-board"></div>
+    <div id="chessBoard" class="chess-board" style="display:none;"></div>
+
+    <div id="capturedPanel" class="captured-panel" style="display:none;">
+      <div>
+        <strong>White captured:</strong>
+        <div id="whiteCaptured" class="captured-row"></div>
       </div>
-    </header>
-
-    <main class="content">
-      <section class="board-wrap">
-        <div class="status">
-          <div class="status-copy">
-            <span id="statusText">X’s turn</span>
-            <small id="detailText" class="status-detail" hidden></small>
-          </div>
-          <small id="subText">5x5 board — connect 4 to win</small>
-        </div>
-
-        <section class="winner-screen" id="winnerScreen" aria-live="polite" hidden>
-          <div class="winner-banner">
-            <h2 class="winner-text">WINNER!</h2>
-          </div>
-          <button class="restart-btn" id="restartBtn" type="button">Restart game</button>
-        </section>
-
-        <div class="board-area">
-          <div class="column-bar" id="columnBar"></div>
-          <div class="board" id="board"></div>
-        </div>
-      </section>
-
-      <aside class="side">
-        <section class="panel">
-          <h3>Scoreboard</h3>
-          <div class="score-grid">
-            <div class="score-card x">
-              <div class="label" id="scoreLabelX">Player X</div>
-              <div class="value" id="scoreX">0</div>
-            </div>
-            <div class="score-card o">
-              <div class="label" id="scoreLabelO">Player O</div>
-              <div class="value" id="scoreO">0</div>
-            </div>
-            <div class="score-card draws">
-              <div class="label">Draws</div>
-              <div class="value" id="scoreDraws">0</div>
-            </div>
-          </div>
-        </section>
-
-        <section class="panel">
-          <h3>How to play</h3>
-          <div class="hint">
-            <p>• Choose a mode from the dropdown.</p>
-            <p>• <b>5x5 Battle</b>: connect <b>4</b> in a row to win.</p>
-            <p>• <b>Classic 3x3</b>: connect <b>3</b> in a row to win.</p>
-            <p>• <b>Connect Four</b>: drop pieces into columns and connect <b>4</b>.</p>
-            <p>• This is a static site, so it works great with GitHub Pages.</p>
-          </div>
-        </section>
-      </aside>
-    </main>
-
-    <footer class="footer">
-      Built with HTML, CSS, and JavaScript. Easy to expand with more games later.
-    </footer>
+      <div>
+        <strong>Black captured:</strong>
+        <div id="blackCaptured" class="captured-row"></div>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
