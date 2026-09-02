@@ -94,7 +94,6 @@ function startIdleWatchdog() {
   if (idleInterval) clearInterval(idleInterval);
   idleSeconds = 0;
   idleInterval = setInterval(() => {
-    // Only check when timer is off and not in game over / AI turn
     if (hubState.timer === "off") {
       idleSeconds++;
       if (idleSeconds >= 60) {
@@ -155,8 +154,8 @@ function syncHud() {
 
   const isWordle = hubState.game === "wordle";
   opponentGroup.style.display = isWordle ? "none" : "flex";
-  difficultyGroup.style.display = isWordle ? "none" : "flex";
-  difficultyGroup.classList.toggle("disabled", hubState.opponent !== "ai");
+  difficultyGroup.style.display = "flex";
+  difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
 }
 
 /* ---------- Theme Handling ---------- */
@@ -692,62 +691,86 @@ function onChessClick(r, c) {
   }
 }
 
-/* ---------- Comprehensive Offline Wordle Engine ---------- */
-const WORD_LIST = [
-  "CHAIR","PIPER","ABOUT","ADMIT","ADOPT","AFTER","AGREE","AHEAD","ALARM","ALERT",
-  "ALIKE","ALIVE","ALLOW","ALONE","ALONG","ANGER","ANGLE","ANGRY","APPLE","APPLY",
-  "ARENA","ARGUE","ARISE","ARRAY","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWAKE",
-  "AWARD","AWARE","BADLY","BAKER","BASIC","BASIS","BEACH","BEGAN","BEGIN","BEGUN",
-  "BEING","BELOW","BENCH","BIRTH","BLACK","BLAME","BLIND","BLOCK","BLOOD","BOARD",
-  "BOOST","BOOTH","BOUND","BRAIN","BRAND","BREAD","BREAK","BREED","BRIEF","BRING",
-  "BROAD","BROKE","BROWN","BUILD","BUILT","BUYER","CABLE","CARRY","CATCH","CAUSE",
-  "CHAIN","CHART","CHASE","CHEAP","CHECK","CHEST","CHIEF","CHILD","CHOSE","CIVIL",
-  "CLAIM","CLASS","CLEAN","CLEAR","CLICK","CLOCK","CLOSE","COACH","COAST","COUNT",
-  "COURT","COVER","CRAFT","CRASH","CREAM","CRIME","CROSS","CROWD","CROWN","CYCLE",
-  "DAILY","DANCE","DATED","DEALT","DEATH","DEBUT","DELAY","DEPTH","DOING","DOUBT",
-  "DOZEN","DRAFT","DRAMA","DRAWN","DREAM","DRESS","DRILL","DRINK","DRIVE","DROVE",
-  "DYING","EAGER","EARLY","EARTH","EIGHT","ELITE","EMPTY","ENEMY","ENJOY","ENTER",
-  "ENTRY","EQUAL","ERROR","EVENT","EVERY","EXACT","EXIST","EXTRA","FAITH","FALSE",
-  "FAULT","FIBER","FIELD","FIFTH","FIFTY","FIGHT","FINAL","FIRST","FIXED","FLASH",
-  "FLEET","FLOOR","FLUID","FOCUS","FORCE","FORTH","FORTY","FORUM","FOUND","FRAME",
-  "FRANK","FRAUD","FRESH","FRONT","FRUIT","FULLY","FUNNY","GIANT","GIVEN","GLASS",
-  "GLOBE","GOING","GRACE","GRADE","GRAND","GRANT","GRASS","GRAVE","GREAT","GREEN",
-  "GROSS","GROUP","GROWN","GUARD","GUESS","GUEST","GUIDE","HAPPY","HEART","HEAVY",
-  "HENCE","HORSE","HOTEL","HOUSE","HUMAN","IDEAL","IMAGE","INDEX","INNER","INPUT",
-  "ISSUE","JOINT","JUDGE","KNOWN","LABEL","LARGE","LASER","LATER","LAUGH","LAYER",
-  "LEARN","LEASE","LEAST","LEAVE","LEGAL","LEVEL","LIGHT","LIMIT","LINKS","LIVES",
-  "LOCAL","LOGIC","LOOSE","LOWER","LUCKY","LUNCH","MAGIC","MAJOR","MAKER","MARCH",
-  "MATCH","MAYBE","MAYOR","MEANT","MEDIA","METAL","MIGHT","MINOR","MINUS","MIXED",
-  "MODEL","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVIE","MUSIC",
-  "NEEDS","NEVER","NIGHT","NOISE","NORTH","NOTED","NOVEL","NURSE","OCCUR","OCEAN",
-  "OFFER","OFTEN","ORDER","OTHER","OUGHT","PAINT","PANEL","PAPER","PARTY","PEACE",
-  "PHASE","PHONE","PHOTO","PIECE","PILOT","PITCH","PLACE","PLAIN","PLANE","PLANT",
-  "PLATE","POINT","POUND","POWER","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR",
-  "PRIZE","PROOF","PROUD","PROVE","QUEEN","QUICK","QUIET","QUITE","RADIO","RAISE",
-  "RANGE","RAPID","RATIO","REACH","READY","REFER","RIGHT","RIVAL","RIVER","ROUGH",
-  "ROUND","ROUTE","ROYAL","RURAL","SCALE","SCENE","SCOPE","SCORE","SENSE","SERVE",
-  "SEVEN","SHALL","SHAPE","SHARE","SHARP","SHEET","SHELF","SHELL","SHIFT","SHIRT",
-  "SHOCK","SHOOT","SHORT","SHOWN","SIGHT","SINCE","SIXTH","SIXTY","SIZED","SKILL",
-  "SLEEP","SLIDE","SMALL","SMART","SMILE","SMOKE","SOLID","SOLVE","SORRY","SOUND",
-  "SOUTH","SPACE","SPARE","SPEAK","SPEED","SPEND","SPENT","SPLIT","SPOKE","SPORT",
-  "STAFF","STAGE","STAKE","STAND","START","STATE","STEAM","STEEL","STICK","STILL",
-  "STOCK","STONE","STOOD","STORE","STORM","STORY","STRIP","STUCK","STUDY","STUFF",
-  "STYLE","SUGAR","SUITE","SUPER","SWEET","TABLE","TAKEN","TASTE","TAXES","TEACH",
-  "TEETH","THANK","THEFT","THEIR","THEME","THERE","THESE","THICK","THING","THINK",
-  "THIRD","THOSE","THREE","THREW","THROW","TIGHT","TIMES","TIRED","TITLE","TODAY",
-  "TOPIC","TOTAL","TOUCH","TOUGH","TOWER","TRACK","TRADE","TRAIN","TREAT","TREND",
-  "TRIAL","TRIED","TRIES","TRUCK","TRULY","TRUST","TRUTH","TWICE","UNDER","UNDUE",
-  "UNION","UNITY","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VALID","VALUE",
-  "VIDEO","VIRUS","VISIT","VITAL","VOICE","WASTE","WATCH","WATER","WHEEL","WHERE",
-  "WHICH","WHILE","WHITE","WHOLE","WHOSE","WOMAN","WOMEN","WORLD","WORRY","WORSE",
-  "WORST","WORTH","WOULD","WOUND","WRITE","WRONG","WROTE","YIELD","YOUNG","YOUTH"
-];
+/* ---------- Tiered Wordle Engine (Manual Player Choice Strictly Enforced) ---------- */
+const WORDLE_TIERS = {
+  easy: [
+    "CHAIR","PLANT","CRANE","BEACH","BREAD","CLEAN","DANCE","EARTH","LIGHT","MUSIC",
+    "OCEAN","PAINT","RIVER","SMART","TABLE","WATER","WHITE","HOUSE","WORLD","HEART",
+    "GARDEN","FRUIT","FLAME","CLOUD","SMILE","TRAIN","SPACE","SUGAR","MAGIC","VOICE"
+  ],
+  medium: [
+    "PIPER","FLIPS","CHASM","BRAIN","CRAFT","CRIME","DRAFT","DRILL","FLOAT","GLOVE",
+    "GRAVE","HOTEL","LUNCH","MATCH","MODEL","NIGHT","PILOT","PRICE","PRIDE","RADIO",
+    "SCALE","SHOCK","STORM","TRACK","TRUCK","VALUE","YOUTH","PRIME","BLOCK","FORUM"
+  ],
+  hard: [
+    "KNOLL","VIVID","FJORD","PROXY","QUIRK","PUPPY","MUMMY","CYNIC","GAUZE","ENVOY",
+    "SWILL","TRYST","EPOXY","PIXIE","NYMPH","WRYLY","BLURB","CRYPT","GNASH","KAZOO",
+    "LYMPH","MAXIM","PYGMY","SPELT","USURP","VALET","WALTZ","ABYSS","AGATE","AORTA"
+  ]
+};
+
+// Comprehensive offline 5-letter dictionary for input validation
+const VALID_DICTIONARY_WORDS = new Set([
+  ...WORDLE_TIERS.easy, ...WORDLE_TIERS.medium, ...WORDLE_TIERS.hard,
+  "ABOUT","ABOVE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT",
+  "AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIKE","ALIVE","ALLOW","ALONE","ALONG",
+  "ALTER","AMONG","ANGER","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE",
+  "ARISE","ARRAY","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWAIT","AWAKE","AWARD",
+  "AWARE","BADLY","BAKER","BASES","BASIC","BASIS","BEGAN","BEGIN","BEGUN","BEING",
+  "BELOW","BENCH","BIRTH","BLACK","BLAME","BLIND","BLOOD","BOARD","BOOST","BOOTH",
+  "BOUND","BRAND","BREAK","BREED","BRIEF","BRING","BROAD","BROKE","BROWN","BUILD",
+  "BUILT","BUYER","CABLE","CARRY","CATCH","CAUSE","CHAIN","CHART","CHASE","CHEAP",
+  "CHECK","CHEST","CHIEF","CHILD","CHINA","CHOSE","CIVIL","CLAIM","CLASS","CLEAR",
+  "CLICK","CLOCK","CLOSE","COACH","COAST","COULD","COUNT","COURT","COVER","CRASH",
+  "CREAM","CROSS","CROWD","CROWN","CURLY","CYCLE","DAILY","DATED","DEALT","DEATH",
+  "DEBUT","DELAY","DEPTH","DOING","DOUBT","DOZEN","DRAMA","DRAWN","DREAM","DRESS",
+  "DRINK","DRIVE","DROVE","DYING","EAGER","EARLY","EIGHT","ELITE","EMPTY","ENEMY",
+  "ENJOY","ENTER","ENTRY","EQUAL","ERROR","EVENT","EVERY","EXACT","EXIST","EXTRA",
+  "FAITH","FALSE","FAULT","FIBER","FIELD","FIFTH","FIFTY","FIGHT","FINAL","FIRST",
+  "FIXED","FLASH","FLEET","FLOOR","FLUID","FOCUS","FORCE","FORTH","FORTY","FOUND",
+  "FRAME","FRANK","FRAUD","FRESH","FRONT","FULLY","FUNNY","GIANT","GIVEN","GLASS",
+  "GLOBE","GOING","GRACE","GRADE","GRAND","GRANT","GRASS","GREAT","GREEN","GROSS",
+  "GROUP","GROWN","GUARD","GUESS","GUEST","GUIDE","HAPPY","HEAVY","HENCE","HORSE",
+  "HUMAN","IDEAL","IMAGE","INDEX","INNER","INPUT","ISSUE","JAPAN","JOINT","JUDGE",
+  "KNOWN","LABEL","LARGE","LASER","LATER","LAUGH","LAYER","LEARN","LEASE","LEAST",
+  "LEAVE","LEGAL","LEVEL","LIMIT","LINKS","LIVES","LOCAL","LOGIC","LOOSE","LOWER",
+  "LUCKY","MAKER","MARCH","MAYBE","MAYOR","MEANT","MEDIA","METAL","MIGHT","MINOR",
+  "MINUS","MIXED","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVIE",
+  "NEEDS","NEVER","NOISE","NORTH","NOTED","NOVEL","NURSE","OCCUR","OFFER","OFTEN",
+  "ORDER","OTHER","OUGHT","PANEL","PAPER","PARTY","PEACE","PHASE","PHONE","PHOTO",
+  "PIECE","PITCH","PLACE","PLAIN","PLANE","PLATE","POINT","POUND","POWER","PRESS",
+  "PRIOR","PRIZE","PROOF","PROUD","PROVE","QUEEN","QUICK","QUIET","QUITE","RADIO",
+  "RAISE","RANGE","RAPID","RATIO","REACH","READY","REFER","RIGHT","RIVAL","ROUGH",
+  "ROUND","ROUTE","ROYAL","RURAL","SCENE","SCOPE","SCORE","SENSE","SERVE","SEVEN",
+  "SHALL","SHAPE","SHARE","SHARP","SHEET","SHELF","SHELL","SHIFT","SHIRT","SHOOT",
+  "SHORT","SHOWN","SIGHT","SINCE","SIXTH","SIXTY","SIZED","SKILL","SLEEP","SLIDE",
+  "SMALL","SMOKE","SOLID","SOLVE","SORRY","SOUND","SOUTH","SPARE","SPEAK","SPEED",
+  "SPEND","SPENT","SPLIT","SPOKE","SPORT","STAFF","STAGE","STAKE","STAND","START",
+  "STATE","STEAM","STEEL","STICK","STILL","STOCK","STONE","STOOD","STORE","STORY",
+  "STRIP","STUCK","STUDY","STUFF","STYLE","SUITE","SUPER","SWEET","TAKEN","TASTE",
+  "TAXES","TEACH","TEETH","THANK","THEFT","THEIR","THEME","THERE","THESE","THICK",
+  "THING","THINK","THIRD","THOSE","THREE","THREW","THROW","TIGHT","TIMES","TIRED",
+  "TITLE","TODAY","TOPIC","TOTAL","TOUCH","TOUGH","TOWER","TRADE","TREAT","TREND",
+  "TRIAL","TRIED","TRIES","TRULY","TRUST","TRUTH","TWICE","UNDER","UNDUE","UNION",
+  "UNITY","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VALID","VIDEO","VIRUS",
+  "VISIT","VITAL","WASTE","WATCH","WHEEL","WHERE","WHICH","WHILE","WHITE","WHOLE",
+  "WHOSE","WOMAN","WOMEN","WORRY","WORSE","WORST","WORTH","WOULD","WOUND","WRITE",
+  "WRONG","WROTE","YIELD","YOUNG","ROBOT","CLIMB","FAVOR","HONOR","MAJOR","SOLAR"
+]);
 
 let wordleTarget = "CHAIR";
 let wordleRow = 0;
 let wordleCol = 0;
 let wordleGrid = [];
 let wordleOver = false;
+
+function getWordleTargetByDifficulty() {
+  // Directly respects the player's choice without auto-scaling
+  const tier = hubState.difficulty || "medium";
+  const wordPool = WORDLE_TIERS[tier] || WORDLE_TIERS.medium;
+  return wordPool[Math.floor(Math.random() * wordPool.length)];
+}
 
 function initWordle() {
   resetIdleWatchdog();
@@ -761,13 +784,13 @@ function initWordle() {
   capturedBottom.classList.add("hidden");
   wordleGameEl.classList.remove("hidden");
 
-  wordleTarget = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+  wordleTarget = getWordleTargetByDifficulty();
   wordleRow = 0;
   wordleCol = 0;
   wordleOver = false;
   wordleGrid = Array.from({ length: 6 }, () => Array(5).fill(""));
 
-  statusPill.textContent = "Guess the 5-letter Word!";
+  statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`;
   renderWordle();
 }
 
@@ -776,6 +799,7 @@ function renderWordle() {
   for (let r = 0; r < 6; r++) {
     const rowEl = document.createElement("div");
     rowEl.className = "wordle-row";
+    rowEl.id = `wr-${r}`;
     for (let c = 0; c < 5; c++) {
       const tile = document.createElement("div");
       tile.className = "wordle-tile";
@@ -829,6 +853,10 @@ function handleWordleKey(k) {
 
   if (k === "ENTER") {
     if (wordleCol === 5) checkWordleRow();
+    else {
+      statusPill.textContent = "Too short!";
+      setTimeout(() => statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`, 1200);
+    }
     return;
   }
 
@@ -844,8 +872,22 @@ function handleWordleKey(k) {
 
 function checkWordleRow() {
   const guess = wordleGrid[wordleRow].join("");
+  const currentRowEl = document.getElementById(`wr-${wordleRow}`);
+
+  // Strict Dictionary Validation
+  if (!VALID_DICTIONARY_WORDS.has(guess)) {
+    currentRowEl.classList.add("shake");
+    statusPill.textContent = "Not in word list!";
+    setTimeout(() => {
+      currentRowEl.classList.remove("shake");
+      statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`;
+    }, 1200);
+    return;
+  }
+
   const targetArr = wordleTarget.split("");
 
+  // Correct positions (Green)
   for (let i = 0; i < 5; i++) {
     const tile = document.getElementById(`wt-${wordleRow}-${i}`);
     const keyBtn = wordleKeyboardEl.querySelector(`[data-key="${guess[i]}"]`);
@@ -856,6 +898,7 @@ function checkWordleRow() {
     }
   }
 
+  // Present positions (Yellow) & Absent (Gray)
   for (let i = 0; i < 5; i++) {
     const tile = document.getElementById(`wt-${wordleRow}-${i}`);
     const keyBtn = wordleKeyboardEl.querySelector(`[data-key="${guess[i]}"]`);
@@ -994,6 +1037,7 @@ difficultyPills.addEventListener("click", (e) => {
   syncHud();
   persistHub();
   loadScores();
+  if (hubState.game === "wordle") initWordle();
 });
 
 timerPills.addEventListener("click", (e) => {

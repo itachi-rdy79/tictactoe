@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GAP — Arcade Gaming Hub</title>
-  <link rel="stylesheet" href="style.css?v=9.0" />
+  <link rel="stylesheet" href="style.css?v=11.0" />
 </head>
 <body data-theme="dark">
   <!-- Itachi Background Vector Art -->
@@ -96,7 +96,7 @@
     </div>
   </header>
 
-  <!-- Arena -->
+  <!-- Arena Stage -->
   <main class="arena">
     <section class="status-wrap">
       <div class="turn-pill glass-panel" id="statusPill">X's Turn</div>
@@ -113,13 +113,13 @@
     <section class="board-area">
       <div class="captured-strip glass-panel hidden" id="capturedTop"><b>White captured:</b> <span id="whiteCaptured"></span></div>
 
-      <!-- Main Board Shell with Idle Prompt Animation Target -->
+      <!-- Main Dynamic Shell -->
       <section class="board-shell glass-island" id="boardWrap">
         <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
         <div id="tttBoard" class="ttt-board"></div>
         <div id="chessBoard" class="chess-board hidden"></div>
         
-        <!-- Large Scaled Wordle Container with Vertical Spacing -->
+        <!-- Large Wordle Grid with Distinct Keyboard Separation -->
         <div id="wordleGame" class="wordle-arena hidden">
           <div id="wordleBoard" class="wordle-board"></div>
           <div id="wordleKeyboard" class="wordle-keyboard"></div>
@@ -197,6 +197,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=9.0"></script>
+  <script src="script.js?v=11.0"></script>
 </body>
 </html>
