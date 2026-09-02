@@ -14,7 +14,41 @@
     </header>
 
     <section class="controls">
-      <select id="modeSelect">
+      <!-- MODE -->
+      <div class="gselect" id="modeWrap">
+        <button class="gselect-btn" type="button">
+          <span class="gselect-label">Mode</span>
+          <span class="gselect-value" id="modeValueText">Tic-Tac-Toe 3x3 vs Computer</span>
+          <span class="gselect-caret">⌄</span>
+        </button>
+        <div class="gselect-menu" id="modeMenu"></div>
+      </div>
+
+      <!-- DIFFICULTY -->
+      <div class="gselect" id="difficultyWrapCustom">
+        <button class="gselect-btn" type="button">
+          <span class="gselect-label">Difficulty</span>
+          <span class="gselect-value" id="difficultyValueText">Medium</span>
+          <span class="gselect-caret">⌄</span>
+        </button>
+        <div class="gselect-menu" id="difficultyMenu"></div>
+      </div>
+
+      <button id="newGameBtn">New Game</button>
+      <button id="resetScoreBtn">Reset Score</button>
+
+      <!-- THEME -->
+      <div class="gselect" id="themeWrap">
+        <button class="gselect-btn" type="button">
+          <span class="gselect-label">Theme</span>
+          <span class="gselect-value" id="themeValueText">🌙 Dark</span>
+          <span class="gselect-caret">⌄</span>
+        </button>
+        <div class="gselect-menu" id="themeMenu"></div>
+      </div>
+
+      <!-- Hidden native selects (single source of truth for logic) -->
+      <select id="modeSelect" hidden>
         <option value="ttt3-2p">Tic-Tac-Toe 3x3 (2 Players)</option>
         <option value="ttt3-ai" selected>Tic-Tac-Toe 3x3 vs Computer</option>
         <option value="ttt5-2p">Tic-Tac-Toe 5x5 (2 Players)</option>
@@ -23,16 +57,13 @@
         <option value="chess-ai">Chess vs Computer</option>
       </select>
 
-      <select id="difficultySelect">
+      <select id="difficultySelect" hidden>
         <option value="easy">Easy</option>
         <option value="medium" selected>Medium</option>
         <option value="hard">Hard</option>
       </select>
 
-      <button id="newGameBtn">New Game</button>
-      <button id="resetScoreBtn">Reset Score</button>
-
-      <select id="themeSelect">
+      <select id="themeSelect" hidden>
         <option value="dark" selected>🌙 Dark</option>
         <option value="light">☀️ Light</option>
       </select>
@@ -76,7 +107,6 @@
     </section>
   </main>
 
-  <!-- UNIVERSAL WIN OVERLAY -->
   <div id="winOverlay" class="win-overlay hidden">
     <div class="win-screen">
       <div id="winBanner" class="win-banner">
