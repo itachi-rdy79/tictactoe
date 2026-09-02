@@ -46,6 +46,12 @@ const themeMenu = document.getElementById("themeMenu");
 const themeCurrentIcon = document.getElementById("themeCurrentIcon");
 const themeCurrentText = document.getElementById("themeCurrentText");
 
+const scoreTickerBtn = document.getElementById("scoreTickerBtn");
+const statsModal = document.getElementById("statsModal");
+const closeStatsBtn = document.getElementById("closeStatsBtn");
+const statsGridContent = document.getElementById("statsGridContent");
+const confettiCanvas = document.getElementById("confettiCanvas");
+
 /* ---------- Expanded Dynamic Colors on Reload (No Pink, Non-Gold) ---------- */
 const DYNAMIC_PALETTES = [
   { accent: "#06b6d4", border: "#22d3ee", shadow: "#0891b2", tint: "rgba(6, 182, 212, 0.18)", lightBg: "#ecfeff" }, // Electric Cyan
@@ -78,7 +84,7 @@ const hubState = {
   opponent: "ai",
   difficulty: "medium",
   timer: "off",
-  theme: "dark"
+  theme: "light"
 };
 
 let scoreA = 0, scoreB = 0, scoreD = 0, streak = 0;
@@ -148,7 +154,7 @@ function loadHub() {
   if (saved) Object.assign(hubState, saved);
 
   if (!["off", "30", "60", "90"].includes(hubState.timer)) hubState.timer = "off";
-  if (!["dark", "light", "itachi"].includes(hubState.theme)) hubState.theme = "dark";
+  if (!["dark", "light", "itachi"].includes(hubState.theme)) hubState.theme = "light";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
   if (!["ttt3", "ttt5", "chess", "wordle"].includes(hubState.game)) hubState.game = "ttt3";
@@ -218,7 +224,7 @@ themeMenu.addEventListener("click", (e) => {
 
 document.addEventListener("click", () => themePicker.classList.remove("open"));
 
-/* ---------- Score Tracking ---------- */
+/* ---------- Score Tracking & Statistics Modal ---------- */
 function scoreKey() { return `scores_${modeSelect.value}_${difficultySelect.value}`; }
 
 function renderScores() {
@@ -240,6 +246,78 @@ function loadScores() {
 }
 
 function updateStreak(winA) { streak = winA ? streak + 1 : 0; }
+
+scoreTickerBtn.addEventListener("click", () => {
+  const modes = [
+    { label: "3x3 TTT (AI)", key: "scores_ttt3-ai_medium" },
+    { label: "5x5 TTT (AI)", key: "scores_ttt5-ai_medium" },
+    { label: "Chess (AI)", key: "scores_chess-ai_medium" },
+    { label: "Wordle", key: "scores_wordle_medium" }
+  ];
+
+  statsGridContent.innerHTML = modes.map(m => {
+    const data = JSON.parse(localStorage.getItem(m.key) || '{"scoreA":0,"scoreB":0,"scoreD":0,"streak":0}');
+    const total = data.scoreA + data.scoreB + data.D;
+    const winRate = total > 0 ? Math.round((data.scoreA / (data.scoreA + data.scoreB || 1)) * 100) : 0;
+    return `
+      <div class="stat-card">
+        <span>${m.label}</span>
+        <span>Wins: <b>${data.scoreA}</b> | Losses: <b>${data.scoreB}</b> | Win Rate: <b>${winRate}%</b></span>
+      </div>
+    `;
+  }).join("");
+
+  statsModal.classList.remove("hidden");
+});
+
+closeStatsBtn.addEventListener("click", () => statsModal.classList.add("hidden"));
+statsModal.addEventListener("click", (e) => { if (e.target === statsModal) statsModal.classList.add("hidden"); });
+
+/* ---------- Confetti & Leaf Win Animation ---------- */
+function triggerConfetti() {
+  winOverlay.classList.remove("hidden");
+  const ctx = confettiCanvas.getContext("2d");
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+
+  const particles = [];
+  const colors = ["#ff0033", "#ffd000", "#10b981", "#3b82f6", "#8b5cf6", "#fbbf24"];
+  for (let i = 0; i < 100; i++) {
+    particles.push({
+      x: confettiCanvas.width / 2,
+      y: confettiCanvas.height / 2,
+      vx: (Math.random() - 0.5) * 16,
+      vy: (Math.random() - 0.7) * 16,
+      size: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      vRot: (Math.random() - 0.5) * 10
+    });
+  }
+
+  let animationFrame;
+  function loop() {
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.4; // Gravity
+      p.rotation += p.vRot;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      ctx.restore();
+    });
+    animationFrame = requestAnimationFrame(loop);
+  }
+  loop();
+
+  // Stop confetti loop after 3.5 seconds
+  setTimeout(() => cancelAnimationFrame(animationFrame), 3500);
+}
 
 /* ---------- Timer Logic ---------- */
 let turnTimer = null;
@@ -303,11 +381,11 @@ function startTurnTimer() {
   }, 100);
 }
 
-/* ---------- Win Modal ---------- */
+/* ---------- Win Modal & Triggers ---------- */
 function showWinScreen(msg) {
   resetIdleWatchdog();
   winMessage.textContent = msg.toUpperCase();
-  winOverlay.classList.remove("hidden");
+  triggerConfetti();
 }
 
 function hideWinScreen() {
@@ -724,7 +802,7 @@ function onChessClick(r, c) {
   }
 }
 
-/* ---------- Tiered Wordle Dictionaries (Strict Manual Player Selection) ---------- */
+/* ---------- Tiered Wordle Dictionaries ---------- */
 const WORDLE_TIERS = {
   easy: [
     "AISLE","CHAIR","PLANT","CRANE","BEACH","BREAD","CLEAN","DANCE","EARTH","LIGHT",
@@ -973,9 +1051,23 @@ function checkWordleRow() {
   }
 }
 
+/* ---------- Global Keyboard Shortcuts ---------- */
 window.addEventListener("keydown", (e) => {
-  if (hubState.game !== "wordle") return;
   const k = e.key.toUpperCase();
+
+  // Navigation Shortcuts: 1, 2, 3, 4
+  if (e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") {
+    if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
+    if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
+    if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
+    if (k === "4") { hubState.game = "wordle"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
+    
+    // Action Shortcuts: R (New Game), Z (Undo)
+    if (k === "R") { newGameBtn.click(); return; }
+    if (k === "Z") { undoBtn.click(); return; }
+  }
+
+  if (hubState.game !== "wordle") return;
   if (k === "ENTER" || k === "BACKSPACE" || /^[A-Z]$/.test(k)) {
     handleWordleKey(k);
   }

@@ -1,14 +1,12 @@
 :root {
   --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* Dynamic reload defaults */
   --dyn-accent: #06b6d4;
   --dyn-border: #22d3ee;
   --dyn-shadow: #0891b2;
   --dyn-tint: rgba(6, 182, 212, 0.18);
   --dyn-light-bg: #ecfeff;
 
-  /* Theme: Dark (Solid Pure Black Canvas) */
   --bg: #000000;
   --surface: rgba(14, 18, 27, 0.88);
   --surface-border: var(--dyn-border);
@@ -36,7 +34,6 @@
   --turn-border: var(--dyn-accent);
   --turn-text: var(--dyn-accent);
 
-  /* Chess Colors - Default */
   --chess-light: #dce4ee;
   --chess-dark: #64748b;
   --chess-piece-white: #ffffff;
@@ -44,7 +41,6 @@
 }
 
 body[data-theme="light"] {
-  /* Theme: Light (Dimmed Background to Match Dynamic Palette) */
   --bg: var(--dyn-light-bg);
   --surface: rgba(255, 255, 255, 0.92);
   --surface-border: var(--dyn-border);
@@ -79,7 +75,6 @@ body[data-theme="light"] {
 }
 
 body[data-theme="itachi"] {
-  /* Theme: Itachi (Pure Deep Pitch Black & Blood-Crimson) */
   --bg: #020001;
   --surface: rgba(14, 0, 3, 0.92);
   --surface-border: #e11d48;
@@ -107,22 +102,14 @@ body[data-theme="itachi"] {
   --turn-border: #ff0033;
   --turn-text: #ff4d6d;
 
-  /* Chess Colors - Itachi Blood Moon Squares */
   --chess-light: #2b0008;
   --chess-dark: #0d0003;
   --chess-piece-white: #ffffff;
   --chess-piece-black: #ff0033;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; padding: 0; }
 
 body {
   font-family: var(--font);
@@ -134,7 +121,6 @@ body {
   transition: background-color 0.3s ease;
 }
 
-/* Itachi Moon Vector Art */
 .itachi-bg-art {
   position: fixed;
   inset: 0;
@@ -146,9 +132,7 @@ body {
   background: radial-gradient(circle at 50% 45%, #2a0007 0%, #120003 55%, #020001 100%);
 }
 
-body[data-theme="itachi"] .itachi-bg-art {
-  display: flex !important;
-}
+body[data-theme="itachi"] .itachi-bg-art { display: flex !important; }
 
 .itachi-moon-svg {
   width: min(92vmin, 740px);
@@ -156,7 +140,6 @@ body[data-theme="itachi"] .itachi-bg-art {
   filter: drop-shadow(0 0 80px rgba(255, 0, 51, 0.55));
 }
 
-/* Glass Island Surfaces */
 .glass-island {
   background: var(--surface) !important;
   backdrop-filter: blur(20px) saturate(180%);
@@ -177,7 +160,6 @@ body[data-theme="itachi"] .itachi-bg-art {
   z-index: 10;
 }
 
-/* Top HUD Dashboard */
 .top-hud {
   height: 84px !important;
   padding: 0 clamp(16px, 2.5vw, 32px) !important;
@@ -197,11 +179,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   flex-shrink: 0;
 }
 
-.hud-center {
-  flex: 1;
-  justify-content: center;
-  flex-shrink: 1;
-}
+.hud-center { flex: 1; justify-content: center; flex-shrink: 1; }
 
 .brand {
   font-size: clamp(1.8rem, 2.4vw, 2.3rem) !important;
@@ -214,21 +192,10 @@ body[data-theme="itachi"] .itachi-bg-art {
   text-shadow: 0 0 16px var(--dyn-tint);
 }
 
-body[data-theme="itachi"] .brand {
-  text-shadow: 0 0 18px rgba(255, 0, 51, 0.7);
-}
+body[data-theme="itachi"] .brand { text-shadow: 0 0 18px rgba(255, 0, 51, 0.7); }
 
-.group {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  transition: opacity 0.2s ease;
-}
-
-.group.disabled {
-  opacity: 0.35 !important;
-  pointer-events: none !important;
-}
+.group { display: flex !important; align-items: center !important; gap: 8px !important; transition: opacity 0.2s ease; }
+.group.disabled { opacity: 0.35 !important; pointer-events: none !important; }
 
 .group-label {
   font-size: clamp(0.74rem, 0.95vw, 0.84rem) !important;
@@ -238,13 +205,7 @@ body[data-theme="itachi"] .brand {
   font-weight: 900 !important;
 }
 
-/* Tactile Buttons */
-.seg {
-  display: flex !important;
-  gap: clamp(6px, 0.8vw, 10px) !important;
-  align-items: center !important;
-  flex-wrap: nowrap !important;
-}
+.seg { display: flex !important; gap: clamp(6px, 0.8vw, 10px) !important; align-items: center !important; flex-wrap: nowrap !important; }
 
 .seg-btn {
   height: 48px !important;
@@ -265,14 +226,8 @@ body[data-theme="itachi"] .brand {
   transition: transform 0.08s ease, filter 0.15s ease !important;
 }
 
-.seg-btn:hover {
-  filter: brightness(1.15);
-  transform: translateY(-1px);
-}
-
-.seg-btn:active {
-  transform: translateY(2px) !important;
-}
+.seg-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+.seg-btn:active { transform: translateY(2px) !important; }
 
 .seg-btn.active {
   background-color: var(--btn-active-bg) !important;
@@ -282,24 +237,20 @@ body[data-theme="itachi"] .brand {
   transform: translateY(-1px);
 }
 
-.icon-btn svg {
-  display: inline-block;
-  vertical-align: middle;
+.shortcut-badge {
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  opacity: 0.8;
+  margin-left: 2px;
 }
 
-/* Theme Picker */
-.theme-picker {
-  position: relative;
-  flex-shrink: 0;
-}
+.icon-btn svg { display: inline-block; vertical-align: middle; }
 
-.theme-trigger {
-  min-width: 130px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-}
+.theme-picker { position: relative; flex-shrink: 0; }
+.theme-trigger { min-width: 130px !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; }
 
 .theme-menu {
   position: absolute;
@@ -312,11 +263,7 @@ body[data-theme="itachi"] .brand {
   z-index: 50;
 }
 
-.theme-picker.open .theme-menu {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 6px !important;
-}
+.theme-picker.open .theme-menu { display: flex !important; flex-direction: column !important; gap: 6px !important; }
 
 .theme-item {
   width: 100% !important;
@@ -334,17 +281,9 @@ body[data-theme="itachi"] .brand {
   gap: 10px;
 }
 
-.theme-item:hover {
-  background-color: var(--btn-bg) !important;
-}
+.theme-item:hover { background-color: var(--btn-bg) !important; }
+.theme-item.active { background-color: var(--btn-active-bg) !important; border-color: var(--btn-active-border) !important; color: var(--btn-active-text) !important; }
 
-.theme-item.active {
-  background-color: var(--btn-active-bg) !important;
-  border-color: var(--btn-active-border) !important;
-  color: var(--btn-active-text) !important;
-}
-
-/* Arena Stage */
 .arena {
   min-height: calc(100vh - 200px);
   display: flex;
@@ -357,12 +296,7 @@ body[data-theme="itachi"] .brand {
   z-index: 5;
 }
 
-.status-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 46px;
-}
+.status-wrap { display: flex; align-items: center; justify-content: center; min-height: 46px; }
 
 .turn-pill {
   border-radius: 9999px !important;
@@ -379,7 +313,6 @@ body[data-theme="itachi"] .brand {
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-/* Idle Prompt (> 60s without move) */
 .turn-pill.idle-nudge {
   animation: pillPulse 1.2s infinite ease-in-out;
   border-color: #ef4444 !important;
@@ -392,9 +325,7 @@ body[data-theme="itachi"] .brand {
   50% { transform: scale(1.06); }
 }
 
-.board-shell.idle-shake {
-  animation: boardNudge 2.5s infinite ease-in-out;
-}
+.board-shell.idle-shake { animation: boardNudge 2.5s infinite ease-in-out; }
 
 @keyframes boardNudge {
   0%, 100% { transform: translateY(0); }
@@ -403,55 +334,15 @@ body[data-theme="itachi"] .brand {
   50% { transform: translateY(0); }
 }
 
-.hidden {
-  display: none !important;
-}
+.hidden { display: none !important; }
 
-/* Radial Timer */
-.radial-wrap {
-  position: relative;
-  width: 90px;
-  height: 90px;
-  border-radius: 9999px;
-  display: grid;
-  place-items: center;
-}
+.radial-wrap { position: relative; width: 90px; height: 90px; border-radius: 9999px; display: grid; place-items: center; }
+.radial { width: 82px; height: 82px; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--surface-border); stroke-width: 8; }
+.ring-fg { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 314.159; stroke-dashoffset: 0; }
+.radial-text { position: absolute; font-size: 1.3rem; font-weight: 900; }
 
-.radial {
-  width: 82px;
-  height: 82px;
-  transform: rotate(-90deg);
-}
-
-.ring-bg {
-  fill: none;
-  stroke: var(--surface-border);
-  stroke-width: 8;
-}
-
-.ring-fg {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 8;
-  stroke-linecap: round;
-  stroke-dasharray: 314.159;
-  stroke-dashoffset: 0;
-}
-
-.radial-text {
-  position: absolute;
-  font-size: 1.3rem;
-  font-weight: 900;
-}
-
-/* Board Arena Containers */
-.board-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
+.board-area { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
 
 .board-shell {
   width: min(74vmin, 560px);
@@ -466,42 +357,13 @@ body[data-theme="itachi"] .brand {
   transition: width 0.25s ease, max-width 0.25s ease;
 }
 
-/* Massive Chess Frame */
-.board-shell.chess-mode {
-  width: min(88vmin, 680px) !important;
-  aspect-ratio: 1 / 1 !important;
-  padding: 18px !important;
-}
+.board-shell.chess-mode { width: min(88vmin, 680px) !important; aspect-ratio: 1 / 1 !important; padding: 18px !important; }
+.board-shell.wordle-mode { width: min(96vw, 640px) !important; max-width: 640px !important; aspect-ratio: auto !important; height: auto !important; padding: 28px 24px 34px !important; box-sizing: border-box; }
 
-/* Wordle Frame */
-.board-shell.wordle-mode {
-  width: min(96vw, 640px) !important;
-  max-width: 640px !important;
-  aspect-ratio: auto !important;
-  height: auto !important;
-  padding: 28px 24px 34px !important;
-  box-sizing: border-box;
-}
+.captured-strip { width: min(74vmin, 560px); border-radius: 9999px !important; padding: 8px 18px !important; font-size: 1.05rem !important; font-weight: 700 !important; }
+.captured-strip.chess-mode { width: min(88vmin, 680px) !important; }
 
-.captured-strip {
-  width: min(74vmin, 560px);
-  border-radius: 9999px !important;
-  padding: 8px 18px !important;
-  font-size: 1.05rem !important;
-  font-weight: 700 !important;
-}
-
-.captured-strip.chess-mode {
-  width: min(88vmin, 680px) !important;
-}
-
-/* TTT Board */
-.ttt-board {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  gap: 12px;
-}
+.ttt-board { width: 100%; height: 100%; display: grid; gap: 12px; }
 
 .ttt-cell {
   aspect-ratio: 1 / 1;
@@ -518,51 +380,18 @@ body[data-theme="itachi"] .brand {
   transition: transform 0.08s ease, border-color 0.15s ease, background-color 0.15s ease;
 }
 
-.ttt-cell:hover {
-  filter: brightness(1.1);
-  border-color: var(--accent);
-  transform: scale(1.02);
-}
-
+.ttt-cell:hover { filter: brightness(1.1); border-color: var(--accent); transform: scale(1.02); }
 .ttt-cell.x { color: var(--x); }
 .ttt-cell.o { color: var(--o); }
-.ttt-cell.win {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent), inset 0 0 16px var(--dyn-tint);
-}
+.ttt-cell.win { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent), inset 0 0 16px var(--dyn-tint); }
+.ttt-cell svg { width: 55%; height: 55%; fill: currentColor; }
+.ttt-cell.ghost-svg svg { opacity: 0.25; }
 
-.ttt-cell svg {
-  width: 55%;
-  height: 55%;
-  fill: currentColor;
-}
+.ttt-win-line { position: absolute; inset: 14px; width: calc(100% - 28px); height: calc(100% - 28px); pointer-events: none; }
+.ttt-win-line line { stroke: var(--accent); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; animation: drawWin 0.45s ease forwards; }
 
-.ttt-cell.ghost-svg svg {
-  opacity: 0.25;
-}
+@keyframes drawWin { to { stroke-dashoffset: 0; } }
 
-.ttt-win-line {
-  position: absolute;
-  inset: 14px;
-  width: calc(100% - 28px);
-  height: calc(100% - 28px);
-  pointer-events: none;
-}
-
-.ttt-win-line line {
-  stroke: var(--accent);
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: drawWin 0.45s ease forwards;
-}
-
-@keyframes drawWin {
-  to { stroke-dashoffset: 0; }
-}
-
-/* ---------- Large 3D Chess Board & Pieces ---------- */
 .chess-board {
   width: 100%;
   height: 100%;
@@ -586,97 +415,39 @@ body[data-theme="itachi"] .brand {
   transition: transform 0.12s ease, filter 0.12s ease;
 }
 
-.chess-cell.light {
-  background: var(--chess-light);
-}
+.chess-cell.light { background: var(--chess-light); }
+.chess-cell.dark { background: var(--chess-dark); }
 
-.chess-cell.dark {
-  background: var(--chess-dark);
-}
-
-/* 3D Embossed Piece Styles */
 .chess-cell.white-piece {
   color: var(--chess-piece-white);
-  text-shadow: 
-    0 1px 0 #cbd5e1,
-    0 2px 0 #94a3b8,
-    0 3px 0 #64748b,
-    0 4px 6px rgba(0, 0, 0, 0.5),
-    0 0 10px rgba(255, 255, 255, 0.35);
+  text-shadow: 0 1px 0 #cbd5e1, 0 2px 0 #94a3b8, 0 3px 0 #64748b, 0 4px 6px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.35);
   transform: translateY(-2px);
 }
 
 .chess-cell.black-piece {
   color: var(--chess-piece-black);
-  text-shadow: 
-    0 1px 0 #334155,
-    0 2px 0 #1e293b,
-    0 3px 0 #020617,
-    0 4px 8px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 1px 0 #334155, 0 2px 0 #1e293b, 0 3px 0 #020617, 0 4px 8px rgba(0, 0, 0, 0.7);
   transform: translateY(-2px);
 }
 
 body[data-theme="itachi"] .chess-cell.black-piece {
   color: #ff0033 !important;
-  text-shadow: 
-    0 1px 0 #b30024,
-    0 2px 0 #80001a,
-    0 3px 0 #4d000f,
-    0 5px 12px rgba(255, 0, 51, 0.75) !important;
+  text-shadow: 0 1px 0 #b30024, 0 2px 0 #80001a, 0 3px 0 #4d000f, 0 5px 12px rgba(255, 0, 51, 0.75) !important;
 }
 
 body[data-theme="itachi"] .chess-cell.white-piece {
   color: #ffffff !important;
-  text-shadow: 
-    0 1px 0 #ffe4e6,
-    0 2px 0 #fda4af,
-    0 4px 10px rgba(255, 255, 255, 0.6) !important;
+  text-shadow: 0 1px 0 #ffe4e6, 0 2px 0 #fda4af, 0 4px 10px rgba(255, 255, 255, 0.6) !important;
 }
 
-.chess-cell:hover {
-  filter: brightness(1.18);
-  transform: translateY(-3px) scale(1.04);
-}
+.chess-cell:hover { filter: brightness(1.18); transform: translateY(-3px) scale(1.04); }
+.chess-cell.selected { box-shadow: inset 0 0 0 4px var(--accent); background: rgba(225, 29, 72, 0.25) !important; }
+.chess-cell.hint::after { content: ""; width: 26%; height: 26%; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
 
-.chess-cell.selected {
-  box-shadow: inset 0 0 0 4px var(--accent);
-  background: rgba(225, 29, 72, 0.25) !important;
-}
-
-.chess-cell.hint::after {
-  content: "";
-  width: 26%;
-  height: 26%;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 10px var(--accent);
-}
-
-/* Scaled-Up Wordle Arena */
-.wordle-arena {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.wordle-board {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: auto;
-}
-
-.wordle-row {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.wordle-row.shake {
-  animation: rowShake 0.4s ease-in-out;
-}
+.wordle-arena { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+.wordle-board { display: flex; flex-direction: column; gap: 10px; width: auto; }
+.wordle-row { display: flex; gap: 10px; justify-content: center; }
+.wordle-row.shake { animation: rowShake 0.4s ease-in-out; }
 
 @keyframes rowShake {
   0%, 100% { transform: translateX(0); }
@@ -701,30 +472,13 @@ body[data-theme="itachi"] .chess-cell.white-piece {
   transition: transform 0.12s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.wordle-tile.pop {
-  transform: scale(1.12);
-}
-
+.wordle-tile.pop { transform: scale(1.12); }
 .wordle-tile.correct { background: #538d4e !important; color: #ffffff !important; border-color: #538d4e !important; }
 .wordle-tile.present { background: #b59f3b !important; color: #ffffff !important; border-color: #b59f3b !important; }
 .wordle-tile.absent  { background: #3a3a3c !important; color: #ffffff !important; border-color: #3a3a3c !important; }
 
-/* Wordle Virtual Keyboard */
-.wordle-keyboard {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-  max-width: 530px;
-  margin-top: 34px !important;
-}
-
-.kb-row {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-}
+.wordle-keyboard { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 530px; margin-top: 34px !important; }
+.kb-row { display: flex; justify-content: center; gap: 6px; width: 100%; }
 
 .kb-key {
   height: 52px;
@@ -745,30 +499,14 @@ body[data-theme="itachi"] .chess-cell.white-piece {
   transition: transform 0.08s ease, filter 0.1s ease;
 }
 
-.kb-key:hover {
-  filter: brightness(1.18);
-}
-
-.kb-key:active {
-  transform: translateY(2px);
-}
-
-.kb-key.wide {
-  max-width: 76px;
-  flex: 1.6;
-  font-size: 0.88rem;
-}
-
-.kb-key svg {
-  display: inline-block;
-  vertical-align: middle;
-}
-
+.kb-key:hover { filter: brightness(1.18); }
+.kb-key:active { transform: translateY(2px); }
+.kb-key.wide { max-width: 76px; flex: 1.6; font-size: 0.88rem; }
+.kb-key svg { display: inline-block; vertical-align: middle; }
 .kb-key.correct { background: #538d4e !important; color: #ffffff !important; border-color: #538d4e !important; }
 .kb-key.present { background: #b59f3b !important; color: #ffffff !important; border-color: #b59f3b !important; }
 .kb-key.absent  { background: #3a3a3c !important; color: #cbd5e1 !important; border-color: #3a3a3c !important; }
 
-/* Scaled-Up Bottom Quick Dock */
 .quick-dock {
   position: fixed !important;
   bottom: 14px !important;
@@ -784,20 +522,8 @@ body[data-theme="itachi"] .chess-cell.white-piece {
   gap: clamp(10px, 1.5vw, 20px) !important;
 }
 
-.dock-block {
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  flex-shrink: 0;
-}
-
-.dock-label {
-  font-size: 0.82rem !important;
-  color: var(--muted) !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.08em !important;
-  font-weight: 900 !important;
-}
+.dock-block { display: flex !important; align-items: center !important; gap: 10px !important; flex-shrink: 0; }
+.dock-label { font-size: 0.82rem !important; color: var(--muted) !important; text-transform: uppercase !important; letter-spacing: 0.08em !important; font-weight: 900 !important; }
 
 .score-ticker {
   font-size: clamp(0.92rem, 1.1vw, 1.08rem) !important;
@@ -807,46 +533,47 @@ body[data-theme="itachi"] .chess-cell.white-piece {
   flex-shrink: 0;
 }
 
-/* Modal Overlay */
-.win-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  display: grid;
-  place-items: center;
-  background: rgba(0, 0, 0, 0.85);
+.clickable-ticker {
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  transition: transform 0.1s ease, filter 0.15s ease;
 }
 
-.win-modal {
-  border-radius: 26px !important;
-  padding: 32px 42px !important;
-  text-align: center;
-  min-width: 320px;
+.clickable-ticker:hover { filter: brightness(1.15); transform: scale(1.02); }
+.stats-hint { margin-left: 6px; font-size: 0.8rem; color: var(--accent); }
+
+/* Win Modal & Confetti */
+.win-overlay { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: rgba(0, 0, 0, 0.85); }
+#confettiCanvas { position: absolute; inset: 0; pointer-events: none; z-index: 91; }
+
+.win-modal { border-radius: 26px !important; padding: 32px 42px !important; text-align: center; min-width: 320px; z-index: 92; }
+.win-modal h2 { margin: 0 0 18px; font-size: 2.2rem; font-weight: 900; }
+
+/* Statistics Modal Box */
+.stats-box { width: min(92vw, 480px); text-align: left; }
+.stats-grid { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 24px; max-height: 50vh; overflow-y: auto; }
+
+.stat-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  font-weight: 800;
+  font-size: 0.95rem;
 }
 
-.win-modal h2 {
-  margin: 0 0 18px;
-  font-size: 2.2rem;
-  font-weight: 900;
-}
+.stat-card span b { color: var(--accent); }
+.stats-actions { display: flex; justify-content: center; }
 
-/* Responsive */
 @media (max-width: 1100px) {
-  .top-hud, .quick-dock {
-    height: auto !important;
-    padding: 12px 16px !important;
-    border-radius: 22px !important;
-  }
-  .top-hud {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .quick-dock {
-    flex-wrap: wrap;
-    justify-content: center;
-    bottom: 8px !important;
-  }
-  .arena {
-    padding-bottom: 130px;
-  }
+  .top-hud, .quick-dock { height: auto !important; padding: 12px 16px !important; border-radius: 22px !important; }
+  .top-hud { flex-wrap: wrap; justify-content: center; }
+  .quick-dock { flex-wrap: wrap; justify-content: center; bottom: 8px !important; }
+  .arena { padding-bottom: 130px; }
 }
