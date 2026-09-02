@@ -85,6 +85,7 @@ let currentPlayer = "X"; // X/O for grid games, w/b for chess
 let gameActive = true;
 let winningCells = [];
 let aiTimer = null;
+let currentTheme = localStorage.getItem("neoArcadeTheme") || "dark";
 
 let tttBoard = [];
 let c4Board = [];
@@ -897,9 +898,21 @@ els.modeSelect.addEventListener("change", () => {
   initBoard();
 });
 
+function applyTheme() {
+  document.body.className = currentTheme + "-theme";
+  const themeLabels = {
+    dark: "🌙 Dark",
+    light: "☀️ Light"
+  };
+  els.themeBtn.textContent = themeLabels[currentTheme] || "Dark";
+  localStorage.setItem("neoArcadeTheme", currentTheme);
+}
+
 els.themeBtn.addEventListener("click", () => {
-  alert("Neon UI is already active. If you want, I can add dark/light theme switching next.");
+  currentTheme = currentTheme === "dark" ? "light" : "dark";
+  applyTheme();
 });
 
 // Start the game
+applyTheme();
 initBoard();
