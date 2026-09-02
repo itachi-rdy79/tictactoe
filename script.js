@@ -7,6 +7,8 @@ const opponentPills = document.getElementById("opponentPills");
 const difficultyPills = document.getElementById("difficultyPills");
 const difficultyGroup = document.getElementById("difficultyGroup");
 const timerPills = document.getElementById("timerPills");
+const timerGroup = document.getElementById("timerGroup");
+const opponentGroup = document.getElementById("opponentGroup");
 
 const newGameBtn = document.getElementById("newGameBtn");
 const resetScoreBtn = document.getElementById("resetScoreBtn");
@@ -20,6 +22,10 @@ const radialText = document.getElementById("radialText");
 const boardWrap = document.getElementById("boardWrap");
 const tttBoardEl = document.getElementById("tttBoard");
 const chessBoardEl = document.getElementById("chessBoard");
+const wordleGameEl = document.getElementById("wordleGame");
+const wordleBoardEl = document.getElementById("wordleBoard");
+const wordleKeyboardEl = document.getElementById("wordleKeyboard");
+
 const capturedTop = document.getElementById("capturedTop");
 const capturedBottom = document.getElementById("capturedBottom");
 const whiteCapturedEl = document.getElementById("whiteCaptured");
@@ -45,20 +51,22 @@ const hubState = {
   game: "ttt3",
   opponent: "ai",
   difficulty: "medium",
-  timer: "off", // Strictly Off by default
-  theme: "dark"
+  timer: "off",
+  theme: "light"
 };
 
 let scoreA = 0, scoreB = 0, scoreD = 0, streak = 0;
 
 /* ---------- State Management ---------- */
 function modeFromHub() {
+  if (hubState.game === "wordle") return "wordle";
   if (hubState.game === "ttt3") return hubState.opponent === "ai" ? "ttt3-ai" : "ttt3-2p";
   if (hubState.game === "ttt5") return hubState.opponent === "ai" ? "ttt5-ai" : "ttt5-2p";
   return hubState.opponent === "ai" ? "chess-ai" : "chess-2p";
 }
 
 function hubFromMode(mode) {
+  if (mode === "wordle") { hubState.game = "wordle"; return; }
   if (mode.startsWith("ttt3")) hubState.game = "ttt3";
   else if (mode.startsWith("ttt5")) hubState.game = "ttt5";
   else hubState.game = "chess";
@@ -81,12 +89,11 @@ function loadHub() {
   const saved = JSON.parse(localStorage.getItem("hubState") || "null");
   if (saved) Object.assign(hubState, saved);
 
-  // Strictly allowed timer values: Off, 30, 60, 90
   if (!["off", "30", "60", "90"].includes(hubState.timer)) hubState.timer = "off";
-  if (!["dark", "light", "itachi"].includes(hubState.theme)) hubState.theme = "dark";
+  if (!["dark", "light", "itachi"].includes(hubState.theme)) hubState.theme = "light";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
-  if (!["ttt3", "ttt5", "chess"].includes(hubState.game)) hubState.game = "ttt3";
+  if (!["ttt3", "ttt5", "chess", "wordle"].includes(hubState.game)) hubState.game = "ttt3";
 }
 
 function syncHud() {
@@ -95,15 +102,17 @@ function syncHud() {
   setActive(difficultyPills, "difficulty", hubState.difficulty);
   setActive(timerPills, "timer", hubState.timer);
 
-  // Keep difficulty visible but disabled on local mode to prevent layout jumps
+  const isWordle = hubState.game === "wordle";
+  opponentGroup.style.display = isWordle ? "none" : "flex";
+  difficultyGroup.style.display = isWordle ? "none" : "flex";
   difficultyGroup.classList.toggle("disabled", hubState.opponent !== "ai");
 }
 
 /* ---------- Theme Handling ---------- */
 function themeMeta(theme) {
-  if (theme === "light") return { icon: "🌊", text: "Ocean" };
+  if (theme === "dark") return { icon: "🌙", text: "Dark Gold" };
   if (theme === "itachi") return { icon: "✇", text: "Itachi" };
-  return { icon: "🌙", text: "Dark" };
+  return { icon: "🌊", text: "Ocean Blue" };
 }
 
 function setTheme(theme) {
@@ -154,7 +163,7 @@ function loadScores() {
 
 function updateStreak(winA) { streak = winA ? streak + 1 : 0; }
 
-/* ---------- Timer Logic (Pure Integers, No Decimals) ---------- */
+/* ---------- Timer Logic (Pure Integers) ---------- */
 let turnTimer = null;
 let turnTimeLeft = 0;
 let turnTimeTotal = 0;
@@ -180,14 +189,13 @@ function renderRadial() {
   const pct = Math.max(0, turnTimeLeft / turnTimeTotal);
   ringFg.style.strokeDasharray = `${CIRC}`;
   ringFg.style.strokeDashoffset = `${CIRC * (1 - pct)}`;
-  // Pure whole integers only (e.g. 47, 36) - no .0 or fractional decimals
   radialText.textContent = Math.ceil(Math.max(0, turnTimeLeft));
 }
 
 function startTurnTimer() {
   stopTurnTimer();
 
-  if (hubState.timer === "off") {
+  if (hubState.timer === "off" || hubState.game === "wordle") {
     showTimerInactive();
     return;
   }
@@ -229,7 +237,7 @@ function hideWinScreen() {
 winRestartBtn.addEventListener("click", () => { hideWinScreen(); initBoard(); });
 winOverlay.addEventListener("click", (e) => { if (e.target === winOverlay) hideWinScreen(); });
 
-/* ---------- Tic-Tac-Toe ---------- */
+/* ---------- Tic-Tac-Toe Engine ---------- */
 let tttBoard = [], tttSize = 3, tttWinLen = 3, tttTurn = "X", tttOver = false, tttWinningCells = [];
 let tttSnapshots = [];
 
@@ -279,11 +287,12 @@ function initTTT(size) {
 function renderTTT() {
   tttBoardEl.classList.remove("hidden");
   chessBoardEl.classList.add("hidden");
+  wordleGameEl.classList.add("hidden");
   capturedTop.classList.add("hidden");
   capturedBottom.classList.add("hidden");
 
   tttBoardEl.innerHTML = "";
-  tttBoardEl.style.gridTemplateColumns = `repeat(${tttSize}, minmax(62px, 1fr))`;
+  tttBoardEl.style.gridTemplateColumns = `repeat(${tttSize}, minmax(50px, 1fr))`;
 
   tttBoard.forEach((v, i) => {
     const cell = document.createElement("button");
@@ -383,7 +392,7 @@ function onTTTClick(i) {
   }
 }
 
-/* ---------- Chess ---------- */
+/* ---------- Chess Engine ---------- */
 let chessBoard = [], chessTurn = "w", chessSelected = null, chessOver = false, whiteCaptured = [], blackCaptured = [], chessSnapshots = [];
 const CHESS_U = { wp: "♙", wr: "♖", wn: "♘", wb: "♗", wq: "♕", wk: "♔", bp: "♟", br: "✜", bn: "♞", bb: "♝", bq: "♛", bk: "♚" };
 const PIECE_VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
@@ -451,6 +460,7 @@ function getPseudoMoves(board, r, c) {
 function renderChess() {
   clearWinLine();
   tttBoardEl.classList.add("hidden");
+  wordleGameEl.classList.add("hidden");
   chessBoardEl.classList.remove("hidden");
   capturedTop.classList.remove("hidden");
   capturedBottom.classList.remove("hidden");
@@ -578,6 +588,157 @@ function onChessClick(r, c) {
   }
 }
 
+/* ---------- Fully Offline Wordle Game ---------- */
+const WORD_LIST = ["PUPPY", "KITTY", "FETCH", "TREAT", "BARKS", "HOUND", "POUCH", "CHASE", "TIGER", "LEASH", "BEAST", "CLAWY", "FURRY", "ROVER", "BONES", "SNIFF", "WHISK", "PURRS", "MEOWS", "TRACK"];
+let wordleTarget = "PUPPY";
+let wordleRow = 0;
+let wordleCol = 0;
+let wordleGrid = [];
+let wordleOver = false;
+
+function initWordle() {
+  clearWinLine();
+  stopTurnTimer();
+  showTimerInactive();
+  tttBoardEl.classList.add("hidden");
+  chessBoardEl.classList.add("hidden");
+  capturedTop.classList.add("hidden");
+  capturedBottom.classList.add("hidden");
+  wordleGameEl.classList.remove("hidden");
+
+  wordleTarget = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+  wordleRow = 0;
+  wordleCol = 0;
+  wordleOver = false;
+  wordleGrid = Array.from({ length: 6 }, () => Array(5).fill(""));
+
+  statusPill.textContent = "Guess the 5-letter Pet Word!";
+  renderWordle();
+}
+
+function renderWordle() {
+  wordleBoardEl.innerHTML = "";
+  for (let r = 0; r < 6; r++) {
+    const rowEl = document.createElement("div");
+    rowEl.className = "wordle-row";
+    for (let c = 0; c < 5; c++) {
+      const tile = document.createElement("div");
+      tile.className = "wordle-tile";
+      tile.id = `wt-${r}-${c}`;
+      tile.textContent = wordleGrid[r][c];
+      rowEl.appendChild(tile);
+    }
+    wordleBoardEl.appendChild(rowEl);
+  }
+
+  // Keyboard Layout
+  const keys = [
+    ["Q","W","E","R","T","Y","U","I","O","P"],
+    ["A","S","D","F","G","H","J","K","L"],
+    ["ENTER","Z","X","C","V","B","N","M","DEL"]
+  ];
+
+  wordleKeyboardEl.innerHTML = "";
+  keys.forEach(row => {
+    const kbRow = document.createElement("div");
+    kbRow.className = "kb-row";
+    row.forEach(k => {
+      const btn = document.createElement("button");
+      btn.className = `kb-key ${k.length > 1 ? "wide" : ""}`;
+      btn.textContent = k;
+      btn.dataset.key = k;
+      btn.addEventListener("click", () => handleWordleKey(k));
+      kbRow.appendChild(btn);
+    });
+    wordleKeyboardEl.appendChild(kbRow);
+  });
+}
+
+function handleWordleKey(k) {
+  if (wordleOver || hubState.game !== "wordle") return;
+
+  if (k === "DEL" || k === "BACKSPACE") {
+    if (wordleCol > 0) {
+      wordleCol--;
+      wordleGrid[wordleRow][wordleCol] = "";
+      document.getElementById(`wt-${wordleRow}-${wordleCol}`).textContent = "";
+    }
+    return;
+  }
+
+  if (k === "ENTER") {
+    if (wordleCol === 5) checkWordleRow();
+    return;
+  }
+
+  if (/^[A-Z]$/.test(k) && wordleCol < 5) {
+    wordleGrid[wordleRow][wordleCol] = k;
+    document.getElementById(`wt-${wordleRow}-${wordleCol}`).textContent = k;
+    wordleCol++;
+  }
+}
+
+function checkWordleRow() {
+  const guess = wordleGrid[wordleRow].join("");
+  const targetArr = wordleTarget.split("");
+
+  for (let i = 0; i < 5; i++) {
+    const tile = document.getElementById(`wt-${wordleRow}-${i}`);
+    const keyBtn = wordleKeyboardEl.querySelector(`[data-key="${guess[i]}"]`);
+    if (guess[i] === targetArr[i]) {
+      tile.classList.add("correct");
+      if (keyBtn) { keyBtn.classList.remove("present"); keyBtn.classList.add("correct"); }
+      targetArr[i] = null;
+    }
+  }
+
+  for (let i = 0; i < 5; i++) {
+    const tile = document.getElementById(`wt-${wordleRow}-${i}`);
+    const keyBtn = wordleKeyboardEl.querySelector(`[data-key="${guess[i]}"]`);
+    if (!tile.classList.contains("correct")) {
+      const idx = targetArr.indexOf(guess[i]);
+      if (idx !== -1) {
+        tile.classList.add("present");
+        if (keyBtn && !keyBtn.classList.contains("correct")) keyBtn.classList.add("present");
+        targetArr[idx] = null;
+      } else {
+        tile.classList.add("absent");
+        if (keyBtn && !keyBtn.classList.contains("correct") && !keyBtn.classList.contains("present")) keyBtn.classList.add("absent");
+      }
+    }
+  }
+
+  if (guess === wordleTarget) {
+    wordleOver = true;
+    scoreA++;
+    streak++;
+    persistScores();
+    renderScores();
+    showWinScreen("You Guessed It! 🐾");
+    return;
+  }
+
+  wordleRow++;
+  wordleCol = 0;
+
+  if (wordleRow === 6) {
+    wordleOver = true;
+    scoreB++;
+    streak = 0;
+    persistScores();
+    renderScores();
+    showWinScreen(`Word was ${wordleTarget}`);
+  }
+}
+
+window.addEventListener("keydown", (e) => {
+  if (hubState.game !== "wordle") return;
+  const k = e.key.toUpperCase();
+  if (k === "ENTER" || k === "BACKSPACE" || /^[A-Z]$/.test(k)) {
+    handleWordleKey(k);
+  }
+});
+
 /* ---------- Timer Expiration ---------- */
 function onTimerExpired() {
   const mode = modeSelect.value;
@@ -597,7 +758,7 @@ function onTimerExpired() {
   }
 }
 
-/* ---------- Controls Event Listeners ---------- */
+/* ---------- Action Buttons ---------- */
 newGameBtn.addEventListener("click", initBoard);
 resetScoreBtn.addEventListener("click", () => {
   scoreA = 0; scoreB = 0; scoreD = 0; streak = 0;
@@ -606,6 +767,10 @@ resetScoreBtn.addEventListener("click", () => {
 });
 
 undoBtn.addEventListener("click", () => {
+  if (hubState.game === "wordle") {
+    handleWordleKey("DEL");
+    return;
+  }
   const mode = modeSelect.value;
   if (mode.startsWith("ttt")) {
     const s = tttSnapshots.pop();
@@ -676,7 +841,8 @@ function initBoard() {
   clearWinLine();
 
   hubFromMode(modeSelect.value);
-  if (modeSelect.value.startsWith("ttt3")) initTTT(3);
+  if (hubState.game === "wordle") initWordle();
+  else if (modeSelect.value.startsWith("ttt3")) initTTT(3);
   else if (modeSelect.value.startsWith("ttt5")) initTTT(5);
   else initChess();
 
@@ -684,7 +850,7 @@ function initBoard() {
   persistHub();
 }
 
-/* ---------- App Initialization ---------- */
+/* ---------- Boot ---------- */
 (function boot() {
   loadHub();
 
