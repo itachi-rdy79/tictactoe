@@ -3,156 +3,130 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GAP - Arcade Deck</title>
+  <title>GAP — Floating Cyber Panel</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body data-theme="dark" class="style-b">
-  <header class="hud" id="hud">
-    <div class="hud-left">
-      <div class="brand">GAP</div>
-      <nav class="seg game-seg" id="gameTypePills" aria-label="Game Selector">
-        <button class="seg-btn active" data-game="ttt3" type="button">3x3 TTT</button>
-        <button class="seg-btn" data-game="ttt5" type="button">5x5 TTT</button>
-        <button class="seg-btn" data-game="chess" type="button">Chess</button>
-      </nav>
-    </div>
+<body data-theme="dark">
+  <!-- Top Floating Command Island -->
+  <header class="command-island panel">
+    <div class="brand">GAP</div>
 
-    <div class="hud-center">
-      <div class="hud-group">
-        <span class="hud-label">OPPONENT</span>
-        <div class="seg" id="opponentPills">
-          <button class="seg-btn" data-opponent="local" type="button">2P</button>
-          <button class="seg-btn active" data-opponent="ai" type="button">AI</button>
-        </div>
-      </div>
+    <nav class="seg game-seg" id="gameTypePills" aria-label="Game Type">
+      <button class="seg-btn active" data-game="ttt3" type="button">3x3 TTT</button>
+      <button class="seg-btn" data-game="ttt5" type="button">5x5 TTT</button>
+      <button class="seg-btn" data-game="chess" type="button">Chess</button>
+    </nav>
 
-      <div class="hud-group" id="difficultyGroup">
-        <span class="hud-label">DIFFICULTY</span>
-        <div class="seg" id="difficultyPills">
-          <button class="seg-btn" data-difficulty="easy" type="button">Easy</button>
-          <button class="seg-btn active" data-difficulty="medium" type="button">Med</button>
-          <button class="seg-btn" data-difficulty="hard" type="button">Hard</button>
-        </div>
-      </div>
-
-      <div class="hud-group">
-        <span class="hud-label">TIMER</span>
-        <div class="seg" id="timerPills">
-          <button class="seg-btn active" data-timer="off" type="button">Off</button>
-          <button class="seg-btn" data-timer="15" type="button">15s</button>
-          <button class="seg-btn" data-timer="30" type="button">30s</button>
-          <button class="seg-btn" data-timer="45" type="button">45s</button>
-          <button class="seg-btn" data-timer="60" type="button">60s</button>
-        </div>
-      </div>
-      <div class="hub-row" id="difficultyRow" style="display:none;"></div>
-    </div>
-
-    <div class="hud-right">
-      <div class="score-ticker">
-        <span>You: <b id="scoreA">0</b></span>
-        <span>|</span>
-        <span>Opp: <b id="scoreB">0</b></span>
-        <span>|</span>
-        <span>Draws: <b id="scoreD">0</b></span>
-        <span>|</span>
-        <span><b id="streakBadge">🔥 Streak: 0</b></span>
-      </div>
-
-      <div class="theme-picker" id="themePicker">
-        <button class="theme-trigger" id="themeTrigger" type="button" aria-haspopup="listbox" aria-expanded="false">
-          <span id="themeCurrentIcon">🌙</span>
-          <span id="themeCurrentText">Dark</span>
-          <span class="theme-caret">⌄</span>
+    <div class="theme-picker" id="themePicker">
+      <button class="theme-trigger seg-btn" id="themeTrigger" type="button" aria-expanded="false">
+        <span id="themeCurrentIcon"></span>
+        <span id="themeCurrentText">Dark</span>
+        <span class="caret">⌄</span>
+      </button>
+      <div class="theme-menu panel" id="themeMenu">
+        <button class="theme-item active" data-theme="dark" type="button">
+          <span class="ico moon"></span> Dark
         </button>
-        <div class="theme-menu" id="themeMenu" role="listbox">
-          <button class="theme-item active" data-theme="dark" type="button">🌙 Dark</button>
-          <button class="theme-item" data-theme="light" type="button">☀️ Light</button>
-          <button class="theme-item" data-theme="itachi" type="button">✇ Itachi</button>
-        </div>
+        <button class="theme-item" data-theme="light" type="button">
+          <span class="ico sun"></span> Light
+        </button>
+        <button class="theme-item" data-theme="itachi" type="button">
+          <span class="ico itachi"></span> Itachi
+        </button>
       </div>
     </div>
   </header>
 
-  <main class="stage" id="stage">
-    <section class="stage-inner">
-      <div class="status-pill" id="status">X's Turn</div>
+  <!-- Arena -->
+  <main class="arena">
+    <section class="status-zone">
+      <div class="turn-pill panel" id="statusPill">X's Turn</div>
 
-      <section class="timer-wrap" id="timerWrap" style="display:none;">
-        <div class="timer-bar"><div id="timerFill"></div></div>
-        <small id="timerLabel">Turn time</small>
-      </section>
+      <div class="radial-wrap panel hidden" id="radialWrap">
+        <svg class="radial" viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="50"></circle>
+          <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="50"></circle>
+        </svg>
+        <div class="radial-text" id="radialText">15.0</div>
+      </div>
+    </section>
 
-      <div class="captured-strip top" id="capturedTop" style="display:none;">
+    <section class="board-stage">
+      <div class="captured-strip panel hidden" id="capturedTop">
         <b>White captured:</b> <span id="whiteCaptured"></span>
       </div>
 
-      <section class="board-shell" id="boardWrap">
+      <section class="board-shell panel" id="boardWrap">
         <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
         <div id="tttBoard" class="ttt-board"></div>
-        <div id="chessBoard" class="chess-board" style="display:none;"></div>
+        <div id="chessBoard" class="chess-board hidden"></div>
       </section>
 
-      <div class="captured-strip bottom" id="capturedBottom" style="display:none;">
+      <div class="captured-strip panel hidden" id="capturedBottom">
         <b>Black captured:</b> <span id="blackCaptured"></span>
       </div>
-
-      <div id="thinking" class="thinking-pill" style="display:none;">
-        <span>AI thinking</span><span class="dots"><i>.</i><i>.</i><i>.</i></span>
-      </div>
-
-      <section class="stage-actions">
-        <button id="newGameBtn" type="button">New Game</button>
-        <button id="undoBtn" type="button">Undo</button>
-        <button id="resetScoreBtn" type="button">Reset Score</button>
-      </section>
-
-      <section class="history-inline">
-        <div id="historyList" class="history-list"></div>
-      </section>
     </section>
   </main>
 
-  <!-- Legacy hidden targets -->
-  <div class="container" style="display:none;">
-    <header class="topbar">
-      <h1>GAP</h1>
-      <span class="chip" id="modeChip">Mode: Tic-Tac-Toe 3x3 vs Computer</span>
-    </header>
-    <section class="card hub"></section>
-    <section class="card score-card"></section>
-    <section class="status-row"></section>
-    <section class="board-wrap"></section>
-    <section class="history card"></section>
-    <section class="controls"></section>
-    <div id="capturedPanel" class="captured" style="display:none;"></div>
-  </div>
+  <!-- Bottom Quick Dock -->
+  <footer class="quick-dock panel">
+    <div class="dock-group">
+      <span class="dock-label">Timer</span>
+      <div class="seg" id="timerPills">
+        <button class="seg-btn active" data-timer="off" type="button">Off</button>
+        <button class="seg-btn" data-timer="15" type="button">15s</button>
+        <button class="seg-btn" data-timer="30" type="button">30s</button>
+        <button class="seg-btn" data-timer="45" type="button">45s</button>
+        <button class="seg-btn" data-timer="60" type="button">60s</button>
+      </div>
+    </div>
 
+    <div class="dock-group">
+      <span class="dock-label">Actions</span>
+      <div class="seg">
+        <button id="resetScoreBtn" class="seg-btn" type="button">
+          <span class="btn-ico reset"></span> Reset Score
+        </button>
+        <button id="undoBtn" class="seg-btn" type="button">
+          <span class="btn-ico undo"></span> Undo
+        </button>
+        <button id="newGameBtn" class="seg-btn" type="button">New Game</button>
+      </div>
+    </div>
+
+    <div class="score-ticker" id="scoreTicker">
+      You: <b id="scoreA">0</b> |
+      Opp: <b id="scoreB">0</b> |
+      Draws: <b id="scoreD">0</b> |
+      <b id="streakBadge">🔥 0</b>
+    </div>
+  </footer>
+
+  <!-- Hidden state selects -->
   <select id="modeSelect" hidden>
-    <option value="ttt3-2p">Tic-Tac-Toe 3x3 (2 Players)</option>
-    <option value="ttt3-ai" selected>Tic-Tac-Toe 3x3 vs Computer</option>
-    <option value="ttt5-2p">Tic-Tac-Toe 5x5 (2 Players)</option>
-    <option value="ttt5-ai">Tic-Tac-Toe 5x5 vs Computer</option>
-    <option value="chess-2p">Chess (2 Players)</option>
-    <option value="chess-ai">Chess vs Computer</option>
+    <option value="ttt3-2p">TTT3 Local</option>
+    <option value="ttt3-ai" selected>TTT3 AI</option>
+    <option value="ttt5-2p">TTT5 Local</option>
+    <option value="ttt5-ai">TTT5 AI</option>
+    <option value="chess-2p">Chess Local</option>
+    <option value="chess-ai">Chess AI</option>
   </select>
-
   <select id="difficultySelect" hidden>
     <option value="easy">Easy</option>
     <option value="medium" selected>Medium</option>
     <option value="hard">Hard</option>
   </select>
-
   <select id="themeSelect" hidden>
-    <option value="dark" selected>🌙 Dark</option>
-    <option value="light">☀️ Light</option>
-    <option value="itachi">✇ Itachi</option>
+    <option value="dark" selected>Dark</option>
+    <option value="light">Light</option>
+    <option value="itachi">Itachi</option>
   </select>
 
+  <!-- Win overlay -->
   <div id="winOverlay" class="win-overlay hidden">
-    <div class="win-screen">
-      <div class="win-banner"><h2 id="winMessage" class="win-message">WINNER!</h2></div>
-      <button id="winRestartBtn" class="win-restart-btn" type="button">Continue</button>
+    <div class="win-screen panel">
+      <h2 id="winMessage">Winner</h2>
+      <button id="winRestartBtn" class="seg-btn" type="button">Continue</button>
     </div>
   </div>
 
