@@ -38,4 +38,4 @@ Just open `index.html` in your browser.
 You can add more modes inside `script.js` by extending the `MODES` object and writing the gameplay logic for the new game.
 
 ## License
-Free to use and modify.
+Free to use and modify.![alt text](image.png)
