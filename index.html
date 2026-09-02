@@ -6,156 +6,166 @@
   <title>GAP - Arcade Deck</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body data-theme="dark">
-  <main class="container">
+<body data-theme="dark" class="style-b">
+  <!-- =========================
+       STYLE B: TOP HUD
+  ========================== -->
+  <header class="hud" id="hud">
+    <div class="hud-left">
+      <div class="brand">GAP</div>
+
+      <nav class="seg game-seg" id="gameTypePills" aria-label="Game Selector">
+        <button class="seg-btn active" data-game="ttt3" type="button">3x3 TTT</button>
+        <button class="seg-btn" data-game="ttt5" type="button">5x5 TTT</button>
+        <button class="seg-btn" data-game="chess" type="button">Chess</button>
+      </nav>
+    </div>
+
+    <div class="hud-center">
+      <div class="hud-group">
+        <span class="hud-label">Opponent</span>
+        <div class="seg" id="opponentPills">
+          <button class="seg-btn" data-opponent="local" type="button">2P</button>
+          <button class="seg-btn active" data-opponent="ai" type="button">AI</button>
+        </div>
+      </div>
+
+      <!-- style-b target -->
+      <div class="hud-group" id="difficultyGroup">
+        <span class="hud-label">Difficulty</span>
+        <div class="seg" id="difficultyPills">
+          <button class="seg-btn" data-difficulty="easy" type="button">Easy</button>
+          <button class="seg-btn active" data-difficulty="medium" type="button">Med</button>
+          <button class="seg-btn" data-difficulty="hard" type="button">Hard</button>
+        </div>
+      </div>
+
+      <!-- legacy fallback target -->
+      <div class="hub-row" id="difficultyRow" style="display:none;"></div>
+
+      <div class="hud-group">
+        <span class="hud-label">Timer</span>
+        <div class="seg" id="timerPills">
+          <button class="seg-btn active" data-timer="off" type="button">Off</button>
+          <button class="seg-btn" data-timer="5" type="button">5s</button>
+          <button class="seg-btn" data-timer="10" type="button">10s</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-right">
+      <div class="score-ticker">
+        <span>You: <b id="scoreA">0</b></span>
+        <span>|</span>
+        <span>Opp: <b id="scoreB">0</b></span>
+        <span>|</span>
+        <span>Draws: <b id="scoreD">0</b></span>
+        <span>|</span>
+        <span><b id="streakBadge">🔥 Streak: 0</b></span>
+      </div>
+
+      <div class="hud-icons">
+        <button id="themeToggleBtn" class="icon-btn" type="button" title="Theme">🧑‍🎤</button>
+        <button id="audioToggleBtn" class="icon-btn" type="button" title="Audio">🔊</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================
+       STYLE B: STUDIO STAGE
+  ========================== -->
+  <main class="stage" id="stage">
+    <section class="stage-inner">
+      <div class="status-pill" id="status">X's Turn</div>
+
+      <section class="timer-wrap" id="timerWrap" style="display:none;">
+        <div class="timer-bar"><div id="timerFill"></div></div>
+        <small id="timerLabel">Turn time</small>
+      </section>
+
+      <div class="captured-strip top" id="capturedTop" style="display:none;">
+        <b>White captured:</b> <span id="whiteCaptured"></span>
+      </div>
+
+      <section class="board-shell" id="boardWrap">
+        <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+        <div id="tttBoard" class="ttt-board"></div>
+        <div id="chessBoard" class="chess-board" style="display:none;"></div>
+      </section>
+
+      <div class="captured-strip bottom" id="capturedBottom" style="display:none;">
+        <b>Black captured:</b> <span id="blackCaptured"></span>
+      </div>
+
+      <div id="thinking" class="thinking-pill" style="display:none;">
+        <span>AI thinking</span><span class="dots"><i>.</i><i>.</i><i>.</i></span>
+      </div>
+
+      <section class="stage-actions">
+        <button id="newGameBtn" type="button">New Game</button>
+        <button id="undoBtn" type="button">Undo</button>
+        <button id="resetScoreBtn" type="button">Reset Score</button>
+      </section>
+
+      <section class="history-inline">
+        <div id="historyList" class="history-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <!-- =========================
+       LEGACY HIDDEN TARGETS
+       (kept so old JS never breaks)
+  ========================== -->
+  <div class="container" style="display:none;">
     <header class="topbar">
       <h1>GAP</h1>
       <span class="chip" id="modeChip">Mode: Tic-Tac-Toe 3x3 vs Computer</span>
     </header>
+    <section class="card hub"></section>
+    <section class="card score-card"></section>
+    <section class="status-row"></section>
+    <section class="board-wrap"></section>
+    <section class="history card"></section>
+    <section class="controls"></section>
+    <div id="capturedPanel" class="captured" style="display:none;"></div>
+  </div>
 
-    <!-- Game Hub -->
-    <section class="hub card">
-      <h3>Game Hub</h3>
+  <!-- Hidden compatibility selects -->
+  <select id="modeSelect" hidden>
+    <option value="ttt3-2p">Tic-Tac-Toe 3x3 (2 Players)</option>
+    <option value="ttt3-ai" selected>Tic-Tac-Toe 3x3 vs Computer</option>
+    <option value="ttt5-2p">Tic-Tac-Toe 5x5 (2 Players)</option>
+    <option value="ttt5-ai">Tic-Tac-Toe 5x5 vs Computer</option>
+    <option value="chess-2p">Chess (2 Players)</option>
+    <option value="chess-ai">Chess vs Computer</option>
+  </select>
 
-      <div class="hub-row">
-        <small>Game Type</small>
-        <div class="pill-group" id="gameTypePills">
-          <button class="pill active" data-game="ttt3" type="button">◼︎ 3×3 Tic-Tac-Toe</button>
-          <button class="pill" data-game="ttt5" type="button">◻︎ 5×5 Tic-Tac-Toe</button>
-          <button class="pill" data-game="chess" type="button">♞ Chess</button>
-        </div>
-      </div>
+  <select id="difficultySelect" hidden>
+    <option value="easy">Easy</option>
+    <option value="medium" selected>Medium</option>
+    <option value="hard">Hard</option>
+  </select>
 
-      <div class="hub-row">
-        <small>Opponent</small>
-        <div class="pill-group" id="opponentPills">
-          <button class="pill" data-opponent="local" type="button">👥 Local 2P</button>
-          <button class="pill active" data-opponent="ai" type="button">🤖 AI</button>
-        </div>
-      </div>
+  <select id="themeSelect" hidden>
+    <option value="dark" selected>🌙 Dark</option>
+    <option value="light">☀️ Light</option>
+    <option value="itachi">🧑‍🎤 Itachi</option>
+  </select>
 
-      <div class="hub-row" id="difficultyRow">
-        <small>Difficulty</small>
-        <div class="pill-group" id="difficultyPills">
-          <button class="pill" data-difficulty="easy" type="button">Easy</button>
-          <button class="pill active" data-difficulty="medium" type="button">Medium</button>
-          <button class="pill" data-difficulty="hard" type="button">Hard</button>
-        </div>
-      </div>
+  <!-- Optional old custom dropdown targets (hidden) -->
+  <div id="themeWrap" class="gselect" style="display:none;">
+    <button class="gselect-btn" type="button">
+      <span class="gselect-label">Theme</span>
+      <span class="gselect-value" id="themeValueText">🌙 Dark</span>
+      <span class="gselect-caret">⌄</span>
+    </button>
+    <div class="gselect-menu" id="themeMenu"></div>
+  </div>
 
-      <div class="hub-row">
-        <small>Turn Timer</small>
-        <div class="pill-group" id="timerPills">
-          <button class="pill active" data-timer="off" type="button">Off</button>
-          <button class="pill" data-timer="5" type="button">5s</button>
-          <button class="pill" data-timer="10" type="button">10s</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Scoreboard -->
-    <section class="card score-card">
-      <h3>Scoreboard</h3>
-      <div class="score-grid">
-        <div>
-          <small>You / X / White</small>
-          <strong id="scoreA">0</strong>
-        </div>
-        <div>
-          <small>Opponent / O / Black</small>
-          <strong id="scoreB">0</strong>
-        </div>
-        <div>
-          <small>Draws</small>
-          <strong id="scoreD">0</strong>
-        </div>
-      </div>
-      <div class="streak-row">
-        <span id="streakBadge" class="streak-badge">🔥 Streak: 0</span>
-      </div>
-    </section>
-
-    <!-- Status -->
-    <section class="status-row">
-      <div id="status">Tic-Tac-Toe: X's turn</div>
-      <div id="thinking" class="thinking" style="display:none;">
-        <span>AI thinking</span>
-        <span class="dots"><i>.</i><i>.</i><i>.</i></span>
-      </div>
-    </section>
-
-    <!-- Timer -->
-    <section class="timer-wrap" id="timerWrap" style="display:none;">
-      <div class="timer-bar">
-        <div id="timerFill"></div>
-      </div>
-      <small id="timerLabel">Turn time</small>
-    </section>
-
-    <!-- Boards -->
-    <section class="board-wrap" id="boardWrap">
-      <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
-
-      <div id="tttBoard" class="ttt-board"></div>
-      <div id="chessBoard" class="chess-board" style="display:none;"></div>
-
-      <div id="capturedPanel" class="captured" style="display:none;">
-        <div><b>White captured:</b> <span id="whiteCaptured"></span></div>
-        <div><b>Black captured:</b> <span id="blackCaptured"></span></div>
-      </div>
-    </section>
-
-    <!-- Move History -->
-    <section class="history card">
-      <h3>Move History</h3>
-      <div id="historyList" class="history-list"></div>
-    </section>
-
-    <!-- Controls -->
-    <section class="controls">
-      <button id="newGameBtn" type="button">New Game</button>
-      <button id="undoBtn" type="button">Undo</button>
-      <button id="resetScoreBtn" type="button">Reset Score</button>
-
-      <div class="gselect" id="themeWrap">
-        <button class="gselect-btn" type="button">
-          <span class="gselect-label">Theme</span>
-          <span class="gselect-value" id="themeValueText">🌙 Dark</span>
-          <span class="gselect-caret">⌄</span>
-        </button>
-        <div class="gselect-menu" id="themeMenu"></div>
-      </div>
-
-      <!-- Hidden selects kept for compatibility with JS logic -->
-      <select id="modeSelect" hidden>
-        <option value="ttt3-2p">Tic-Tac-Toe 3x3 (2 Players)</option>
-        <option value="ttt3-ai" selected>Tic-Tac-Toe 3x3 vs Computer</option>
-        <option value="ttt5-2p">Tic-Tac-Toe 5x5 (2 Players)</option>
-        <option value="ttt5-ai">Tic-Tac-Toe 5x5 vs Computer</option>
-        <option value="chess-2p">Chess (2 Players)</option>
-        <option value="chess-ai">Chess vs Computer</option>
-      </select>
-
-      <select id="difficultySelect" hidden>
-        <option value="easy">Easy</option>
-        <option value="medium" selected>Medium</option>
-        <option value="hard">Hard</option>
-      </select>
-
-      <select id="themeSelect" hidden>
-        <option value="dark" selected>🌙 Dark</option>
-        <option value="light">☀️ Light</option>
-        <option value="itachi">🧑‍🎤 Itachi</option>
-      </select>
-    </section>
-  </main>
-
-  <!-- Winner overlay -->
   <div id="winOverlay" class="win-overlay hidden">
     <div class="win-screen">
-      <div class="win-banner">
-        <h2 id="winMessage" class="win-message">WINNER!</h2>
-      </div>
+      <div class="win-banner"><h2 id="winMessage" class="win-message">WINNER!</h2></div>
       <button id="winRestartBtn" class="win-restart-btn" type="button">Continue</button>
     </div>
   </div>

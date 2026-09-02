@@ -13,6 +13,8 @@ const boardWrap = document.getElementById("boardWrap");
 const tttBoardEl = document.getElementById("tttBoard");
 const chessBoardEl = document.getElementById("chessBoard");
 const capturedPanel = document.getElementById("capturedPanel");
+const capturedTop = document.getElementById("capturedTop");
+const capturedBottom = document.getElementById("capturedBottom");
 const whiteCapturedEl = document.getElementById("whiteCaptured");
 const blackCapturedEl = document.getElementById("blackCaptured");
 
@@ -37,6 +39,12 @@ const opponentPills = document.getElementById("opponentPills");
 const difficultyPills = document.getElementById("difficultyPills");
 const timerPills = document.getElementById("timerPills");
 const difficultyRow = document.getElementById("difficultyRow");
+const difficultyGroup = document.getElementById("difficultyGroup");
+
+/* Optional HUD extras (Style-B) */
+const themeToggleBtn = document.getElementById("themeToggleBtn");
+const audioToggleBtn = document.getElementById("audioToggleBtn");
+let isMuted = false;
 
 /* =======================================================
    APP STATE / HUB
@@ -61,9 +69,10 @@ function hubFromMode(mode) {
   hubState.opponent = mode.endsWith("-ai") ? "ai" : "local";
 }
 
+/* Supports both old ".pill" and new ".seg-btn" */
 function setActive(groupEl, key, value) {
   if (!groupEl) return;
-  groupEl.querySelectorAll(".pill").forEach(btn => {
+  groupEl.querySelectorAll(".pill, .seg-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset[key] === value);
   });
 }
@@ -72,7 +81,9 @@ function syncHubVisuals() {
   setActive(opponentPills, "opponent", hubState.opponent);
   setActive(difficultyPills, "difficulty", hubState.difficulty);
   setActive(timerPills, "timer", hubState.timer);
+
   if (difficultyRow) difficultyRow.classList.toggle("disabled", hubState.opponent === "local");
+  if (difficultyGroup) difficultyGroup.style.display = hubState.opponent === "ai" ? "flex" : "none";
 }
 
 function updateURLFromState() {
@@ -113,7 +124,7 @@ function loadHub() {
 ======================================================= */
 function syncThemeLabel() {
   const themeValueText = document.getElementById("themeValueText");
-  const selected = themeSelect.options[themeSelect.selectedIndex];
+  const selected = themeSelect?.options?.[themeSelect.selectedIndex];
   if (themeValueText && selected) themeValueText.textContent = selected.textContent;
 }
 function setTheme(theme) {
@@ -123,7 +134,28 @@ function setTheme(theme) {
   syncThemeLabel();
   persistHub();
 }
-themeSelect.addEventListener("change", () => setTheme(themeSelect.value));
+if (themeSelect) {
+  themeSelect.addEventListener("change", () => setTheme(themeSelect.value));
+}
+function nextTheme(curr) {
+  if (curr === "dark") return "light";
+  if (curr === "light") return "itachi";
+  return "dark";
+}
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener("click", () => {
+    const next = nextTheme(themeSelect.value);
+    themeSelect.value = next;
+    themeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+}
+if (audioToggleBtn) {
+  audioToggleBtn.addEventListener("click", () => {
+    isMuted = !isMuted;
+    audioToggleBtn.textContent = isMuted ? "🔇" : "🔊";
+    audioToggleBtn.setAttribute("aria-pressed", String(isMuted));
+  });
+}
 
 /* =======================================================
    SCORE / STATS
@@ -137,10 +169,13 @@ function scoreKey() {
   return `scores_${modeSelect.value}_${difficultySelect.value}`;
 }
 function renderScores() {
-  scoreAEl.textContent = scoreA;
-  scoreBEl.textContent = scoreB;
-  scoreDEl.textContent = scoreD;
-  if (streakBadge) streakBadge.textContent = `🔥 Streak: ${streak}`;
+  if (scoreAEl) scoreAEl.textContent = scoreA;
+  if (scoreBEl) scoreBEl.textContent = scoreB;
+  if (scoreDEl) scoreDEl.textContent = scoreD;
+  if (streakBadge) {
+    const raw = streakBadge.textContent || "";
+    streakBadge.textContent = raw.includes("🔥") ? `🔥 Streak: ${streak}` : String(streak);
+  }
 }
 function persistScores() {
   localStorage.setItem(scoreKey(), JSON.stringify({ scoreA, scoreB, scoreD, streak }));
@@ -165,6 +200,7 @@ function updateStreak(winForPlayerA) {
    WIN OVERLAY
 ======================================================= */
 function showWinScreen(message) {
+  if (!winOverlay || !winMessage) return;
   winMessage.textContent = message.toUpperCase();
   winOverlay.classList.remove("hidden");
   winOverlay.classList.remove("show-banner");
@@ -172,16 +208,21 @@ function showWinScreen(message) {
   winOverlay.classList.add("show-banner");
 }
 function hideWinScreen() {
+  if (!winOverlay) return;
   winOverlay.classList.add("hidden");
   winOverlay.classList.remove("show-banner");
 }
-winRestartBtn.addEventListener("click", () => {
-  hideWinScreen();
-  initBoard();
-});
-winOverlay.addEventListener("click", (e) => {
-  if (e.target === winOverlay) hideWinScreen();
-});
+if (winRestartBtn) {
+  winRestartBtn.addEventListener("click", () => {
+    hideWinScreen();
+    initBoard();
+  });
+}
+if (winOverlay) {
+  winOverlay.addEventListener("click", (e) => {
+    if (e.target === winOverlay) hideWinScreen();
+  });
+}
 
 /* =======================================================
    MOVE HISTORY
@@ -189,6 +230,7 @@ winOverlay.addEventListener("click", (e) => {
 let moveHistory = [];
 function addHistory(text) {
   moveHistory.push(text);
+  if (!historyList) return;
   const pill = document.createElement("span");
   pill.className = "history-pill";
   pill.textContent = text;
@@ -196,6 +238,7 @@ function addHistory(text) {
   historyList.scrollTop = historyList.scrollHeight;
 }
 function rebuildHistory() {
+  if (!historyList) return;
   historyList.innerHTML = "";
   moveHistory.forEach(h => {
     const pill = document.createElement("span");
@@ -384,9 +427,11 @@ function initTTT(size) {
 }
 
 function renderTTT() {
-  tttBoardEl.style.display = "grid";
-  chessBoardEl.style.display = "none";
-  capturedPanel.style.display = "none";
+  if (tttBoardEl) tttBoardEl.style.display = "grid";
+  if (chessBoardEl) chessBoardEl.style.display = "none";
+  if (capturedPanel) capturedPanel.style.display = "none";
+  if (capturedTop) capturedTop.style.display = "none";
+  if (capturedBottom) capturedBottom.style.display = "none";
 
   tttBoardEl.innerHTML = "";
   tttBoardEl.style.gridTemplateColumns = `repeat(${tttSize}, minmax(62px, 1fr))`;
@@ -595,12 +640,12 @@ function onTTTClick(i) {
   startTurnTimer();
 
   if (aiMode && tttTurn === "O") {
-    thinkingEl.style.display = "flex";
-    boardWrap.classList.add("ai-thinking");
+    if (thinkingEl) thinkingEl.style.display = "flex";
+    if (boardWrap) boardWrap.classList.add("ai-thinking");
     setTimeout(() => {
       doTTTAIMove();
-      thinkingEl.style.display = "none";
-      boardWrap.classList.remove("ai-thinking");
+      if (thinkingEl) thinkingEl.style.display = "none";
+      if (boardWrap) boardWrap.classList.remove("ai-thinking");
     }, tttAIDelay(difficultySelect.value));
   }
 }
@@ -668,8 +713,8 @@ function initChess() {
 }
 
 function renderCaptured() {
-  whiteCapturedEl.textContent = whiteCaptured.map(p => CHESS_U[p.color + p.type]).join(" ");
-  blackCapturedEl.textContent = blackCaptured.map(p => CHESS_U[p.color + p.type]).join(" ");
+  if (whiteCapturedEl) whiteCapturedEl.textContent = whiteCaptured.map(p => CHESS_U[p.color + p.type]).join(" ");
+  if (blackCapturedEl) blackCapturedEl.textContent = blackCaptured.map(p => CHESS_U[p.color + p.type]).join(" ");
 }
 
 function getPseudoMoves(board, r, c) {
@@ -725,9 +770,12 @@ function getPseudoMoves(board, r, c) {
 
 function renderChess() {
   clearWinLine();
-  tttBoardEl.style.display = "none";
-  chessBoardEl.style.display = "grid";
-  capturedPanel.style.display = "block";
+  if (tttBoardEl) tttBoardEl.style.display = "none";
+  if (chessBoardEl) chessBoardEl.style.display = "grid";
+
+  if (capturedPanel) capturedPanel.style.display = "block";
+  if (capturedTop) capturedTop.style.display = "block";
+  if (capturedBottom) capturedBottom.style.display = "block";
 
   chessBoardEl.innerHTML = "";
   const hints = chessSelected ? getPseudoMoves(chessBoard, chessSelected.r, chessSelected.c) : [];
@@ -896,8 +944,8 @@ function onChessClick(r, c) {
   startTurnTimer();
 
   if (aiMode && chessTurn === "b" && !chessOver) {
-    thinkingEl.style.display = "flex";
-    boardWrap.classList.add("ai-thinking");
+    if (thinkingEl) thinkingEl.style.display = "flex";
+    if (boardWrap) boardWrap.classList.add("ai-thinking");
 
     setTimeout(() => {
       saveChessSnapshot();
@@ -911,8 +959,8 @@ function onChessClick(r, c) {
         if (!chessOver) chessTurn = "w";
       }
 
-      thinkingEl.style.display = "none";
-      boardWrap.classList.remove("ai-thinking");
+      if (thinkingEl) thinkingEl.style.display = "none";
+      if (boardWrap) boardWrap.classList.remove("ai-thinking");
       renderChess();
       startTurnTimer();
     }, tttAIDelay(difficultySelect.value));
@@ -922,17 +970,43 @@ function onChessClick(r, c) {
 /* =======================================================
    UNDO
 ======================================================= */
-undoBtn.addEventListener("click", () => {
-  const mode = modeSelect.value;
+if (undoBtn) {
+  undoBtn.addEventListener("click", () => {
+    const mode = modeSelect.value;
 
-  if (mode.startsWith("ttt")) {
-    const snap = tttSnapshots.pop();
+    if (mode.startsWith("ttt")) {
+      const snap = tttSnapshots.pop();
+      if (!snap) return;
+
+      tttBoard = [...snap.board];
+      tttTurn = snap.turn;
+      tttOver = snap.over;
+      tttWinningCells = [...snap.win];
+      moveHistory = [...snap.history];
+      scoreA = snap.scoreA;
+      scoreB = snap.scoreB;
+      scoreD = snap.scoreD;
+      streak = snap.streak;
+
+      rebuildHistory();
+      renderScores();
+      hideWinScreen();
+      clearWinLine();
+      renderTTT();
+      persistScores();
+      startTurnTimer();
+      return;
+    }
+
+    const snap = chessSnapshots.pop();
     if (!snap) return;
 
-    tttBoard = [...snap.board];
-    tttTurn = snap.turn;
-    tttOver = snap.over;
-    tttWinningCells = [...snap.win];
+    chessBoard = cloneBoard(snap.board);
+    chessTurn = snap.turn;
+    chessSelected = snap.selected;
+    chessOver = snap.over;
+    whiteCaptured = [...snap.whiteCaptured];
+    blackCaptured = [...snap.blackCaptured];
     moveHistory = [...snap.history];
     scoreA = snap.scoreA;
     scoreB = snap.scoreB;
@@ -942,46 +1016,25 @@ undoBtn.addEventListener("click", () => {
     rebuildHistory();
     renderScores();
     hideWinScreen();
-    clearWinLine();
-    renderTTT();
+    renderCaptured();
+    renderChess();
     persistScores();
     startTurnTimer();
-    return;
-  }
-
-  const snap = chessSnapshots.pop();
-  if (!snap) return;
-
-  chessBoard = cloneBoard(snap.board);
-  chessTurn = snap.turn;
-  chessSelected = snap.selected;
-  chessOver = snap.over;
-  whiteCaptured = [...snap.whiteCaptured];
-  blackCaptured = [...snap.blackCaptured];
-  moveHistory = [...snap.history];
-  scoreA = snap.scoreA;
-  scoreB = snap.scoreB;
-  scoreD = snap.scoreD;
-  streak = snap.streak;
-
-  rebuildHistory();
-  renderScores();
-  hideWinScreen();
-  renderCaptured();
-  renderChess();
-  persistScores();
-  startTurnTimer();
-});
+  });
+}
 
 /* =======================================================
-   CUSTOM THEME DROPDOWN
+   CUSTOM THEME DROPDOWN (optional legacy support)
 ======================================================= */
 function buildCustomDropdown(wrapperId, selectId, menuId, valueTextId) {
   const wrap = document.getElementById(wrapperId);
   const select = document.getElementById(selectId);
   const menu = document.getElementById(menuId);
   const valueText = document.getElementById(valueTextId);
+
+  if (!wrap || !select || !menu || !valueText) return;
   const btn = wrap.querySelector(".gselect-btn");
+  if (!btn) return;
 
   function renderMenu() {
     menu.innerHTML = "";
@@ -1033,14 +1086,14 @@ function initCustomDropdowns() {
 function syncHubToSelectsAndInit() {
   modeSelect.value = modeFromHub();
   difficultySelect.value = hubState.difficulty;
-  themeSelect.value = hubState.theme;
+  if (themeSelect) themeSelect.value = hubState.theme;
   syncHubVisuals();
   setTheme(hubState.theme);
   initBoard();
 }
 function initHubPills() {
   gameTypePills?.addEventListener("click", (e) => {
-    const btn = e.target.closest(".pill[data-game]");
+    const btn = e.target.closest(".pill[data-game], .seg-btn[data-game]");
     if (!btn) return;
     hubState.game = btn.dataset.game;
     persistHub();
@@ -1048,7 +1101,7 @@ function initHubPills() {
   });
 
   opponentPills?.addEventListener("click", (e) => {
-    const btn = e.target.closest(".pill[data-opponent]");
+    const btn = e.target.closest(".pill[data-opponent], .seg-btn[data-opponent]");
     if (!btn) return;
     hubState.opponent = btn.dataset.opponent;
     persistHub();
@@ -1056,7 +1109,7 @@ function initHubPills() {
   });
 
   difficultyPills?.addEventListener("click", (e) => {
-    const btn = e.target.closest(".pill[data-difficulty]");
+    const btn = e.target.closest(".pill[data-difficulty], .seg-btn[data-difficulty]");
     if (!btn) return;
     hubState.difficulty = btn.dataset.difficulty;
     persistHub();
@@ -1064,7 +1117,7 @@ function initHubPills() {
   });
 
   timerPills?.addEventListener("click", (e) => {
-    const btn = e.target.closest(".pill[data-timer]");
+    const btn = e.target.closest(".pill[data-timer], .seg-btn[data-timer]");
     if (!btn) return;
     hubState.timer = btn.dataset.timer;
     persistHub();
@@ -1078,9 +1131,13 @@ function initHubPills() {
 ======================================================= */
 function updateGameSpecificUI(mode) {
   const isChess = mode.startsWith("chess");
-  capturedPanel.style.display = isChess ? "block" : "none";
-  tttBoardEl.style.display = isChess ? "none" : "grid";
-  chessBoardEl.style.display = isChess ? "grid" : "none";
+
+  if (capturedPanel) capturedPanel.style.display = isChess ? "block" : "none";
+  if (capturedTop) capturedTop.style.display = isChess ? "block" : "none";
+  if (capturedBottom) capturedBottom.style.display = isChess ? "block" : "none";
+
+  if (tttBoardEl) tttBoardEl.style.display = isChess ? "none" : "grid";
+  if (chessBoardEl) chessBoardEl.style.display = isChess ? "grid" : "none";
 }
 
 function initBoard() {
@@ -1088,14 +1145,17 @@ function initBoard() {
   stopTurnTimer();
   clearHistory();
   clearWinLine();
-  thinkingEl.style.display = "none";
-  boardWrap.classList.remove("ai-thinking");
+  if (thinkingEl) thinkingEl.style.display = "none";
+  if (boardWrap) boardWrap.classList.remove("ai-thinking");
 
   const mode = modeSelect.value;
   updateGameSpecificUI(mode);
 
-  modeChip.textContent = "Mode: " + modeSelect.options[modeSelect.selectedIndex].text;
+  if (modeChip && modeSelect?.selectedIndex >= 0) {
+    modeChip.textContent = "Mode: " + modeSelect.options[modeSelect.selectedIndex].text;
+  }
   if (difficultyRow) difficultyRow.classList.toggle("disabled", hubState.opponent === "local");
+  if (difficultyGroup) difficultyGroup.style.display = hubState.opponent === "ai" ? "flex" : "none";
 
   loadScores();
 
@@ -1116,16 +1176,18 @@ difficultySelect.addEventListener("change", () => {
   persistHub();
   loadScores();
 });
-newGameBtn.addEventListener("click", initBoard);
+if (newGameBtn) newGameBtn.addEventListener("click", initBoard);
 
-resetScoreBtn.addEventListener("click", () => {
-  scoreA = 0;
-  scoreB = 0;
-  scoreD = 0;
-  streak = 0;
-  persistScores();
-  renderScores();
-});
+if (resetScoreBtn) {
+  resetScoreBtn.addEventListener("click", () => {
+    scoreA = 0;
+    scoreB = 0;
+    scoreD = 0;
+    streak = 0;
+    persistScores();
+    renderScores();
+  });
+}
 
 /* =======================================================
    BOOT
@@ -1138,7 +1200,7 @@ resetScoreBtn.addEventListener("click", () => {
 
   modeSelect.value = modeFromHub();
   difficultySelect.value = hubState.difficulty;
-  themeSelect.value = hubState.theme || "dark";
+  if (themeSelect) themeSelect.value = hubState.theme || "dark";
 
   setTheme(themeSelect.value);
   syncHubVisuals();

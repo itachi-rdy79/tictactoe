@@ -19,6 +19,9 @@
   --x:#39caff;
   --o:#f3cd44;
   --accent:#14bdac;
+
+  /* Style B tokens */
+  --hud-h:60px;
 }
 
 body[data-theme="light"]{
@@ -70,6 +73,9 @@ body[data-theme="itachi"]{
   100%{background-position:50% 50%;}
 }
 
+/* =======================================================
+   LEGACY CONTAINER (kept for compatibility)
+======================================================= */
 .container{
   display:flex;
   flex-direction:column;
@@ -131,7 +137,7 @@ h1{
   font-size:22px;
 }
 
-/* Hub pills */
+/* Hub pills (legacy) */
 .hub-row{
   display:grid;
   gap:8px;
@@ -521,8 +527,9 @@ body[data-theme="itachi"] .ttt-cell.o{
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><path d='M20,45 a15,15 0 0,1 0,-25 a22,22 0 0,1 40,-10 a18,18 0 0,1 25,15 a15,15 0 0,1 -10,25 z' fill='%23dc143c' stroke='%23ffffff' stroke-width='3'/></svg>");
 }
 
-/* AI shimmer border (when boardWrap has ai-thinking class from JS) */
-.board-wrap.ai-thinking{
+/* AI shimmer border */
+.board-wrap.ai-thinking,
+.board-shell.ai-thinking{
   box-shadow:0 0 0 1px rgba(20,189,172,.35), 0 0 18px rgba(20,189,172,.25);
 }
 
@@ -590,7 +597,236 @@ body[data-theme="itachi"] .win-banner{
 }
 body[data-theme="itachi"] .win-message{color:#ff0000}
 
-/* Responsive */
+/* =======================================================
+   STYLE B (Top HUD + Studio Stage)
+   Added on top without deleting legacy styles
+======================================================= */
+body.style-b{
+  overflow:hidden;
+}
+
+/* Hide legacy blocks in Style B only */
+body.style-b .container,
+body.style-b .topbar,
+body.style-b .hub,
+body.style-b .score-card,
+body.style-b .status-row,
+body.style-b .controls,
+body.style-b .history,
+body.style-b .captured{
+  display:none !important;
+}
+
+/* HUD */
+body.style-b .hud{
+  position:sticky;
+  top:0;
+  z-index:50;
+  height:var(--hud-h);
+  display:grid;
+  grid-template-columns:1.2fr 1.8fr 1.2fr;
+  align-items:center;
+  gap:10px;
+  padding:8px 14px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.12));
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+body.style-b .hud-left,
+body.style-b .hud-center,
+body.style-b .hud-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+body.style-b .hud-center{justify-content:center}
+body.style-b .hud-right{justify-content:flex-end}
+body.style-b .brand{
+  font-size:30px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.4px;
+}
+body.style-b .hud-group{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+body.style-b .hud-label{
+  font-size:11px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+body.style-b .seg{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+body.style-b .seg-btn{
+  border:1px solid var(--line);
+  background:rgba(128,128,128,.10);
+  color:var(--text);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  line-height:1;
+  cursor:pointer;
+}
+body.style-b .seg-btn.active{
+  background:rgba(20,189,172,.22);
+  border-color:rgba(20,189,172,.55);
+}
+body[data-theme="itachi"].style-b .seg-btn.active{
+  background:rgba(220,20,60,.24);
+  border-color:rgba(220,20,60,.58);
+}
+body.style-b .score-ticker{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:5px 10px;
+  font-size:12px;
+  background:rgba(0,0,0,.15);
+}
+body.style-b .hud-icons{
+  display:flex;
+  gap:8px;
+}
+body.style-b .icon-btn{
+  border:1px solid var(--line);
+  background:rgba(128,128,128,.10);
+  color:var(--text);
+  border-radius:10px;
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+}
+
+/* Stage */
+body.style-b .stage{
+  height:calc(100vh - var(--hud-h));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 12px;
+}
+body.style-b .stage-inner{
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+body.style-b .status-pill{
+  border:1px solid var(--line);
+  background:rgba(0,0,0,.2);
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:13px;
+  font-weight:700;
+}
+body.style-b .thinking-pill{
+  border:1px solid var(--line);
+  background:rgba(0,0,0,.2);
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:12px;
+  color:var(--muted);
+}
+body.style-b .timer-wrap{
+  width:min(520px,74vmin);
+}
+
+/* Board sizes for style-b */
+body.style-b .board-shell{
+  position:relative;
+  display:grid;
+  place-items:center;
+}
+body.style-b .board-shell .ttt-board{
+  width:min(75vmin, 550px);
+  aspect-ratio:1/1;
+  margin:0;
+}
+body.style-b .board-shell .chess-board{
+  width:min(78vmin, 580px);
+  aspect-ratio:1/1;
+  margin:0;
+}
+
+/* Captured strips */
+body.style-b .captured-strip{
+  width:min(78vmin, 580px);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:5px 10px;
+  font-size:12px;
+  background:rgba(0,0,0,.16);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Stage actions/history */
+body.style-b .stage-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+body.style-b .history-inline{
+  width:min(78vmin, 580px);
+}
+body.style-b .history-inline .history-list{
+  max-height:52px;
+}
+
+/* Mobile fallback for Style-B */
+@media (max-width:767px){
+  body.style-b{
+    overflow:auto;
+  }
+
+  body.style-b .hud{
+    height:auto;
+    min-height:var(--hud-h);
+    grid-template-columns:1fr;
+    gap:8px;
+    padding:8px;
+  }
+  body.style-b .hud-left,
+  body.style-b .hud-center,
+  body.style-b .hud-right{
+    flex-wrap:wrap;
+    justify-content:flex-start;
+  }
+
+  body.style-b .stage{
+    height:auto;
+    min-height:calc(100vh - var(--hud-h));
+    padding:12px 10px 18px;
+  }
+
+  body.style-b .board-shell .ttt-board{
+    width:min(92vw, 520px);
+  }
+  body.style-b .board-shell .chess-board,
+  body.style-b .captured-strip,
+  body.style-b .history-inline{
+    width:min(94vw, 560px);
+  }
+}
+
+/* Responsive legacy */
 @media (max-width:700px){
   .chip{display:none}
   .score-grid{flex-direction:column;gap:10px}
