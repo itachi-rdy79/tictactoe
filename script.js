@@ -54,14 +54,14 @@ const confettiCanvas = document.getElementById("confettiCanvas");
 
 /* ---------- Expanded Dynamic Colors on Reload (No Pink, Non-Gold) ---------- */
 const DYNAMIC_PALETTES = [
-  { accent: "#06b6d4", border: "#22d3ee", shadow: "#0891b2", tint: "rgba(6, 182, 212, 0.18)", lightBg: "#ecfeff" }, // Electric Cyan
-  { accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.18)", lightBg: "#eefcf6" }, // Matrix Emerald
-  { accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.18)", lightBg: "#fef9ee" }, // Sunset Amber
-  { accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.18)", lightBg: "#f5f3ff" }, // Deep Violet
-  { accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.18)", lightBg: "#f0fdfa" }, // Vivid Teal
-  { accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.18)", lightBg: "#f7fee7" }, // Lime Green
-  { accent: "#3b82f6", border: "#60a5fa", shadow: "#1d4ed8", tint: "rgba(59, 130, 246, 0.18)", lightBg: "#eff6ff" }, // Royal Blue
-  { accent: "#f97316", border: "#fb923c", shadow: "#c2410c", tint: "rgba(249, 115, 22, 0.18)", lightBg: "#fff7ed" }  // Burnt Orange
+  { accent: "#06b6d4", border: "#22d3ee", shadow: "#0891b2", tint: "rgba(6, 182, 212, 0.18)", lightBg: "#f1f5f9" }, // Electric Cyan
+  { accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.18)", lightBg: "#f1f5f9" }, // Matrix Emerald
+  { accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.18)", lightBg: "#f1f5f9" }, // Sunset Amber
+  { accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.18)", lightBg: "#f1f5f9" }, // Deep Violet
+  { accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.18)", lightBg: "#f1f5f9" }, // Vivid Teal
+  { accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.18)", lightBg: "#f1f5f9" }, // Lime Green
+  { accent: "#3b82f6", border: "#60a5fa", shadow: "#1d4ed8", tint: "rgba(59, 130, 246, 0.18)", lightBg: "#f1f5f9" }, // Royal Blue
+  { accent: "#f97316", border: "#fb923c", shadow: "#c2410c", tint: "rgba(249, 115, 22, 0.18)", lightBg: "#f1f5f9" }  // Burnt Orange
 ];
 
 function applyRandomPalette() {
@@ -301,7 +301,7 @@ function triggerConfetti() {
     particles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.4; // Gravity
+      p.vy += 0.4;
       p.rotation += p.vRot;
 
       ctx.save();
@@ -315,7 +315,6 @@ function triggerConfetti() {
   }
   loop();
 
-  // Stop confetti loop after 3.5 seconds
   setTimeout(() => cancelAnimationFrame(animationFrame), 3500);
 }
 
@@ -1055,14 +1054,12 @@ function checkWordleRow() {
 window.addEventListener("keydown", (e) => {
   const k = e.key.toUpperCase();
 
-  // Navigation Shortcuts: 1, 2, 3, 4
   if (e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") {
     if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
     if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
     if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
     if (k === "4") { hubState.game = "wordle"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
     
-    // Action Shortcuts: R (New Game), Z (Undo)
     if (k === "R") { newGameBtn.click(); return; }
     if (k === "Z") { undoBtn.click(); return; }
   }

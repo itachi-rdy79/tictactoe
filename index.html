@@ -6,7 +6,7 @@
   <title>GAP — Arcade Gaming Hub</title>
   <!-- Konoha Leaf Glow Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffb703'/%3E%3Cstop offset='50%25' stop-color='%23fb8500'/%3E%3Cstop offset='100%25' stop-color='%23d00000'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='%23050002'/%3E%3Cpath d='M 86 26 L 76 33 C 65 26 44 26 31 43 L 18 68 L 62 68 C 76 68 83 55 80 43 C 77 31 63 25 49 28 C 35 32 30 46 34 58 C 39 68 53 71 64 67 C 72 62 74 51 68 44 C 62 37 51 40 47 48 C 45 54 49 60 55 58 C 59 56 60 52 58 49' fill='none' stroke='url(%23g)' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="style.css?v=14.0" />
+  <link rel="stylesheet" href="style.css?v=15.0" />
 </head>
 <body data-theme="light">
   <!-- Itachi Background Vector Art -->
@@ -47,10 +47,10 @@
     <div class="hud-left">
       <div class="brand">GAP</div>
       <div class="seg" id="gameTypePills">
-        <button class="seg-btn active" data-game="ttt3" type="button">3x3 TTT <span class="shortcut-badge">1</span></button>
-        <button class="seg-btn" data-game="ttt5" type="button">5x5 TTT <span class="shortcut-badge">2</span></button>
-        <button class="seg-btn" data-game="chess" type="button">Chess <span class="shortcut-badge">3</span></button>
-        <button class="seg-btn" data-game="wordle" type="button">Wordle <span class="shortcut-badge">4</span></button>
+        <button class="seg-btn active" data-game="ttt3" type="button" title="Shortcut: 1">3x3 TTT</button>
+        <button class="seg-btn" data-game="ttt5" type="button" title="Shortcut: 2">5x5 TTT</button>
+        <button class="seg-btn" data-game="chess" type="button" title="Shortcut: 3">Chess</button>
+        <button class="seg-btn" data-game="wordle" type="button" title="Shortcut: 4">Wordle</button>
       </div>
     </div>
 
@@ -163,7 +163,6 @@
       </div>
     </div>
 
-    <!-- Clickable Score Ticker Opening Statistics Modal -->
     <div class="score-ticker clickable-ticker" id="scoreTickerBtn" title="Click for Detailed Statistics">
       You: <b id="scoreA">0</b> |
       Opponent: <b id="scoreB">0</b> |
@@ -173,7 +172,7 @@
     </div>
   </footer>
 
-  <!-- Hidden State Elements -->
+  <!-- State Selectors -->
   <select id="modeSelect" hidden>
     <option value="ttt3-2p">TTT3 Local</option>
     <option value="ttt3-ai" selected>TTT3 AI</option>
@@ -194,7 +193,7 @@
     <option value="itachi">Itachi</option>
   </select>
 
-  <!-- Win Modal Overlay with Confetti Canvas -->
+  <!-- Win Modal Overlay -->
   <div id="winOverlay" class="win-overlay hidden">
     <canvas id="confettiCanvas"></canvas>
     <div class="win-modal glass-island">
@@ -207,15 +206,13 @@
   <div id="statsModal" class="win-overlay hidden">
     <div class="win-modal glass-island stats-box">
       <h2>🏆 Arcade Statistics</h2>
-      <div class="stats-grid" id="statsGridContent">
-        <!-- Injected via JavaScript -->
-      </div>
+      <div class="stats-grid" id="statsGridContent"></div>
       <div class="stats-actions">
         <button id="closeStatsBtn" class="seg-btn active" type="button">Close</button>
       </div>
     </div>
   </div>
 
-  <script src="script.js?v=14.0"></script>
+  <script src="script.js?v=15.0"></script>
 </body>
 </html>
