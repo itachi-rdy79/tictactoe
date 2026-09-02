@@ -223,20 +223,23 @@ strong{
   padding-top:12px;
   border-top:1px solid var(--line);
 }
-button{
+
+/* Modernized flat glass buttons */
+button,
+.gselect-btn{
+  border-radius:10px;
+  background:rgba(128,128,128,0.1);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   border:1px solid var(--line);
-  border-radius:13px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  transition:transform .18s ease, background .18s ease, box-shadow .18s ease, border-color .18s ease;
+  color:var(--text);
+}
+
+button{
   padding:10px 13px;
   font-size:16px;
-  color:var(--text);
-  background:linear-gradient(145deg,var(--glass-control-1),var(--glass-control-2));
-  box-shadow:inset 1px 1px 0 rgba(255,255,255,.16), inset -1px -1px 0 rgba(255,255,255,.03), 0 6px 18px rgba(0,0,0,.20);
-  transition:transform .16s ease, box-shadow .2s ease, border-color .2s ease;
-}
-button:hover{
-  transform:translateY(-1px);
-  border-color:rgba(255,255,255,.18);
-  box-shadow:inset 1px 1px 0 rgba(255,255,255,.22), 0 10px 20px rgba(0,0,0,.24);
 }
 
 .gselect{position:relative;min-width:220px}
@@ -246,14 +249,17 @@ button:hover{
   grid-template-columns:auto 1fr auto;
   align-items:center;
   gap:10px;
-  border:1px solid var(--line);
-  border-radius:13px;
   padding:10px 12px;
-  color:var(--text);
-  background:linear-gradient(145deg,var(--glass-control-1),var(--glass-control-2));
-  box-shadow:inset 1px 1px 0 rgba(255,255,255,.16), inset -1px -1px 0 rgba(255,255,255,.03), 0 6px 18px rgba(0,0,0,.20);
   cursor:pointer;
 }
+
+button:hover,
+.gselect-btn:hover{
+  transform:translateY(-2px);
+  background:rgba(128,128,128,0.15);
+  box-shadow:0 6px 16px rgba(0,0,0,0.12);
+}
+
 .gselect-label{color:var(--muted);font-size:12px}
 .gselect-value{text-align:left;font-size:15px;font-weight:600}
 .gselect-caret{font-size:16px;color:var(--muted)}
@@ -308,16 +314,17 @@ body[data-theme="itachi"] .ttt-cell:hover{
   box-shadow:0 0 20px rgba(220,20,60,.6), inset 0 0 10px rgba(220,20,60,.4);
 }
 
-/* Itachi theme symbols: Sharingan (X) and Crow (O) */
+/* Itachi symbols: Sharingan (X) + Akatsuki cloud (O) */
 body[data-theme="itachi"] .ttt-cell.x,
 body[data-theme="itachi"] .ttt-cell.o{
   color: transparent !important;
   text-shadow: none !important;
-  background-size: 70%;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-position:center;
+  background-repeat:no-repeat;
 }
+
 body[data-theme="itachi"] .ttt-cell.x{
+  background-size:70%;
   background-image: url("data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>\
 <circle cx='50' cy='50' r='40' fill='%23b30000' stroke='%23000000' stroke-width='4'/>\
@@ -330,13 +337,10 @@ body[data-theme="itachi"] .ttt-cell.x{
 <circle cx='50' cy='50' r='39' fill='none' stroke='%23440000' stroke-width='2'/>\
 </svg>");
 }
+
 body[data-theme="itachi"] .ttt-cell.o{
-  background-image: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>\
-<path fill='%23e0e0e0' d='M16 60c8-7 16-12 25-12 5-8 13-14 24-16 8-1 15 1 20 5-6 1-11 3-14 7 7 2 12 7 14 13 2 7-1 14-8 18-8 5-20 5-31 1-8 1-14 0-20-3 6-1 11-3 14-7-11-1-18-2-24-6z'/>\
-<circle cx='66' cy='43' r='2.4' fill='%23000000'/>\
-<path fill='%23cfcfcf' d='M74 41l10-2-8 6z'/>\
-</svg>");
+  background-size:80%;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><path d='M20,45 a15,15 0 0,1 0,-25 a22,22 0 0,1 40,-10 a18,18 0 0,1 25,15 a15,15 0 0,1 -10,25 z' fill='%23dc143c' stroke='%23ffffff' stroke-width='3'/></svg>");
 }
 
 .win-overlay{
