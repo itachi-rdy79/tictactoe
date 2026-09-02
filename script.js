@@ -81,7 +81,7 @@ function loadHub() {
   const saved = JSON.parse(localStorage.getItem("hubState") || "null");
   if (saved) Object.assign(hubState, saved);
 
-  // Strictly lock allowed timer values: Off, 30, 60, 90
+  // Strictly allowed timer values: Off, 30, 60, 90
   if (!["off", "30", "60", "90"].includes(hubState.timer)) hubState.timer = "off";
   if (!["dark", "light", "itachi"].includes(hubState.theme)) hubState.theme = "dark";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
@@ -154,7 +154,7 @@ function loadScores() {
 
 function updateStreak(winA) { streak = winA ? streak + 1 : 0; }
 
-/* ---------- Timer Logic (Integers Only) ---------- */
+/* ---------- Timer Logic (Pure Integers, No Decimals) ---------- */
 let turnTimer = null;
 let turnTimeLeft = 0;
 let turnTimeTotal = 0;
@@ -180,8 +180,8 @@ function renderRadial() {
   const pct = Math.max(0, turnTimeLeft / turnTimeTotal);
   ringFg.style.strokeDasharray = `${CIRC}`;
   ringFg.style.strokeDashoffset = `${CIRC * (1 - pct)}`;
-  // Whole integer seconds display only
-  radialText.textContent = `${Math.ceil(Math.max(0, turnTimeLeft))}s`;
+  // Pure whole integers only (e.g. 47, 36) - no .0 or fractional decimals
+  radialText.textContent = Math.ceil(Math.max(0, turnTimeLeft));
 }
 
 function startTurnTimer() {

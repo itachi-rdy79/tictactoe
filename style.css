@@ -31,7 +31,7 @@
 }
 
 body[data-theme="light"] {
-  /* Theme: Ocean Light (Solid Off-White & Deep Ocean Blue) */
+  /* Theme: Ocean Light (Clean Off-White & Deep Ocean Blue) */
   --bg: #f0f7ff;
   --surface: #ffffff;
   --surface-border: #93c5fd;
@@ -100,12 +100,29 @@ html, body {
   padding: 0;
 }
 
+/* Backgrounds with Tactical Dot Matrix Pattern (No Color Bleed) */
 body {
   font-family: var(--font);
   color: var(--text);
   background-color: var(--bg) !important;
-  background-image: none !important;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px) !important;
+  background-size: 28px 28px !important;
   overflow: hidden;
+}
+
+body[data-theme="dark"] {
+  background-color: #0b0e14 !important;
+  background-image: radial-gradient(rgba(212, 175, 55, 0.12) 1.5px, transparent 1.5px) !important;
+}
+
+body[data-theme="light"] {
+  background-color: #f0f7ff !important;
+  background-image: radial-gradient(rgba(2, 132, 199, 0.14) 1.5px, transparent 1.5px) !important;
+}
+
+body[data-theme="itachi"] {
+  background-color: #060102 !important;
+  background-image: radial-gradient(rgba(225, 29, 72, 0.15) 1.5px, transparent 1.5px) !important;
 }
 
 body::before,
@@ -182,7 +199,7 @@ body::after {
   font-weight: 900 !important;
 }
 
-/* Buttons */
+/* Arcade Tactile Buttons */
 .seg {
   display: flex !important;
   gap: clamp(4px, 0.6vw, 8px) !important;
@@ -224,7 +241,7 @@ body::after {
   transform: translateY(-1px);
 }
 
-/* Modern Segmented Theme Selector */
+/* Modern Theme Selector */
 .theme-picker {
   position: relative;
   flex-shrink: 0;
@@ -317,7 +334,7 @@ body::after {
   display: none !important;
 }
 
-/* Radial Timer (Integer Format) */
+/* Radial Timer (Whole Seconds) */
 .radial-wrap {
   position: relative;
   width: 86px;
@@ -350,8 +367,9 @@ body::after {
 
 .radial-text {
   position: absolute;
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 900;
+  letter-spacing: -0.5px;
 }
 
 /* Board Arena */
