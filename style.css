@@ -41,18 +41,18 @@ body.dark-theme {
   --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 }
 
-body.marvel-theme {
-  --bg1: #0a0a0a;
-  --bg2: #1a1a1a;
-  --card: rgba(220, 20, 60, 0.08);
-  --border: rgba(255, 215, 0, 0.25);
-  --text: #ffd700;
-  --muted: #ff4444;
-  --x: #ff0000;
-  --o: #ffd700;
-  --win: #ff6b00;
-  --gold: #ffaa00;
-  --shadow: 0 20px 60px rgba(220, 20, 60, 0.3);
+body.void-theme {
+  --bg1: #0f0620;
+  --bg2: #1a0a2e;
+  --card: rgba(212, 175, 55, 0.08);
+  --border: rgba(212, 175, 55, 0.25);
+  --text: #d4af37;
+  --muted: #00d9ff;
+  --x: #00d9ff;
+  --o: #d4af37;
+  --win: #16c784;
+  --gold: #d4af37;
+  --shadow: 0 20px 60px rgba(15, 6, 32, 0.35);
 }
 
 * { box-sizing: border-box; }
@@ -91,6 +91,14 @@ body.marvel-theme {
     radial-gradient(circle at top left, rgba(220,20,60,.15), transparent 35%),
     radial-gradient(circle at top right, rgba(255,215,0,.12), transparent 35%),
     radial-gradient(circle at bottom, rgba(255,69,0,.10), transparent 40%),
+    linear-gradient(145deg, var(--bg1), var(--bg2));
+}
+
+body.void-theme {
+  background:
+    radial-gradient(circle at top left, rgba(212,175,55,.12), transparent 40%),
+    radial-gradient(circle at top right, rgba(0,217,255,.08), transparent 40%),
+    radial-gradient(circle at bottom, rgba(22,199,132,.06), transparent 45%),
     linear-gradient(145deg, var(--bg1), var(--bg2));
 }
 
@@ -143,55 +151,55 @@ body.light-theme .score-card {
   background: rgba(255,255,255,.5);
 }
 
-body.marvel-theme .app {
-  background: rgba(220, 20, 60, 0.06) !important;
-  border: 1.5px solid rgba(255, 215, 0, 0.3);
-  box-shadow: 0 8px 32px rgba(220, 20, 60, 0.25), inset 0 1px 0 rgba(255, 215, 0, 0.15);
+body.void-theme .app {
+  background: rgba(25, 10, 50, 0.05) !important;
+  border: 1.5px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 8px 32px rgba(15, 6, 32, 0.35), inset 0 1px 0 rgba(212, 175, 55, 0.15);
 }
 
-body.marvel-theme .topbar {
-  border-bottom: 1.5px solid rgba(255, 215, 0, 0.3);
-  background: linear-gradient(180deg, rgba(220,20,60,.08), rgba(255,215,0,.03));
+body.void-theme .topbar {
+  border-bottom: 1.5px solid rgba(212, 175, 55, 0.3);
+  background: linear-gradient(180deg, rgba(212,175,55,.06), rgba(0,217,255,.02));
 }
 
-body.marvel-theme .board-wrap,
-body.marvel-theme .panel {
-  background: rgba(26, 26, 26, 0.4);
-  border: 1.5px solid rgba(255, 215, 0, 0.25);
+body.void-theme .board-wrap,
+body.void-theme .panel {
+  background: rgba(15, 6, 32, 0.4);
+  border: 1.5px solid rgba(212, 175, 55, 0.25);
   backdrop-filter: blur(20px);
 }
 
-body.marvel-theme .badge {
-  border: 1.5px solid rgba(255, 215, 0, 0.3);
-  background: rgba(220, 20, 60, 0.2);
+body.void-theme .badge {
+  border: 1.5px solid rgba(212, 175, 55, 0.3);
+  background: rgba(212, 175, 55, 0.1);
 }
 
-body.marvel-theme select,
-body.marvel-theme button {
-  border: 1.5px solid rgba(255, 215, 0, 0.3);
-  background: rgba(220, 20, 60, 0.15);
-  color: #ffd700;
+body.void-theme select,
+body.void-theme button {
+  border: 1.5px solid rgba(212, 175, 55, 0.3);
+  background: rgba(212, 175, 55, 0.08);
+  color: #d4af37;
 }
 
-body.marvel-theme .cell,
-body.marvel-theme .piece {
-  border: 1.5px solid rgba(255, 215, 0, 0.25);
-  background: rgba(26, 26, 26, 0.6);
+body.void-theme .cell,
+body.void-theme .piece {
+  border: 1.5px solid rgba(212, 175, 55, 0.25);
+  background: rgba(15, 6, 32, 0.6);
 }
 
-body.marvel-theme .drop-btn {
-  border: 1.5px solid rgba(255, 215, 0, 0.3);
-  background: linear-gradient(135deg, rgba(220,20,60,.2), rgba(255,215,0,.1));
+body.void-theme .drop-btn {
+  border: 1.5px solid rgba(212, 175, 55, 0.3);
+  background: linear-gradient(135deg, rgba(212,175,55,.15), rgba(0,217,255,.08));
 }
 
-body.marvel-theme .score-card {
-  border: 1.5px solid rgba(255, 215, 0, 0.25);
-  background: rgba(220, 20, 60, 0.12);
+body.void-theme .score-card {
+  border: 1.5px solid rgba(212, 175, 55, 0.25);
+  background: rgba(212, 175, 55, 0.08);
 }
 
-body.marvel-theme .status {
-  border: 1.5px solid rgba(255, 215, 0, 0.25);
-  background: rgba(26, 26, 26, 0.5);
+body.void-theme .status {
+  border: 1.5px solid rgba(212, 175, 55, 0.25);
+  background: rgba(15, 6, 32, 0.5);
 }
 
 .app{
@@ -318,11 +326,13 @@ body.marvel-theme .status {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 18px;
-  padding: 8px;
+  padding: 6px;
   display: none;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   z-index: 1000;
+  max-height: 240px;
+  overflow-y: auto;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 12px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.15);
@@ -345,13 +355,14 @@ body.marvel-theme .status {
 }
 
 .dropdown-item {
-  padding: 12px 14px;
+  padding: 8px 12px;
   border-radius: 12px;
   cursor: pointer;
   color: var(--text);
   transition: all .2s ease;
   background: transparent;
   border: 1px solid transparent;
+  font-size: 14px;
 }
 
 .dropdown-item:hover {
@@ -400,34 +411,34 @@ body.light-theme .dropdown-item.active {
   color: var(--x);
 }
 
-/* Marvel Theme - Dropdown */
-body.marvel-theme .dropdown-trigger {
-  background: rgba(220,20,60,.12);
-  border: 1.5px solid rgba(255,215,0,.3);
-  box-shadow: 0 8px 24px rgba(220,20,60,.15), inset 0 1px 0 rgba(255,215,0,.15);
+/* Void Theme - Dropdown */
+body.void-theme .dropdown-trigger {
+  background: rgba(212,175,55,.08);
+  border: 1.5px solid rgba(212,175,55,.3);
+  box-shadow: 0 8px 24px rgba(15,6,32,.25), inset 0 1px 0 rgba(212,175,55,.15);
 }
 
-body.marvel-theme .dropdown-trigger:hover {
-  background: rgba(220,20,60,.18);
-  border-color: rgba(255,215,0,.4);
-  box-shadow: 0 10px 30px rgba(220,20,60,.25), inset 0 1px 0 rgba(255,215,0,.2);
+body.void-theme .dropdown-trigger:hover {
+  background: rgba(212,175,55,.12);
+  border-color: rgba(212,175,55,.4);
+  box-shadow: 0 10px 30px rgba(15,6,32,.35), inset 0 1px 0 rgba(212,175,55,.2);
 }
 
-body.marvel-theme .dropdown-menu {
-  background: rgba(26,26,26,.85);
-  border: 1.5px solid rgba(255,215,0,.25);
-  box-shadow: 0 12px 40px rgba(220,20,60,.3), inset 0 1px 0 rgba(255,215,0,.1);
+body.void-theme .dropdown-menu {
+  background: rgba(15,6,32,.9);
+  border: 1.5px solid rgba(212,175,55,.25);
+  box-shadow: 0 12px 40px rgba(15,6,32,.4), inset 0 1px 0 rgba(212,175,55,.1);
 }
 
-body.marvel-theme .dropdown-item:hover {
-  background: rgba(255,215,0,.15);
-  border-color: rgba(255,215,0,.3);
+body.void-theme .dropdown-item:hover {
+  background: rgba(212,175,55,.15);
+  border-color: rgba(212,175,55,.3);
 }
 
-body.marvel-theme .dropdown-item.active {
-  background: linear-gradient(135deg, rgba(255,0,0,.25), rgba(255,215,0,.15));
-  border-color: rgba(255,215,0,.4);
-  color: #ffd700;
+body.void-theme .dropdown-item.active {
+  background: linear-gradient(135deg, rgba(212,175,55,.25), rgba(0,217,255,.15));
+  border-color: rgba(212,175,55,.4);
+  color: #d4af37;
 }
 
 select, button{

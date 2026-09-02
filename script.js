@@ -945,14 +945,14 @@ function applyTheme() {
   const themeLabels = {
     dark: "🌙 Dark",
     light: "☀️ Light",
-    marvel: "🔴 Marvel"
+    void: "✨ Void"
   };
   els.themeBtn.textContent = themeLabels[currentTheme] || "Dark";
   localStorage.setItem("neoArcadeTheme", currentTheme);
 }
 
 els.themeBtn.addEventListener("click", () => {
-  const themes = ["dark", "light", "marvel"];
+  const themes = ["dark", "light", "void"];
   const currentIndex = themes.indexOf(currentTheme);
   currentTheme = themes[(currentIndex + 1) % themes.length];
   applyTheme();
