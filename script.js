@@ -7,7 +7,6 @@ const opponentPills = document.getElementById("opponentPills");
 const difficultyPills = document.getElementById("difficultyPills");
 const difficultyGroup = document.getElementById("difficultyGroup");
 const timerPills = document.getElementById("timerPills");
-const timerGroup = document.getElementById("timerGroup");
 const opponentGroup = document.getElementById("opponentGroup");
 
 const newGameBtn = document.getElementById("newGameBtn");
@@ -47,12 +46,16 @@ const themeMenu = document.getElementById("themeMenu");
 const themeCurrentIcon = document.getElementById("themeCurrentIcon");
 const themeCurrentText = document.getElementById("themeCurrentText");
 
+/* ---------- Custom SVGs for Itachi Mode ---------- */
+const SHARINGAN_SVG = `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#e11d48"/><circle cx="50" cy="50" r="38" fill="none" stroke="#000" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="#000"/><circle cx="50" cy="24" r="7" fill="#000"/><path d="M50 24 Q57 32 50 37" stroke="#000" stroke-width="3" fill="none"/><circle cx="27" cy="63" r="7" fill="#000"/><path d="M27 63 Q23 72 30 75" stroke="#000" stroke-width="3" fill="none"/><circle cx="73" cy="63" r="7" fill="#000"/><path d="M73 63 Q77 72 70 75" stroke="#000" stroke-width="3" fill="none"/></svg>`;
+const CROW_SVG = `<svg viewBox="0 0 100 100"><path d="M15 50 C25 25, 60 20, 85 40 C75 45, 65 48, 55 46 C68 55, 75 65, 80 80 C60 70, 40 75, 20 62 C30 62, 40 58, 45 52 C30 52, 20 54, 15 50 Z" fill="currentColor"/><circle cx="70" cy="38" r="3" fill="#e11d48"/></svg>`;
+
 const hubState = {
   game: "ttt3",
   opponent: "ai",
   difficulty: "medium",
   timer: "off",
-  theme: "light"
+  theme: "dark"
 };
 
 let scoreA = 0, scoreB = 0, scoreD = 0, streak = 0;
@@ -90,7 +93,7 @@ function loadHub() {
   if (saved) Object.assign(hubState, saved);
 
   if (!["off", "30", "60", "90"].includes(hubState.timer)) hubState.timer = "off";
-  if (!["dark", "light", "itachi"].includes(hubState.theme)) hubState.theme = "light";
+  if (!["dark", "light", "itachi"].includes(hubState.theme)) hubState.theme = "dark";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
   if (!["ttt3", "ttt5", "chess", "wordle"].includes(hubState.game)) hubState.game = "ttt3";
@@ -110,9 +113,18 @@ function syncHud() {
 
 /* ---------- Theme Handling ---------- */
 function themeMeta(theme) {
-  if (theme === "dark") return { icon: "🌙", text: "Dark Gold" };
-  if (theme === "itachi") return { icon: "✇", text: "Itachi" };
-  return { icon: "🌊", text: "Ocean Blue" };
+  if (theme === "light") return { 
+    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`, 
+    text: "Light" 
+  };
+  if (theme === "itachi") return { 
+    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>`, 
+    text: "Itachi" 
+  };
+  return { 
+    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`, 
+    text: "Dark" 
+  };
 }
 
 function setTheme(theme) {
@@ -120,10 +132,11 @@ function setTheme(theme) {
   themeSelect.value = theme;
   document.body.setAttribute("data-theme", theme);
   const m = themeMeta(theme);
-  themeCurrentIcon.textContent = m.icon;
+  themeCurrentIcon.innerHTML = m.icon;
   themeCurrentText.textContent = m.text;
   themeMenu.querySelectorAll(".theme-item").forEach(b => b.classList.toggle("active", b.dataset.theme === theme));
   persistHub();
+  if (hubState.game.startsWith("ttt")) renderTTT();
 }
 
 themeTrigger.addEventListener("click", (e) => {
@@ -163,7 +176,7 @@ function loadScores() {
 
 function updateStreak(winA) { streak = winA ? streak + 1 : 0; }
 
-/* ---------- Timer Logic (Pure Integers) ---------- */
+/* ---------- Timer Logic (Integers Only) ---------- */
 let turnTimer = null;
 let turnTimeLeft = 0;
 let turnTimeTotal = 0;
@@ -237,7 +250,7 @@ function hideWinScreen() {
 winRestartBtn.addEventListener("click", () => { hideWinScreen(); initBoard(); });
 winOverlay.addEventListener("click", (e) => { if (e.target === winOverlay) hideWinScreen(); });
 
-/* ---------- Tic-Tac-Toe Engine ---------- */
+/* ---------- Tic-Tac-Toe (Sharingan & Crow for Itachi) ---------- */
 let tttBoard = [], tttSize = 3, tttWinLen = 3, tttTurn = "X", tttOver = false, tttWinningCells = [];
 let tttSnapshots = [];
 
@@ -294,26 +307,52 @@ function renderTTT() {
   tttBoardEl.innerHTML = "";
   tttBoardEl.style.gridTemplateColumns = `repeat(${tttSize}, minmax(50px, 1fr))`;
 
+  const isItachi = hubState.theme === "itachi";
+
   tttBoard.forEach((v, i) => {
     const cell = document.createElement("button");
     cell.className = "ttt-cell";
-    if (v === "X") cell.classList.add("x");
-    if (v === "O") cell.classList.add("o");
+    if (v === "X") {
+      cell.classList.add("x");
+      cell.innerHTML = isItachi ? SHARINGAN_SVG : "X";
+    } else if (v === "O") {
+      cell.classList.add("o");
+      cell.innerHTML = isItachi ? CROW_SVG : "O";
+    }
     if (tttWinningCells.includes(i)) cell.classList.add("win");
-    cell.textContent = v || "";
-    cell.dataset.ghost = tttTurn;
+
     cell.addEventListener("mouseenter", () => {
       const ai = modeSelect.value.endsWith("-ai");
-      if (!v && !tttOver && !(ai && tttTurn === "O")) cell.classList.add("ghost");
+      if (!v && !tttOver && !(ai && tttTurn === "O")) {
+        if (isItachi) {
+          cell.innerHTML = tttTurn === "X" ? SHARINGAN_SVG : CROW_SVG;
+          cell.classList.add("ghost-svg");
+        } else {
+          cell.textContent = tttTurn;
+          cell.dataset.ghost = tttTurn;
+          cell.classList.add("ghost");
+        }
+      }
     });
-    cell.addEventListener("mouseleave", () => cell.classList.remove("ghost"));
+
+    cell.addEventListener("mouseleave", () => {
+      if (!v) {
+        cell.innerHTML = "";
+        cell.classList.remove("ghost-svg", "ghost");
+      }
+    });
+
     cell.addEventListener("click", () => onTTTClick(i));
     tttBoardEl.appendChild(cell);
   });
 
   const r = getTTTResult(tttBoard);
   if (hubState.timer === "off") {
-    statusPill.textContent = r.winner === "draw" ? "Draw" : r.winner ? `${r.winner} Wins` : `${tttTurn}'s Turn`;
+    if (isItachi) {
+      statusPill.innerHTML = r.winner === "draw" ? "Draw" : r.winner ? (r.winner === "X" ? `Sharingan Wins` : `Crow Wins`) : (tttTurn === "X" ? `Sharingan's Turn` : `Crow's Turn`);
+    } else {
+      statusPill.textContent = r.winner === "draw" ? "Draw" : r.winner ? `${r.winner} Wins` : `${tttTurn}'s Turn`;
+    }
   }
 }
 
@@ -363,9 +402,17 @@ function finishTTT(winner, line) {
   drawWinLineTTT(line);
 
   const aiMode = modeSelect.value.endsWith("-ai");
-  if (winner === "X") { scoreA++; updateStreak(aiMode); showWinScreen(aiMode ? "You Win!" : "X Wins!"); }
-  else if (winner === "O") { scoreB++; updateStreak(false); showWinScreen(aiMode ? "Computer Wins!" : "O Wins!"); }
-  else { scoreD++; showWinScreen("Draw"); }
+  const isItachi = hubState.theme === "itachi";
+
+  if (winner === "X") { 
+    scoreA++; updateStreak(aiMode); 
+    showWinScreen(isItachi ? "Sharingan Triumphs!" : (aiMode ? "You Win!" : "X Wins!")); 
+  } else if (winner === "O") { 
+    scoreB++; updateStreak(false); 
+    showWinScreen(isItachi ? "Crow Triumphs!" : (aiMode ? "Computer Wins!" : "O Wins!")); 
+  } else { 
+    scoreD++; showWinScreen("Draw"); 
+  }
 
   persistScores();
   renderScores();
@@ -588,9 +635,61 @@ function onChessClick(r, c) {
   }
 }
 
-/* ---------- Fully Offline Wordle Game ---------- */
-const WORD_LIST = ["PUPPY", "KITTY", "FETCH", "TREAT", "BARKS", "HOUND", "POUCH", "CHASE", "TIGER", "LEASH", "BEAST", "CLAWY", "FURRY", "ROVER", "BONES", "SNIFF", "WHISK", "PURRS", "MEOWS", "TRACK"];
-let wordleTarget = "PUPPY";
+/* ---------- Comprehensive Offline Wordle Dictionary ---------- */
+const WORD_LIST = [
+  "ABOUT","ABOVE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT",
+  "AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIKE","ALIVE","ALLOW","ALONE","ALONG",
+  "ALTER","AMONG","ANGER","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE",
+  "ARISE","ARRAY","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWAIT","AWAKE","AWARD",
+  "AWARE","BADLY","BAKER","BASES","BASIC","BASIS","BEACH","BEGAN","BEGIN","BEGUN",
+  "BEING","BELOW","BENCH","BILLY","BIRTH","BLACK","BLAME","BLIND","BLOCK","BLOOD",
+  "BOARD","BOOST","BOOTH","BOUND","BRAIN","BRAND","BREAD","BREAK","BREED","BRIEF",
+  "BRING","BROAD","BROKE","BROWN","BUILD","BUILT","BUYER","CABLE","CALIF","CARRY",
+  "CATCH","CAUSE","CHAIN","CHAIR","CHART","CHASE","CHEAP","CHECK","CHEST","CHIEF",
+  "CHILD","CHINA","CHOSE","CIVIL","CLAIM","CLASS","CLEAN","CLEAR","CLICK","CLOCK",
+  "CLOSE","COACH","COAST","COULD","COUNT","COURT","COVER","CRAFT","CRASH","CREAM",
+  "CRIME","CROSS","CROWD","CROWN","CURLY","CYCLE","DAILY","DANCE","DATED","DEALT",
+  "DEATH","DEBUT","DELAY","DEPTH","DOING","DOUBT","DOZEN","DRAFT","DRAMA","DRAWN",
+  "DREAM","DRESS","DRILL","DRINK","DRIVE","DROVE","DYING","EAGER","EARLY","EARTH",
+  "EIGHT","ELITE","EMPTY","ENEMY","ENJOY","ENTER","ENTRY","EQUAL","ERROR","EVENT",
+  "EVERY","EXACT","EXIST","EXTRA","FAITH","FALSE","FAULT","FIBER","FIELD","FIFTH",
+  "FIFTY","FIGHT","FINAL","FIRST","FIXED","FLASH","FLEET","FLOOR","FLUID","FOCUS",
+  "FORCE","FORTH","FORTY","FORUM","FOUND","FRAME","FRANK","FRAUD","FRESH","FRONT",
+  "FRUIT","FULLY","FUNNY","GIANT","GIVEN","GLASS","GLOBE","GOING","GRACE","GRADE",
+  "GRAND","GRANT","GRASS","GRAVE","GREAT","GREEN","GROSS","GROUP","GROWN","GUARD",
+  "GUESS","GUEST","GUIDE","HAPPY","HARRY","HEART","HEAVY","HENCE","HENRY","HORSE",
+  "HOTEL","HOUSE","HUMAN","IDEAL","IMAGE","INDEX","INNER","INPUT","ISSUE","JAPAN",
+  "JIMMY","JOINT","JONES","JUDGE","KNOWN","LABEL","LARGE","LASER","LATER","LAUGH",
+  "LAYER","LEARN","LEASE","LEAST","LEAVE","LEGAL","LEVEL","LIGHT","LIMIT","LINKS",
+  "LIVES","LOCAL","LOGIC","LOOSE","LOWER","LUCKY","LUNCH","MAGIC","MAJOR","MAKER",
+  "MARCH","MATCH","MAYBE","MAYOR","MEANT","MEDIA","METAL","MIGHT","MINOR","MINUS",
+  "MIXED","MODEL","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVIE",
+  "MUSIC","NEEDS","NEVER","NIGHT","NOISE","NORTH","NOTED","NOVEL","NURSE","OCCUR",
+  "OCEAN","OFFER","OFTEN","ORDER","OTHER","OUGHT","PAINT","PANEL","PAPER","PARTY",
+  "PEACE","PETER","PHASE","PHONE","PHOTO","PIECE","PILOT","PITCH","PLACE","PLAIN",
+  "PLANE","PLANT","PLATE","POINT","POUND","POWER","PRESS","PRICE","PRIDE","PRIME",
+  "PRINT","PRIOR","PRIZE","PROOF","PROUD","PROVE","QUEEN","QUICK","QUIET","QUITE",
+  "RADIO","RAISE","RANGE","RAPID","RATIO","REACH","READY","REFER","RIGHT","RIVAL",
+  "RIVER","ROBIN","ROGER","ROMAN","ROUGH","ROUND","ROUTE","ROYAL","RURAL","SCALE",
+  "SCENE","SCOPE","SCORE","SENSE","SERVE","SEVEN","SHALL","SHAPE","SHARE","SHARP",
+  "SHEET","SHELF","SHELL","SHIFT","SHIRT","SHOCK","SHOOT","SHORT","SHOWN","SIGHT",
+  "SINCE","SIXTH","SIXTY","SIZED","SKILL","SLEEP","SLIDE","SMALL","SMART","SMILE",
+  "SMITH","SMOKE","SOLID","SOLVE","SORRY","SOUND","SOUTH","SPACE","SPARE","SPEAK",
+  "SPEED","SPEND","SPENT","SPLIT","SPOKE","SPORT","STAFF","STAGE","STAKE","STAND",
+  "START","STATE","STEAM","STEEL","STICK","STILL","STOCK","STONE","STOOD","STORE",
+  "STORM","STORY","STRIP","STUCK","STUDY","STUFF","STYLE","SUGAR","SUITE","SUPER",
+  "SWEET","TABLE","TAKEN","TASTE","TAXES","TEACH","TEETH","TERRY","TEXAS","THANK",
+  "THEFT","THEIR","THEME","THERE","THESE","THICK","THING","THINK","THIRD","THOSE",
+  "THREE","THREW","THROW","TIGHT","TIMES","TIRED","TITLE","TODAY","TOPIC","TOTAL",
+  "TOUCH","TOUGH","TOWER","TRACK","TRADE","TRAIN","TREAT","TREND","TRIAL","TRIED",
+  "TRIES","TRUCK","TRULY","TRUST","TRUTH","TWICE","UNDER","UNDUE","UNION","UNITY",
+  "UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VALID","VALUE","VIDEO","VIRUS",
+  "VISIT","VITAL","VOICE","WASTE","WATCH","WATER","WHEEL","WHERE","WHICH","WHILE",
+  "WHITE","WHOLE","WHOSE","WOMAN","WOMEN","WORLD","WORRY","WORSE","WORST","WORTH",
+  "WOULD","WOUND","WRITE","WRONG","WROTE","YIELD","YOUNG","YOUTH"
+];
+
+let wordleTarget = "LIGHT";
 let wordleRow = 0;
 let wordleCol = 0;
 let wordleGrid = [];
@@ -612,7 +711,7 @@ function initWordle() {
   wordleOver = false;
   wordleGrid = Array.from({ length: 6 }, () => Array(5).fill(""));
 
-  statusPill.textContent = "Guess the 5-letter Pet Word!";
+  statusPill.textContent = "Guess the 5-letter Word!";
   renderWordle();
 }
 
@@ -631,7 +730,6 @@ function renderWordle() {
     wordleBoardEl.appendChild(rowEl);
   }
 
-  // Keyboard Layout
   const keys = [
     ["Q","W","E","R","T","Y","U","I","O","P"],
     ["A","S","D","F","G","H","J","K","L"],
@@ -714,7 +812,7 @@ function checkWordleRow() {
     streak++;
     persistScores();
     renderScores();
-    showWinScreen("You Guessed It! 🐾");
+    showWinScreen("Splendid! Word Solved!");
     return;
   }
 
@@ -758,7 +856,7 @@ function onTimerExpired() {
   }
 }
 
-/* ---------- Action Buttons ---------- */
+/* ---------- Action Controls ---------- */
 newGameBtn.addEventListener("click", initBoard);
 resetScoreBtn.addEventListener("click", () => {
   scoreA = 0; scoreB = 0; scoreD = 0; streak = 0;

@@ -3,22 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GAP — Pet Arcade Hub</title>
-  <link rel="stylesheet" href="style.css?v=6.0" />
+  <title>GAP — Arcade Gaming Hub</title>
+  <link rel="stylesheet" href="style.css?v=7.0" />
 </head>
-<body data-theme="light">
-  <!-- Background Animated Pet Wallpaper -->
-  <div class="pet-bg-pattern" aria-hidden="true"></div>
-
+<body data-theme="dark">
   <!-- Top Floating Glass Command Island -->
   <header class="top-hud glass-island">
     <div class="hud-left">
-      <div class="brand">GAP 🐾</div>
+      <div class="brand">GAP</div>
       <div class="seg" id="gameTypePills">
         <button class="seg-btn active" data-game="ttt3" type="button">3x3 TTT</button>
         <button class="seg-btn" data-game="ttt5" type="button">5x5 TTT</button>
         <button class="seg-btn" data-game="chess" type="button">Chess</button>
-        <button class="seg-btn" data-game="wordle" type="button">Wordle 🐕</button>
+        <button class="seg-btn" data-game="wordle" type="button">Wordle</button>
       </div>
     </div>
 
@@ -44,19 +41,30 @@
     <div class="hud-right">
       <div class="theme-picker" id="themePicker">
         <button class="theme-trigger seg-btn" id="themeTrigger" type="button" aria-expanded="false">
-          <span id="themeCurrentIcon">🌊</span>
-          <span id="themeCurrentText">Ocean Blue</span>
+          <span id="themeCurrentIcon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </span>
+          <span id="themeCurrentText">Dark</span>
         </button>
         <div class="theme-menu glass-panel" id="themeMenu">
-          <button class="theme-item active" data-theme="light" type="button">🌊 Ocean Blue</button>
-          <button class="theme-item" data-theme="dark" type="button">🌙 Dark Gold</button>
-          <button class="theme-item" data-theme="itachi" type="button">✇ Itachi Obsidian</button>
+          <button class="theme-item" data-theme="light" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            Light
+          </button>
+          <button class="theme-item active" data-theme="dark" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            Dark
+          </button>
+          <button class="theme-item" data-theme="itachi" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>
+            Itachi
+          </button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Arena Stage -->
+  <!-- Arena -->
   <main class="arena">
     <section class="status-wrap">
       <div class="turn-pill glass-panel" id="statusPill">X's Turn</div>
@@ -73,13 +81,13 @@
     <section class="board-area">
       <div class="captured-strip glass-panel hidden" id="capturedTop"><b>White captured:</b> <span id="whiteCaptured"></span></div>
 
-      <!-- Main Board Glass Shell -->
+      <!-- Main Board Container -->
       <section class="board-shell glass-island" id="boardWrap">
         <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
         <div id="tttBoard" class="ttt-board"></div>
         <div id="chessBoard" class="chess-board hidden"></div>
         
-        <!-- Fully Offline Wordle Container -->
+        <!-- Large Wordle Board -->
         <div id="wordleGame" class="wordle-arena hidden">
           <div id="wordleBoard" class="wordle-board"></div>
           <div id="wordleKeyboard" class="wordle-keyboard"></div>
@@ -105,9 +113,18 @@
     <div class="dock-block">
       <span class="dock-label">Actions</span>
       <div class="seg">
-        <button id="resetScoreBtn" class="seg-btn" type="button">↺ Reset Score</button>
-        <button id="undoBtn" class="seg-btn" type="button">↶ Undo</button>
-        <button id="newGameBtn" class="seg-btn" type="button">＋ New Game</button>
+        <button id="resetScoreBtn" class="seg-btn icon-btn" type="button" title="Reset Score">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <span>Reset</span>
+        </button>
+        <button id="undoBtn" class="seg-btn icon-btn" type="button" title="Undo">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+          <span>Undo</span>
+        </button>
+        <button id="newGameBtn" class="seg-btn icon-btn" type="button" title="New Game">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>New Game</span>
+        </button>
       </div>
     </div>
 
@@ -119,7 +136,7 @@
     </div>
   </footer>
 
-  <!-- State Tracking -->
+  <!-- Hidden state selectors -->
   <select id="modeSelect" hidden>
     <option value="ttt3-2p">TTT3 Local</option>
     <option value="ttt3-ai" selected>TTT3 AI</option>
@@ -135,8 +152,8 @@
     <option value="hard">Hard</option>
   </select>
   <select id="themeSelect" hidden>
-    <option value="light" selected>Light</option>
-    <option value="dark">Dark</option>
+    <option value="light">Light</option>
+    <option value="dark" selected>Dark</option>
     <option value="itachi">Itachi</option>
   </select>
 
@@ -144,10 +161,10 @@
   <div id="winOverlay" class="win-overlay hidden">
     <div class="win-modal glass-island">
       <h2 id="winMessage">Winner</h2>
-      <button id="winRestartBtn" class="seg-btn" type="button">Play Again 🐶</button>
+      <button id="winRestartBtn" class="seg-btn" type="button">Play Again</button>
     </div>
   </div>
 
-  <script src="script.js?v=6.0"></script>
+  <script src="script.js?v=7.0"></script>
 </body>
 </html>
