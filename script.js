@@ -89,14 +89,17 @@ const hubState = {
 
 let scoreA = 0, scoreB = 0, scoreD = 0, streak = 0;
 
+/* ---------- PERSIST KEYS ---------- */
+const LIVE_STATE_KEY = "liveGameState_v3";
+
 /* ---------- Idle Watchdog ---------- */
 let idleSeconds = 0;
 let idleInterval = null;
 
 function resetIdleWatchdog() {
   idleSeconds = 0;
-  statusPill.classList.remove("idle-nudge");
-  boardWrap.classList.remove("idle-shake");
+  statusPill?.classList.remove("idle-nudge");
+  boardWrap?.classList.remove("idle-shake");
 }
 
 function startIdleWatchdog() {
@@ -106,9 +109,9 @@ function startIdleWatchdog() {
     if (hubState.timer === "off") {
       idleSeconds++;
       if (idleSeconds >= 60) {
-        statusPill.classList.add("idle-nudge");
-        boardWrap.classList.add("idle-shake");
-        if (!statusPill.textContent.includes("Take your turn!")) {
+        statusPill?.classList.add("idle-nudge");
+        boardWrap?.classList.add("idle-shake");
+        if (statusPill && !statusPill.textContent.includes("Take your turn!")) {
           statusPill.textContent = "⏳ Take your turn!";
         }
       }
@@ -125,10 +128,10 @@ function modeFromHub() {
 }
 
 function hubFromMode(mode) {
-  if (mode === "wordle") { 
-    hubState.game = "wordle"; 
-    hubState.opponent = "local"; 
-    return; 
+  if (mode === "wordle") {
+    hubState.game = "wordle";
+    hubState.opponent = "local";
+    return;
   }
   if (mode.startsWith("ttt3")) hubState.game = "ttt3";
   else if (mode.startsWith("ttt5")) hubState.game = "ttt5";
@@ -153,7 +156,26 @@ function loadHub() {
   const saved = JSON.parse(localStorage.getItem("hubState") || "null");
   if (saved) Object.assign(hubState, saved);
 
-  if (!["off", "30", "60", "90"].includes(hubState.timer)) hubState.timer = "off";
+  // URL sync on reload
+  const raw = location.hash || "";
+  if (raw.startsWith("#/")) {
+    const [path, query = ""] = raw.slice(2).split("?");
+    if (["ttt3", "ttt5", "chess", "wordle"].includes(path)) hubState.game = path;
+
+    const q = new URLSearchParams(query);
+    const vs = q.get("vs");
+    const diff = q.get("diff");
+    const timer = q.get("timer");
+    const theme = q.get("theme");
+
+    if (["ai", "local"].includes(vs)) hubState.opponent = vs;
+    if (["easy", "medium", "hard"].includes(diff)) hubState.difficulty = diff;
+    if (["off", "15", "30", "45", "60", "90"].includes(timer)) hubState.timer = timer;
+    if (["dark", "light", "itachi"].includes(theme)) hubState.theme = theme;
+  }
+
+  // normalize
+  if (!["off", "15", "30", "45", "60", "90"].includes(hubState.timer)) hubState.timer = "off";
   if (!["dark", "light", "itachi"].includes(hubState.theme)) hubState.theme = "light";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
@@ -171,67 +193,69 @@ function syncHud() {
   setActive(difficultyPills, "difficulty", hubState.difficulty);
   setActive(timerPills, "timer", hubState.timer);
 
-  if (isWordle) {
-    opponentGroup.style.setProperty("display", "none", "important");
-  } else {
-    opponentGroup.style.display = "flex";
+  if (opponentGroup) {
+    if (isWordle) opponentGroup.style.setProperty("display", "none", "important");
+    else opponentGroup.style.display = "flex";
   }
 
-  difficultyGroup.style.display = "flex";
-  difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
+  if (difficultyGroup) {
+    difficultyGroup.style.display = "flex";
+    difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
+  }
 }
 
 /* ---------- Theme Handling ---------- */
 function themeMeta(theme) {
-  if (theme === "light") return { 
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`, 
-    text: "Light" 
+  if (theme === "light") return {
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
+    text: "Light"
   };
-  if (theme === "itachi") return { 
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>`, 
-    text: "Itachi" 
+  if (theme === "itachi") return {
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>`,
+    text: "Itachi"
   };
-  return { 
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`, 
-    text: "Dark" 
+  return {
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
+    text: "Dark"
   };
 }
 
 function setTheme(theme) {
   hubState.theme = theme;
-  themeSelect.value = theme;
+  if (themeSelect) themeSelect.value = theme;
   document.body.setAttribute("data-theme", theme);
   const m = themeMeta(theme);
-  themeCurrentIcon.innerHTML = m.icon;
-  themeCurrentText.textContent = m.text;
-  themeMenu.querySelectorAll(".theme-item").forEach(b => b.classList.toggle("active", b.dataset.theme === theme));
+  if (themeCurrentIcon) themeCurrentIcon.innerHTML = m.icon;
+  if (themeCurrentText) themeCurrentText.textContent = m.text;
+  themeMenu?.querySelectorAll(".theme-item").forEach(b => b.classList.toggle("active", b.dataset.theme === theme));
   persistHub();
+
   if (hubState.game.startsWith("ttt")) renderTTT();
   if (hubState.game === "chess") renderChess();
 }
 
-themeTrigger.addEventListener("click", (e) => {
+themeTrigger?.addEventListener("click", (e) => {
   e.stopPropagation();
-  themePicker.classList.toggle("open");
+  themePicker?.classList.toggle("open");
 });
 
-themeMenu.addEventListener("click", (e) => {
+themeMenu?.addEventListener("click", (e) => {
   const b = e.target.closest(".theme-item");
   if (!b) return;
   setTheme(b.dataset.theme);
-  themePicker.classList.remove("open");
+  themePicker?.classList.remove("open");
 });
 
-document.addEventListener("click", () => themePicker.classList.remove("open"));
+document.addEventListener("click", () => themePicker?.classList.remove("open"));
 
 /* ---------- Score Tracking & Statistics Modal ---------- */
 function scoreKey() { return `scores_${modeSelect.value}_${difficultySelect.value}`; }
 
 function renderScores() {
-  scoreAEl.textContent = scoreA;
-  scoreBEl.textContent = scoreB;
-  scoreDEl.textContent = scoreD;
-  streakBadge.textContent = `🔥 Streak: ${streak}`;
+  if (scoreAEl) scoreAEl.textContent = scoreA;
+  if (scoreBEl) scoreBEl.textContent = scoreB;
+  if (scoreDEl) scoreDEl.textContent = scoreD;
+  if (streakBadge) streakBadge.textContent = `🔥 Streak: ${streak}`;
 }
 
 function persistScores() {
@@ -240,14 +264,20 @@ function persistScores() {
 
 function loadScores() {
   const s = JSON.parse(localStorage.getItem(scoreKey()) || "null");
-  if (s) { scoreA = s.scoreA || 0; scoreB = s.scoreB || 0; scoreD = s.scoreD || 0; streak = s.streak || 0; }
-  else { scoreA = scoreB = scoreD = streak = 0; }
+  if (s) {
+    scoreA = s.scoreA || 0;
+    scoreB = s.scoreB || 0;
+    scoreD = s.scoreD || 0;
+    streak = s.streak || 0;
+  } else {
+    scoreA = scoreB = scoreD = streak = 0;
+  }
   renderScores();
 }
 
 function updateStreak(winA) { streak = winA ? streak + 1 : 0; }
 
-scoreTickerBtn.addEventListener("click", () => {
+scoreTickerBtn?.addEventListener("click", () => {
   const modes = [
     { label: "3x3 TTT (AI)", key: "scores_ttt3-ai_medium" },
     { label: "5x5 TTT (AI)", key: "scores_ttt5-ai_medium" },
@@ -255,14 +285,17 @@ scoreTickerBtn.addEventListener("click", () => {
     { label: "Wordle", key: "scores_wordle_medium" }
   ];
 
+  if (!statsGridContent || !statsModal) return;
   statsGridContent.innerHTML = modes.map(m => {
     const data = JSON.parse(localStorage.getItem(m.key) || '{"scoreA":0,"scoreB":0,"scoreD":0,"streak":0}');
-    const total = data.scoreA + data.scoreB + data.D;
-    const winRate = total > 0 ? Math.round((data.scoreA / (data.scoreA + data.scoreB || 1)) * 100) : 0;
+    const wins = data.scoreA || 0;
+    const losses = data.scoreB || 0;
+    const totalForRate = wins + losses;
+    const winRate = totalForRate > 0 ? Math.round((wins / totalForRate) * 100) : 0;
     return `
       <div class="stat-card">
         <span>${m.label}</span>
-        <span>Wins: <b>${data.scoreA}</b> | Losses: <b>${data.scoreB}</b> | Win Rate: <b>${winRate}%</b></span>
+        <span>Wins: <b>${wins}</b> | Losses: <b>${losses}</b> | Win Rate: <b>${winRate}%</b></span>
       </div>
     `;
   }).join("");
@@ -270,12 +303,12 @@ scoreTickerBtn.addEventListener("click", () => {
   statsModal.classList.remove("hidden");
 });
 
-closeStatsBtn.addEventListener("click", () => statsModal.classList.add("hidden"));
-statsModal.addEventListener("click", (e) => { if (e.target === statsModal) statsModal.classList.add("hidden"); });
+closeStatsBtn?.addEventListener("click", () => statsModal?.classList.add("hidden"));
+statsModal?.addEventListener("click", (e) => { if (e.target === statsModal) statsModal.classList.add("hidden"); });
 
-/* ---------- Confetti & Leaf Win Animation ---------- */
+/* ---------- Confetti ---------- */
 function triggerConfetti() {
-  winOverlay.classList.remove("hidden");
+  if (!confettiCanvas) return;
   const ctx = confettiCanvas.getContext("2d");
   confettiCanvas.width = window.innerWidth;
   confettiCanvas.height = window.innerHeight;
@@ -299,11 +332,7 @@ function triggerConfetti() {
   function loop() {
     ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.4;
-      p.rotation += p.vRot;
-
+      p.x += p.vx; p.y += p.vy; p.vy += 0.4; p.rotation += p.vRot;
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate((p.rotation * Math.PI) / 180);
@@ -314,7 +343,6 @@ function triggerConfetti() {
     animationFrame = requestAnimationFrame(loop);
   }
   loop();
-
   setTimeout(() => cancelAnimationFrame(animationFrame), 3500);
 }
 
@@ -328,25 +356,21 @@ function stopTurnTimer() {
   if (turnTimer) clearInterval(turnTimer);
   turnTimer = null;
 }
-
 function showTimerInactive() {
-  radialWrap.classList.add("hidden");
-  statusPill.classList.remove("hidden");
+  radialWrap?.classList.add("hidden");
+  statusPill?.classList.remove("hidden");
 }
-
 function showTimerActive() {
-  statusPill.classList.add("hidden");
-  radialWrap.classList.remove("hidden");
+  statusPill?.classList.add("hidden");
+  radialWrap?.classList.remove("hidden");
 }
-
 function renderRadial() {
-  if (!turnTimeTotal) return;
+  if (!turnTimeTotal || !ringFg || !radialText) return;
   const pct = Math.max(0, turnTimeLeft / turnTimeTotal);
   ringFg.style.strokeDasharray = `${CIRC}`;
   ringFg.style.strokeDashoffset = `${CIRC * (1 - pct)}`;
-  radialText.textContent = Math.ceil(Math.max(0, turnTimeLeft));
+  radialText.textContent = String(Math.ceil(Math.max(0, turnTimeLeft)));
 }
-
 function startTurnTimer() {
   stopTurnTimer();
   resetIdleWatchdog();
@@ -380,33 +404,31 @@ function startTurnTimer() {
   }, 100);
 }
 
-/* ---------- Win Modal & Triggers ---------- */
+/* ---------- Win ---------- */
 function showWinScreen(msg) {
   resetIdleWatchdog();
-  winMessage.textContent = msg.toUpperCase();
+  if (winMessage) winMessage.textContent = msg.toUpperCase();
+  winOverlay?.classList.remove("hidden");
   triggerConfetti();
 }
-
 function hideWinScreen() {
-  winOverlay.classList.add("hidden");
+  winOverlay?.classList.add("hidden");
 }
+winRestartBtn?.addEventListener("click", () => { hideWinScreen(); initBoard(true); });
+winOverlay?.addEventListener("click", (e) => { if (e.target === winOverlay) hideWinScreen(); });
 
-winRestartBtn.addEventListener("click", () => { hideWinScreen(); initBoard(); });
-winOverlay.addEventListener("click", (e) => { if (e.target === winOverlay) hideWinScreen(); });
-
-/* ---------- Tic-Tac-Toe Engine ---------- */
+/* ---------- Tic-Tac-Toe ---------- */
 let tttBoard = [], tttSize = 3, tttWinLen = 3, tttTurn = "X", tttOver = false, tttWinningCells = [];
 let tttSnapshots = [];
 
-function clearWinLine() { winLineSvg.innerHTML = ""; }
+function clearWinLine() { if (winLineSvg) winLineSvg.innerHTML = ""; }
 
 function drawWinLineTTT(line) {
-  if (!line.length) return;
+  if (!winLineSvg || !line.length) return;
   const s = tttSize, a = line[0], b = line[line.length - 1];
   const ar = Math.floor(a / s), ac = a % s, br = Math.floor(b / s), bc = b % s;
   winLineSvg.innerHTML = `<line x1="${((ac + 0.5) / s) * 100}" y1="${((ar + 0.5) / s) * 100}" x2="${((bc + 0.5) / s) * 100}" y2="${((br + 0.5) / s) * 100}"></line>`;
 }
-
 function buildTTTLines(size, len) {
   const lines = [];
   for (let r = 0; r < size; r++) for (let c = 0; c <= size - len; c++) { const l = []; for (let k = 0; k < len; k++) l.push(r * size + c + k); lines.push(l); }
@@ -415,7 +437,6 @@ function buildTTTLines(size, len) {
   for (let r = 0; r <= size - len; r++) for (let c = len - 1; c < size; c++) { const l = []; for (let k = 0; k < len; k++) l.push((r + k) * size + (c - k)); lines.push(l); }
   return lines;
 }
-
 function getTTTResult(board, size = tttSize, winLen = tttWinLen) {
   for (const line of buildTTTLines(size, winLen)) {
     const first = board[line[0]];
@@ -424,7 +445,6 @@ function getTTTResult(board, size = tttSize, winLen = tttWinLen) {
   if (board.every(Boolean)) return { winner: "draw", line: [] };
   return { winner: null, line: [] };
 }
-
 function getEmptyCells(board) { const a = []; for (let i = 0; i < board.length; i++) if (!board[i]) a.push(i); return a; }
 function saveTTTSnapshot() { tttSnapshots.push({ board: [...tttBoard], turn: tttTurn, over: tttOver, win: [...tttWinningCells], scoreA, scoreB, scoreD, streak }); }
 
@@ -440,76 +460,47 @@ function initTTT(size) {
   renderTTT();
   startTurnTimer();
 }
-
 function renderTTT() {
   resetIdleWatchdog();
-  boardWrap.classList.remove("wordle-mode", "chess-mode");
-  capturedTop.classList.remove("chess-mode");
-  capturedBottom.classList.remove("chess-mode");
-  tttBoardEl.classList.remove("hidden");
-  chessBoardEl.classList.add("hidden");
-  wordleGameEl.classList.add("hidden");
-  capturedTop.classList.add("hidden");
-  capturedBottom.classList.add("hidden");
+  boardWrap?.classList.remove("wordle-mode", "chess-mode");
+  capturedTop?.classList.remove("chess-mode");
+  capturedBottom?.classList.remove("chess-mode");
+  tttBoardEl?.classList.remove("hidden");
+  chessBoardEl?.classList.add("hidden");
+  wordleGameEl?.classList.add("hidden");
+  capturedTop?.classList.add("hidden");
+  capturedBottom?.classList.add("hidden");
 
+  if (!tttBoardEl) return;
   tttBoardEl.innerHTML = "";
   tttBoardEl.style.gridTemplateColumns = `repeat(${tttSize}, minmax(50px, 1fr))`;
 
   const isItachi = hubState.theme === "itachi";
-
   tttBoard.forEach((v, i) => {
     const cell = document.createElement("button");
     cell.className = "ttt-cell";
-    if (v === "X") {
-      cell.classList.add("x");
-      cell.innerHTML = isItachi ? SHARINGAN_SVG : "X";
-    } else if (v === "O") {
-      cell.classList.add("o");
-      cell.innerHTML = isItachi ? CROW_SVG : "O";
-    }
+    if (v === "X") { cell.classList.add("x"); cell.innerHTML = isItachi ? SHARINGAN_SVG : "X"; }
+    else if (v === "O") { cell.classList.add("o"); cell.innerHTML = isItachi ? CROW_SVG : "O"; }
+
     if (tttWinningCells.includes(i)) cell.classList.add("win");
-
-    cell.addEventListener("mouseenter", () => {
-      const ai = modeSelect.value.endsWith("-ai");
-      if (!v && !tttOver && !(ai && tttTurn === "O")) {
-        if (isItachi) {
-          cell.innerHTML = tttTurn === "X" ? SHARINGAN_SVG : CROW_SVG;
-          cell.classList.add("ghost-svg");
-        } else {
-          cell.textContent = tttTurn;
-          cell.dataset.ghost = tttTurn;
-          cell.classList.add("ghost");
-        }
-      }
-    });
-
-    cell.addEventListener("mouseleave", () => {
-      if (!v) {
-        cell.innerHTML = "";
-        cell.classList.remove("ghost-svg", "ghost");
-      }
-    });
-
     cell.addEventListener("click", () => onTTTClick(i));
     tttBoardEl.appendChild(cell);
   });
 
   const r = getTTTResult(tttBoard);
-  if (hubState.timer === "off") {
+  if (hubState.timer === "off" && statusPill) {
     if (isItachi) {
-      statusPill.innerHTML = r.winner === "draw" ? "Draw" : r.winner ? (r.winner === "X" ? `Sharingan Wins` : `Crow Wins`) : (tttTurn === "X" ? `Sharingan's Turn` : `Crow's Turn`);
+      statusPill.innerHTML = r.winner === "draw" ? "Draw" : r.winner ? (r.winner === "X" ? "Sharingan Wins" : "Crow Wins") : (tttTurn === "X" ? "Sharingan's Turn" : "Crow's Turn");
     } else {
       statusPill.textContent = r.winner === "draw" ? "Draw" : r.winner ? `${r.winner} Wins` : `${tttTurn}'s Turn`;
     }
   }
 }
-
 function minimaxTTT(board, size, winLen, depth, maxing) {
   const r = getTTTResult(board, size, winLen);
   if (r.winner === "O") return { score: 1000 + depth };
   if (r.winner === "X") return { score: -1000 - depth };
   if (r.winner === "draw" || depth === 0) return { score: 0 };
-
   const empties = getEmptyCells(board);
   let best = { score: maxing ? -Infinity : Infinity, move: null };
   for (const i of empties) {
@@ -520,7 +511,6 @@ function minimaxTTT(board, size, winLen, depth, maxing) {
   }
   return best;
 }
-
 function aiTTTMove() {
   if (tttOver) return;
   const empties = getEmptyCells(tttBoard);
@@ -541,8 +531,8 @@ function aiTTTMove() {
   tttTurn = "X";
   renderTTT();
   startTurnTimer();
+  persistLiveState();
 }
-
 function finishTTT(winner, line) {
   stopTurnTimer();
   resetIdleWatchdog();
@@ -552,22 +542,21 @@ function finishTTT(winner, line) {
 
   const aiMode = modeSelect.value.endsWith("-ai");
   const isItachi = hubState.theme === "itachi";
-
-  if (winner === "X") { 
-    scoreA++; updateStreak(aiMode); 
-    showWinScreen(isItachi ? "Sharingan Triumphs!" : (aiMode ? "You Win!" : "X Wins!")); 
-  } else if (winner === "O") { 
-    scoreB++; updateStreak(false); 
-    showWinScreen(isItachi ? "Crow Triumphs!" : (aiMode ? "Computer Wins!" : "O Wins!")); 
-  } else { 
-    scoreD++; showWinScreen("Draw"); 
+  if (winner === "X") {
+    scoreA++; updateStreak(aiMode);
+    showWinScreen(isItachi ? "Sharingan Triumphs!" : (aiMode ? "You Win!" : "X Wins!"));
+  } else if (winner === "O") {
+    scoreB++; updateStreak(false);
+    showWinScreen(isItachi ? "Crow Triumphs!" : (aiMode ? "Computer Wins!" : "O Wins!"));
+  } else {
+    scoreD++; showWinScreen("Draw");
   }
 
   persistScores();
   renderScores();
   renderTTT();
+  persistLiveState();
 }
-
 function onTTTClick(i) {
   const aiMode = modeSelect.value.endsWith("-ai");
   if (tttOver || tttBoard[i]) return;
@@ -582,26 +571,28 @@ function onTTTClick(i) {
   tttTurn = tttTurn === "X" ? "O" : "X";
   renderTTT();
   startTurnTimer();
+  persistLiveState();
 
   if (aiMode && tttTurn === "O") {
-    if (hubState.timer === "off") statusPill.textContent = "AI Thinking...";
+    if (hubState.timer === "off" && statusPill) statusPill.textContent = "AI Thinking...";
     setTimeout(aiTTTMove, difficultySelect.value === "easy" ? 260 : difficultySelect.value === "medium" ? 500 : 760);
   }
 }
 
-/* ---------- 3D Chess Engine & Pieces ---------- */
-let chessBoard = [], chessTurn = "w", chessSelected = null, chessOver = false, whiteCaptured = [], blackCaptured = [], chessSnapshots = [];
-
-const CHESS_U = { 
-  wp: "♟", wr: "♜", wn: "♞", wb: "♝", wq: "♛", wk: "♚", 
-  bp: "♟", br: "♜", bn: "♞", bb: "♝", bq: "♛", bk: "♚" 
-};
+/* ---------- Chess ---------- */
+const CHESS_U = { wp: "♟", wr: "♜", wn: "♞", wb: "♝", wq: "♛", wk: "♚", bp: "♟", br: "♜", bn: "♞", bb: "♝", bq: "♛", bk: "♚" };
 const PIECE_VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+let chessBoard = [], chessTurn = "w", chessSelected = null, chessOver = false, whiteCaptured = [], blackCaptured = [], chessSnapshots = [];
 
 function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
 function cloneBoard(b) { return b.map(row => row.map(cell => cell ? { ...cell } : null)); }
-function saveChessSnapshot() { chessSnapshots.push({ board: cloneBoard(chessBoard), turn: chessTurn, selected: chessSelected ? { ...chessSelected } : null, over: chessOver, whiteCaptured: [...whiteCaptured], blackCaptured: [...blackCaptured], scoreA, scoreB, scoreD, streak }); }
-
+function saveChessSnapshot() {
+  chessSnapshots.push({
+    board: cloneBoard(chessBoard), turn: chessTurn, selected: chessSelected ? { ...chessSelected } : null,
+    over: chessOver, whiteCaptured: [...whiteCaptured], blackCaptured: [...blackCaptured],
+    scoreA, scoreB, scoreD, streak
+  });
+}
 function initChess() {
   chessBoard = Array.from({ length: 8 }, () => Array(8).fill(null));
   const back = ["r", "n", "b", "q", "k", "b", "n", "r"];
@@ -611,22 +602,15 @@ function initChess() {
     chessBoard[6][c] = { color: "w", type: "p" };
     chessBoard[7][c] = { color: "w", type: back[c] };
   }
-  chessTurn = "w";
-  chessSelected = null;
-  chessOver = false;
-  whiteCaptured = [];
-  blackCaptured = [];
-  chessSnapshots = [];
+  chessTurn = "w"; chessSelected = null; chessOver = false; whiteCaptured = []; blackCaptured = []; chessSnapshots = [];
   renderCaptured();
   renderChess();
   startTurnTimer();
 }
-
 function renderCaptured() {
-  whiteCapturedEl.textContent = whiteCaptured.map(p => CHESS_U[p.color + p.type]).join(" ");
-  blackCapturedEl.textContent = blackCaptured.map(p => CHESS_U[p.color + p.type]).join(" ");
+  if (whiteCapturedEl) whiteCapturedEl.textContent = whiteCaptured.map(p => CHESS_U[p.color + p.type]).join(" ");
+  if (blackCapturedEl) blackCapturedEl.textContent = blackCaptured.map(p => CHESS_U[p.color + p.type]).join(" ");
 }
-
 function getPseudoMoves(board, r, c) {
   const p = board[r][c];
   if (!p) return [];
@@ -657,44 +641,42 @@ function getPseudoMoves(board, r, c) {
   }
   return out;
 }
-
 function renderChess() {
   resetIdleWatchdog();
-  boardWrap.classList.remove("wordle-mode");
-  boardWrap.classList.add("chess-mode");
-  capturedTop.classList.add("chess-mode");
-  capturedBottom.classList.add("chess-mode");
+  boardWrap?.classList.remove("wordle-mode");
+  boardWrap?.classList.add("chess-mode");
+  capturedTop?.classList.add("chess-mode");
+  capturedBottom?.classList.add("chess-mode");
 
   clearWinLine();
-  tttBoardEl.classList.add("hidden");
-  wordleGameEl.classList.add("hidden");
-  chessBoardEl.classList.remove("hidden");
-  capturedTop.classList.remove("hidden");
-  capturedBottom.classList.remove("hidden");
+  tttBoardEl?.classList.add("hidden");
+  wordleGameEl?.classList.add("hidden");
+  chessBoardEl?.classList.remove("hidden");
+  capturedTop?.classList.remove("hidden");
+  capturedBottom?.classList.remove("hidden");
 
+  if (!chessBoardEl || !Array.isArray(chessBoard) || !chessBoard.length) return;
   chessBoardEl.innerHTML = "";
+
   const hints = chessSelected ? getPseudoMoves(chessBoard, chessSelected.r, chessSelected.c) : [];
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
     const cell = document.createElement("div");
     cell.className = "chess-cell " + (((r + c) % 2 === 0) ? "light" : "dark");
     if (chessSelected && chessSelected.r === r && chessSelected.c === c) cell.classList.add("selected");
     if (hints.some(m => m.r === r && m.c === c)) cell.classList.add("hint");
-    
+
     const p = chessBoard[r][c];
     if (p) {
       cell.textContent = CHESS_U[p.color + p.type];
       cell.classList.add(p.color === "w" ? "white-piece" : "black-piece");
     }
-    
+
     cell.addEventListener("click", () => onChessClick(r, c));
     chessBoardEl.appendChild(cell);
   }
 
-  if (hubState.timer === "off") {
-    statusPill.textContent = chessOver ? "Game Over" : `${chessTurn === "w" ? "White" : "Black"}'s Turn`;
-  }
+  if (hubState.timer === "off" && statusPill) statusPill.textContent = chessOver ? "Game Over" : `${chessTurn === "w" ? "White" : "Black"}'s Turn`;
 }
-
 function moveChess(board, mv, real = false) {
   const piece = board[mv.fr][mv.fc], target = board[mv.tr][mv.tc];
   if (target && real) {
@@ -710,7 +692,6 @@ function moveChess(board, mv, real = false) {
   board[mv.tr][mv.tc] = piece; board[mv.fr][mv.fc] = null;
   if (piece.type === "p" && (mv.tr === 0 || mv.tr === 7)) piece.type = "q";
 }
-
 function allMovesForColor(board, color) {
   const out = [];
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
@@ -720,7 +701,6 @@ function allMovesForColor(board, color) {
   }
   return out;
 }
-
 function evalChess(board) {
   let s = 0;
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
@@ -730,7 +710,6 @@ function evalChess(board) {
   }
   return s;
 }
-
 function minimaxChess(board, depth, alpha, beta, maxing) {
   if (depth === 0) return { score: evalChess(board), move: null };
   const color = maxing ? "b" : "w", moves = allMovesForColor(board, color);
@@ -757,7 +736,6 @@ function minimaxChess(board, depth, alpha, beta, maxing) {
   }
   return { score: best, move: bestMove };
 }
-
 function onChessClick(r, c) {
   const aiMode = modeSelect.value === "chess-ai";
   if (chessOver) return;
@@ -780,15 +758,16 @@ function onChessClick(r, c) {
 
   saveChessSnapshot();
   moveChess(chessBoard, { fr: chessSelected.r, fc: chessSelected.c, tr: r, tc: c }, true);
-  if (chessOver) { renderChess(); stopTurnTimer(); return; }
+  if (chessOver) { renderChess(); stopTurnTimer(); persistLiveState(); return; }
 
   chessSelected = null;
   chessTurn = chessTurn === "w" ? "b" : "w";
   renderChess();
   startTurnTimer();
+  persistLiveState();
 
   if (aiMode && chessTurn === "b" && !chessOver) {
-    if (hubState.timer === "off") statusPill.textContent = "AI Thinking...";
+    if (hubState.timer === "off" && statusPill) statusPill.textContent = "AI Thinking...";
     setTimeout(() => {
       saveChessSnapshot();
       const depth = difficultySelect.value === "easy" ? 1 : difficultySelect.value === "medium" ? 2 : 3;
@@ -797,119 +776,50 @@ function onChessClick(r, c) {
       if (mv) { moveChess(chessBoard, mv, true); if (!chessOver) chessTurn = "w"; }
       renderChess();
       startTurnTimer();
+      persistLiveState();
     }, 500);
   }
 }
 
-/* ---------- Tiered Wordle Dictionaries ---------- */
+/* ---------- Wordle ---------- */
 const WORDLE_TIERS = {
-  easy: [
-    "AISLE","CHAIR","PLANT","CRANE","BEACH","BREAD","CLEAN","DANCE","EARTH","LIGHT",
-    "MUSIC","OCEAN","PAINT","RIVER","SMART","TABLE","WATER","WHITE","HOUSE","WORLD",
-    "HEART","FRUIT","FLAME","CLOUD","SMILE","TRAIN","SPACE","SUGAR","MAGIC","VOICE",
-    "SHARE","STAND","STONE","HORSE","GRASS","SHINE","POWER","MONEY","STORY","POINT"
-  ],
-  medium: [
-    "PIPER","FLIPS","CHASM","BRAIN","CRAFT","CRIME","DRAFT","DRILL","FLOAT","GLOVE",
-    "GRAVE","HOTEL","LUNCH","MATCH","MODEL","NIGHT","PILOT","PRICE","PRIDE","RADIO",
-    "SCALE","SHOCK","STORM","TRACK","TRUCK","VALUE","YOUTH","PRIME","BLOCK","FORUM",
-    "SPARK","SWORD","FROST","BLAZE","SHARP","CLIFF","GHOST","FLOCK","BLUSH","PLAZA"
-  ],
-  hard: [
-    "KNOLL","VIVID","FJORD","PROXY","QUIRK","PUPPY","MUMMY","CYNIC","GAUZE","ENVOY",
-    "SWILL","TRYST","EPOXY","PIXIE","NYMPH","WRYLY","BLURB","CRYPT","GNASH","KAZOO",
-    "LYMPH","MAXIM","PYGMY","SPELT","USURP","VALET","WALTZ","ABYSS","AGATE","AORTA",
-    "CHAMP","CUMIN","DWARF","FLAIR","GHOUL","HYDRA","IVORY","JUMBO","KAPPA","LEPER"
-  ]
+  easy: ["AISLE","CHAIR","PLANT","CRANE","BEACH","BREAD","CLEAN","DANCE","EARTH","LIGHT"],
+  medium: ["PIPER","FLIPS","CHASM","BRAIN","CRAFT","CRIME","DRAFT","DRILL","FLOAT","GLOVE"],
+  hard: ["KNOLL","VIVID","FJORD","PROXY","QUIRK","PUPPY","MUMMY","CYNIC","GAUZE","ENVOY"]
 };
+const VALID_DICTIONARY_WORDS = new Set([...WORDLE_TIERS.easy, ...WORDLE_TIERS.medium, ...WORDLE_TIERS.hard]);
 
-const VALID_DICTIONARY_WORDS = new Set([
-  ...WORDLE_TIERS.easy, ...WORDLE_TIERS.medium, ...WORDLE_TIERS.hard,
-  "ABOUT","ABOVE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT",
-  "AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIKE","ALIVE","ALLOW","ALONE","ALONG",
-  "ALTER","AMONG","ANGER","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE",
-  "ARISE","ARRAY","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWAIT","AWAKE","AWARD",
-  "AWARE","BADLY","BAKER","BASES","BASIC","BASIS","BEGAN","BEGIN","BEGUN","BEING",
-  "BELOW","BENCH","BIRTH","BLACK","BLAME","BLIND","BLOOD","BOARD","BOOST","BOOTH",
-  "BOUND","BRAND","BREAK","BREED","BRIEF","BRING","BROAD","BROKE","BROWN","BUILD",
-  "BUILT","BUYER","CABLE","CARRY","CATCH","CAUSE","CHAIN","CHART","CHASE","CHEAP",
-  "CHECK","CHEST","CHIEF","CHILD","CHINA","CHOSE","CIVIL","CLAIM","CLASS","CLEAR",
-  "CLICK","CLOCK","CLOSE","COACH","COAST","COULD","COUNT","COURT","COVER","CRASH",
-  "CREAM","CROSS","CROWD","CROWN","CURLY","CYCLE","DAILY","DATED","DEALT","DEATH",
-  "DEBUT","DELAY","DEPTH","DOING","DOUBT","DOZEN","DRAMA","DRAWN","DREAM","DRESS",
-  "DRINK","DRIVE","DROVE","DYING","EAGER","EARLY","EIGHT","ELITE","EMPTY","ENEMY",
-  "ENJOY","ENTER","ENTRY","EQUAL","ERROR","EVENT","EVERY","EXACT","EXIST","EXTRA",
-  "FAITH","FALSE","FAULT","FIBER","FIELD","FIFTH","FIFTY","FIGHT","FINAL","FIRST",
-  "FIXED","FLASH","FLEET","FLOOR","FLUID","FOCUS","FORCE","FORTH","FORTY","FOUND",
-  "FRAME","FRANK","FRAUD","FRESH","FRONT","FULLY","FUNNY","GIANT","GIVEN","GLASS",
-  "GLOBE","GOING","GRACE","GRADE","GRAND","GRANT","GRASS","GREAT","GREEN","GROSS",
-  "GROUP","GROWN","GUARD","GUESS","GUEST","GUIDE","HAPPY","HEAVY","HENCE","HORSE",
-  "HUMAN","IDEAL","IMAGE","INDEX","INNER","INPUT","ISSUE","JAPAN","JOINT","JUDGE",
-  "KNOWN","LABEL","LARGE","LASER","LATER","LAUGH","LAYER","LEARN","LEASE","LEAST",
-  "LEAVE","LEGAL","LEVEL","LIMIT","LINKS","LIVES","LOCAL","LOGIC","LOOSE","LOWER",
-  "LUCKY","MAKER","MARCH","MAYBE","MAYOR","MEANT","MEDIA","METAL","MIGHT","MINOR",
-  "MINUS","MIXED","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVIE",
-  "NEEDS","NEVER","NOISE","NORTH","NOTED","NOVEL","NURSE","OCCUR","OFFER","OFTEN",
-  "ORDER","OTHER","OUGHT","PANEL","PAPER","PARTY","PEACE","PHASE","PHONE","PHOTO",
-  "PIECE","PITCH","PLACE","PLAIN","PLANE","PLATE","POINT","POUND","POWER","PRESS",
-  "PRIOR","PRIZE","PROOF","PROUD","PROVE","QUEEN","QUICK","QUIET","QUITE","RADIO",
-  "RAISE","RANGE","RAPID","RATIO","REACH","READY","REFER","RIGHT","RIVAL","ROUGH",
-  "ROUND","ROUTE","ROYAL","RURAL","SCENE","SCOPE","SCORE","SENSE","SERVE","SEVEN",
-  "SHALL","SHAPE","SHARE","SHARP","SHEET","SHELF","SHELL","SHIFT","SHIRT","SHOOT",
-  "SHORT","SHOWN","SIGHT","SINCE","SIXTH","SIXTY","SIZED","SKILL","SLEEP","SLIDE",
-  "SMALL","SMOKE","SOLID","SOLVE","SORRY","SOUND","SOUTH","SPARE","SPEAK","SPEED",
-  "SPEND","SPENT","SPLIT","SPOKE","SPORT","STAFF","STAGE","STAKE","STAND","START",
-  "STATE","STEAM","STEEL","STICK","STILL","STOCK","STONE","STOOD","STORE","STORY",
-  "STRIP","STUCK","STUDY","STUFF","STYLE","SUITE","SUPER","SWEET","TAKEN","TASTE",
-  "TAXES","TEACH","TEETH","THANK","THEFT","THEIR","THEME","THERE","THESE","THICK",
-  "THING","THINK","THIRD","THOSE","THREE","THREW","THROW","TIGHT","TIMES","TIRED",
-  "TITLE","TODAY","TOPIC","TOTAL","TOUCH","TOUGH","TOWER","TRADE","TREAT","TREND",
-  "TRIAL","TRIED","TRIES","TRULY","TRUST","TRUTH","TWICE","UNDER","UNDUE","UNION",
-  "UNITY","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VALID","VIDEO","VIRUS",
-  "VISIT","VITAL","WASTE","WATCH","WHEEL","WHERE","WHICH","WHILE","WHITE","WHOLE",
-  "WHOSE","WOMAN","WOMEN","WORRY","WORSE","WORST","WORTH","WOULD","WOUND","WRITE",
-  "WRONG","WROTE","YIELD","YOUNG","ROBOT","CLIMB","FAVOR","HONOR","MAJOR","SOLAR"
-]);
-
-let wordleTarget = "CHAIR";
-let wordleRow = 0;
-let wordleCol = 0;
-let wordleGrid = [];
-let wordleOver = false;
+let wordleTarget = "CHAIR", wordleRow = 0, wordleCol = 0, wordleGrid = [], wordleOver = false;
 
 function getWordleTargetByDifficulty() {
   const tier = hubState.difficulty || "medium";
-  const wordPool = WORDLE_TIERS[tier] || WORDLE_TIERS.medium;
-  return wordPool[Math.floor(Math.random() * wordPool.length)];
+  const pool = WORDLE_TIERS[tier] || WORDLE_TIERS.medium;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
-
 function initWordle() {
   resetIdleWatchdog();
   clearWinLine();
   stopTurnTimer();
   showTimerInactive();
-  boardWrap.classList.remove("chess-mode");
-  capturedTop.classList.remove("chess-mode");
-  capturedBottom.classList.remove("chess-mode");
-  boardWrap.classList.add("wordle-mode");
+  boardWrap?.classList.remove("chess-mode");
+  capturedTop?.classList.remove("chess-mode");
+  capturedBottom?.classList.remove("chess-mode");
+  boardWrap?.classList.add("wordle-mode");
 
-  tttBoardEl.classList.add("hidden");
-  chessBoardEl.classList.add("hidden");
-  capturedTop.classList.add("hidden");
-  capturedBottom.classList.add("hidden");
-  wordleGameEl.classList.remove("hidden");
+  tttBoardEl?.classList.add("hidden");
+  chessBoardEl?.classList.add("hidden");
+  capturedTop?.classList.add("hidden");
+  capturedBottom?.classList.add("hidden");
+  wordleGameEl?.classList.remove("hidden");
 
   wordleTarget = getWordleTargetByDifficulty();
-  wordleRow = 0;
-  wordleCol = 0;
-  wordleOver = false;
+  wordleRow = 0; wordleCol = 0; wordleOver = false;
   wordleGrid = Array.from({ length: 6 }, () => Array(5).fill(""));
-
-  statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`;
+  if (statusPill) statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`;
   renderWordle();
 }
-
 function renderWordle() {
+  if (!wordleBoardEl || !wordleKeyboardEl) return;
   wordleBoardEl.innerHTML = "";
   for (let r = 0; r < 6; r++) {
     const rowEl = document.createElement("div");
@@ -924,33 +834,7 @@ function renderWordle() {
     }
     wordleBoardEl.appendChild(rowEl);
   }
-
-  const keys = [
-    ["Q","W","E","R","T","Y","U","I","O","P"],
-    ["A","S","D","F","G","H","J","K","L"],
-    ["ENTER","Z","X","C","V","B","N","M","DEL"]
-  ];
-
-  wordleKeyboardEl.innerHTML = "";
-  keys.forEach(row => {
-    const kbRow = document.createElement("div");
-    kbRow.className = "kb-row";
-    row.forEach(k => {
-      const btn = document.createElement("button");
-      btn.className = `kb-key ${k.length > 1 ? "wide" : ""}`;
-      btn.dataset.key = k;
-      if (k === "DEL") {
-        btn.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`;
-      } else {
-        btn.textContent = k;
-      }
-      btn.addEventListener("click", () => handleWordleKey(k));
-      kbRow.appendChild(btn);
-    });
-    wordleKeyboardEl.appendChild(kbRow);
-  });
 }
-
 function handleWordleKey(k) {
   if (wordleOver || hubState.game !== "wordle") return;
   resetIdleWatchdog();
@@ -960,114 +844,151 @@ function handleWordleKey(k) {
       wordleCol--;
       wordleGrid[wordleRow][wordleCol] = "";
       const tile = document.getElementById(`wt-${wordleRow}-${wordleCol}`);
-      tile.textContent = "";
-      tile.classList.remove("pop");
+      if (tile) tile.textContent = "";
     }
+    persistLiveState();
     return;
   }
 
   if (k === "ENTER") {
     if (wordleCol === 5) checkWordleRow();
-    else {
-      statusPill.textContent = "Too short!";
-      setTimeout(() => statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`, 1200);
-    }
     return;
   }
 
   if (/^[A-Z]$/.test(k) && wordleCol < 5) {
     wordleGrid[wordleRow][wordleCol] = k;
     const tile = document.getElementById(`wt-${wordleRow}-${wordleCol}`);
-    tile.textContent = k;
-    tile.classList.add("pop");
-    setTimeout(() => tile.classList.remove("pop"), 150);
+    if (tile) tile.textContent = k;
     wordleCol++;
+    persistLiveState();
   }
 }
-
 function checkWordleRow() {
   const guess = wordleGrid[wordleRow].join("");
-  const currentRowEl = document.getElementById(`wr-${wordleRow}`);
-
   if (!VALID_DICTIONARY_WORDS.has(guess)) {
-    currentRowEl.classList.add("shake");
-    statusPill.textContent = "Not in word list!";
-    setTimeout(() => {
-      currentRowEl.classList.remove("shake");
-      statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`;
-    }, 1200);
+    if (statusPill) statusPill.textContent = "Not in word list!";
+    setTimeout(() => { if (statusPill) statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`; }, 1000);
     return;
-  }
-
-  const targetArr = wordleTarget.split("");
-
-  for (let i = 0; i < 5; i++) {
-    const tile = document.getElementById(`wt-${wordleRow}-${i}`);
-    const keyBtn = wordleKeyboardEl.querySelector(`[data-key="${guess[i]}"]`);
-    if (guess[i] === targetArr[i]) {
-      tile.classList.add("correct");
-      if (keyBtn) { keyBtn.classList.remove("present"); keyBtn.classList.add("correct"); }
-      targetArr[i] = null;
-    }
-  }
-
-  for (let i = 0; i < 5; i++) {
-    const tile = document.getElementById(`wt-${wordleRow}-${i}`);
-    const keyBtn = wordleKeyboardEl.querySelector(`[data-key="${guess[i]}"]`);
-    if (!tile.classList.contains("correct")) {
-      const idx = targetArr.indexOf(guess[i]);
-      if (idx !== -1) {
-        tile.classList.add("present");
-        if (keyBtn && !keyBtn.classList.contains("correct")) keyBtn.classList.add("present");
-        targetArr[idx] = null;
-      } else {
-        tile.classList.add("absent");
-        if (keyBtn && !keyBtn.classList.contains("correct") && !keyBtn.classList.contains("present")) keyBtn.classList.add("absent");
-      }
-    }
   }
 
   if (guess === wordleTarget) {
     wordleOver = true;
-    scoreA++;
-    streak++;
-    persistScores();
-    renderScores();
-    showWinScreen("Word Solved! Splendid!");
+    scoreA++; streak++;
+    persistScores(); renderScores();
+    showWinScreen("Word Solved!");
+    persistLiveState();
     return;
   }
 
-  wordleRow++;
-  wordleCol = 0;
-
+  wordleRow++; wordleCol = 0;
   if (wordleRow === 6) {
     wordleOver = true;
-    scoreB++;
-    streak = 0;
-    persistScores();
-    renderScores();
+    scoreB++; streak = 0;
+    persistScores(); renderScores();
     showWinScreen(`The Word was: ${wordleTarget}`);
+  }
+  persistLiveState();
+}
+
+/* ---------- live game persistence ---------- */
+function persistLiveState() {
+  const payload = {
+    hubState: { ...hubState },
+    mode: modeSelect.value,
+    scores: { scoreA, scoreB, scoreD, streak },
+    ttt: {
+      board: tttBoard, size: tttSize, winLen: tttWinLen, turn: tttTurn, over: tttOver, winning: tttWinningCells
+    },
+    chess: {
+      board: chessBoard, turn: chessTurn, selected: chessSelected, over: chessOver,
+      whiteCaptured, blackCaptured
+    },
+    wordle: {
+      target: wordleTarget, row: wordleRow, col: wordleCol, grid: wordleGrid, over: wordleOver
+    }
+  };
+  localStorage.setItem(LIVE_STATE_KEY, JSON.stringify(payload));
+}
+function restoreLiveStateIfAny() {
+  const raw = localStorage.getItem(LIVE_STATE_KEY);
+  if (!raw) return false;
+  try {
+    const s = JSON.parse(raw);
+    if (!s || !s.mode) return false;
+
+    if (s.hubState) Object.assign(hubState, s.hubState);
+    modeSelect.value = s.mode;
+
+    if (s.scores) {
+      scoreA = s.scores.scoreA || 0;
+      scoreB = s.scores.scoreB || 0;
+      scoreD = s.scores.scoreD || 0;
+      streak = s.scores.streak || 0;
+      renderScores();
+    }
+
+    // restore by mode
+    if (s.mode === "wordle" && s.wordle) {
+      wordleTarget = s.wordle.target || getWordleTargetByDifficulty();
+      wordleRow = s.wordle.row || 0;
+      wordleCol = s.wordle.col || 0;
+      wordleGrid = s.wordle.grid || Array.from({ length: 6 }, () => Array(5).fill(""));
+      wordleOver = !!s.wordle.over;
+      renderWordle();
+      statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`;
+      return true;
+    }
+
+    if (s.mode.startsWith("ttt") && s.ttt) {
+      tttBoard = Array.isArray(s.ttt.board) ? s.ttt.board : [];
+      tttSize = s.ttt.size || (s.mode.startsWith("ttt5") ? 5 : 3);
+      tttWinLen = s.ttt.winLen || (tttSize === 3 ? 3 : 4);
+      tttTurn = s.ttt.turn || "X";
+      tttOver = !!s.ttt.over;
+      tttWinningCells = Array.isArray(s.ttt.winning) ? s.ttt.winning : [];
+      renderTTT();
+      return true;
+    }
+
+    if (s.mode.startsWith("chess") && s.chess) {
+      chessBoard = Array.isArray(s.chess.board) ? s.chess.board : [];
+      chessTurn = s.chess.turn || "w";
+      chessSelected = s.chess.selected || null;
+      chessOver = !!s.chess.over;
+      whiteCaptured = Array.isArray(s.chess.whiteCaptured) ? s.chess.whiteCaptured : [];
+      blackCaptured = Array.isArray(s.chess.blackCaptured) ? s.chess.blackCaptured : [];
+
+      // if corrupt/empty, re-init chess
+      const looksValid = chessBoard.length === 8 && Array.isArray(chessBoard[0]) && chessBoard[0].length === 8;
+      if (!looksValid) return false;
+
+      renderCaptured();
+      renderChess();
+      return true;
+    }
+
+    return false;
+  } catch {
+    return false;
   }
 }
 
-/* ---------- Global Keyboard Shortcuts ---------- */
+/* ---------- Global Keyboard ---------- */
 window.addEventListener("keydown", (e) => {
   const k = e.key.toUpperCase();
 
   if (e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") {
-    if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
-    if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
-    if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
-    if (k === "4") { hubState.game = "wordle"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(); return; }
-    
-    if (k === "R") { newGameBtn.click(); return; }
-    if (k === "Z") { undoBtn.click(); return; }
+    if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+    if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+    if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+    if (k === "4") { hubState.game = "wordle"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+
+    if (k === "R") { newGameBtn?.click(); return; }
+    if (k === "Z") { undoBtn?.click(); return; }
   }
 
   if (hubState.game !== "wordle") return;
-  if (k === "ENTER" || k === "BACKSPACE" || /^[A-Z]$/.test(k)) {
-    handleWordleKey(k);
-  }
+  if (k === "ENTER" || k === "BACKSPACE" || /^[A-Z]$/.test(k)) handleWordleKey(k);
 });
 
 /* ---------- Timer Expiration ---------- */
@@ -1086,23 +1007,25 @@ function onTimerExpired() {
     chessTurn = chessTurn === "w" ? "b" : "w";
     renderChess();
     startTurnTimer();
+    persistLiveState();
   }
 }
 
 /* ---------- Action Controls ---------- */
-newGameBtn.addEventListener("click", () => {
+newGameBtn?.addEventListener("click", () => {
   resetIdleWatchdog();
-  initBoard();
+  initBoard(true);
 });
 
-resetScoreBtn.addEventListener("click", () => {
+resetScoreBtn?.addEventListener("click", () => {
   resetIdleWatchdog();
   scoreA = 0; scoreB = 0; scoreD = 0; streak = 0;
   persistScores();
   renderScores();
+  persistLiveState();
 });
 
-undoBtn.addEventListener("click", () => {
+undoBtn?.addEventListener("click", () => {
   resetIdleWatchdog();
   if (hubState.game === "wordle") {
     handleWordleKey("DEL");
@@ -1118,6 +1041,7 @@ undoBtn.addEventListener("click", () => {
     renderScores();
     renderTTT();
     startTurnTimer();
+    persistLiveState();
     return;
   }
   const s = chessSnapshots.pop();
@@ -1130,54 +1054,73 @@ undoBtn.addEventListener("click", () => {
   renderScores();
   renderChess();
   startTurnTimer();
+  persistLiveState();
 });
 
 /* ---------- HUD Bar Events ---------- */
-gameTypePills.addEventListener("click", (e) => {
+gameTypePills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-game]");
   if (!btn) return;
   hubState.game = btn.dataset.game;
   modeSelect.value = modeFromHub();
   syncHud();
   persistHub();
-  initBoard();
+  initBoard(true);
 });
 
-opponentPills.addEventListener("click", (e) => {
+opponentPills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-opponent]");
   if (!btn) return;
   hubState.opponent = btn.dataset.opponent;
   modeSelect.value = modeFromHub();
   syncHud();
   persistHub();
-  initBoard();
+  initBoard(true);
 });
 
-difficultyPills.addEventListener("click", (e) => {
+difficultyPills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-difficulty]");
   if (!btn) return;
   hubState.difficulty = btn.dataset.difficulty;
-  difficultySelect.value = hubState.difficulty;
+  if (difficultySelect) difficultySelect.value = hubState.difficulty;
   syncHud();
   persistHub();
   loadScores();
   if (hubState.game === "wordle") initWordle();
+  persistLiveState();
 });
 
-timerPills.addEventListener("click", (e) => {
+timerPills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-timer]");
   if (!btn) return;
   hubState.timer = btn.dataset.timer;
   syncHud();
   persistHub();
   startTurnTimer();
+  persistLiveState();
 });
 
-function initBoard() {
+/* ---------- Board Init ---------- */
+function initBoard(forceFresh = false) {
   hideWinScreen();
   stopTurnTimer();
   clearWinLine();
   resetIdleWatchdog();
+
+  if (!forceFresh) {
+    const restored = restoreLiveStateIfAny();
+    if (restored) {
+      syncHud();
+      if (hubState.game === "wordle") {
+        tttBoardEl?.classList.add("hidden");
+        chessBoardEl?.classList.add("hidden");
+        wordleGameEl?.classList.remove("hidden");
+      }
+      startTurnTimer();
+      persistHub();
+      return;
+    }
+  }
 
   hubFromMode(modeSelect.value);
   if (hubState.game === "wordle") initWordle();
@@ -1187,17 +1130,18 @@ function initBoard() {
 
   startTurnTimer();
   persistHub();
+  persistLiveState();
 }
 
-/* ---------- App Boot with DOM Safety ---------- */
+/* ---------- App Boot ---------- */
 function boot() {
   loadHub();
 
   if (!hubState.timer) hubState.timer = "off";
 
-  modeSelect.value = modeFromHub();
-  difficultySelect.value = hubState.difficulty;
-  themeSelect.value = hubState.theme;
+  if (modeSelect) modeSelect.value = modeFromHub();
+  if (difficultySelect) difficultySelect.value = hubState.difficulty;
+  if (themeSelect) themeSelect.value = hubState.theme;
 
   syncHud();
   setTheme(hubState.theme);
@@ -1205,7 +1149,7 @@ function boot() {
 
   if (hubState.timer === "off") showTimerInactive();
 
-  initBoard();
+  initBoard(false); // try restore live state first
   startIdleWatchdog();
 }
 
