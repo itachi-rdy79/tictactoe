@@ -17,7 +17,7 @@
     </header>
 
     <section class="glass controls">
-      <div class="field">
+      <div class="field mode-field">
         <label for="modeSelect">Mode</label>
         <select id="modeSelect">
           <option value="ttt3-2p">Tic-Tac-Toe 3x3 (2 Players)</option>
@@ -41,7 +41,7 @@
       <div class="field">
         <label for="themeSelect">Theme</label>
         <select id="themeSelect">
-          <option value="dark" selected>Dark</option>
+          <option value="dark">Dark</option>
           <option value="light">Light</option>
         </select>
       </div>
@@ -78,15 +78,23 @@
         <section class="glass card">
           <h3>How to play</h3>
           <ul>
-            <li>3x3 mode: connect <b>3</b> in a row.</li>
-            <li>5x5 mode: connect <b>4</b> in a row.</li>
-            <li>Chess supports 2P and vs AI.</li>
-            <li>Use Theme for Dark/Light glass UI.</li>
+            <li>3x3: connect 3.</li>
+            <li>5x5: connect 4.</li>
+            <li>Chess: capture king in current ruleset.</li>
+            <li>Winner animation works in all modes.</li>
           </ul>
         </section>
       </aside>
     </section>
   </main>
+
+  <!-- Winner Screen (from your winner-screen style idea) -->
+  <section class="winner-screen" id="winnerScreen" aria-live="polite">
+    <div class="winner-banner">
+      <h2 class="winner-text" id="winnerText">WINNER!</h2>
+    </div>
+    <button class="restart-btn" id="restartBtn" type="button">Continue</button>
+  </section>
 
   <script src="script.js"></script>
 </body>
