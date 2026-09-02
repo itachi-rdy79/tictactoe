@@ -1,5 +1,5 @@
 # tictactoe
-# GAP games
+# GAP
 
 A cool neon-style browser arcade made with pure HTML, CSS, and JavaScript.
 
