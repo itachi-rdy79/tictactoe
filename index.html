@@ -3,24 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Game Hub - Tic Tac Toe & Chess</title>
+  <title>Game Hub</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <div class="app">
-    <h1>Game Hub</h1>
+<body data-theme="dark">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
 
-    <div class="controls">
-      <label for="modeSelect">Mode:</label>
-      <select id="modeSelect">
-        <option value="ttt2p">Tic-Tac-Toe (2 Players)</option>
-        <option value="tttAI">Tic-Tac-Toe vs Computer</option>
-        <option value="chess2p">Chess (2 Players)</option>
-        <option value="chessAI">Chess vs Computer</option>
-      </select>
+  <main class="shell">
+    <header class="topbar glass">
+      <h1>Game Hub</h1>
+      <div class="chip" id="modeChip">Mode: Tic-Tac-Toe vs AI</div>
+    </header>
 
-      <div id="difficultyWrap" class="inline">
-        <label for="difficultySelect">Difficulty:</label>
+    <section class="controls glass">
+      <div class="control">
+        <label for="modeSelect">Mode</label>
+        <select id="modeSelect">
+          <option value="ttt2p">Tic-Tac-Toe 5x5 (2 Players)</option>
+          <option value="tttAI" selected>Tic-Tac-Toe 5x5 vs Computer</option>
+        </select>
+      </div>
+
+      <div class="control" id="difficultyWrap">
+        <label for="difficultySelect">Difficulty</label>
         <select id="difficultySelect">
           <option value="easy">Easy</option>
           <option value="medium" selected>Medium</option>
@@ -28,26 +34,56 @@
         </select>
       </div>
 
-      <button id="resetBtn">Reset</button>
-    </div>
-
-    <div id="status">Welcome! Choose a mode and play.</div>
-    <div id="aiThinking" class="thinking" style="display:none;">AI thinking...</div>
-
-    <div id="tttBoard" class="ttt-board"></div>
-    <div id="chessBoard" class="chess-board" style="display:none;"></div>
-
-    <div id="capturedPanel" class="captured-panel" style="display:none;">
-      <div>
-        <strong>White captured:</strong>
-        <div id="whiteCaptured" class="captured-row"></div>
+      <div class="control">
+        <label for="themeSelect">Theme</label>
+        <select id="themeSelect">
+          <option value="dark" selected>Dark</option>
+          <option value="light">Light</option>
+        </select>
       </div>
-      <div>
-        <strong>Black captured:</strong>
-        <div id="blackCaptured" class="captured-row"></div>
-      </div>
-    </div>
-  </div>
+
+      <button id="resetBtn" class="btn">New Game</button>
+    </section>
+
+    <section class="layout">
+      <section class="board-card glass">
+        <div class="status-row">
+          <div id="status">Tic-Tac-Toe: X's turn</div>
+          <div id="aiThinking" class="thinking" style="display:none;">AI thinking...</div>
+        </div>
+        <div id="tttBoard" class="ttt-board"></div>
+      </section>
+
+      <aside class="side">
+        <section class="glass card">
+          <h3>Scoreboard</h3>
+          <div class="score-grid">
+            <div class="score-box">
+              <span>You (X)</span>
+              <strong id="scoreX">0</strong>
+            </div>
+            <div class="score-box">
+              <span>Computer / O</span>
+              <strong id="scoreO">0</strong>
+            </div>
+            <div class="score-box full">
+              <span>Draws</span>
+              <strong id="scoreD">0</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="glass card">
+          <h3>How to play</h3>
+          <ul>
+            <li>Board is <b>5x5</b>.</li>
+            <li>Connect <b>4 in a row</b> to win.</li>
+            <li>Choose Dark/Light theme from the Theme dropdown.</li>
+          </ul>
+        </section>
+      </aside>
+    </section>
+  </main>
 
   <script src="script.js"></script>
 </body>

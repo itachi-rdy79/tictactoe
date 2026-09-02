@@ -1,490 +1,270 @@
-// ------------------------------
-// Game Hub: TicTacToe + Chess
-// ------------------------------
 const modeSelect = document.getElementById("modeSelect");
 const difficultyWrap = document.getElementById("difficultyWrap");
 const difficultySelect = document.getElementById("difficultySelect");
+const themeSelect = document.getElementById("themeSelect");
 const resetBtn = document.getElementById("resetBtn");
+
 const statusEl = document.getElementById("status");
-const thinkingEl = document.getElementById("aiThinking");
+const aiThinkingEl = document.getElementById("aiThinking");
+const modeChip = document.getElementById("modeChip");
+const boardEl = document.getElementById("tttBoard");
 
-const tttBoardEl = document.getElementById("tttBoard");
-const chessBoardEl = document.getElementById("chessBoard");
+const scoreXEl = document.getElementById("scoreX");
+const scoreOEl = document.getElementById("scoreO");
+const scoreDEl = document.getElementById("scoreD");
 
-const capturedPanel = document.getElementById("capturedPanel");
-const whiteCapturedEl = document.getElementById("whiteCaptured");
-const blackCapturedEl = document.getElementById("blackCaptured");
+const SIZE = 5;
+const WIN_LEN = 4; // 4 in row to win on 5x5
 
-// -------- Tic Tac Toe state --------
-let ttt = Array(9).fill(null);
-let tttTurn = "X";
-let tttOver = false;
+let board = Array(SIZE * SIZE).fill(null);
+let turn = "X";
+let gameOver = false;
 
-// -------- Chess state --------
-let chessBoard = [];
-let chessTurn = "w"; // w | b
-let selected = null; // {r,c}
-let whiteCaptured = [];
-let blackCaptured = [];
-let chessOver = false;
+let scoreX = 0, scoreO = 0, scoreD = 0;
 
-const PIECE_UNICODE = {
-  wp: "♙", wr: "♖", wn: "♘", wb: "♗", wq: "♕", wk: "♔",
-  bp: "♟", br: "♜", bn: "♞", bb: "♝", bq: "♛", bk: "♚"
-};
+// ---------- helpers ----------
+const idx = (r, c) => r * SIZE + c;
 
-function pieceKey(p){ return p ? `${p.color}${p.type}` : null; }
-function inBounds(r,c){ return r>=0 && r<8 && c>=0 && c<8; }
-function cloneBoard(b){ return b.map(row => row.map(cell => cell ? {...cell} : null)); }
-
-function setStatus(msg){ statusEl.textContent = msg; }
-
-// ------------------------------
-// Mode handling
-// ------------------------------
-function currentMode(){ return modeSelect.value; }
-
-function updateModeUI() {
-  const mode = currentMode();
-  const aiMode = mode === "tttAI" || mode === "chessAI";
-  difficultyWrap.style.display = aiMode ? "inline-flex" : "none";
-
-  if (mode.startsWith("ttt")) {
-    tttBoardEl.style.display = "grid";
-    chessBoardEl.style.display = "none";
-    capturedPanel.style.display = "none";
-    thinkingEl.style.display = "none";
-  } else {
-    tttBoardEl.style.display = "none";
-    chessBoardEl.style.display = "grid";
-    capturedPanel.style.display = "grid";
+function lines() {
+  const all = [];
+  // rows
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c <= SIZE - WIN_LEN; c++) {
+      const line = [];
+      for (let k = 0; k < WIN_LEN; k++) line.push(idx(r, c + k));
+      all.push(line);
+    }
   }
+  // cols
+  for (let c = 0; c < SIZE; c++) {
+    for (let r = 0; r <= SIZE - WIN_LEN; r++) {
+      const line = [];
+      for (let k = 0; k < WIN_LEN; k++) line.push(idx(r + k, c));
+      all.push(line);
+    }
+  }
+  // diag down-right
+  for (let r = 0; r <= SIZE - WIN_LEN; r++) {
+    for (let c = 0; c <= SIZE - WIN_LEN; c++) {
+      const line = [];
+      for (let k = 0; k < WIN_LEN; k++) line.push(idx(r + k, c + k));
+      all.push(line);
+    }
+  }
+  // diag down-left
+  for (let r = 0; r <= SIZE - WIN_LEN; r++) {
+    for (let c = WIN_LEN - 1; c < SIZE; c++) {
+      const line = [];
+      for (let k = 0; k < WIN_LEN; k++) line.push(idx(r + k, c - k));
+      all.push(line);
+    }
+  }
+  return all;
 }
+const WIN_LINES = lines();
 
-// ------------------------------
-// Tic Tac Toe
-// ------------------------------
-const TTT_WINS = [
-  [0,1,2],[3,4,5],[6,7,8],
-  [0,3,6],[1,4,7],[2,5,8],
-  [0,4,8],[2,4,6]
-];
-
-function tttWinner(board){
-  for(const [a,b,c] of TTT_WINS){
-    if(board[a] && board[a]===board[b] && board[b]===board[c]) return board[a];
+function getWinner(b) {
+  for (const line of WIN_LINES) {
+    const v = b[line[0]];
+    if (!v) continue;
+    if (line.every(i => b[i] === v)) return v;
   }
-  if(board.every(Boolean)) return "draw";
+  if (b.every(Boolean)) return "draw";
   return null;
 }
 
-function renderTTT(){
-  tttBoardEl.innerHTML = "";
-  ttt.forEach((v,i)=>{
-    const cell = document.createElement("button");
-    cell.className = "ttt-cell";
-    cell.textContent = v || "";
-    cell.onclick = ()=> onTttClick(i);
-    tttBoardEl.appendChild(cell);
+function setStatus() {
+  const w = getWinner(board);
+  if (w === "X") statusEl.textContent = "You win! 🎉";
+  else if (w === "O") statusEl.textContent = modeSelect.value === "tttAI" ? "Computer wins!" : "O wins!";
+  else if (w === "draw") statusEl.textContent = "It's a draw!";
+  else statusEl.textContent = `Tic-Tac-Toe: ${turn}'s turn`;
+}
+
+function updateScoreUI() {
+  scoreXEl.textContent = scoreX;
+  scoreOEl.textContent = scoreO;
+  scoreDEl.textContent = scoreD;
+}
+
+function renderBoard() {
+  boardEl.innerHTML = "";
+  board.forEach((v, i) => {
+    const btn = document.createElement("button");
+    btn.className = "ttt-cell";
+    if (v === "X") btn.classList.add("x");
+    if (v === "O") btn.classList.add("o");
+    btn.textContent = v || "";
+    btn.addEventListener("click", () => onClickCell(i));
+    boardEl.appendChild(btn);
   });
-
-  const w = tttWinner(ttt);
-  if (w === "draw") setStatus("Tic-Tac-Toe: Draw!");
-  else if (w) setStatus(`Tic-Tac-Toe: ${w} wins!`);
-  else setStatus(`Tic-Tac-Toe: ${tttTurn}'s turn`);
+  setStatus();
 }
 
-function onTttClick(i){
-  if (!currentMode().startsWith("ttt")) return;
-  if (tttOver || ttt[i]) return;
-  ttt[i] = tttTurn;
-  const w = tttWinner(ttt);
-  if (w) {
-    tttOver = true;
-    renderTTT();
-    return;
-  }
-  tttTurn = tttTurn === "X" ? "O" : "X";
-  renderTTT();
+function endIfGameOver() {
+  const w = getWinner(board);
+  if (!w) return false;
+  gameOver = true;
 
-  if (currentMode()==="tttAI" && tttTurn==="O" && !tttOver) {
-    thinkingEl.style.display = "block";
-    setTimeout(()=>{
-      tttAIMove();
-      thinkingEl.style.display = "none";
-    }, aiDelayForDifficulty(difficultySelect.value));
-  }
+  if (w === "X") scoreX++;
+  else if (w === "O") scoreO++;
+  else scoreD++;
+
+  updateScoreUI();
+  renderBoard();
+  return true;
 }
 
-function tttAIMove(){
-  const empty = ttt.map((v,i)=>v?null:i).filter(v=>v!==null);
-  if(!empty.length) return;
+// ---------- AI ----------
+function delayByDifficulty(d) {
+  if (d === "easy") return 260;
+  if (d === "medium") return 480;
+  return 760;
+}
+
+function aiMove() {
+  const empties = board.map((v, i) => (v ? -1 : i)).filter(i => i !== -1);
+  if (!empties.length) return;
+
   const diff = difficultySelect.value;
 
-  let pick;
-  if (diff==="easy" && Math.random()<0.55) {
-    pick = empty[Math.floor(Math.random()*empty.length)];
-  } else {
-    // quick optimal move preference
-    pick = bestTttMove();
-  }
-
-  ttt[pick] = "O";
-  const w = tttWinner(ttt);
-  if (w) tttOver = true;
-  else tttTurn = "X";
-  renderTTT();
-}
-
-function bestTttMove(){
-  let bestScore = -Infinity, move = null;
-  for(let i=0;i<9;i++){
-    if(!ttt[i]){
-      ttt[i]="O";
-      const score=minimaxTTT(ttt,false);
-      ttt[i]=null;
-      if(score>bestScore){bestScore=score; move=i;}
-    }
-  }
-  return move ?? ttt.findIndex(x=>!x);
-}
-function minimaxTTT(board,isMax){
-  const w=tttWinner(board);
-  if(w==="O") return 10;
-  if(w==="X") return -10;
-  if(w==="draw") return 0;
-  if(isMax){
-    let best=-Infinity;
-    for(let i=0;i<9;i++) if(!board[i]){
-      board[i]="O";
-      best=Math.max(best,minimaxTTT(board,false));
-      board[i]=null;
-    }
-    return best;
-  }else{
-    let best=Infinity;
-    for(let i=0;i<9;i++) if(!board[i]){
-      board[i]="X";
-      best=Math.min(best,minimaxTTT(board,true));
-      board[i]=null;
-    }
-    return best;
-  }
-}
-
-// ------------------------------
-// Chess setup + rendering
-// ------------------------------
-function initChess(){
-  chessBoard = Array.from({length:8},()=>Array(8).fill(null));
-
-  const back = ["r","n","b","q","k","b","n","r"];
-  for(let c=0;c<8;c++){
-    chessBoard[0][c] = {color:"b", type:back[c]};
-    chessBoard[1][c] = {color:"b", type:"p"};
-    chessBoard[6][c] = {color:"w", type:"p"};
-    chessBoard[7][c] = {color:"w", type:back[c]};
-  }
-
-  chessTurn = "w";
-  selected = null;
-  whiteCaptured = [];
-  blackCaptured = [];
-  chessOver = false;
-  renderCaptured();
-}
-
-function renderCaptured(){
-  whiteCapturedEl.innerHTML = whiteCaptured.map(p=>PIECE_UNICODE[pieceKey(p)]).join(" ");
-  blackCapturedEl.innerHTML = blackCaptured.map(p=>PIECE_UNICODE[pieceKey(p)]).join(" ");
-}
-
-function renderChess(){
-  chessBoardEl.innerHTML = "";
-  for(let r=0;r<8;r++){
-    for(let c=0;c<8;c++){
-      const cell = document.createElement("div");
-      cell.className = "chess-cell " + ((r+c)%2===0?"light":"dark");
-      if(selected && selected.r===r && selected.c===c) cell.classList.add("selected");
-
-      const p = chessBoard[r][c];
-      cell.textContent = p ? PIECE_UNICODE[pieceKey(p)] : "";
-      cell.onclick = ()=>onChessClick(r,c);
-      chessBoardEl.appendChild(cell);
-    }
-  }
-  setStatus(chessOver ? "Chess: Game over" : `Chess: ${chessTurn==="w"?"White":"Black"} to move`);
-}
-
-function onChessClick(r,c){
-  const mode = currentMode();
-  if (!mode.startsWith("chess") || chessOver) return;
-
-  // in chessAI, human plays white only
-  if (mode==="chessAI" && chessTurn==="b") return;
-
-  const piece = chessBoard[r][c];
-  if (!selected) {
-    if (piece && piece.color===chessTurn) selected={r,c};
-    renderChess();
+  // easy: often random
+  if (diff === "easy" && Math.random() < 0.55) {
+    playO(empties[Math.floor(Math.random() * empties.length)]);
     return;
   }
 
-  const from = selected;
-  const moves = getPseudoMoves(chessBoard, from.r, from.c);
-  const legal = moves.find(m=>m.r===r && m.c===c);
-
-  if (!legal) {
-    if (piece && piece.color===chessTurn) selected={r,c};
-    else selected=null;
-    renderChess();
-    return;
-  }
-
-  makeMove(chessBoard, {fromR:from.r, fromC:from.c, toR:r, toC:c}, true);
-  selected = null;
-  chessTurn = chessTurn==="w" ? "b" : "w";
-  renderChess();
-
-  if (mode==="chessAI" && chessTurn==="b" && !chessOver) {
-    aiChessMove();
-  }
-}
-
-// ------------------------------
-// Chess move logic (pseudo-legal)
-// ------------------------------
-function getPseudoMoves(board, r, c){
-  const p = board[r][c];
-  if(!p) return [];
-  const moves = [];
-
-  const push = (nr,nc)=>{
-    if(!inBounds(nr,nc)) return;
-    const t = board[nr][nc];
-    if(!t || t.color!==p.color) moves.push({r:nr,c:nc});
-  };
-
-  if(p.type==="p"){
-    const dir = p.color==="w" ? -1 : 1;
-    const start = p.color==="w" ? 6 : 1;
-    if(inBounds(r+dir,c) && !board[r+dir][c]) moves.push({r:r+dir,c});
-    if(r===start && !board[r+dir][c] && !board[r+2*dir][c]) moves.push({r:r+2*dir,c});
-    for(const dc of [-1,1]){
-      const nr=r+dir, nc=c+dc;
-      if(inBounds(nr,nc) && board[nr][nc] && board[nr][nc].color!==p.color) moves.push({r:nr,c:nc});
-    }
-  } else if (p.type==="n"){
-    [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(([dr,dc])=>push(r+dr,c+dc));
-  } else if (p.type==="k"){
-    for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
-      if(dr||dc) push(r+dr,c+dc);
-    }
-  } else {
-    const dirs = [];
-    if (p.type==="b" || p.type==="q") dirs.push([-1,-1],[-1,1],[1,-1],[1,1]);
-    if (p.type==="r" || p.type==="q") dirs.push([-1,0],[1,0],[0,-1],[0,1]);
-
-    for(const [dr,dc] of dirs){
-      let nr=r+dr,nc=c+dc;
-      while(inBounds(nr,nc)){
-        if(!board[nr][nc]) moves.push({r:nr,c:nc});
-        else{
-          if(board[nr][nc].color!==p.color) moves.push({r:nr,c:nc});
-          break;
-        }
-        nr+=dr; nc+=dc;
-      }
-    }
-  }
-  return moves;
-}
-
-function makeMove(board, mv, realMove=false){
-  const piece = board[mv.fromR][mv.fromC];
-  const target = board[mv.toR][mv.toC];
-
-  if (target && realMove) {
-    if (target.color==="w") whiteCaptured.push(target);
-    else blackCaptured.push(target);
-    if (target.type==="k") chessOver = true;
-    renderCaptured();
-  }
-
-  board[mv.toR][mv.toC] = piece;
-  board[mv.fromR][mv.fromC] = null;
-
-  // promotion to queen
-  if (piece.type==="p" && (mv.toR===0 || mv.toR===7)) {
-    piece.type = "q";
-  }
-}
-
-function getAllMovesForColor(board, color){
-  const moves = [];
-  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
-    const p = board[r][c];
-    if(!p || p.color!==color) continue;
-    const pm = getPseudoMoves(board,r,c);
-    pm.forEach(m=>moves.push({fromR:r,fromC:c,toR:m.r,toC:m.c}));
-  }
-  return moves;
-}
-
-// ------------------------------
-// Chess AI
-// ------------------------------
-const pieceValue = { p:100, n:320, b:330, r:500, q:900, k:20000 };
-
-function evaluate(board){
-  let score = 0;
-  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
-    const p = board[r][c];
-    if(!p) continue;
-    const v = pieceValue[p.type] || 0;
-    // AI is black => maximize black advantage
-    score += (p.color==="b" ? v : -v);
-  }
-  return score;
-}
-
-function movePriority(board, mv){
-  // cheap move ordering: captures first, king captures highest
-  const t = board[mv.toR][mv.toC];
-  if(!t) return 0;
-  return (pieceValue[t.type] || 0) + (t.type==="k" ? 50000 : 0);
-}
-
-function minimax(board, depth, alpha, beta, maximizing){
-  if(depth===0) return {score:evaluate(board), move:null};
-
-  const color = maximizing ? "b" : "w";
-  let moves = getAllMovesForColor(board, color);
-
-  if(!moves.length) return {score:evaluate(board), move:null};
-
-  // order moves (hard-mode improvement base)
-  moves = moves.sort((a,b)=>movePriority(board,b)-movePriority(board,a));
-
-  let bestMove = null;
-
-  if(maximizing){
-    let best = -Infinity;
-    for(const mv of moves){
-      const b2 = cloneBoard(board);
-      makeMove(b2,mv,false);
-      const val = minimax(b2, depth-1, alpha, beta, false).score;
-      if(val>best){ best=val; bestMove=mv; }
-      alpha = Math.max(alpha,val);
-      if(beta<=alpha) break;
-    }
-    return {score:best, move:bestMove};
-  } else {
-    let best = Infinity;
-    for(const mv of moves){
-      const b2 = cloneBoard(board);
-      makeMove(b2,mv,false);
-      const val = minimax(b2, depth-1, alpha, beta, true).score;
-      if(val<best){ best=val; bestMove=mv; }
-      beta = Math.min(beta,val);
-      if(beta<=alpha) break;
-    }
-    return {score:best, move:bestMove};
-  }
-}
-
-function aiDelayForDifficulty(diff){
-  if(diff==="easy") return 300;
-  if(diff==="medium") return 650;
-  return 950;
-}
-
-function depthForDifficulty(diff){
-  if(diff==="easy") return 1;
-  if(diff==="medium") return 2;
-  return 3;
-}
-
-function aiPickMoveWithPersonality(board, diff){
-  const legal = getAllMovesForColor(board, "b");
-  if(!legal.length) return null;
-
-  // score all moves at small lookahead for personality shaping
-  const depth = depthForDifficulty(diff);
-  const scored = legal.map(mv=>{
-    const b2 = cloneBoard(board);
-    makeMove(b2,mv,false);
-    const sc = minimax(b2, Math.max(0,depth-1), -Infinity, Infinity, false).score;
-    return {mv, sc};
-  }).sort((a,b)=>b.sc-a.sc);
-
-  if(diff==="hard") return scored[0].mv;
-
-  if(diff==="medium"){
-    if(Math.random()<0.75) return scored[0].mv;
-    return (scored[1]?.mv || scored[0].mv);
-  }
-
-  // easy
-  if(Math.random()<0.55){
-    const k = Math.min(legal.length, 4);
-    return legal[Math.floor(Math.random()*k)];
-  }
-  return scored[0].mv;
-}
-
-function aiChessMove(){
-  thinkingEl.style.display = "block";
-  const diff = difficultySelect.value;
-  const wait = aiDelayForDifficulty(diff);
-
-  setTimeout(()=>{
-    if(chessOver || currentMode()!=="chessAI" || chessTurn!=="b"){
-      thinkingEl.style.display = "none";
+  // win now
+  for (const i of empties) {
+    board[i] = "O";
+    if (getWinner(board) === "O") {
+      board[i] = null;
+      playO(i);
       return;
     }
+    board[i] = null;
+  }
 
-    const mv = aiPickMoveWithPersonality(chessBoard, diff);
-    if(!mv){
-      thinkingEl.style.display = "none";
+  // block X
+  for (const i of empties) {
+    board[i] = "X";
+    if (getWinner(board) === "X") {
+      board[i] = null;
+      playO(i);
       return;
     }
+    board[i] = null;
+  }
 
-    makeMove(chessBoard, mv, true);
-    chessTurn = "w";
-    renderChess();
-    thinkingEl.style.display = "none";
-  }, wait);
-}
+  // heuristic
+  let best = -Infinity;
+  let bestMoves = [];
+  for (const i of empties) {
+    board[i] = "O";
+    const s = evaluate(board);
+    board[i] = null;
 
-// ------------------------------
-// Reset / init
-// ------------------------------
-function resetCurrentMode(){
-  const mode = currentMode();
+    if (s > best) { best = s; bestMoves = [i]; }
+    else if (s === best) bestMoves.push(i);
+  }
 
-  if (mode.startsWith("ttt")) {
-    ttt = Array(9).fill(null);
-    tttTurn = "X";
-    tttOver = false;
-    renderTTT();
+  // medium: occasional non-best
+  if (diff === "medium" && bestMoves.length > 1 && Math.random() < 0.28) {
+    playO(bestMoves[Math.floor(Math.random() * bestMoves.length)]);
   } else {
-    initChess();
-    renderChess();
+    playO(bestMoves[0]);
   }
 }
 
-modeSelect.addEventListener("change", ()=>{
-  updateModeUI();
-  resetCurrentMode();
+function evaluate(b) {
+  let s = 0;
+  for (const line of WIN_LINES) {
+    let x = 0, o = 0;
+    for (const i of line) {
+      if (b[i] === "X") x++;
+      else if (b[i] === "O") o++;
+    }
+    if (x && o) continue;
+    if (o) s += Math.pow(10, o);
+    if (x) s -= Math.pow(10, x);
+  }
+  // center preference
+  const center = idx(2, 2);
+  if (b[center] === "O") s += 14;
+  if (b[center] === "X") s -= 14;
+  return s;
+}
+
+function playO(i) {
+  board[i] = "O";
+  if (endIfGameOver()) return;
+  turn = "X";
+  renderBoard();
+}
+
+// ---------- game flow ----------
+function onClickCell(i) {
+  if (gameOver || board[i]) return;
+  if (modeSelect.value === "tttAI" && turn === "O") return;
+
+  board[i] = turn;
+  if (endIfGameOver()) return;
+
+  turn = turn === "X" ? "O" : "X";
+  renderBoard();
+
+  if (modeSelect.value === "tttAI" && turn === "O" && !gameOver) {
+    aiThinkingEl.style.display = "inline";
+    setTimeout(() => {
+      aiMove();
+      aiThinkingEl.style.display = "none";
+      if (!gameOver) renderBoard();
+    }, delayByDifficulty(difficultySelect.value));
+  }
+}
+
+function resetBoardOnly() {
+  board = Array(SIZE * SIZE).fill(null);
+  turn = "X";
+  gameOver = false;
+  aiThinkingEl.style.display = "none";
+  renderBoard();
+}
+
+function setTheme(theme) {
+  document.body.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+}
+
+function syncModeUI() {
+  const ai = modeSelect.value === "tttAI";
+  difficultyWrap.style.display = ai ? "grid" : "none";
+  modeChip.textContent = ai ? "Mode: Tic-Tac-Toe vs AI" : "Mode: Tic-Tac-Toe 2 Players";
+}
+
+// ---------- events ----------
+modeSelect.addEventListener("change", () => {
+  syncModeUI();
+  resetBoardOnly();
 });
 
-difficultySelect.addEventListener("change", ()=>{
-  // no immediate action needed; used at AI turn time
+difficultySelect.addEventListener("change", () => {
+  // difficulty applies on next AI turn
 });
 
-resetBtn.addEventListener("click", resetCurrentMode);
+themeSelect.addEventListener("change", () => {
+  setTheme(themeSelect.value);
+});
 
-// boot
-updateModeUI();
-resetCurrentMode();
+resetBtn.addEventListener("click", resetBoardOnly);
+
+// ---------- init ----------
+(function init() {
+  const saved = localStorage.getItem("theme") || "dark";
+  themeSelect.value = saved;
+  setTheme(saved);
+
+  syncModeUI();
+  updateScoreUI();
+  resetBoardOnly();
+})();
