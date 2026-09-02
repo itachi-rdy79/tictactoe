@@ -1,6 +1,6 @@
 # GAP - Game Hub
 
-A browser game hub with glass UI + dark/light themes.
+Multi-mode browser arcade with rich glass UI and universal Material win animation.
 
 ## Modes
 - Tic-Tac-Toe 3x3 (2 Players)
@@ -10,14 +10,13 @@ A browser game hub with glass UI + dark/light themes.
 - Chess (2 Players)
 - Chess vs Computer
 
-## Features
-- Theme switcher (Dark / Light)
-- Responsive layout
-- Scoreboard (wins/draws)
-- Captured pieces in Chess
-- Winner animation hook:
-  - Uses existing `showWinnerScreen(...)` if present
-  - Fallback animation on status text
+## Latest Highlights
+- Universal **Win Screen Overlay** (`#winOverlay`) for all games
+- Material teal winner banner (`#14bdac`) with scaleX bounce animation
+- Delayed drop-in text + continue button
+- Stable chess board sizing while moving pieces (no UI jump)
+- Theme support: Dark / Light
+- Scoreboard + reset score
 
 ## Run
-Open `index.html` directly or run with Live Server.
+Open `index.html` directly or via Live Server.

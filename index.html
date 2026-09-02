@@ -7,53 +7,42 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body data-theme="dark">
-  <div class="bg-orb orb1"></div>
-  <div class="bg-orb orb2"></div>
-
   <main class="container">
-    <header class="glass topbar">
+    <header class="topbar">
       <h1>GAP</h1>
       <span class="chip" id="modeChip">Mode: Tic-Tac-Toe 3x3 vs Computer</span>
     </header>
 
-    <section class="glass controls">
-      <div class="field mode-field">
-        <label for="modeSelect">Mode</label>
-        <select id="modeSelect">
-          <option value="ttt3-2p">Tic-Tac-Toe 3x3 (2 Players)</option>
-          <option value="ttt3-ai" selected>Tic-Tac-Toe 3x3 vs Computer</option>
-          <option value="ttt5-2p">Tic-Tac-Toe 5x5 (2 Players)</option>
-          <option value="ttt5-ai">Tic-Tac-Toe 5x5 vs Computer</option>
-          <option value="chess-2p">Chess (2 Players)</option>
-          <option value="chess-ai">Chess vs Computer</option>
-        </select>
-      </div>
+    <section class="controls">
+      <select id="modeSelect">
+        <option value="ttt3-2p">Tic-Tac-Toe 3x3 (2 Players)</option>
+        <option value="ttt3-ai" selected>Tic-Tac-Toe 3x3 vs Computer</option>
+        <option value="ttt5-2p">Tic-Tac-Toe 5x5 (2 Players)</option>
+        <option value="ttt5-ai">Tic-Tac-Toe 5x5 vs Computer</option>
+        <option value="chess-2p">Chess (2 Players)</option>
+        <option value="chess-ai">Chess vs Computer</option>
+      </select>
 
-      <div class="field" id="difficultyWrap">
-        <label for="difficultySelect">Difficulty</label>
-        <select id="difficultySelect">
-          <option value="easy">Easy</option>
-          <option value="medium" selected>Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-      </div>
+      <select id="difficultySelect">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
 
-      <div class="field">
-        <label for="themeSelect">Theme</label>
-        <select id="themeSelect">
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-        </select>
-      </div>
+      <button id="newGameBtn">New Game</button>
+      <button id="resetScoreBtn">Reset Score</button>
 
-      <button id="newGameBtn" class="btn">New Game</button>
+      <select id="themeSelect">
+        <option value="dark" selected>🌙 Dark</option>
+        <option value="light">☀️ Light</option>
+      </select>
     </section>
 
     <section class="layout">
-      <section class="glass game-panel">
+      <section class="left">
         <div class="status-row">
           <div id="status">Tic-Tac-Toe: X's turn</div>
-          <div id="thinking" class="thinking" style="display:none;">AI thinking...</div>
+          <div id="thinking" style="display:none;">AI thinking...</div>
         </div>
 
         <div id="tttBoard" class="ttt-board"></div>
@@ -65,36 +54,37 @@
         </div>
       </section>
 
-      <aside class="side">
-        <section class="glass card">
+      <aside class="right">
+        <div class="card">
           <h3>Scoreboard</h3>
-          <div class="scores">
-            <div class="score-box"><span>X / White</span><strong id="scoreA">0</strong></div>
-            <div class="score-box"><span>O / Black / AI</span><strong id="scoreB">0</strong></div>
-            <div class="score-box full"><span>Draws</span><strong id="scoreD">0</strong></div>
+          <div class="score-grid">
+            <div><small>You</small><strong id="scoreA">0</strong></div>
+            <div><small>Computer / O / Black</small><strong id="scoreB">0</strong></div>
+            <div class="full"><small>Draws</small><strong id="scoreD">0</strong></div>
           </div>
-        </section>
+        </div>
 
-        <section class="glass card">
+        <div class="card">
           <h3>How to play</h3>
           <ul>
             <li>3x3: connect 3.</li>
             <li>5x5: connect 4.</li>
-            <li>Chess: capture king in current ruleset.</li>
-            <li>Winner animation works in all modes.</li>
+            <li>Chess: capture king in this version.</li>
           </ul>
-        </section>
+        </div>
       </aside>
     </section>
   </main>
 
-  <!-- Winner Screen (from your winner-screen style idea) -->
-  <section class="winner-screen" id="winnerScreen" aria-live="polite">
-    <div class="winner-banner">
-      <h2 class="winner-text" id="winnerText">WINNER!</h2>
+  <!-- UNIVERSAL WIN OVERLAY -->
+  <div id="winOverlay" class="win-overlay hidden">
+    <div class="win-screen">
+      <div id="winBanner" class="win-banner">
+        <h2 id="winMessage" class="win-message">WINNER!</h2>
+      </div>
+      <button id="winRestartBtn" class="win-restart-btn">Continue</button>
     </div>
-    <button class="restart-btn" id="restartBtn" type="button">Continue</button>
-  </section>
+  </div>
 
   <script src="script.js"></script>
 </body>
