@@ -3,29 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Game Hub</title>
+  <title>GAP</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body data-theme="dark">
-  <div class="bg-orb orb-1"></div>
-  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
 
-  <main class="shell">
-    <header class="topbar glass">
-      <h1>Game Hub</h1>
-      <div class="chip" id="modeChip">Mode: Tic-Tac-Toe vs AI</div>
+  <main class="container">
+    <header class="glass topbar">
+      <h1>GAP</h1>
+      <span class="chip" id="modeChip">Mode: Tic-Tac-Toe 3x3 vs Computer</span>
     </header>
 
-    <section class="controls glass">
-      <div class="control">
+    <section class="glass controls">
+      <div class="field">
         <label for="modeSelect">Mode</label>
         <select id="modeSelect">
-          <option value="ttt2p">Tic-Tac-Toe 5x5 (2 Players)</option>
-          <option value="tttAI" selected>Tic-Tac-Toe 5x5 vs Computer</option>
+          <option value="ttt3-2p">Tic-Tac-Toe 3x3 (2 Players)</option>
+          <option value="ttt3-ai" selected>Tic-Tac-Toe 3x3 vs Computer</option>
+          <option value="ttt5-2p">Tic-Tac-Toe 5x5 (2 Players)</option>
+          <option value="ttt5-ai">Tic-Tac-Toe 5x5 vs Computer</option>
+          <option value="chess-2p">Chess (2 Players)</option>
+          <option value="chess-ai">Chess vs Computer</option>
         </select>
       </div>
 
-      <div class="control" id="difficultyWrap">
+      <div class="field" id="difficultyWrap">
         <label for="difficultySelect">Difficulty</label>
         <select id="difficultySelect">
           <option value="easy">Easy</option>
@@ -34,7 +38,7 @@
         </select>
       </div>
 
-      <div class="control">
+      <div class="field">
         <label for="themeSelect">Theme</label>
         <select id="themeSelect">
           <option value="dark" selected>Dark</option>
@@ -42,43 +46,42 @@
         </select>
       </div>
 
-      <button id="resetBtn" class="btn">New Game</button>
+      <button id="newGameBtn" class="btn">New Game</button>
     </section>
 
     <section class="layout">
-      <section class="board-card glass">
+      <section class="glass game-panel">
         <div class="status-row">
           <div id="status">Tic-Tac-Toe: X's turn</div>
-          <div id="aiThinking" class="thinking" style="display:none;">AI thinking...</div>
+          <div id="thinking" class="thinking" style="display:none;">AI thinking...</div>
         </div>
+
         <div id="tttBoard" class="ttt-board"></div>
+        <div id="chessBoard" class="chess-board" style="display:none;"></div>
+
+        <div id="capturedPanel" class="captured" style="display:none;">
+          <div><b>White captured:</b> <span id="whiteCaptured"></span></div>
+          <div><b>Black captured:</b> <span id="blackCaptured"></span></div>
+        </div>
       </section>
 
       <aside class="side">
         <section class="glass card">
           <h3>Scoreboard</h3>
-          <div class="score-grid">
-            <div class="score-box">
-              <span>You (X)</span>
-              <strong id="scoreX">0</strong>
-            </div>
-            <div class="score-box">
-              <span>Computer / O</span>
-              <strong id="scoreO">0</strong>
-            </div>
-            <div class="score-box full">
-              <span>Draws</span>
-              <strong id="scoreD">0</strong>
-            </div>
+          <div class="scores">
+            <div class="score-box"><span>X / White</span><strong id="scoreA">0</strong></div>
+            <div class="score-box"><span>O / Black / AI</span><strong id="scoreB">0</strong></div>
+            <div class="score-box full"><span>Draws</span><strong id="scoreD">0</strong></div>
           </div>
         </section>
 
         <section class="glass card">
           <h3>How to play</h3>
           <ul>
-            <li>Board is <b>5x5</b>.</li>
-            <li>Connect <b>4 in a row</b> to win.</li>
-            <li>Choose Dark/Light theme from the Theme dropdown.</li>
+            <li>3x3 mode: connect <b>3</b> in a row.</li>
+            <li>5x5 mode: connect <b>4</b> in a row.</li>
+            <li>Chess supports 2P and vs AI.</li>
+            <li>Use Theme for Dark/Light glass UI.</li>
           </ul>
         </section>
       </aside>
