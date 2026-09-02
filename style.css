@@ -160,23 +160,23 @@ body[data-theme="itachi"] .itachi-bg-art {
   z-index: 10;
 }
 
-/* Top HUD */
+/* Scaled-Up Top HUD */
 .top-hud {
-  height: 76px !important;
-  padding: 0 clamp(14px, 2vw, 24px) !important;
-  margin: 12px auto 0 !important;
-  width: min(98vw, 1540px) !important;
+  height: 84px !important;
+  padding: 0 clamp(16px, 2.5vw, 32px) !important;
+  margin: 14px auto 0 !important;
+  width: min(98vw, 1560px) !important;
   border-radius: 9999px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: clamp(8px, 1.5vw, 16px) !important;
+  gap: clamp(10px, 1.8vw, 20px) !important;
 }
 
 .hud-left, .hud-center, .hud-right {
   display: flex !important;
   align-items: center !important;
-  gap: clamp(6px, 1vw, 12px) !important;
+  gap: clamp(8px, 1.2vw, 16px) !important;
   flex-shrink: 0;
 }
 
@@ -186,12 +186,35 @@ body[data-theme="itachi"] .itachi-bg-art {
   flex-shrink: 1;
 }
 
-.brand {
-  font-size: clamp(1.6rem, 2.2vw, 2rem) !important;
+/* Brand Logo (Konohagakure Headband Emblem) */
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  margin-right: 6px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.brand-logo:hover {
+  transform: scale(1.05);
+}
+
+.konoha-emblem {
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(0 0 10px rgba(255, 123, 0, 0.65));
+}
+
+.brand-title {
+  font-size: clamp(1.6rem, 2.3vw, 2.1rem) !important;
   font-weight: 900 !important;
-  color: var(--brand) !important;
-  letter-spacing: 0.5px !important;
-  margin-right: 4px;
+  letter-spacing: 0.8px !important;
+  background: linear-gradient(135deg, #ffd000 0%, #ff7b00 50%, #e61e00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .group {
@@ -207,29 +230,29 @@ body[data-theme="itachi"] .itachi-bg-art {
 }
 
 .group-label {
-  font-size: clamp(0.72rem, 0.9vw, 0.8rem) !important;
+  font-size: clamp(0.74rem, 0.95vw, 0.84rem) !important;
   letter-spacing: 0.08em !important;
   color: var(--muted) !important;
   text-transform: uppercase !important;
   font-weight: 900 !important;
 }
 
-/* Tactile Buttons */
+/* Scaled-Up Tactile Buttons */
 .seg {
   display: flex !important;
-  gap: clamp(4px, 0.6vw, 8px) !important;
+  gap: clamp(6px, 0.8vw, 10px) !important;
   align-items: center !important;
   flex-wrap: nowrap !important;
 }
 
 .seg-btn {
-  height: 44px !important;
-  padding: 0 clamp(12px, 1.2vw, 18px) !important;
+  height: 48px !important;
+  padding: 0 clamp(14px, 1.4vw, 20px) !important;
   border-radius: 9999px !important;
   border: 1.5px solid var(--btn-border) !important;
   background-color: var(--btn-bg) !important;
   color: var(--btn-text) !important;
-  font-size: clamp(0.88rem, 1vw, 0.95rem) !important;
+  font-size: clamp(0.92rem, 1.1vw, 1.02rem) !important;
   font-weight: 800 !important;
   cursor: pointer !important;
   line-height: 1 !important;
@@ -237,7 +260,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 6px;
+  gap: 8px;
   transition: transform 0.08s ease, filter 0.15s ease !important;
 }
 
@@ -270,7 +293,7 @@ body[data-theme="itachi"] .itachi-bg-art {
 }
 
 .theme-trigger {
-  min-width: 120px !important;
+  min-width: 130px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -281,7 +304,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   position: absolute;
   right: 0;
   top: calc(100% + 10px);
-  width: 170px !important;
+  width: 180px !important;
   border-radius: 16px !important;
   padding: 8px !important;
   display: none;
@@ -300,14 +323,14 @@ body[data-theme="itachi"] .itachi-bg-art {
   border-radius: 10px !important;
   background-color: transparent !important;
   color: var(--text) !important;
-  padding: 10px 14px !important;
+  padding: 12px 16px !important;
   text-align: left !important;
-  font-size: 0.95rem !important;
+  font-size: 0.98rem !important;
   font-weight: 800 !important;
   cursor: pointer !important;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .theme-item:hover {
@@ -322,13 +345,13 @@ body[data-theme="itachi"] .itachi-bg-art {
 
 /* Arena Stage */
 .arena {
-  min-height: calc(100vh - 180px);
+  min-height: calc(100vh - 200px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 0 100px;
+  gap: 10px;
+  padding: 10px 0 120px;
   position: relative;
   z-index: 5;
 }
@@ -337,13 +360,13 @@ body[data-theme="itachi"] .itachi-bg-art {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
+  min-height: 46px;
 }
 
 .turn-pill {
   border-radius: 9999px !important;
-  padding: 8px 24px !important;
-  font-size: 1.1rem !important;
+  padding: 10px 28px !important;
+  font-size: 1.15rem !important;
   font-weight: 900 !important;
   letter-spacing: 0.5px !important;
   background-color: var(--turn-bg) !important;
@@ -355,7 +378,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-/* Idle Warning Animation */
+/* Idle Prompt (> 60s without move) */
 .turn-pill.idle-nudge {
   animation: pillPulse 1.2s infinite ease-in-out;
   border-color: #ef4444 !important;
@@ -386,16 +409,16 @@ body[data-theme="itachi"] .itachi-bg-art {
 /* Radial Timer */
 .radial-wrap {
   position: relative;
-  width: 86px;
-  height: 86px;
+  width: 90px;
+  height: 90px;
   border-radius: 9999px;
   display: grid;
   place-items: center;
 }
 
 .radial {
-  width: 78px;
-  height: 78px;
+  width: 82px;
+  height: 82px;
   transform: rotate(-90deg);
 }
 
@@ -416,7 +439,7 @@ body[data-theme="itachi"] .itachi-bg-art {
 
 .radial-text {
   position: absolute;
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 900;
 }
 
@@ -425,15 +448,15 @@ body[data-theme="itachi"] .itachi-bg-art {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
 }
 
 .board-shell {
   width: min(72vmin, 540px);
   aspect-ratio: 1 / 1;
-  border-radius: 24px !important;
-  padding: 14px !important;
+  border-radius: 28px !important;
+  padding: 16px !important;
   position: relative;
   border-color: var(--accent) !important;
   display: flex;
@@ -442,22 +465,21 @@ body[data-theme="itachi"] .itachi-bg-art {
   transition: width 0.25s ease, max-width 0.25s ease;
 }
 
-/* Dedicated Non-Colliding Large Wordle Frame */
+/* Wordle Card: Massive, Spacious, No-Collision Frame */
 .board-shell.wordle-mode {
-  width: min(94vw, 560px) !important;
-  max-width: 560px !important;
+  width: min(96vw, 640px) !important;
+  max-width: 640px !important;
   aspect-ratio: auto !important;
   height: auto !important;
-  min-height: auto !important;
-  padding: 24px 20px 28px !important;
+  padding: 28px 24px 34px !important;
   box-sizing: border-box;
 }
 
 .captured-strip {
   width: min(72vmin, 540px) !important;
   border-radius: 9999px !important;
-  padding: 6px 16px !important;
-  font-size: 0.95rem !important;
+  padding: 8px 18px !important;
+  font-size: 1rem !important;
   font-weight: 700 !important;
 }
 
@@ -466,7 +488,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   width: 100%;
   height: 100%;
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .ttt-cell {
@@ -475,7 +497,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   border-radius: 16px;
   background-color: var(--tile-bg);
   color: var(--text);
-  font-size: clamp(32px, 7vmin, 52px);
+  font-size: clamp(34px, 7.5vmin, 54px);
   font-weight: 900;
   cursor: pointer;
   display: flex;
@@ -509,9 +531,9 @@ body[data-theme="itachi"] .itachi-bg-art {
 
 .ttt-win-line {
   position: absolute;
-  inset: 12px;
-  width: calc(100% - 24px);
-  height: calc(100% - 24px);
+  inset: 14px;
+  width: calc(100% - 28px);
+  height: calc(100% - 28px);
   pointer-events: none;
 }
 
@@ -535,7 +557,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
   border: 1.5px solid var(--surface-border);
 }
@@ -544,7 +566,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(22px, 3.5vmin, 38px);
+  font-size: clamp(24px, 3.8vmin, 40px);
   cursor: pointer;
   user-select: none;
   position: relative;
@@ -561,7 +583,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   background: color-mix(in srgb, var(--accent) 70%, transparent);
 }
 
-/* Big Sized Wordle Arena */
+/* Scaled-Up Wordle Arena */
 .wordle-arena {
   width: 100%;
   display: flex;
@@ -573,13 +595,13 @@ body[data-theme="itachi"] .itachi-bg-art {
 .wordle-board {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   width: auto;
 }
 
 .wordle-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   justify-content: center;
 }
 
@@ -589,21 +611,21 @@ body[data-theme="itachi"] .itachi-bg-art {
 
 @keyframes rowShake {
   0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-7px); }
-  40%, 80% { transform: translateX(7px); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
 }
 
-/* Large, High-Contrast Tiles */
+/* Enlarged Tiles (64px - 74px) */
 .wordle-tile {
-  width: clamp(56px, 8vmin, 68px);
-  height: clamp(56px, 8vmin, 68px);
-  border: 3px solid var(--tile-border);
-  border-radius: 8px;
+  width: clamp(62px, 8.8vmin, 74px);
+  height: clamp(62px, 8.8vmin, 74px);
+  border: 3.5px solid var(--tile-border);
+  border-radius: 10px;
   background: var(--tile-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(24px, 4vmin, 32px);
+  font-size: clamp(28px, 4.4vmin, 36px);
   font-weight: 900;
   text-transform: uppercase;
   color: var(--text);
@@ -615,18 +637,19 @@ body[data-theme="itachi"] .itachi-bg-art {
   transform: scale(1.12);
 }
 
+/* NYT Official Tile Tints */
 .wordle-tile.correct { background: #538d4e !important; color: #ffffff !important; border-color: #538d4e !important; }
 .wordle-tile.present { background: #b59f3b !important; color: #ffffff !important; border-color: #b59f3b !important; }
 .wordle-tile.absent  { background: #3a3a3c !important; color: #ffffff !important; border-color: #3a3a3c !important; }
 
-/* Large Virtual Keyboard (Explicit 28px Vertical Spacing) */
+/* Large Virtual Keyboard (Guaranteed 34px Separation from Bottom Tile Row) */
 .wordle-keyboard {
   display: flex;
   flex-direction: column;
   gap: 8px;
   width: 100%;
-  max-width: 510px;
-  margin-top: 28px !important;
+  max-width: 530px;
+  margin-top: 34px !important;
 }
 
 .kb-row {
@@ -637,18 +660,18 @@ body[data-theme="itachi"] .itachi-bg-art {
 }
 
 .kb-key {
-  height: 48px;
-  padding: 0 8px;
+  height: 52px;
+  padding: 0 10px;
   border-radius: 8px;
   border: 1.5px solid var(--btn-border);
   background: var(--btn-bg);
   color: var(--text);
   font-weight: 900;
-  font-size: 1rem;
+  font-size: 1.05rem;
   cursor: pointer;
   text-transform: uppercase;
   flex: 1;
-  max-width: 44px;
+  max-width: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -664,9 +687,9 @@ body[data-theme="itachi"] .itachi-bg-art {
 }
 
 .kb-key.wide {
-  max-width: 72px;
+  max-width: 76px;
   flex: 1.6;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
 }
 
 .kb-key svg {
@@ -678,31 +701,31 @@ body[data-theme="itachi"] .itachi-bg-art {
 .kb-key.present { background: #b59f3b !important; color: #ffffff !important; border-color: #b59f3b !important; }
 .kb-key.absent  { background: #3a3a3c !important; color: #cbd5e1 !important; border-color: #3a3a3c !important; }
 
-/* Bottom Quick Dock */
+/* Scaled-Up Bottom Quick Dock */
 .quick-dock {
   position: fixed !important;
-  bottom: 12px !important;
+  bottom: 14px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  width: min(98vw, 1540px) !important;
-  height: 68px !important;
+  width: min(98vw, 1560px) !important;
+  height: 76px !important;
   border-radius: 9999px !important;
-  padding: 0 clamp(12px, 1.8vw, 24px) !important;
+  padding: 0 clamp(16px, 2.2vw, 28px) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: clamp(8px, 1.2vw, 16px) !important;
+  gap: clamp(10px, 1.5vw, 20px) !important;
 }
 
 .dock-block {
   display: flex !important;
   align-items: center !important;
-  gap: 8px !important;
+  gap: 10px !important;
   flex-shrink: 0;
 }
 
 .dock-label {
-  font-size: 0.78rem !important;
+  font-size: 0.82rem !important;
   color: var(--muted) !important;
   text-transform: uppercase !important;
   letter-spacing: 0.08em !important;
@@ -710,7 +733,7 @@ body[data-theme="itachi"] .itachi-bg-art {
 }
 
 .score-ticker {
-  font-size: clamp(0.85rem, 1vw, 1rem) !important;
+  font-size: clamp(0.92rem, 1.1vw, 1.08rem) !important;
   font-weight: 800 !important;
   color: var(--text) !important;
   white-space: nowrap !important;
@@ -728,15 +751,15 @@ body[data-theme="itachi"] .itachi-bg-art {
 }
 
 .win-modal {
-  border-radius: 24px !important;
-  padding: 28px 36px !important;
+  border-radius: 26px !important;
+  padding: 32px 42px !important;
   text-align: center;
-  min-width: 300px;
+  min-width: 320px;
 }
 
 .win-modal h2 {
-  margin: 0 0 16px;
-  font-size: 2rem;
+  margin: 0 0 18px;
+  font-size: 2.2rem;
   font-weight: 900;
 }
 
@@ -744,8 +767,8 @@ body[data-theme="itachi"] .itachi-bg-art {
 @media (max-width: 1100px) {
   .top-hud, .quick-dock {
     height: auto !important;
-    padding: 10px 14px !important;
-    border-radius: 20px !important;
+    padding: 12px 16px !important;
+    border-radius: 22px !important;
   }
   .top-hud {
     flex-wrap: wrap;
@@ -757,6 +780,6 @@ body[data-theme="itachi"] .itachi-bg-art {
     bottom: 8px !important;
   }
   .arena {
-    padding-bottom: 120px;
+    padding-bottom: 130px;
   }
 }

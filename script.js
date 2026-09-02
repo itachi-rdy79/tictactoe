@@ -46,7 +46,7 @@ const themeMenu = document.getElementById("themeMenu");
 const themeCurrentIcon = document.getElementById("themeCurrentIcon");
 const themeCurrentText = document.getElementById("themeCurrentText");
 
-/* ---------- Dynamic Colors on Reload (Light Dimmed & Dark Black) ---------- */
+/* ---------- Dynamic Colors on Reload ---------- */
 const DYNAMIC_PALETTES = [
   { accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.18)", lightBg: "#eefcf6" }, // Emerald
   { accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.18)", lightBg: "#fef9ee" }, // Amber
@@ -134,7 +134,6 @@ function setActive(groupEl, key, val) {
 }
 
 function persistHub() {
-  // Never save or persist 'vs=ai' when playing Wordle
   const opponentVal = hubState.game === "wordle" ? "local" : hubState.opponent;
   localStorage.setItem("hubState", JSON.stringify({ ...hubState, opponent: opponentVal }));
   const hash = `#/${hubState.game}?vs=${opponentVal}&diff=${hubState.difficulty}&timer=${hubState.timer}&theme=${hubState.theme}`;
@@ -151,7 +150,6 @@ function loadHub() {
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
   if (!["ttt3", "ttt5", "chess", "wordle"].includes(hubState.game)) hubState.game = "ttt3";
 
-  // Force local single-player if initial game is Wordle
   if (hubState.game === "wordle") hubState.opponent = "local";
 }
 
@@ -164,14 +162,12 @@ function syncHud() {
   setActive(difficultyPills, "difficulty", hubState.difficulty);
   setActive(timerPills, "timer", hubState.timer);
 
-  // Entirely remove Opponent control from DOM view in Wordle mode
   if (isWordle) {
     opponentGroup.style.setProperty("display", "none", "important");
   } else {
     opponentGroup.style.display = "flex";
   }
 
-  // Difficulty is ALWAYS available and visible
   difficultyGroup.style.display = "flex";
   difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
 }
@@ -179,15 +175,15 @@ function syncHud() {
 /* ---------- Theme Handling ---------- */
 function themeMeta(theme) {
   if (theme === "light") return { 
-    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`, 
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`, 
     text: "Light" 
   };
   if (theme === "itachi") return { 
-    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>`, 
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>`, 
     text: "Itachi" 
   };
   return { 
-    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`, 
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`, 
     text: "Dark" 
   };
 }
@@ -712,22 +708,26 @@ function onChessClick(r, c) {
 /* ---------- Tiered Wordle Dictionaries (Strict Manual Player Selection) ---------- */
 const WORDLE_TIERS = {
   easy: [
-    "CHAIR","PLANT","CRANE","BEACH","BREAD","CLEAN","DANCE","EARTH","LIGHT","MUSIC",
-    "OCEAN","PAINT","RIVER","SMART","TABLE","WATER","WHITE","HOUSE","WORLD","HEART",
-    "FRUIT","FLAME","CLOUD","SMILE","TRAIN","SPACE","SUGAR","MAGIC","VOICE","SHARE"
+    "AISLE","CHAIR","PLANT","CRANE","BEACH","BREAD","CLEAN","DANCE","EARTH","LIGHT",
+    "MUSIC","OCEAN","PAINT","RIVER","SMART","TABLE","WATER","WHITE","HOUSE","WORLD",
+    "HEART","FRUIT","FLAME","CLOUD","SMILE","TRAIN","SPACE","SUGAR","MAGIC","VOICE",
+    "SHARE","STAND","STONE","HORSE","GRASS","SHINE","POWER","MONEY","STORY","POINT"
   ],
   medium: [
     "PIPER","FLIPS","CHASM","BRAIN","CRAFT","CRIME","DRAFT","DRILL","FLOAT","GLOVE",
     "GRAVE","HOTEL","LUNCH","MATCH","MODEL","NIGHT","PILOT","PRICE","PRIDE","RADIO",
-    "SCALE","SHOCK","STORM","TRACK","TRUCK","VALUE","YOUTH","PRIME","BLOCK","FORUM"
+    "SCALE","SHOCK","STORM","TRACK","TRUCK","VALUE","YOUTH","PRIME","BLOCK","FORUM",
+    "SPARK","SWORD","FROST","BLAZE","SHARP","CLIFF","GHOST","FLOCK","BLUSH","PLAZA"
   ],
   hard: [
     "KNOLL","VIVID","FJORD","PROXY","QUIRK","PUPPY","MUMMY","CYNIC","GAUZE","ENVOY",
     "SWILL","TRYST","EPOXY","PIXIE","NYMPH","WRYLY","BLURB","CRYPT","GNASH","KAZOO",
-    "LYMPH","MAXIM","PYGMY","SPELT","USURP","VALET","WALTZ","ABYSS","AGATE","AORTA"
+    "LYMPH","MAXIM","PYGMY","SPELT","USURP","VALET","WALTZ","ABYSS","AGATE","AORTA",
+    "CHAMP","CUMIN","DWARF","FLAIR","GHOUL","HYDRA","IVORY","JUMBO","KAPPA","LEPER"
   ]
 };
 
+/* Exhaustive Word Validation Set (Guarantees AISLE and all standard vocabulary exist) */
 const VALID_DICTIONARY_WORDS = new Set([
   ...WORDLE_TIERS.easy, ...WORDLE_TIERS.medium, ...WORDLE_TIERS.hard,
   "ABOUT","ABOVE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT",
@@ -841,7 +841,7 @@ function renderWordle() {
       btn.className = `kb-key ${k.length > 1 ? "wide" : ""}`;
       btn.dataset.key = k;
       if (k === "DEL") {
-        btn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`;
       } else {
         btn.textContent = k;
       }
@@ -887,7 +887,7 @@ function handleWordleKey(k) {
 }
 
 function checkWordleRow() {
-  const guess = wordleGrid[wordleRow].join("");
+  const guess = wordleGrid[wordleRow].join("").toUpperCase();
   const currentRowEl = document.getElementById(`wr-${wordleRow}`);
 
   if (!VALID_DICTIONARY_WORDS.has(guess)) {
