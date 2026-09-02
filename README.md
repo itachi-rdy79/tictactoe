@@ -1,23 +1,21 @@
-# GAP - Game Hub
+# GAP - Arcade Deck
 
-Multi-mode browser arcade with rich glass UI and universal Material win animation.
+Vanilla HTML/CSS/JS arcade with glass UI and 3 themes.
 
 ## Modes
 - Tic-Tac-Toe 3x3 (2 Players)
 - Tic-Tac-Toe 3x3 vs Computer
 - Tic-Tac-Toe 5x5 (2 Players)
-- Tic-Tac-Toe 5x5 vs Computer (connect 4)
+- Tic-Tac-Toe 5x5 vs Computer
 - Chess (2 Players)
 - Chess vs Computer
 
-## Features
-- Dark / Light theme
-- Custom glass dropdowns (mode, difficulty, theme)
-- Universal winner overlay animation (`#14bdac`)
-- Scoreboard + reset score
-- 3x3 TTT full minimax lookahead
-- 5x5 TTT depth-limited lookahead
-- Chess minimax AI (difficulty depth-based)
+## Themes
+- 🌙 Dark
+- ☀️ Light
+- 👁️ Itachi
 
-## Run
-Open `index.html` directly or use Live Server.
+## Notes
+- Uses custom dropdown UI synced with hidden native selects.
+- Includes universal winner overlay.
+- Theme label is synced on reload via `syncThemeLabel()`.

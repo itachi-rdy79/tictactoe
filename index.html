@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GAP</title>
+  <title>GAP - Arcade Deck</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body data-theme="dark">
@@ -13,8 +13,31 @@
       <span class="chip" id="modeChip">Mode: Tic-Tac-Toe 3x3 vs Computer</span>
     </header>
 
+    <section class="card score-card">
+      <h3>Scoreboard</h3>
+      <div class="score-grid">
+        <div><small>You</small><strong id="scoreA">0</strong></div>
+        <div><small>Computer / O / Black</small><strong id="scoreB">0</strong></div>
+        <div><small>Draws</small><strong id="scoreD">0</strong></div>
+      </div>
+    </section>
+
+    <section class="status-row">
+      <div id="status">Tic-Tac-Toe: X's turn</div>
+      <div id="thinking" style="display:none;">AI thinking...</div>
+    </section>
+
+    <section class="board-wrap">
+      <div id="tttBoard" class="ttt-board"></div>
+      <div id="chessBoard" class="chess-board" style="display:none;"></div>
+
+      <div id="capturedPanel" class="captured" style="display:none;">
+        <div><b>White captured:</b> <span id="whiteCaptured"></span></div>
+        <div><b>Black captured:</b> <span id="blackCaptured"></span></div>
+      </div>
+    </section>
+
     <section class="controls">
-      <!-- MODE -->
       <div class="gselect" id="modeWrap">
         <button class="gselect-btn" type="button">
           <span class="gselect-label">Mode</span>
@@ -24,7 +47,6 @@
         <div class="gselect-menu" id="modeMenu"></div>
       </div>
 
-      <!-- DIFFICULTY -->
       <div class="gselect" id="difficultyWrapCustom">
         <button class="gselect-btn" type="button">
           <span class="gselect-label">Difficulty</span>
@@ -37,7 +59,6 @@
       <button id="newGameBtn">New Game</button>
       <button id="resetScoreBtn">Reset Score</button>
 
-      <!-- THEME -->
       <div class="gselect" id="themeWrap">
         <button class="gselect-btn" type="button">
           <span class="gselect-label">Theme</span>
@@ -47,7 +68,6 @@
         <div class="gselect-menu" id="themeMenu"></div>
       </div>
 
-      <!-- Hidden native selects (single source of truth for logic) -->
       <select id="modeSelect" hidden>
         <option value="ttt3-2p">Tic-Tac-Toe 3x3 (2 Players)</option>
         <option value="ttt3-ai" selected>Tic-Tac-Toe 3x3 vs Computer</option>
@@ -66,44 +86,8 @@
       <select id="themeSelect" hidden>
         <option value="dark" selected>🌙 Dark</option>
         <option value="light">☀️ Light</option>
+        <option value="itachi">👁️ Itachi</option>
       </select>
-    </section>
-
-    <section class="layout">
-      <section class="left">
-        <div class="status-row">
-          <div id="status">Tic-Tac-Toe: X's turn</div>
-          <div id="thinking" style="display:none;">AI thinking...</div>
-        </div>
-
-        <div id="tttBoard" class="ttt-board"></div>
-        <div id="chessBoard" class="chess-board" style="display:none;"></div>
-
-        <div id="capturedPanel" class="captured" style="display:none;">
-          <div><b>White captured:</b> <span id="whiteCaptured"></span></div>
-          <div><b>Black captured:</b> <span id="blackCaptured"></span></div>
-        </div>
-      </section>
-
-      <aside class="right">
-        <div class="card">
-          <h3>Scoreboard</h3>
-          <div class="score-grid">
-            <div><small>You</small><strong id="scoreA">0</strong></div>
-            <div><small>Computer / O / Black</small><strong id="scoreB">0</strong></div>
-            <div class="full"><small>Draws</small><strong id="scoreD">0</strong></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>How to play</h3>
-          <ul>
-            <li>3x3: connect 3.</li>
-            <li>5x5: connect 4.</li>
-            <li>Chess: capture king in this version.</li>
-          </ul>
-        </div>
-      </aside>
     </section>
   </main>
 
