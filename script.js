@@ -116,7 +116,11 @@ function modeFromHub() {
 }
 
 function hubFromMode(mode) {
-  if (mode === "wordle") { hubState.game = "wordle"; return; }
+  if (mode === "wordle") { 
+    hubState.game = "wordle"; 
+    hubState.opponent = "local"; 
+    return; 
+  }
   if (mode.startsWith("ttt3")) hubState.game = "ttt3";
   else if (mode.startsWith("ttt5")) hubState.game = "ttt5";
   else hubState.game = "chess";
@@ -130,8 +134,10 @@ function setActive(groupEl, key, val) {
 }
 
 function persistHub() {
-  localStorage.setItem("hubState", JSON.stringify(hubState));
-  const hash = `#/${hubState.game}?vs=${hubState.opponent}&diff=${hubState.difficulty}&timer=${hubState.timer}&theme=${hubState.theme}`;
+  // Never save or persist 'vs=ai' when playing Wordle
+  const opponentVal = hubState.game === "wordle" ? "local" : hubState.opponent;
+  localStorage.setItem("hubState", JSON.stringify({ ...hubState, opponent: opponentVal }));
+  const hash = `#/${hubState.game}?vs=${opponentVal}&diff=${hubState.difficulty}&timer=${hubState.timer}&theme=${hubState.theme}`;
   history.replaceState(null, "", hash);
 }
 
@@ -144,16 +150,28 @@ function loadHub() {
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
   if (!["ttt3", "ttt5", "chess", "wordle"].includes(hubState.game)) hubState.game = "ttt3";
+
+  // Force local single-player if initial game is Wordle
+  if (hubState.game === "wordle") hubState.opponent = "local";
 }
 
 function syncHud() {
+  const isWordle = hubState.game === "wordle";
+  if (isWordle) hubState.opponent = "local";
+
   setActive(gameTypePills, "game", hubState.game);
   setActive(opponentPills, "opponent", hubState.opponent);
   setActive(difficultyPills, "difficulty", hubState.difficulty);
   setActive(timerPills, "timer", hubState.timer);
 
-  const isWordle = hubState.game === "wordle";
-  opponentGroup.style.display = isWordle ? "none" : "flex";
+  // Entirely remove Opponent control from DOM view in Wordle mode
+  if (isWordle) {
+    opponentGroup.style.setProperty("display", "none", "important");
+  } else {
+    opponentGroup.style.display = "flex";
+  }
+
+  // Difficulty is ALWAYS available and visible
   difficultyGroup.style.display = "flex";
   difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
 }
@@ -691,12 +709,12 @@ function onChessClick(r, c) {
   }
 }
 
-/* ---------- Tiered Wordle Engine (Manual Player Choice Strictly Enforced) ---------- */
+/* ---------- Tiered Wordle Dictionaries (Strict Manual Player Selection) ---------- */
 const WORDLE_TIERS = {
   easy: [
     "CHAIR","PLANT","CRANE","BEACH","BREAD","CLEAN","DANCE","EARTH","LIGHT","MUSIC",
     "OCEAN","PAINT","RIVER","SMART","TABLE","WATER","WHITE","HOUSE","WORLD","HEART",
-    "GARDEN","FRUIT","FLAME","CLOUD","SMILE","TRAIN","SPACE","SUGAR","MAGIC","VOICE"
+    "FRUIT","FLAME","CLOUD","SMILE","TRAIN","SPACE","SUGAR","MAGIC","VOICE","SHARE"
   ],
   medium: [
     "PIPER","FLIPS","CHASM","BRAIN","CRAFT","CRIME","DRAFT","DRILL","FLOAT","GLOVE",
@@ -710,7 +728,6 @@ const WORDLE_TIERS = {
   ]
 };
 
-// Comprehensive offline 5-letter dictionary for input validation
 const VALID_DICTIONARY_WORDS = new Set([
   ...WORDLE_TIERS.easy, ...WORDLE_TIERS.medium, ...WORDLE_TIERS.hard,
   "ABOUT","ABOVE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT",
@@ -766,7 +783,6 @@ let wordleGrid = [];
 let wordleOver = false;
 
 function getWordleTargetByDifficulty() {
-  // Directly respects the player's choice without auto-scaling
   const tier = hubState.difficulty || "medium";
   const wordPool = WORDLE_TIERS[tier] || WORDLE_TIERS.medium;
   return wordPool[Math.floor(Math.random() * wordPool.length)];
@@ -874,7 +890,6 @@ function checkWordleRow() {
   const guess = wordleGrid[wordleRow].join("");
   const currentRowEl = document.getElementById(`wr-${wordleRow}`);
 
-  // Strict Dictionary Validation
   if (!VALID_DICTIONARY_WORDS.has(guess)) {
     currentRowEl.classList.add("shake");
     statusPill.textContent = "Not in word list!";
@@ -887,7 +902,6 @@ function checkWordleRow() {
 
   const targetArr = wordleTarget.split("");
 
-  // Correct positions (Green)
   for (let i = 0; i < 5; i++) {
     const tile = document.getElementById(`wt-${wordleRow}-${i}`);
     const keyBtn = wordleKeyboardEl.querySelector(`[data-key="${guess[i]}"]`);
@@ -898,7 +912,6 @@ function checkWordleRow() {
     }
   }
 
-  // Present positions (Yellow) & Absent (Gray)
   for (let i = 0; i < 5; i++) {
     const tile = document.getElementById(`wt-${wordleRow}-${i}`);
     const keyBtn = wordleKeyboardEl.querySelector(`[data-key="${guess[i]}"]`);

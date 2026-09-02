@@ -111,7 +111,8 @@ body {
   font-family: var(--font);
   color: var(--text);
   background-color: var(--bg);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
   transition: background-color 0.3s ease;
 }
@@ -321,12 +322,13 @@ body[data-theme="itachi"] .itachi-bg-art {
 
 /* Arena Stage */
 .arena {
-  height: calc(100vh - 180px);
+  min-height: calc(100vh - 180px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  padding: 10px 0 100px;
   position: relative;
   z-index: 5;
 }
@@ -353,7 +355,7 @@ body[data-theme="itachi"] .itachi-bg-art {
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-/* Idle Move Prompt (> 60s without move) */
+/* Idle Warning Animation */
 .turn-pill.idle-nudge {
   animation: pillPulse 1.2s infinite ease-in-out;
   border-color: #ef4444 !important;
@@ -418,12 +420,13 @@ body[data-theme="itachi"] .itachi-bg-art {
   font-weight: 900;
 }
 
-/* Board Arena & Container Styles */
+/* Board Arena Containers */
 .board-area {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  width: 100%;
 }
 
 .board-shell {
@@ -436,18 +439,18 @@ body[data-theme="itachi"] .itachi-bg-art {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: width 0.2s ease, min-height 0.2s ease;
+  transition: width 0.25s ease, max-width 0.25s ease;
 }
 
-/* Expanded Wordle Shell (Guarantees Keyboard Does Not Overlap Grid) */
+/* Dedicated Non-Colliding Large Wordle Frame */
 .board-shell.wordle-mode {
-  width: min(92vw, 540px) !important;
+  width: min(94vw, 560px) !important;
+  max-width: 560px !important;
   aspect-ratio: auto !important;
   height: auto !important;
-  min-height: 580px !important;
-  max-height: calc(100vh - 180px) !important;
-  padding: 18px 20px 22px !important;
-  overflow-y: auto !important;
+  min-height: auto !important;
+  padding: 24px 20px 28px !important;
+  box-sizing: border-box;
 }
 
 .captured-strip {
@@ -558,27 +561,26 @@ body[data-theme="itachi"] .itachi-bg-art {
   background: color-mix(in srgb, var(--accent) 70%, transparent);
 }
 
-/* Wordle Arena Layout */
+/* Big Sized Wordle Arena */
 .wordle-arena {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .wordle-board {
-  display: grid;
-  grid-template-rows: repeat(6, 1fr);
-  gap: 6px;
-  width: 100%;
-  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: auto;
 }
 
 .wordle-row {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
 }
 
 .wordle-row.shake {
@@ -587,64 +589,66 @@ body[data-theme="itachi"] .itachi-bg-art {
 
 @keyframes rowShake {
   0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-6px); }
-  40%, 80% { transform: translateX(6px); }
+  20%, 60% { transform: translateX(-7px); }
+  40%, 80% { transform: translateX(7px); }
 }
 
+/* Large, High-Contrast Tiles */
 .wordle-tile {
-  aspect-ratio: 1 / 1;
-  max-height: 52px;
-  border: 2.5px solid var(--tile-border);
-  border-radius: 6px;
+  width: clamp(56px, 8vmin, 68px);
+  height: clamp(56px, 8vmin, 68px);
+  border: 3px solid var(--tile-border);
+  border-radius: 8px;
   background: var(--tile-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(20px, 3vmin, 26px);
+  font-size: clamp(24px, 4vmin, 32px);
   font-weight: 900;
   text-transform: uppercase;
   color: var(--text);
-  transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease;
+  box-sizing: border-box;
+  transition: transform 0.12s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .wordle-tile.pop {
-  transform: scale(1.1);
+  transform: scale(1.12);
 }
 
-/* NYT Reference Colors */
 .wordle-tile.correct { background: #538d4e !important; color: #ffffff !important; border-color: #538d4e !important; }
 .wordle-tile.present { background: #b59f3b !important; color: #ffffff !important; border-color: #b59f3b !important; }
 .wordle-tile.absent  { background: #3a3a3c !important; color: #ffffff !important; border-color: #3a3a3c !important; }
 
-/* Wordle Keyboard (With Generous Top Separation) */
+/* Large Virtual Keyboard (Explicit 28px Vertical Spacing) */
 .wordle-keyboard {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  max-width: 480px;
-  margin-top: 24px !important;
+  max-width: 510px;
+  margin-top: 28px !important;
 }
 
 .kb-row {
   display: flex;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
+  width: 100%;
 }
 
 .kb-key {
-  height: 44px;
+  height: 48px;
   padding: 0 8px;
-  border-radius: 6px;
-  border: 1px solid var(--btn-border);
+  border-radius: 8px;
+  border: 1.5px solid var(--btn-border);
   background: var(--btn-bg);
   color: var(--text);
   font-weight: 900;
-  font-size: 0.92rem;
+  font-size: 1rem;
   cursor: pointer;
   text-transform: uppercase;
   flex: 1;
-  max-width: 42px;
+  max-width: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -652,7 +656,7 @@ body[data-theme="itachi"] .itachi-bg-art {
 }
 
 .kb-key:hover {
-  filter: brightness(1.15);
+  filter: brightness(1.18);
 }
 
 .kb-key:active {
@@ -660,9 +664,9 @@ body[data-theme="itachi"] .itachi-bg-art {
 }
 
 .kb-key.wide {
-  max-width: 68px;
-  flex: 1.5;
-  font-size: 0.8rem;
+  max-width: 72px;
+  flex: 1.6;
+  font-size: 0.82rem;
 }
 
 .kb-key svg {
@@ -753,7 +757,6 @@ body[data-theme="itachi"] .itachi-bg-art {
     bottom: 8px !important;
   }
   .arena {
-    height: auto;
-    min-height: calc(100vh - 180px);
+    padding-bottom: 120px;
   }
 }
