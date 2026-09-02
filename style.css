@@ -2,11 +2,11 @@
   --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Dynamic reload defaults */
-  --dyn-accent: #10b981;
-  --dyn-border: #34d399;
-  --dyn-shadow: #059669;
-  --dyn-tint: rgba(16, 185, 129, 0.18);
-  --dyn-light-bg: #eefcf6;
+  --dyn-accent: #06b6d4;
+  --dyn-border: #22d3ee;
+  --dyn-shadow: #0891b2;
+  --dyn-tint: rgba(6, 182, 212, 0.18);
+  --dyn-light-bg: #ecfeff;
 
   /* Theme: Dark (Solid Pure Black Canvas) */
   --bg: #000000;
@@ -134,7 +134,7 @@ body {
   transition: background-color 0.3s ease;
 }
 
-/* Itachi Moon Vector Art (Red & Black Blood Moon) */
+/* Itachi Moon Vector Art */
 .itachi-bg-art {
   position: fixed;
   inset: 0;
@@ -203,7 +203,6 @@ body[data-theme="itachi"] .itachi-bg-art {
   flex-shrink: 1;
 }
 
-/* Brand Text (Adapts to site's dynamic/active color) */
 .brand {
   font-size: clamp(1.8rem, 2.4vw, 2.3rem) !important;
   font-weight: 900 !important;
@@ -580,7 +579,7 @@ body[data-theme="itachi"] .brand {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(34px, 5.8vmin, 58px) !important; /* Larger 3D Pieces */
+  font-size: clamp(34px, 5.8vmin, 58px) !important;
   cursor: pointer;
   user-select: none;
   position: relative;

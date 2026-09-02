@@ -46,13 +46,16 @@ const themeMenu = document.getElementById("themeMenu");
 const themeCurrentIcon = document.getElementById("themeCurrentIcon");
 const themeCurrentText = document.getElementById("themeCurrentText");
 
-/* ---------- Dynamic Colors on Reload ---------- */
+/* ---------- Expanded Dynamic Colors on Reload (No Pink, Non-Gold) ---------- */
 const DYNAMIC_PALETTES = [
-  { accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.18)", lightBg: "#eefcf6" }, // Emerald
-  { accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.18)", lightBg: "#fef9ee" }, // Amber
-  { accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.18)", lightBg: "#f5f3ff" }, // Violet
-  { accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.18)", lightBg: "#f0fdfa" }, // Teal
-  { accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.18)", lightBg: "#f7fee7" }  // Lime
+  { accent: "#06b6d4", border: "#22d3ee", shadow: "#0891b2", tint: "rgba(6, 182, 212, 0.18)", lightBg: "#ecfeff" }, // Electric Cyan
+  { accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.18)", lightBg: "#eefcf6" }, // Matrix Emerald
+  { accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.18)", lightBg: "#fef9ee" }, // Sunset Amber
+  { accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.18)", lightBg: "#f5f3ff" }, // Deep Violet
+  { accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.18)", lightBg: "#f0fdfa" }, // Vivid Teal
+  { accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.18)", lightBg: "#f7fee7" }, // Lime Green
+  { accent: "#3b82f6", border: "#60a5fa", shadow: "#1d4ed8", tint: "rgba(59, 130, 246, 0.18)", lightBg: "#eff6ff" }, // Royal Blue
+  { accent: "#f97316", border: "#fb923c", shadow: "#c2410c", tint: "rgba(249, 115, 22, 0.18)", lightBg: "#fff7ed" }  // Burnt Orange
 ];
 
 function applyRandomPalette() {
@@ -512,7 +515,6 @@ function onTTTClick(i) {
 /* ---------- 3D Chess Engine & Pieces ---------- */
 let chessBoard = [], chessTurn = "w", chessSelected = null, chessOver = false, whiteCaptured = [], blackCaptured = [], chessSnapshots = [];
 
-// Clean 3D Solid Unicode Chess Glyph Set
 const CHESS_U = { 
   wp: "♟", wr: "♜", wn: "♞", wb: "♝", wq: "♛", wk: "♚", 
   bp: "♟", br: "♜", bn: "♞", bb: "♝", bq: "♛", bk: "♚" 
