@@ -54,14 +54,14 @@ const confettiCanvas = document.getElementById("confettiCanvas");
 
 /* ---------- Expanded Dynamic Colors on Reload (No Pink, Non-Gold) ---------- */
 const DYNAMIC_PALETTES = [
-  { accent: "#06b6d4", border: "#22d3ee", shadow: "#0891b2", tint: "rgba(6, 182, 212, 0.18)", lightBg: "#f1f5f9" }, // Electric Cyan
-  { accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.18)", lightBg: "#f1f5f9" }, // Matrix Emerald
-  { accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.18)", lightBg: "#f1f5f9" }, // Sunset Amber
-  { accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.18)", lightBg: "#f1f5f9" }, // Deep Violet
-  { accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.18)", lightBg: "#f1f5f9" }, // Vivid Teal
-  { accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.18)", lightBg: "#f1f5f9" }, // Lime Green
-  { accent: "#3b82f6", border: "#60a5fa", shadow: "#1d4ed8", tint: "rgba(59, 130, 246, 0.18)", lightBg: "#f1f5f9" }, // Royal Blue
-  { accent: "#f97316", border: "#fb923c", shadow: "#c2410c", tint: "rgba(249, 115, 22, 0.18)", lightBg: "#f1f5f9" }  // Burnt Orange
+  { accent: "#06b6d4", border: "#22d3ee", shadow: "#0891b2", tint: "rgba(6, 182, 212, 0.18)", lightBg: "#f1f5f9" },
+  { accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.18)", lightBg: "#f1f5f9" },
+  { accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.18)", lightBg: "#f1f5f9" },
+  { accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.18)", lightBg: "#f1f5f9" },
+  { accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.18)", lightBg: "#f1f5f9" },
+  { accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.18)", lightBg: "#f1f5f9" },
+  { accent: "#3b82f6", border: "#60a5fa", shadow: "#1d4ed8", tint: "rgba(59, 130, 246, 0.18)", lightBg: "#f1f5f9" },
+  { accent: "#f97316", border: "#fb923c", shadow: "#c2410c", tint: "rgba(249, 115, 22, 0.18)", lightBg: "#f1f5f9" }
 ];
 
 function applyRandomPalette() {
@@ -89,7 +89,7 @@ const hubState = {
 
 let scoreA = 0, scoreB = 0, scoreD = 0, streak = 0;
 
-/* ---------- Idle Watchdog (> 60s without move when timer is OFF) ---------- */
+/* ---------- Idle Watchdog ---------- */
 let idleSeconds = 0;
 let idleInterval = null;
 
@@ -1189,7 +1189,7 @@ function initBoard() {
   persistHub();
 }
 
-/* ---------- App Boot ---------- */
+/* ---------- App Boot (Fixed Initialization Sequence) ---------- */
 (function boot() {
   loadHub();
 
@@ -1205,6 +1205,7 @@ function initBoard() {
 
   if (hubState.timer === "off") showTimerInactive();
 
+  // Ensures board shell state classes and container cells render immediately on initial load
   initBoard();
   startIdleWatchdog();
 })();
