@@ -1,44 +1,42 @@
-# GAP — Floating Cyber Panel / Glass Island 
+# GAP — Glass UI Arcade (Offline-First)
 
-A fully offline arcade UI with **no external dependencies** and a cyber-glass aesthetic.
+Fully offline arcade UI with **Floating Glass HUD + Arena + Bottom Dock** and zero external dependencies.
 
-## ✅ Offline-Only Guarantee
-- No CDN scripts
-- No CDN styles
-- No webfont imports
-- Uses system font stack only:
-  - `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
-- Icons are rendered via inline SVG masks/data URIs in CSS
-
-## UI Architecture
-1. **Top Floating Command Island**
-   - Brand: GAP
-   - Game selector: 3x3 TTT / 5x5 TTT / Chess
-   - Theme picker: Light / Dark / Itachi
-
-2. **Center Stage Arena**
-   - Turn badge shown when timer is Off
-   - Radial countdown gauge shown only when timer is active
-   - Board centered, fixed desktop-safe sizing
-   - Chess captured strips above/below board
-
-3. **Bottom Floating Quick-Dock**
-   - Timer segments: Off / 15s / 30s / 45s / 60s
-   - Actions: Reset Score / Undo / New Game
-   - Score ticker inline
-
-## Timer Bug Fix (Implemented)
-- Timer initializes as `off` by default.
-- Off is active on first load.
-- Radial gauge is hidden/inactive at startup.
-- Countdown only starts after selecting 15/30/45/60.
-- URL/hash + local state persist `timer=off` by default.
+## Offline Guarantee
+- No Google Fonts
+- No CDN CSS/JS
+- No external icon libraries
+- Uses native system font stack only
+- Works by opening `index.html` directly
 
 ## Themes
-- **Dark**: cyan-magenta glow over deep dark
-- **Light**: bright frosted glass palette
-- **Itachi**: crimson/obsidian variant
+### Dark (Black + Gold)
+- Background: `#08080a` + warm amber orb glows
+- Glass: `rgba(18, 18, 20, 0.7)`
+- Active buttons: gold metallic highlight
+
+### Light (White + Emerald)
+- Background: `#f8fafc` + emerald/jade orb glows
+- Glass: `rgba(255, 255, 255, 0.75)`
+- Active buttons: vivid green emphasis
+
+### Itachi
+- Crimson/ruby glows
+- Obsidian glass
+- Red active borders and accents
+
+## UX Requirements Implemented
+- Scaled controls (44–48px button height)
+- Top HUD: Brand + Game, Opponent, Difficulty, Theme
+- Bottom dock: Timer + Reset Score + Undo + New Game + scoreboard
+- Center arena board with zero desktop vertical scroll
+- Board sizing: `width: min(72vmin, 540px); aspect-ratio: 1/1`
+
+## Timer Logic (Fixed)
+- Default: `timer = "off"`
+- Off is active on first load
+- Radial countdown hidden while timer is Off
+- Countdown starts only if 15/30/45/60 selected
 
 ## Run
-Open `index.html` directly in your browser.  
-No install/build/dev server required.
+Open `index.html` in a browser.

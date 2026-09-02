@@ -3,46 +3,62 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GAP — Floating Cyber Panel</title>
+  <title>GAP — Glass UI Arcade</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body data-theme="dark">
-  <!-- Top Floating Command Island -->
-  <header class="command-island panel">
-    <div class="brand">GAP</div>
+  <!-- Top HUD -->
+  <header class="top-hud glass">
+    <div class="hud-left">
+      <div class="brand">GAP</div>
+      <div class="seg" id="gameTypePills">
+        <button class="seg-btn active" data-game="ttt3" type="button">3x3 TTT</button>
+        <button class="seg-btn" data-game="ttt5" type="button">5x5 TTT</button>
+        <button class="seg-btn" data-game="chess" type="button">Chess</button>
+      </div>
+    </div>
 
-    <nav class="seg game-seg" id="gameTypePills" aria-label="Game Type">
-      <button class="seg-btn active" data-game="ttt3" type="button">3x3 TTT</button>
-      <button class="seg-btn" data-game="ttt5" type="button">5x5 TTT</button>
-      <button class="seg-btn" data-game="chess" type="button">Chess</button>
-    </nav>
+    <div class="hud-center">
+      <div class="group">
+        <span class="group-label">Opponent</span>
+        <div class="seg" id="opponentPills">
+          <button class="seg-btn" data-opponent="local" type="button">Local 2P</button>
+          <button class="seg-btn active" data-opponent="ai" type="button">vs AI</button>
+        </div>
+      </div>
 
-    <div class="theme-picker" id="themePicker">
-      <button class="theme-trigger seg-btn" id="themeTrigger" type="button" aria-expanded="false">
-        <span id="themeCurrentIcon"></span>
-        <span id="themeCurrentText">Dark</span>
-        <span class="caret">⌄</span>
-      </button>
-      <div class="theme-menu panel" id="themeMenu">
-        <button class="theme-item active" data-theme="dark" type="button">
-          <span class="ico moon"></span> Dark
+      <div class="group" id="difficultyGroup">
+        <span class="group-label">Difficulty</span>
+        <div class="seg" id="difficultyPills">
+          <button class="seg-btn" data-difficulty="easy" type="button">Easy</button>
+          <button class="seg-btn active" data-difficulty="medium" type="button">Medium</button>
+          <button class="seg-btn" data-difficulty="hard" type="button">Hard</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-right">
+      <div class="theme-picker" id="themePicker">
+        <button class="theme-trigger seg-btn" id="themeTrigger" type="button" aria-expanded="false">
+          <span id="themeCurrentIcon">🌙</span>
+          <span id="themeCurrentText">Dark</span>
+          <span class="caret">⌄</span>
         </button>
-        <button class="theme-item" data-theme="light" type="button">
-          <span class="ico sun"></span> Light
-        </button>
-        <button class="theme-item" data-theme="itachi" type="button">
-          <span class="ico itachi"></span> Itachi
-        </button>
+        <div class="theme-menu glass" id="themeMenu">
+          <button class="theme-item active" data-theme="dark" type="button">🌙 Dark</button>
+          <button class="theme-item" data-theme="light" type="button">☀️ Light</button>
+          <button class="theme-item" data-theme="itachi" type="button">✇ Itachi</button>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- Arena -->
   <main class="arena">
-    <section class="status-zone">
-      <div class="turn-pill panel" id="statusPill">X's Turn</div>
+    <section class="status-wrap">
+      <div class="turn-pill glass" id="statusPill">X's Turn</div>
 
-      <div class="radial-wrap panel hidden" id="radialWrap">
+      <div class="radial-wrap glass hidden" id="radialWrap">
         <svg class="radial" viewBox="0 0 120 120">
           <circle class="ring-bg" cx="60" cy="60" r="50"></circle>
           <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="50"></circle>
@@ -51,26 +67,22 @@
       </div>
     </section>
 
-    <section class="board-stage">
-      <div class="captured-strip panel hidden" id="capturedTop">
-        <b>White captured:</b> <span id="whiteCaptured"></span>
-      </div>
+    <section class="board-area">
+      <div class="captured-strip glass hidden" id="capturedTop"><b>White captured:</b> <span id="whiteCaptured"></span></div>
 
-      <section class="board-shell panel" id="boardWrap">
+      <section class="board-shell glass" id="boardWrap">
         <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
         <div id="tttBoard" class="ttt-board"></div>
         <div id="chessBoard" class="chess-board hidden"></div>
       </section>
 
-      <div class="captured-strip panel hidden" id="capturedBottom">
-        <b>Black captured:</b> <span id="blackCaptured"></span>
-      </div>
+      <div class="captured-strip glass hidden" id="capturedBottom"><b>Black captured:</b> <span id="blackCaptured"></span></div>
     </section>
   </main>
 
-  <!-- Bottom Quick Dock -->
-  <footer class="quick-dock panel">
-    <div class="dock-group">
+  <!-- Bottom Dock -->
+  <footer class="quick-dock glass">
+    <div class="dock-block">
       <span class="dock-label">Timer</span>
       <div class="seg" id="timerPills">
         <button class="seg-btn active" data-timer="off" type="button">Off</button>
@@ -81,28 +93,24 @@
       </div>
     </div>
 
-    <div class="dock-group">
+    <div class="dock-block">
       <span class="dock-label">Actions</span>
       <div class="seg">
-        <button id="resetScoreBtn" class="seg-btn" type="button">
-          <span class="btn-ico reset"></span> Reset Score
-        </button>
-        <button id="undoBtn" class="seg-btn" type="button">
-          <span class="btn-ico undo"></span> Undo
-        </button>
-        <button id="newGameBtn" class="seg-btn" type="button">New Game</button>
+        <button id="resetScoreBtn" class="seg-btn" type="button">↺ Reset Score</button>
+        <button id="undoBtn" class="seg-btn" type="button">↶ Undo</button>
+        <button id="newGameBtn" class="seg-btn" type="button">＋ New Game</button>
       </div>
     </div>
 
     <div class="score-ticker" id="scoreTicker">
       You: <b id="scoreA">0</b> |
-      Opp: <b id="scoreB">0</b> |
+      Opponent: <b id="scoreB">0</b> |
       Draws: <b id="scoreD">0</b> |
-      <b id="streakBadge">🔥 0</b>
+      <b id="streakBadge">🔥 Streak: 0</b>
     </div>
   </footer>
 
-  <!-- Hidden state selects -->
+  <!-- Hidden state -->
   <select id="modeSelect" hidden>
     <option value="ttt3-2p">TTT3 Local</option>
     <option value="ttt3-ai" selected>TTT3 AI</option>
@@ -122,9 +130,9 @@
     <option value="itachi">Itachi</option>
   </select>
 
-  <!-- Win overlay -->
+  <!-- Win Modal -->
   <div id="winOverlay" class="win-overlay hidden">
-    <div class="win-screen panel">
+    <div class="win-modal glass">
       <h2 id="winMessage">Winner</h2>
       <button id="winRestartBtn" class="seg-btn" type="button">Continue</button>
     </div>
