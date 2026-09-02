@@ -52,6 +52,13 @@
           <small id="subText">5x5 board — connect 4 to win</small>
         </div>
 
+        <section class="winner-screen" id="winnerScreen" aria-live="polite" hidden>
+          <div class="winner-banner">
+            <h2 class="winner-text">WINNER!</h2>
+          </div>
+          <button class="restart-btn" id="restartBtn" type="button">Restart game</button>
+        </section>
+
         <div class="board-area">
           <div class="column-bar" id="columnBar"></div>
           <div class="board" id="board"></div>

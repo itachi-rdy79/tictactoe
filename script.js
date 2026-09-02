@@ -53,7 +53,9 @@ const els = {
   scoreO: document.getElementById("scoreO"),
   scoreDraws: document.getElementById("scoreDraws"),
   scoreLabelX: document.getElementById("scoreLabelX"),
-  scoreLabelO: document.getElementById("scoreLabelO")
+  scoreLabelO: document.getElementById("scoreLabelO"),
+  winnerScreen: document.getElementById("winnerScreen"),
+  restartBtn: document.getElementById("restartBtn")
 };
 
 function defaultScores() {
@@ -112,6 +114,22 @@ function colorName(c) {
   return c;
 }
 
+function showWinnerBanner(message = "WINNER!") {
+  if (!els.winnerScreen) return;
+  const winnerText = els.winnerScreen.querySelector(".winner-text");
+  if (winnerText) winnerText.textContent = message;
+  els.winnerScreen.hidden = false;
+  requestAnimationFrame(() => {
+    els.winnerScreen.classList.add("show");
+  });
+}
+
+function hideWinnerBanner() {
+  if (!els.winnerScreen) return;
+  els.winnerScreen.classList.remove("show");
+  els.winnerScreen.hidden = true;
+}
+
 function initBoard() {
   if (aiTimer) {
     clearTimeout(aiTimer);
@@ -123,6 +141,7 @@ function initBoard() {
   winningCells = [];
   selectedChess = null;
   legalChessMoves = [];
+  hideWinnerBanner();
 
   if (mode.type === "grid" || mode.type === "ai") {
     currentPlayer = "X";
@@ -359,14 +378,15 @@ function makeTTTMove(index) {
     gameActive = false;
     winningCells = result.cells;
     scores[modeKey][result.winner] += 1;
-    setStatus(
+    const winMessage =
       modeKey === "tttAI" && result.winner === "X"
         ? "You win!"
         : modeKey === "tttAI" && result.winner === "O"
         ? "Computer wins!"
-        : `Player ${result.winner} wins!`,
-      getWinningSequenceText(result.cells)
-    );
+        : `Player ${result.winner} wins!`;
+
+    setStatus(winMessage, getWinningSequenceText(result.cells));
+    showWinnerBanner("WINNER!");
 
     saveScores();
     render();
@@ -378,6 +398,7 @@ function makeTTTMove(index) {
     gameActive = false;
     scores[modeKey].draws += 1;
     setStatus("It's a draw!");
+    hideWinnerBanner();
     saveScores();
     render();
     updateScoreboard();
@@ -417,6 +438,7 @@ function aiMove() {
     winningCells = result.cells;
     scores.tttAI.O += 1;
     setStatus("Computer wins!", getWinningSequenceText(result.cells));
+    showWinnerBanner("WINNER!");
     saveScores();
     render();
     updateScoreboard();
@@ -427,6 +449,7 @@ function aiMove() {
     gameActive = false;
     scores.tttAI.draws += 1;
     setStatus("It's a draw!");
+    hideWinnerBanner();
     saveScores();
     render();
     updateScoreboard();
@@ -515,6 +538,7 @@ function dropConnect4(col) {
     winningCells = result.cells;
     scores[modeKey][result.winner] += 1;
     setStatus(`Player ${result.winner} wins!`, getWinningSequenceText(result.cells));
+    showWinnerBanner("WINNER!");
     saveScores();
     render();
     updateScoreboard();
@@ -525,6 +549,7 @@ function dropConnect4(col) {
     gameActive = false;
     scores[modeKey].draws += 1;
     setStatus("It's a draw!");
+    hideWinnerBanner();
     saveScores();
     render();
     updateScoreboard();
@@ -889,9 +914,11 @@ function finishChessTurn(lastMoverColor) {
       const winnerKey = lastMoverColor === "w" ? "X" : "O";
       scores.chess[winnerKey] += 1;
       setStatus(`${colorName(lastMoverColor)} wins by checkmate!`);
+      showWinnerBanner("WINNER!");
     } else {
       scores.chess.draws += 1;
       setStatus("Stalemate! It's a draw.");
+      hideWinnerBanner();
     }
 
     saveScores();
@@ -915,8 +942,10 @@ function resetCurrentScores() {
 }
 
 els.newGameBtn.addEventListener("click", initBoard);
-
 els.resetScoreBtn.addEventListener("click", resetCurrentScores);
+if (els.restartBtn) {
+  els.restartBtn.addEventListener("click", initBoard);
+}
 
 // Custom Dropdown Handler
 els.dropdownTrigger.addEventListener("click", () => {
@@ -928,17 +957,17 @@ document.querySelectorAll(".dropdown-item").forEach(item => {
   item.addEventListener("click", () => {
     const value = item.getAttribute("data-value");
     modeKey = value;
-    
+
     // Update display
     els.dropdownText.textContent = item.textContent;
-    
+
     // Update active item styling
     document.querySelectorAll(".dropdown-item").forEach(i => i.classList.remove("active"));
     item.classList.add("active");
-    
+
     // Close dropdown
     els.customDropdown.classList.remove("open");
-    
+
     // Start new game
     initBoard();
   });

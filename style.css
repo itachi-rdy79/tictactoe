@@ -11,6 +11,88 @@
   --gold:#fbbf24;
   --shadow: 0 20px 60px rgba(0,0,0,.35);
   --radius: 22px;
+  --winner-teal: #14bdac;
+  --winner-white: #ffffff;
+}
+
+/* winner screen */
+.winner-screen {
+  width: min(90vw, 420px);
+  text-align: center;
+  margin: 0 auto 14px;
+}
+
+.winner-banner {
+  background: var(--winner-teal);
+  color: var(--winner-white);
+  border-radius: 12px;
+  padding: 16px 12px;
+  box-shadow: 0 8px 24px rgba(20, 189, 172, 0.25);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  will-change: transform;
+}
+
+.winner-text {
+  margin: 0;
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: 1px;
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.restart-btn {
+  margin-top: 10px;
+  border: none;
+  background: transparent;
+  color: var(--winner-teal);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-10px);
+  padding: 4px 8px;
+}
+
+.restart-btn:hover {
+  text-decoration: underline;
+}
+
+.winner-screen.show .winner-banner {
+  transform: scaleX(1);
+}
+
+.winner-screen.show .winner-text {
+  animation: dropFadeIn 0.45s ease-out 0.25s forwards;
+}
+
+.winner-screen.show .restart-btn {
+  animation: dropFadeInSmall 0.4s ease-out 0.4s forwards;
+}
+
+@keyframes dropFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropFadeInSmall {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 body.light-theme {
