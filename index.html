@@ -117,6 +117,8 @@
         <button class="seg-btn" data-game="ttt5" type="button" title="Shortcut: 2">5x5 TTT</button>
         <button class="seg-btn" data-game="chess" type="button" title="Shortcut: 3">Chess</button>
         <button class="seg-btn" data-game="wordle" type="button" title="Shortcut: 4">Wordle</button>
+        <button class="seg-btn" data-game="poker" type="button" title="Shortcut: 5">Poker</button>
+        <button class="seg-btn" data-game="imposter" type="button" title="Shortcut: 6">Imposter</button>
       </div>
     </div>
 
@@ -205,6 +207,172 @@
         <div id="wordleGame" class="wordle-arena hidden">
           <div id="wordleBoard" class="wordle-board"></div>
           <div id="wordleKeyboard" class="wordle-keyboard"></div>
+        </div>
+
+        <!-- Poker Container -->
+        <div id="pokerGame" class="poker-arena hidden">
+          <!-- Opponent / AI Zone -->
+          <div class="poker-seat opponent-seat">
+            <div class="poker-player-info">
+              <span class="poker-player-name" id="pokerAiName">AI Opponent</span>
+              <div class="poker-chips-badge" id="pokerAiChipsBadge">
+                <span class="chip-coin-svg">🪙</span>
+                <span id="pokerAiChips">$1,000</span>
+              </div>
+            </div>
+            <div class="poker-cards-wrap" id="pokerAiCards"></div>
+            <div class="poker-bet-bubble hidden" id="pokerAiBetBubble">Bet: $0</div>
+          </div>
+
+          <!-- Felt Center / Community Board -->
+          <div class="poker-felt-center">
+            <div class="poker-pot-wrap">
+              <div class="poker-pot-pill">
+                <span>POT</span>
+                <b id="pokerPotAmount">$0</b>
+              </div>
+            </div>
+            <div class="poker-community-cards" id="pokerCommunityCards"></div>
+            <div class="poker-status-banner" id="pokerStatusBanner">Texas Hold'em — Place Your Bets</div>
+          </div>
+
+          <!-- Human Player Zone -->
+          <div class="poker-seat player-seat">
+            <div class="poker-bet-bubble hidden" id="pokerPlayerBetBubble">Bet: $0</div>
+            <div class="poker-cards-wrap" id="pokerPlayerCards"></div>
+            <div class="poker-player-info">
+              <div class="poker-name-and-hand">
+                <span class="poker-player-name" id="pokerPlayerName">You (Hero)</span>
+                <span class="poker-hand-eval" id="pokerHandEval">High Card</span>
+              </div>
+              <div class="poker-chips-badge" id="pokerPlayerChipsBadge">
+                <span class="chip-coin-svg">🪙</span>
+                <span id="pokerPlayerChips">$1,000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Poker Action Dock -->
+          <div class="poker-action-dock" id="pokerActionDock">
+            <div class="poker-bet-controls" id="pokerBetControls">
+              <div class="poker-quick-bets">
+                <button class="poker-quick-btn" id="pokerQuickMin" type="button">Min</button>
+                <button class="poker-quick-btn" id="pokerQuickHalf" type="button">½ Pot</button>
+                <button class="poker-quick-btn" id="pokerQuickPot" type="button">Pot</button>
+                <button class="poker-quick-btn" id="pokerQuickAllIn" type="button">All-In</button>
+              </div>
+              <div class="poker-slider-row">
+                <input type="range" id="pokerBetSlider" min="20" max="1000" step="10" value="40" class="poker-slider" />
+                <span class="poker-slider-val" id="pokerSliderVal">$40</span>
+              </div>
+            </div>
+            <div class="poker-main-actions">
+              <button class="poker-action-btn fold-btn" id="pokerFoldBtn" type="button">Fold</button>
+              <button class="poker-action-btn call-btn" id="pokerCallBtn" type="button">Check</button>
+              <button class="poker-action-btn raise-btn" id="pokerRaiseBtn" type="button">Raise $40</button>
+              <button class="poker-action-btn next-hand-btn hidden" id="pokerNextHandBtn" type="button">Next Hand ➔</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- The Imposter Container -->
+        <div id="imposterGame" class="imposter-arena hidden">
+          <!-- Setup Screen -->
+          <div class="imposter-screen" id="imposterSetupScreen">
+            <div class="imposter-title-box">
+              <div class="imposter-badge">Party Social Deduction</div>
+              <h2 class="imposter-title">THE IMPOSTER</h2>
+              <p class="imposter-subtitle">Single-Device Pass & Play Mystery Game</p>
+            </div>
+            
+            <div class="imposter-settings-grid">
+              <div class="imposter-field">
+                <label class="imposter-label">Number of Players</label>
+                <div class="seg" id="imposterCountPills">
+                  <button class="seg-btn active" data-count="3" type="button">3P</button>
+                  <button class="seg-btn" data-count="4" type="button">4P</button>
+                  <button class="seg-btn" data-count="5" type="button">5P</button>
+                  <button class="seg-btn" data-count="6" type="button">6P</button>
+                  <button class="seg-btn" data-count="8" type="button">8P</button>
+                </div>
+              </div>
+
+              <div class="imposter-field">
+                <label class="imposter-label">Secret Category</label>
+                <div class="imposter-categories" id="imposterCategoryPills">
+                  <button class="imposter-cat-card active" data-cat="locations" type="button">
+                    <span class="cat-icon">🌍</span>
+                    <span class="cat-name">Locations</span>
+                  </button>
+                  <button class="imposter-cat-card" data-cat="naruto" type="button">
+                    <span class="cat-icon">🍥</span>
+                    <span class="cat-name">Naruto</span>
+                  </button>
+                  <button class="imposter-cat-card" data-cat="got" type="button">
+                    <span class="cat-icon">⚔️</span>
+                    <span class="cat-name">Game of Thrones</span>
+                  </button>
+                  <button class="imposter-cat-card" data-cat="objects" type="button">
+                    <span class="cat-icon">📦</span>
+                    <span class="cat-name">Objects</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button class="imposter-start-btn" id="imposterStartBtn" type="button">Start Investigation</button>
+          </div>
+
+          <!-- Secret Role Reveal Screen (Pass & Play) -->
+          <div class="imposter-screen hidden" id="imposterRevealScreen">
+            <div class="imposter-pass-header" id="imposterPassHeader">Pass device to Player 1</div>
+            <div class="imposter-curtain-card" id="imposterCurtainCard">
+              <div class="imposter-curtain-hidden" id="imposterCurtainHidden">
+                <span class="curtain-lock-icon">🔒</span>
+                <span class="curtain-instruction">Hold Down to Reveal Role</span>
+                <span class="curtain-warning">Keep screen hidden from other players!</span>
+              </div>
+              <div class="imposter-curtain-revealed hidden" id="imposterCurtainRevealed">
+                <div class="role-badge" id="imposterRoleBadge">Innocent</div>
+                <div class="secret-word-display" id="imposterWordDisplay">SECRET WORD</div>
+                <div class="secret-hint" id="imposterHintDisplay">Category: Locations</div>
+              </div>
+            </div>
+            <button class="imposter-next-player-btn hidden" id="imposterNextPlayerBtn" type="button">Understood ➔ Next Player</button>
+          </div>
+
+          <!-- Discussion / Investigation Screen -->
+          <div class="imposter-screen hidden" id="imposterDiscussScreen">
+            <div class="imposter-discuss-header">
+              <span>Investigation Phase</span>
+              <div class="discuss-timer-badge" id="imposterDiscussTimer">3:00</div>
+            </div>
+            <div class="imposter-prompt-card" id="imposterPromptCard">
+              <span class="prompt-icon">💡</span>
+              <span class="prompt-text" id="imposterPromptText">Take turns asking each other questions about the secret word. Blend in!</span>
+            </div>
+            <div class="imposter-roster" id="imposterDiscussRoster"></div>
+            <button class="imposter-accuse-btn" id="imposterAccuseBtn" type="button">🚨 Call Vote / Accuse Imposter</button>
+          </div>
+
+          <!-- Voting Screen -->
+          <div class="imposter-screen hidden" id="imposterVoteScreen">
+            <div class="imposter-title-box">
+              <h3 class="imposter-title" style="font-size: 1.3rem;">CAST YOUR ACCUSATION</h3>
+              <p class="imposter-subtitle">Who is the Imposter? Select suspected player:</p>
+            </div>
+            <div class="imposter-vote-grid" id="imposterVoteGrid"></div>
+          </div>
+
+          <!-- Imposter Guess Screen -->
+          <div class="imposter-screen hidden" id="imposterGuessScreen">
+            <div class="imposter-title-box">
+              <div class="imposter-badge" style="color:#ef4444;border-color:#ef4444;">Imposter Caught!</div>
+              <h3 class="imposter-title" style="font-size: 1.25rem;">LAST CHANCE GUESS</h3>
+              <p class="imposter-subtitle">Imposter: Guess the secret word to steal victory!</p>
+            </div>
+            <div class="imposter-guess-grid" id="imposterGuessGrid"></div>
+          </div>
         </div>
       </section>
 

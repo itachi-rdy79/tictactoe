@@ -55,6 +55,40 @@ A high-performance, completely offline, zero-dependency browser arcade gaming hu
 - **Virtual On-Screen Keyboard**: Full QWERTY keyboard dynamically updated with clue colors (Green > Yellow > Gray).
 - **Keyboard Event Guard**: When playing Wordle, physical key presses type letters directly into Wordle and never trigger global shortcuts (`R` types 'R', NOT New Game; `Z` types 'Z', NOT Undo).
 
+### 4. Texas Hold'em Poker (Heads-Up vs AI & Local 2P)
+- **100% Offline 52-Card Deck**:
+  - Full deck shuffled with cryptographic/Fisher-Yates randomness.
+  - Standard street progression: **Pre-Flop**, **Flop** (3 cards), **Turn** (1 card), **River** (1 card), and **Showdown**.
+- **Exact 7-Card Hand Evaluator**:
+  - Generates and ranks the best 5 of 7 cards across all 9 standard poker categories: *Royal Flush, Straight Flush, Four of a Kind, Full House, Flush, Straight, Three of a Kind, Two Pair, One Pair, High Card*.
+  - Hand tie-breakers with accurate kicker calculations.
+  - Highlights winning 5-card combinations on table showdown with luminous gold borders.
+- **Tactile Chip Wagering & Action Dock**:
+  - Pot management, blinds posting (SB $10 / BB $20), and chip bankroll tracking ($1,000 starting stacks).
+  - Quick bet buttons: `Min`, `½ Pot`, `Pot`, `All-In`, and custom bet slider.
+  - Actions: `Fold`, `Check / Call`, `Raise`, and `Next Hand`.
+- **AI Decision Engine**:
+  - Stratified by difficulty: *Easy* (passive caller, folds to pressure), *Medium* (pot odds aware, values pairs and draws), *Hard* (aggressive value betting, bluffing, and pot leverage).
+- **Thematic Visuals**:
+  - Naruto: Shinobi bounty Ryo chips and Leaf Village card backs.
+  - Game of Thrones: Iron Bank dragon coins and Stark/Targaryen card backs.
+  - Itachi: Sharingan betting coins and Tsukuyomi crimson card backs.
+
+### 5. The Imposter (Single-Device Pass & Play Mystery Game)
+- **Social Deduction for 3 to 8 Players**:
+  - Pass-and-play party game inspired by *Spyfall* and *The Chameleon*.
+- **Four Offline Word Packs**:
+  - *World Locations*: Airport, Casino, Hospital, Pirate Ship, Space Station, Submarine, Circus Tent...
+  - *Naruto Shinobi World*: Hidden Leaf Village, Valley of the End, Akatsuki Hideout, Chunin Exams Arena...
+  - *Game of Thrones*: Winterfell, King's Landing, The Wall, Dragonstone, Braavos, Sunspear...
+  - *Everyday Objects*: Smartphone, Bicycle, Umbrella, Acoustic Guitar, Wristwatch, Laptop...
+- **Privacy Curtain Mechanism**:
+  - Touch-and-hold interactive curtain reveals the secret word to Innocents or displays *"YOU ARE THE IMPOSTER"*. Releasing hides the screen immediately before handing to the next player.
+- **Investigation & Accusation Phases**:
+  - 3-minute visual countdown timer with rotating conversational prompt suggestions.
+  - Voting round to accuse the suspected Imposter.
+  - **Last Chance Guess**: If caught, the Imposter gets one shot to guess the secret word from a 8-item grid to steal the victory!
+
 ---
 
 ## 🎨 Design, Theming & Vector Branding
@@ -87,14 +121,16 @@ A high-performance, completely offline, zero-dependency browser arcade gaming hu
 
 ## ⌨️ Keyboard Shortcuts
 
-| Key | Action (In TTT / Chess) | Action (In Wordle) |
+| Key | Action (In TTT / Chess / Poker / Imposter) | Action (In Wordle) |
 |---|---|---|
 | `1` | Switch to 3×3 Tic-Tac-Toe | Switch to 3×3 Tic-Tac-Toe |
 | `2` | Switch to 5×5 Tic-Tac-Toe | Switch to 5×5 Tic-Tac-Toe |
 | `3` | Switch to Chess | Switch to Chess |
 | `4` | Switch to Wordle | — |
-| `R` | Trigger New Game | Types letter 'R' |
-| `Z` | Undo last move | Types letter 'Z' |
+| `5` | Switch to Texas Hold'em Poker | Switch to Texas Hold'em Poker |
+| `6` | Switch to The Imposter | Switch to The Imposter |
+| `R` | Trigger New Game / New Hand | Types letter 'R' |
+| `Z` | Undo last move (TTT / Chess) | Types letter 'Z' |
 | `A-Z` | — | Inputs letter into current tile |
 | `Enter` | — | Submits 5-letter guess |
 | `Backspace` | — | Deletes previous letter |

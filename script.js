@@ -27,6 +27,57 @@ const wordleGameEl = document.getElementById("wordleGame");
 const wordleBoardEl = document.getElementById("wordleBoard");
 const wordleKeyboardEl = document.getElementById("wordleKeyboard");
 
+// Poker DOM
+const pokerGameEl = document.getElementById("pokerGame");
+const pokerAiNameEl = document.getElementById("pokerAiName");
+const pokerAiChipsEl = document.getElementById("pokerAiChips");
+const pokerAiCardsEl = document.getElementById("pokerAiCards");
+const pokerAiBetBubbleEl = document.getElementById("pokerAiBetBubble");
+const pokerPotAmountEl = document.getElementById("pokerPotAmount");
+const pokerCommunityCardsEl = document.getElementById("pokerCommunityCards");
+const pokerStatusBannerEl = document.getElementById("pokerStatusBanner");
+const pokerPlayerBetBubbleEl = document.getElementById("pokerPlayerBetBubble");
+const pokerPlayerCardsEl = document.getElementById("pokerPlayerCards");
+const pokerPlayerNameEl = document.getElementById("pokerPlayerName");
+const pokerHandEvalEl = document.getElementById("pokerHandEval");
+const pokerPlayerChipsEl = document.getElementById("pokerPlayerChips");
+const pokerBetControlsEl = document.getElementById("pokerBetControls");
+const pokerQuickMinBtn = document.getElementById("pokerQuickMin");
+const pokerQuickHalfBtn = document.getElementById("pokerQuickHalf");
+const pokerQuickPotBtn = document.getElementById("pokerQuickPot");
+const pokerQuickAllInBtn = document.getElementById("pokerQuickAllIn");
+const pokerBetSliderEl = document.getElementById("pokerBetSlider");
+const pokerSliderValEl = document.getElementById("pokerSliderVal");
+const pokerFoldBtn = document.getElementById("pokerFoldBtn");
+const pokerCallBtn = document.getElementById("pokerCallBtn");
+const pokerRaiseBtn = document.getElementById("pokerRaiseBtn");
+const pokerNextHandBtn = document.getElementById("pokerNextHandBtn");
+
+// Imposter DOM
+const imposterGameEl = document.getElementById("imposterGame");
+const imposterSetupScreenEl = document.getElementById("imposterSetupScreen");
+const imposterCountPillsEl = document.getElementById("imposterCountPills");
+const imposterCategoryPillsEl = document.getElementById("imposterCategoryPills");
+const imposterStartBtn = document.getElementById("imposterStartBtn");
+const imposterRevealScreenEl = document.getElementById("imposterRevealScreen");
+const imposterPassHeaderEl = document.getElementById("imposterPassHeader");
+const imposterCurtainCardEl = document.getElementById("imposterCurtainCard");
+const imposterCurtainHiddenEl = document.getElementById("imposterCurtainHidden");
+const imposterCurtainRevealedEl = document.getElementById("imposterCurtainRevealed");
+const imposterRoleBadgeEl = document.getElementById("imposterRoleBadge");
+const imposterWordDisplayEl = document.getElementById("imposterWordDisplay");
+const imposterHintDisplayEl = document.getElementById("imposterHintDisplay");
+const imposterNextPlayerBtn = document.getElementById("imposterNextPlayerBtn");
+const imposterDiscussScreenEl = document.getElementById("imposterDiscussScreen");
+const imposterDiscussTimerEl = document.getElementById("imposterDiscussTimer");
+const imposterPromptTextEl = document.getElementById("imposterPromptText");
+const imposterDiscussRosterEl = document.getElementById("imposterDiscussRoster");
+const imposterAccuseBtn = document.getElementById("imposterAccuseBtn");
+const imposterVoteScreenEl = document.getElementById("imposterVoteScreen");
+const imposterVoteGridEl = document.getElementById("imposterVoteGrid");
+const imposterGuessScreenEl = document.getElementById("imposterGuessScreen");
+const imposterGuessGridEl = document.getElementById("imposterGuessGrid");
+
 const capturedLeft = document.getElementById("capturedLeft");
 const capturedRight = document.getElementById("capturedRight");
 const whiteCapturedEl = document.getElementById("whiteCaptured");
@@ -139,6 +190,8 @@ function startIdleWatchdog() {
 /* ---------- State Management ---------- */
 function modeFromHub() {
   if (hubState.game === "wordle") return "wordle";
+  if (hubState.game === "imposter") return "imposter";
+  if (hubState.game === "poker") return hubState.opponent === "ai" ? "poker-ai" : "poker-2p";
   if (hubState.game === "ttt3") return hubState.opponent === "ai" ? "ttt3-ai" : "ttt3-2p";
   if (hubState.game === "ttt5") return hubState.opponent === "ai" ? "ttt5-ai" : "ttt5-2p";
   return hubState.opponent === "ai" ? "chess-ai" : "chess-2p";
@@ -148,6 +201,16 @@ function hubFromMode(mode) {
   if (mode === "wordle") {
     hubState.game = "wordle";
     hubState.opponent = "local";
+    return;
+  }
+  if (mode === "imposter") {
+    hubState.game = "imposter";
+    hubState.opponent = "local";
+    return;
+  }
+  if (mode.startsWith("poker")) {
+    hubState.game = "poker";
+    hubState.opponent = mode.endsWith("-ai") ? "ai" : "local";
     return;
   }
   if (mode.startsWith("ttt3")) hubState.game = "ttt3";
@@ -163,7 +226,7 @@ function setActive(groupEl, key, val) {
 }
 
 function persistHub() {
-  const opponentVal = hubState.game === "wordle" ? "local" : hubState.opponent;
+  const opponentVal = (hubState.game === "wordle" || hubState.game === "imposter") ? "local" : hubState.opponent;
   localStorage.setItem("hubState", JSON.stringify({ ...hubState, opponent: opponentVal }));
   const hash = `#/${hubState.game}?vs=${opponentVal}&diff=${hubState.difficulty}&timer=${hubState.timer}&theme=${hubState.theme}`;
   history.replaceState(null, "", hash);
@@ -177,7 +240,7 @@ function loadHub() {
   const raw = location.hash || "";
   if (raw.startsWith("#/")) {
     const [path, query = ""] = raw.slice(2).split("?");
-    if (["ttt3", "ttt5", "chess", "wordle"].includes(path)) hubState.game = path;
+    if (["ttt3", "ttt5", "chess", "wordle", "poker", "imposter"].includes(path)) hubState.game = path;
 
     const q = new URLSearchParams(query);
     const vs = q.get("vs");
@@ -196,14 +259,16 @@ function loadHub() {
   if (!["dark", "light", "itachi", "naruto", "got"].includes(hubState.theme)) hubState.theme = "light";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
-  if (!["ttt3", "ttt5", "chess", "wordle"].includes(hubState.game)) hubState.game = "ttt3";
+  if (!["ttt3", "ttt5", "chess", "wordle", "poker", "imposter"].includes(hubState.game)) hubState.game = "ttt3";
 
-  if (hubState.game === "wordle") hubState.opponent = "local";
+  if (hubState.game === "wordle" || hubState.game === "imposter") hubState.opponent = "local";
 }
 
 function syncHud() {
   const isWordle = hubState.game === "wordle";
-  if (isWordle) hubState.opponent = "local";
+  const isImposter = hubState.game === "imposter";
+  const isPartyGame = isWordle || isImposter;
+  if (isPartyGame) hubState.opponent = "local";
 
   setActive(gameTypePills, "game", hubState.game);
   setActive(opponentPills, "opponent", hubState.opponent);
@@ -211,13 +276,16 @@ function syncHud() {
   setActive(timerPills, "timer", hubState.timer);
 
   if (opponentGroup) {
-    if (isWordle) opponentGroup.style.setProperty("display", "none", "important");
+    if (isPartyGame) opponentGroup.style.setProperty("display", "none", "important");
     else opponentGroup.style.display = "flex";
   }
 
   if (difficultyGroup) {
-    difficultyGroup.style.display = "flex";
-    difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
+    if (isImposter) difficultyGroup.style.setProperty("display", "none", "important");
+    else {
+      difficultyGroup.style.display = "flex";
+      difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
+    }
   }
 }
 
@@ -260,6 +328,7 @@ function setTheme(theme) {
     renderCaptured();
     renderChess();
   }
+  if (hubState.game === "poker") renderPokerUI();
 }
 
 themeTrigger?.addEventListener("click", (e) => {
@@ -310,7 +379,8 @@ scoreTickerBtn?.addEventListener("click", () => {
     { label: "3x3 TTT (AI)", key: "scores_ttt3-ai_medium" },
     { label: "5x5 TTT (AI)", key: "scores_ttt5-ai_medium" },
     { label: "Chess (AI)", key: "scores_chess-ai_medium" },
-    { label: "Wordle", key: "scores_wordle_medium" }
+    { label: "Wordle", key: "scores_wordle_medium" },
+    { label: "Poker (AI)", key: "scores_poker-ai_medium" }
   ];
 
   if (!statsGridContent || !statsModal) return;
@@ -553,12 +623,14 @@ function initTTT(size) {
 
 function renderTTT() {
   resetIdleWatchdog();
-  boardWrap?.classList.remove("wordle-mode", "chess-mode");
+  boardWrap?.classList.remove("wordle-mode", "chess-mode", "poker-mode", "imposter-mode");
   capturedLeft?.classList.add("hidden");
   capturedRight?.classList.add("hidden");
   tttBoardEl?.classList.remove("hidden");
   chessBoardEl?.classList.add("hidden");
   wordleGameEl?.classList.add("hidden");
+  pokerGameEl?.classList.add("hidden");
+  imposterGameEl?.classList.add("hidden");
 
   if (!tttBoardEl) return;
   tttBoardEl.innerHTML = "";
@@ -991,12 +1063,14 @@ function getPseudoMoves(board, r, c) {
 
 function renderChess() {
   resetIdleWatchdog();
-  boardWrap?.classList.remove("wordle-mode");
+  boardWrap?.classList.remove("wordle-mode", "poker-mode", "imposter-mode");
   boardWrap?.classList.add("chess-mode");
 
   clearWinLine();
   tttBoardEl?.classList.add("hidden");
   wordleGameEl?.classList.add("hidden");
+  pokerGameEl?.classList.add("hidden");
+  imposterGameEl?.classList.add("hidden");
   chessBoardEl?.classList.remove("hidden");
   capturedLeft?.classList.remove("hidden");
   capturedRight?.classList.remove("hidden");
@@ -1476,12 +1550,14 @@ function initWordle() {
   stopTurnTimer();
   showTimerInactive();
   updateMoveCounter(false);
-  boardWrap?.classList.remove("chess-mode");
+  boardWrap?.classList.remove("chess-mode", "poker-mode", "imposter-mode");
   boardWrap?.classList.add("wordle-mode");
   capturedLeft?.classList.add("hidden");
   capturedRight?.classList.add("hidden");
   tttBoardEl?.classList.add("hidden");
   chessBoardEl?.classList.add("hidden");
+  pokerGameEl?.classList.add("hidden");
+  imposterGameEl?.classList.add("hidden");
   wordleGameEl?.classList.remove("hidden");
 
   wordleTarget = getWordleTargetByDifficulty();
@@ -1696,6 +1772,867 @@ function checkWordleRow() {
   }, totalFlipTime);
 }
 
+/* ==========================================================================
+   POKER ENGINE: HEADS-UP TEXAS HOLD'EM (VS AI & LOCAL 2P)
+   ========================================================================== */
+const POKER_SUITS = ["s", "h", "d", "c"];
+const POKER_RANKS = [
+  { val: 2, str: "2" }, { val: 3, str: "3" }, { val: 4, str: "4" }, { val: 5, str: "5" },
+  { val: 6, str: "6" }, { val: 7, str: "7" }, { val: 8, str: "8" }, { val: 9, str: "9" },
+  { val: 10, str: "10" }, { val: 11, str: "J" }, { val: 12, str: "Q" }, { val: 13, str: "K" },
+  { val: 14, str: "A" }
+];
+
+let pokerDeck = [];
+let pokerPlayerCards = [];
+let pokerAiCards = [];
+let pokerCommunity = [];
+let pokerPlayerChips = 1000;
+let pokerAiChips = 1000;
+let pokerPot = 0;
+let pokerPlayerBet = 0;
+let pokerAiBet = 0;
+let pokerCurrentBet = 0;
+let pokerStage = "preflop";
+let pokerDealer = "player";
+let pokerTurn = "player";
+let pokerOver = false;
+
+function buildFreshDeck() {
+  const deck = [];
+  let id = 0;
+  for (const suit of POKER_SUITS) {
+    for (const rank of POKER_RANKS) {
+      deck.push({
+        id: id++,
+        suit,
+        val: rank.val,
+        rankStr: rank.str
+      });
+    }
+  }
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
+function renderPokerCard(card, faceUp = true, highlight = false) {
+  if (!faceUp || !card) {
+    return `<div class="poker-card back"></div>`;
+  }
+  const isRed = card.suit === "h" || card.suit === "d";
+  const colorClass = isRed ? "red" : "black";
+  const hlClass = highlight ? " highlight" : "";
+  const suitSymbol = card.suit === "s" ? "♠" : card.suit === "h" ? "♥" : card.suit === "d" ? "♦" : "♣";
+  const rankStr = card.rankStr;
+
+  return `
+    <div class="poker-card ${colorClass}${hlClass}" data-card-id="${card.id}">
+      <div class="card-corner">
+        <span class="card-corner-rank">${rankStr}</span>
+        <span class="card-corner-suit">${suitSymbol}</span>
+      </div>
+      <div class="card-center">${suitSymbol}</div>
+      <div class="card-corner card-bottom">
+        <span class="card-corner-rank">${rankStr}</span>
+        <span class="card-corner-suit">${suitSymbol}</span>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- Exact 7-Card Hand Evaluator (Best 5 of 7) ---------- */
+const RANK_NAMES = {
+  14: "Ace", 13: "King", 12: "Queen", 11: "Jack", 10: "Ten",
+  9: "Nine", 8: "Eight", 7: "Seven", 6: "Six", 5: "Five",
+  4: "Four", 3: "Three", 2: "Two"
+};
+const RANK_PLURALS = {
+  14: "Aces", 13: "Kings", 12: "Queens", 11: "Jacks", 10: "Tens",
+  9: "Nines", 8: "Eights", 7: "Sevens", 6: "Sixes", 5: "Fives",
+  4: "Fours", 3: "Threes", 2: "Twos"
+};
+
+function evaluate5CardHand(cards) {
+  const sorted = [...cards].sort((a, b) => b.val - a.val);
+  const vals = sorted.map(c => c.val);
+  const isFlush = sorted.every(c => c.suit === sorted[0].suit);
+
+  let isStraight = false;
+  let straightHigh = 0;
+  if (
+    vals[0] - vals[1] === 1 &&
+    vals[1] - vals[2] === 1 &&
+    vals[2] - vals[3] === 1 &&
+    vals[3] - vals[4] === 1
+  ) {
+    isStraight = true;
+    straightHigh = vals[0];
+  } else if (vals[0] === 14 && vals[1] === 5 && vals[2] === 4 && vals[3] === 3 && vals[4] === 2) {
+    isStraight = true;
+    straightHigh = 5;
+  }
+
+  const counts = {};
+  vals.forEach(v => counts[v] = (counts[v] || 0) + 1);
+  const groups = Object.keys(counts).map(v => ({ val: Number(v), count: counts[v] }));
+  groups.sort((a, b) => b.count - a.count || b.val - a.val);
+
+  if (isStraight && isFlush) {
+    if (straightHigh === 14) return { rank: 9, score: 9000000000 + straightHigh, name: "Royal Flush", cards: sorted };
+    return { rank: 8, score: 8000000000 + straightHigh, name: `Straight Flush (${RANK_NAMES[straightHigh]} High)`, cards: sorted };
+  }
+  if (groups[0].count === 4) {
+    const quad = groups[0].val;
+    const kicker = groups[1].val;
+    return { rank: 7, score: 7000000000 + quad * 100 + kicker, name: `Four of a Kind (${RANK_PLURALS[quad]})`, cards: sorted };
+  }
+  if (groups[0].count === 3 && groups[1].count === 2) {
+    const trips = groups[0].val;
+    const pair = groups[1].val;
+    return { rank: 6, score: 6000000000 + trips * 100 + pair, name: `Full House (${RANK_PLURALS[trips]} full of ${RANK_PLURALS[pair]})`, cards: sorted };
+  }
+  if (isFlush) {
+    let tieScore = vals.reduce((acc, v, i) => acc + v * Math.pow(15, 4 - i), 0);
+    return { rank: 5, score: 5000000000 + tieScore, name: `Flush (${RANK_NAMES[vals[0]]} High)`, cards: sorted };
+  }
+  if (isStraight) {
+    return { rank: 4, score: 4000000000 + straightHigh, name: `Straight (${RANK_NAMES[straightHigh]} High)`, cards: sorted };
+  }
+  if (groups[0].count === 3) {
+    const trips = groups[0].val;
+    const kickers = [groups[1].val, groups[2].val];
+    return { rank: 3, score: 3000000000 + trips * 1000 + kickers[0] * 15 + kickers[1], name: `Three of a Kind (${RANK_PLURALS[trips]})`, cards: sorted };
+  }
+  if (groups[0].count === 2 && groups[1].count === 2) {
+    const highPair = Math.max(groups[0].val, groups[1].val);
+    const lowPair = Math.min(groups[0].val, groups[1].val);
+    const kicker = groups[2].val;
+    return { rank: 2, score: 2000000000 + highPair * 1000 + lowPair * 50 + kicker, name: `Two Pair (${RANK_PLURALS[highPair]} and ${RANK_PLURALS[lowPair]})`, cards: sorted };
+  }
+  if (groups[0].count === 2) {
+    const pair = groups[0].val;
+    const kickers = [groups[1].val, groups[2].val, groups[3].val];
+    let tieScore = kickers.reduce((acc, v, i) => acc + v * Math.pow(15, 2 - i), 0);
+    return { rank: 1, score: 1000000000 + pair * 10000 + tieScore, name: `One Pair of ${RANK_PLURALS[pair]}`, cards: sorted };
+  }
+  let tieScore = vals.reduce((acc, v, i) => acc + v * Math.pow(15, 4 - i), 0);
+  return { rank: 0, score: tieScore, name: `High Card (${RANK_NAMES[vals[0]]})`, cards: sorted };
+}
+
+function evaluate7Cards(availableCards) {
+  if (availableCards.length < 5) {
+    if (availableCards.length === 2) {
+      if (availableCards[0].val === availableCards[1].val) {
+        return { rank: 1, name: `Pocket Pair of ${RANK_PLURALS[availableCards[0].val]}`, score: 1000, cards: availableCards };
+      }
+      const high = Math.max(availableCards[0].val, availableCards[1].val);
+      return { rank: 0, name: `High Card (${RANK_NAMES[high]})`, score: high, cards: availableCards };
+    }
+    return { rank: 0, name: "Evaluating...", score: 0, cards: [] };
+  }
+
+  let bestHand = null;
+  function combine(start, chosen) {
+    if (chosen.length === 5) {
+      const evaluation = evaluate5CardHand(chosen);
+      if (!bestHand || evaluation.score > bestHand.score) {
+        bestHand = evaluation;
+      }
+      return;
+    }
+    for (let i = start; i < availableCards.length; i++) {
+      combine(i + 1, [...chosen, availableCards[i]]);
+    }
+  }
+  combine(0, []);
+  return bestHand;
+}
+
+/* ---------- Poker Board & UI Rendering ---------- */
+function renderPokerUI(winningCardIds = []) {
+  if (!pokerGameEl) return;
+
+  if (pokerAiCardsEl) {
+    const showAiCards = (pokerStage === "showdown" || pokerStage === "ended");
+    pokerAiCardsEl.innerHTML = pokerAiCards.map(c => {
+      const isWinner = winningCardIds.includes(c.id);
+      return renderPokerCard(c, showAiCards, isWinner);
+    }).join("");
+  }
+
+  if (pokerCommunityCardsEl) {
+    const slots = [];
+    for (let i = 0; i < 5; i++) {
+      const c = pokerCommunity[i];
+      if (c) {
+        const isWinner = winningCardIds.includes(c.id);
+        slots.push(renderPokerCard(c, true, isWinner));
+      } else {
+        slots.push(`<div class="poker-card back" style="opacity:0.35;"></div>`);
+      }
+    }
+    pokerCommunityCardsEl.innerHTML = slots.join("");
+  }
+
+  if (pokerPlayerCardsEl) {
+    pokerPlayerCardsEl.innerHTML = pokerPlayerCards.map(c => {
+      const isWinner = winningCardIds.includes(c.id);
+      return renderPokerCard(c, true, isWinner);
+    }).join("");
+  }
+
+  if (pokerPlayerChipsEl) pokerPlayerChipsEl.textContent = `$${pokerPlayerChips}`;
+  if (pokerAiChipsEl) pokerAiChipsEl.textContent = `$${pokerAiChips}`;
+  if (pokerPotAmountEl) pokerPotAmountEl.textContent = `$${pokerPot}`;
+
+  if (pokerPlayerBetBubbleEl) {
+    if (pokerPlayerBet > 0) {
+      pokerPlayerBetBubbleEl.textContent = `Bet: $${pokerPlayerBet}`;
+      pokerPlayerBetBubbleEl.classList.remove("hidden");
+    } else {
+      pokerPlayerBetBubbleEl.classList.add("hidden");
+    }
+  }
+  if (pokerAiBetBubbleEl) {
+    if (pokerAiBet > 0) {
+      pokerAiBetBubbleEl.textContent = `Bet: $${pokerAiBet}`;
+      pokerAiBetBubbleEl.classList.remove("hidden");
+    } else {
+      pokerAiBetBubbleEl.classList.add("hidden");
+    }
+  }
+
+  if (pokerHandEvalEl) {
+    const allHeroCards = [...pokerPlayerCards, ...pokerCommunity];
+    const heroEval = evaluate7Cards(allHeroCards);
+    pokerHandEvalEl.textContent = heroEval.name;
+  }
+
+  if (pokerCallBtn) {
+    const toCall = pokerCurrentBet - pokerPlayerBet;
+    pokerCallBtn.textContent = toCall > 0 ? `Call $${toCall}` : "Check";
+  }
+
+  if (pokerBetSliderEl && pokerSliderValEl) {
+    const minRaise = Math.min(pokerPlayerChips, Math.max(20, (pokerCurrentBet - pokerPlayerBet) + 20));
+    pokerBetSliderEl.min = String(minRaise);
+    pokerBetSliderEl.max = String(pokerPlayerChips);
+    if (Number(pokerBetSliderEl.value) < minRaise) pokerBetSliderEl.value = String(minRaise);
+    pokerSliderValEl.textContent = `$${pokerBetSliderEl.value}`;
+    if (pokerRaiseBtn) {
+      const isBet = pokerCurrentBet === 0;
+      pokerRaiseBtn.textContent = `${isBet ? "Bet" : "Raise"} $${pokerBetSliderEl.value}`;
+    }
+  }
+
+  if (pokerAiNameEl) {
+    if (hubState.theme === "naruto") pokerAiNameEl.textContent = "Shinobi Opponent";
+    else if (hubState.theme === "got") pokerAiNameEl.textContent = "Iron Bank Rival";
+    else if (hubState.theme === "itachi") pokerAiNameEl.textContent = "Tsukuyomi Shadow";
+    else pokerAiNameEl.textContent = "AI Opponent";
+  }
+}
+
+/* ---------- Poker Life Cycle & Betting ---------- */
+function initPoker(resetBankroll = true) {
+  resetIdleWatchdog();
+  clearWinLine();
+  stopTurnTimer();
+  showTimerInactive();
+  updateMoveCounter(false);
+
+  boardWrap?.classList.remove("chess-mode", "wordle-mode", "imposter-mode");
+  boardWrap?.classList.add("poker-mode");
+  capturedLeft?.classList.add("hidden");
+  capturedRight?.classList.add("hidden");
+  tttBoardEl?.classList.add("hidden");
+  chessBoardEl?.classList.add("hidden");
+  wordleGameEl?.classList.add("hidden");
+  imposterGameEl?.classList.add("hidden");
+  pokerGameEl?.classList.remove("hidden");
+
+  if (statusPill) statusPill.textContent = "Texas Hold'em Poker";
+
+  if (resetBankroll) {
+    pokerPlayerChips = 1000;
+    pokerAiChips = 1000;
+  }
+  startNewPokerHand();
+}
+
+function startNewPokerHand() {
+  if (pokerPlayerChips <= 0) {
+    showWinScreen("Busted! AI Took All Chips.");
+    pokerPlayerChips = 1000; pokerAiChips = 1000;
+  } else if (pokerAiChips <= 0) {
+    showWinScreen("Tournament Victory! You Broke The Bank!");
+    pokerPlayerChips = 1000; pokerAiChips = 1000;
+  }
+
+  pokerDeck = buildFreshDeck();
+  pokerPlayerCards = [pokerDeck.pop(), pokerDeck.pop()];
+  pokerAiCards = [pokerDeck.pop(), pokerDeck.pop()];
+  pokerCommunity = [];
+  pokerPot = 0;
+  pokerPlayerBet = 0;
+  pokerAiBet = 0;
+  pokerStage = "preflop";
+  pokerOver = false;
+
+  pokerDealer = pokerDealer === "player" ? "ai" : "player";
+
+  const sb = 10, bb = 20;
+  if (pokerDealer === "player") {
+    pokerPlayerBet = Math.min(sb, pokerPlayerChips);
+    pokerAiBet = Math.min(bb, pokerAiChips);
+  } else {
+    pokerAiBet = Math.min(sb, pokerAiChips);
+    pokerPlayerBet = Math.min(bb, pokerPlayerChips);
+  }
+  pokerPlayerChips -= pokerPlayerBet;
+  pokerAiChips -= pokerAiBet;
+  pokerPot = pokerPlayerBet + pokerAiBet;
+  pokerCurrentBet = bb;
+
+  pokerTurn = pokerDealer === "player" ? "player" : "ai";
+
+  pokerBetControlsEl?.classList.remove("hidden");
+  pokerFoldBtn?.classList.remove("hidden");
+  pokerCallBtn?.classList.remove("hidden");
+  pokerRaiseBtn?.classList.remove("hidden");
+  pokerNextHandBtn?.classList.add("hidden");
+
+  if (pokerStatusBannerEl) {
+    pokerStatusBannerEl.textContent = `Pre-Flop: Blinds Posted ($10 / $20). ${pokerTurn === "player" ? "Your turn." : "AI is thinking..."}`;
+  }
+
+  renderPokerUI();
+
+  if (pokerTurn === "ai") {
+    setTimeout(aiPokerTurn, 600);
+  }
+}
+
+function advancePokerStage() {
+  pokerPlayerBet = 0;
+  pokerAiBet = 0;
+  pokerCurrentBet = 0;
+
+  if (pokerStage === "preflop") {
+    pokerStage = "flop";
+    pokerCommunity.push(pokerDeck.pop(), pokerDeck.pop(), pokerDeck.pop());
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = "Flop dealt! Place your bets.";
+  } else if (pokerStage === "flop") {
+    pokerStage = "turn";
+    pokerCommunity.push(pokerDeck.pop());
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = "Turn dealt! Action continues.";
+  } else if (pokerStage === "turn") {
+    pokerStage = "river";
+    pokerCommunity.push(pokerDeck.pop());
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = "River dealt! Final betting round.";
+  } else if (pokerStage === "river") {
+    pokerShowdown();
+    return;
+  }
+
+  pokerTurn = "player";
+  renderPokerUI();
+}
+
+function pokerShowdown() {
+  pokerStage = "showdown";
+  pokerOver = true;
+
+  const playerEval = evaluate7Cards([...pokerPlayerCards, ...pokerCommunity]);
+  const aiEval = evaluate7Cards([...pokerAiCards, ...pokerCommunity]);
+
+  let winMsg = "";
+  let winningCards = [];
+
+  if (playerEval.score > aiEval.score) {
+    pokerPlayerChips += pokerPot;
+    scoreA++;
+    updateStreak(true);
+    winMsg = `You Win $${pokerPot}! (${playerEval.name} beats ${aiEval.name})`;
+    winningCards = playerEval.cards.map(c => c.id);
+    triggerConfetti();
+  } else if (aiEval.score > playerEval.score) {
+    pokerAiChips += pokerPot;
+    scoreB++;
+    updateStreak(false);
+    winMsg = `AI Wins $${pokerPot}. (${aiEval.name} beats ${playerEval.name})`;
+    winningCards = aiEval.cards.map(c => c.id);
+  } else {
+    const half = Math.floor(pokerPot / 2);
+    pokerPlayerChips += half;
+    pokerAiChips += half;
+    winMsg = `Split Pot ($${half} each)! (${playerEval.name})`;
+    winningCards = playerEval.cards.map(c => c.id);
+  }
+
+  persistScores();
+  renderScores();
+
+  if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = winMsg;
+  pokerPot = 0;
+
+  pokerBetControlsEl?.classList.add("hidden");
+  pokerFoldBtn?.classList.add("hidden");
+  pokerCallBtn?.classList.add("hidden");
+  pokerRaiseBtn?.classList.add("hidden");
+  pokerNextHandBtn?.classList.remove("hidden");
+
+  renderPokerUI(winningCards);
+}
+
+function aiPokerTurn() {
+  if (pokerOver || pokerTurn !== "ai") return;
+
+  const toCall = pokerCurrentBet - pokerAiBet;
+  const allAiCards = [...pokerAiCards, ...pokerCommunity];
+  const evalHand = evaluate7Cards(allAiCards);
+  const diff = hubState.difficulty || "medium";
+
+  let action = "call";
+  let raiseAmount = Math.min(pokerAiChips, Math.max(20, toCall + 20));
+
+  if (diff === "easy") {
+    if (toCall > 80 && evalHand.rank === 0) action = "fold";
+    else if (evalHand.rank >= 2 && Math.random() < 0.3) action = "raise";
+    else action = "call";
+  } else if (diff === "medium") {
+    if (toCall > 120 && evalHand.rank === 0) action = "fold";
+    else if (evalHand.rank >= 2 && Math.random() < 0.6) action = "raise";
+    else if (evalHand.rank >= 1 && toCall <= 60) action = "call";
+    else action = toCall === 0 ? "call" : (Math.random() < 0.4 ? "call" : "fold");
+  } else {
+    if (evalHand.rank >= 3) {
+      action = "raise";
+      raiseAmount = Math.min(pokerAiChips, toCall + Math.max(40, Math.floor(pokerPot * 0.6)));
+    } else if (evalHand.rank >= 1) {
+      action = Math.random() < 0.4 ? "raise" : "call";
+      raiseAmount = Math.min(pokerAiChips, toCall + 30);
+    } else {
+      if (toCall === 0 && Math.random() < 0.25) {
+        action = "raise";
+        raiseAmount = Math.min(pokerAiChips, 40);
+      } else if (toCall <= 30) {
+        action = "call";
+      } else {
+        action = "fold";
+      }
+    }
+  }
+
+  if (action === "fold") {
+    pokerOver = true;
+    pokerPlayerChips += pokerPot;
+    scoreA++;
+    updateStreak(true);
+    persistScores();
+    renderScores();
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `AI Folds. You win $${pokerPot}!`;
+    pokerPot = 0;
+    pokerBetControlsEl?.classList.add("hidden");
+    pokerFoldBtn?.classList.add("hidden");
+    pokerCallBtn?.classList.add("hidden");
+    pokerRaiseBtn?.classList.add("hidden");
+    pokerNextHandBtn?.classList.remove("hidden");
+    renderPokerUI();
+    return;
+  }
+
+  if (action === "raise" && pokerAiChips > toCall) {
+    const added = Math.min(pokerAiChips, toCall + raiseAmount);
+    pokerAiChips -= added;
+    pokerAiBet += added;
+    pokerPot += added;
+    pokerCurrentBet = pokerAiBet;
+    pokerTurn = "player";
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `AI Raised to $${pokerCurrentBet}. Your action!`;
+    renderPokerUI();
+    return;
+  }
+
+  const callAmt = Math.min(pokerAiChips, toCall);
+  pokerAiChips -= callAmt;
+  pokerAiBet += callAmt;
+  pokerPot += callAmt;
+  renderPokerUI();
+
+  if (pokerPlayerBet === pokerAiBet) {
+    setTimeout(advancePokerStage, 400);
+  } else {
+    pokerTurn = "player";
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `AI Calls. Your turn.`;
+  }
+}
+
+pokerFoldBtn?.addEventListener("click", () => {
+  if (pokerOver || pokerTurn !== "player") return;
+  pokerOver = true;
+  pokerAiChips += pokerPot;
+  scoreB++;
+  updateStreak(false);
+  persistScores();
+  renderScores();
+  if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `You Folded. AI takes $${pokerPot}.`;
+  pokerPot = 0;
+  pokerBetControlsEl?.classList.add("hidden");
+  pokerFoldBtn?.classList.add("hidden");
+  pokerCallBtn?.classList.add("hidden");
+  pokerRaiseBtn?.classList.add("hidden");
+  pokerNextHandBtn?.classList.remove("hidden");
+  renderPokerUI();
+});
+
+pokerCallBtn?.addEventListener("click", () => {
+  if (pokerOver || pokerTurn !== "player") return;
+  const toCall = pokerCurrentBet - pokerPlayerBet;
+  const callAmt = Math.min(pokerPlayerChips, toCall);
+  pokerPlayerChips -= callAmt;
+  pokerPlayerBet += callAmt;
+  pokerPot += callAmt;
+  renderPokerUI();
+
+  if (pokerPlayerBet === pokerAiBet && pokerCurrentBet > 0 && pokerStage !== "preflop") {
+    advancePokerStage();
+  } else {
+    pokerTurn = "ai";
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = "AI is thinking...";
+    setTimeout(aiPokerTurn, 600);
+  }
+});
+
+pokerRaiseBtn?.addEventListener("click", () => {
+  if (pokerOver || pokerTurn !== "player") return;
+  const raiseVal = Number(pokerBetSliderEl?.value || 40);
+  const toCall = pokerCurrentBet - pokerPlayerBet;
+  const totalCommit = Math.min(pokerPlayerChips, toCall + raiseVal);
+  if (totalCommit <= 0) return;
+
+  pokerPlayerChips -= totalCommit;
+  pokerPlayerBet += totalCommit;
+  pokerPot += totalCommit;
+  pokerCurrentBet = pokerPlayerBet;
+  renderPokerUI();
+
+  pokerTurn = "ai";
+  if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `You Raised to $${pokerCurrentBet}. AI thinking...`;
+  setTimeout(aiPokerTurn, 650);
+});
+
+pokerBetSliderEl?.addEventListener("input", () => {
+  if (pokerSliderValEl) pokerSliderValEl.textContent = `$${pokerBetSliderEl.value}`;
+  if (pokerRaiseBtn) {
+    const isBet = pokerCurrentBet === 0;
+    pokerRaiseBtn.textContent = `${isBet ? "Bet" : "Raise"} $${pokerBetSliderEl.value}`;
+  }
+});
+
+pokerQuickMinBtn?.addEventListener("click", () => {
+  if (pokerBetSliderEl) {
+    pokerBetSliderEl.value = pokerBetSliderEl.min;
+    pokerBetSliderEl.dispatchEvent(new Event("input"));
+  }
+});
+
+pokerQuickHalfBtn?.addEventListener("click", () => {
+  if (pokerBetSliderEl) {
+    const half = Math.max(Number(pokerBetSliderEl.min), Math.floor(pokerPot / 2));
+    pokerBetSliderEl.value = String(Math.min(pokerPlayerChips, half));
+    pokerBetSliderEl.dispatchEvent(new Event("input"));
+  }
+});
+
+pokerQuickPotBtn?.addEventListener("click", () => {
+  if (pokerBetSliderEl) {
+    const potBet = Math.max(Number(pokerBetSliderEl.min), pokerPot || 40);
+    pokerBetSliderEl.value = String(Math.min(pokerPlayerChips, potBet));
+    pokerBetSliderEl.dispatchEvent(new Event("input"));
+  }
+});
+
+pokerQuickAllInBtn?.addEventListener("click", () => {
+  if (pokerBetSliderEl) {
+    pokerBetSliderEl.value = String(pokerPlayerChips);
+    pokerBetSliderEl.dispatchEvent(new Event("input"));
+  }
+});
+
+pokerNextHandBtn?.addEventListener("click", () => {
+  startNewPokerHand();
+});
+
+/* ==========================================================================
+   THE IMPOSTER ENGINE: SINGLE-DEVICE PASS & PLAY PARTY GAME
+   ========================================================================== */
+const IMPOSTER_PACKS = {
+  locations: {
+    name: "World Locations",
+    words: [
+      "Airport", "Bank Vault", "Casino", "Circus Tent", "Hospital ER",
+      "Hotel Resort", "Library", "Movie Theater", "Pirate Ship", "Police Station",
+      "Restaurant Kitchen", "Space Station", "Submarine", "Supermarket", "Theme Park", "Train Station"
+    ]
+  },
+  naruto: {
+    name: "Naruto Shinobi World",
+    words: [
+      "Hidden Leaf Village", "Valley of the End", "Akatsuki Hideout", "Chunin Exam Arena", "Mount Myoboku",
+      "Ichiraku Ramen", "Forest of Death", "Hokage Rock", "Sound Village", "Sand Village",
+      "Uchiha Compound", "Iron Country", "Five Kage Summit", "Turtle Island"
+    ]
+  },
+  got: {
+    name: "Westeros Realm",
+    words: [
+      "Winterfell", "King's Landing", "The Wall", "Dragonstone", "Braavos",
+      "Sunspear", "Iron Islands", "The Eyrie", "Harrenhal", "Highgarden",
+      "Citadel of Oldtown", "Casterly Rock", "Flea Bottom", "Tower of Joy"
+    ]
+  },
+  objects: {
+    name: "Everyday Objects",
+    words: [
+      "Smartphone", "Bicycle", "Umbrella", "Acoustic Guitar", "Wristwatch",
+      "Sunglasses", "DSLR Camera", "Laptop", "Backpack", "Telescope",
+      "Espresso Machine", "Diamond Ring", "Skateboard", "Compass", "Headphones", "Drone"
+    ]
+  }
+};
+
+const IMPOSTER_PROMPTS = [
+  "Ask the player to your left: What would you wear in this place?",
+  "Ask any player: How expensive is it to be here?",
+  "Ask the player across: How many people are usually around?",
+  "Ask any player: Is this place noisy or quiet?",
+  "Ask the player to your right: Have you ever been here in real life?",
+  "Ask any player: What is the most dangerous thing about this item/place?",
+  "Ask any player: What color best represents this word?"
+];
+
+let imposterPlayerCount = 3;
+let imposterCategory = "locations";
+let imposterCurrentPlayer = 0;
+let imposterIndex = 0;
+let imposterSecretWord = "";
+let imposterTimerInterval = null;
+let imposterTimeLeft = 180;
+
+function initImposter() {
+  resetIdleWatchdog();
+  clearWinLine();
+  stopTurnTimer();
+  showTimerInactive();
+  updateMoveCounter(false);
+
+  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode");
+  boardWrap?.classList.add("imposter-mode");
+  capturedLeft?.classList.add("hidden");
+  capturedRight?.classList.add("hidden");
+  tttBoardEl?.classList.add("hidden");
+  chessBoardEl?.classList.add("hidden");
+  wordleGameEl?.classList.add("hidden");
+  pokerGameEl?.classList.add("hidden");
+  imposterGameEl?.classList.remove("hidden");
+
+  if (statusPill) statusPill.textContent = "The Imposter (Social Deduction)";
+
+  showImposterScreen("setup");
+}
+
+function showImposterScreen(screenName) {
+  imposterSetupScreenEl?.classList.add("hidden");
+  imposterRevealScreenEl?.classList.add("hidden");
+  imposterDiscussScreenEl?.classList.add("hidden");
+  imposterVoteScreenEl?.classList.add("hidden");
+  imposterGuessScreenEl?.classList.add("hidden");
+
+  if (screenName === "setup") imposterSetupScreenEl?.classList.remove("hidden");
+  if (screenName === "reveal") imposterRevealScreenEl?.classList.remove("hidden");
+  if (screenName === "discuss") imposterDiscussScreenEl?.classList.remove("hidden");
+  if (screenName === "vote") imposterVoteScreenEl?.classList.remove("hidden");
+  if (screenName === "guess") imposterGuessScreenEl?.classList.remove("hidden");
+}
+
+imposterCountPillsEl?.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-count]");
+  if (!btn) return;
+  imposterCountPillsEl.querySelectorAll(".seg-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  imposterPlayerCount = Number(btn.dataset.count);
+});
+
+imposterCategoryPillsEl?.addEventListener("click", (e) => {
+  const card = e.target.closest(".imposter-cat-card");
+  if (!card) return;
+  imposterCategoryPillsEl.querySelectorAll(".imposter-cat-card").forEach(c => c.classList.remove("active"));
+  card.classList.add("active");
+  imposterCategory = card.dataset.cat;
+});
+
+imposterStartBtn?.addEventListener("click", () => {
+  const pack = IMPOSTER_PACKS[imposterCategory] || IMPOSTER_PACKS.locations;
+  imposterSecretWord = pack.words[Math.floor(Math.random() * pack.words.length)];
+  imposterIndex = Math.floor(Math.random() * imposterPlayerCount);
+  imposterCurrentPlayer = 0;
+
+  showImposterRevealPlayer(0);
+});
+
+function showImposterRevealPlayer(playerIdx) {
+  imposterCurrentPlayer = playerIdx;
+  showImposterScreen("reveal");
+
+  if (imposterPassHeaderEl) {
+    imposterPassHeaderEl.textContent = `Pass Device to Player ${playerIdx + 1}`;
+  }
+
+  imposterCurtainHiddenEl?.classList.remove("hidden");
+  imposterCurtainRevealedEl?.classList.add("hidden");
+  imposterNextPlayerBtn?.classList.add("hidden");
+
+  const isImposter = (playerIdx === imposterIndex);
+  if (imposterRoleBadgeEl) {
+    imposterRoleBadgeEl.textContent = isImposter ? "🚨 Imposter" : "Innocent";
+    imposterRoleBadgeEl.className = `role-badge ${isImposter ? "imposter" : ""}`;
+  }
+  if (imposterWordDisplayEl) {
+    imposterWordDisplayEl.textContent = isImposter ? "YOU ARE THE IMPOSTER" : imposterSecretWord;
+  }
+  if (imposterHintDisplayEl) {
+    const pack = IMPOSTER_PACKS[imposterCategory];
+    imposterHintDisplayEl.textContent = isImposter ? `Blend in! Category is ${pack.name}` : `Category: ${pack.name}`;
+  }
+}
+
+function onCurtainHoldStart() {
+  imposterCurtainHiddenEl?.classList.add("hidden");
+  imposterCurtainRevealedEl?.classList.remove("hidden");
+}
+function onCurtainHoldEnd() {
+  imposterCurtainHiddenEl?.classList.remove("hidden");
+  imposterCurtainRevealedEl?.classList.add("hidden");
+  imposterNextPlayerBtn?.classList.remove("hidden");
+}
+
+imposterCurtainCardEl?.addEventListener("mousedown", onCurtainHoldStart);
+imposterCurtainCardEl?.addEventListener("mouseup", onCurtainHoldEnd);
+imposterCurtainCardEl?.addEventListener("mouseleave", onCurtainHoldEnd);
+imposterCurtainCardEl?.addEventListener("touchstart", (e) => { e.preventDefault(); onCurtainHoldStart(); });
+imposterCurtainCardEl?.addEventListener("touchend", onCurtainHoldEnd);
+
+imposterNextPlayerBtn?.addEventListener("click", () => {
+  if (imposterCurrentPlayer + 1 < imposterPlayerCount) {
+    showImposterRevealPlayer(imposterCurrentPlayer + 1);
+  } else {
+    startImposterDiscussion();
+  }
+});
+
+function startImposterDiscussion() {
+  showImposterScreen("discuss");
+  imposterTimeLeft = 180;
+
+  if (imposterDiscussRosterEl) {
+    imposterDiscussRosterEl.innerHTML = Array.from({ length: imposterPlayerCount }, (_, i) => `
+      <div class="imposter-player-pill">Player ${i + 1}</div>
+    `).join("");
+  }
+
+  if (imposterPromptTextEl) {
+    imposterPromptTextEl.textContent = IMPOSTER_PROMPTS[Math.floor(Math.random() * IMPOSTER_PROMPTS.length)];
+  }
+
+  if (imposterTimerInterval) clearInterval(imposterTimerInterval);
+  imposterTimerInterval = setInterval(() => {
+    imposterTimeLeft--;
+    const mins = Math.floor(imposterTimeLeft / 60);
+    const secs = imposterTimeLeft % 60;
+    if (imposterDiscussTimerEl) imposterDiscussTimerEl.textContent = `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+
+    if (imposterTimeLeft % 30 === 0 && imposterPromptTextEl) {
+      imposterPromptTextEl.textContent = IMPOSTER_PROMPTS[Math.floor(Math.random() * IMPOSTER_PROMPTS.length)];
+    }
+
+    if (imposterTimeLeft <= 0) {
+      clearInterval(imposterTimerInterval);
+      startImposterVoting();
+    }
+  }, 1000);
+}
+
+imposterAccuseBtn?.addEventListener("click", () => {
+  if (imposterTimerInterval) clearInterval(imposterTimerInterval);
+  startImposterVoting();
+});
+
+function startImposterVoting() {
+  showImposterScreen("vote");
+
+  if (imposterVoteGridEl) {
+    imposterVoteGridEl.innerHTML = Array.from({ length: imposterPlayerCount }, (_, i) => `
+      <button class="imposter-vote-btn" data-player="${i}" type="button">
+        Accuse Player ${i + 1}
+      </button>
+    `).join("");
+  }
+}
+
+imposterVoteGridEl?.addEventListener("click", (e) => {
+  const btn = e.target.closest(".imposter-vote-btn");
+  if (!btn) return;
+  const accusedIdx = Number(btn.dataset.player);
+
+  if (accusedIdx === imposterIndex) {
+    startImposterGuess();
+  } else {
+    showWinScreen(`Imposter Escapes! Player ${imposterIndex + 1} was the Imposter. (Word: ${imposterSecretWord})`);
+    scoreB++;
+    persistScores();
+    renderScores();
+    showImposterScreen("setup");
+  }
+});
+
+function startImposterGuess() {
+  showImposterScreen("guess");
+  const pack = IMPOSTER_PACKS[imposterCategory] || IMPOSTER_PACKS.locations;
+  const pool = [...pack.words].filter(w => w !== imposterSecretWord);
+  pool.sort(() => Math.random() - 0.5);
+  const candidates = [imposterSecretWord, ...pool.slice(0, 7)];
+  candidates.sort(() => Math.random() - 0.5);
+
+  if (imposterGuessGridEl) {
+    imposterGuessGridEl.innerHTML = candidates.map(word => `
+      <button class="imposter-guess-btn" data-word="${word}" type="button">
+        ${word}
+      </button>
+    `).join("");
+  }
+}
+
+imposterGuessGridEl?.addEventListener("click", (e) => {
+  const btn = e.target.closest(".imposter-guess-btn");
+  if (!btn) return;
+  const guessedWord = btn.dataset.word;
+
+  if (guessedWord === imposterSecretWord) {
+    showWinScreen(`Imposter Guessed Correctly! (${imposterSecretWord}) Imposter Steals The Win!`);
+    scoreB++;
+  } else {
+    showWinScreen(`Innocents Prevail! The Imposter Guessed Wrong. (Word: ${imposterSecretWord})`);
+    scoreA++;
+  }
+  persistScores();
+  renderScores();
+  showImposterScreen("setup");
+});
+
 /* ---------- Live Game Persistence ---------- */
 function persistLiveState() {
   const payload = {
@@ -1780,6 +2717,16 @@ function restoreLiveStateIfAny() {
       return true;
     }
 
+    if (s.mode && s.mode.startsWith("poker")) {
+      initPoker(false);
+      return true;
+    }
+
+    if (s.mode === "imposter") {
+      initImposter();
+      return true;
+    }
+
     return false;
   } catch {
     return false;
@@ -1803,14 +2750,18 @@ window.addEventListener("keydown", (e) => {
     if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+    if (k === "5") { hubState.game = "poker"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+    if (k === "6") { hubState.game = "imposter"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     return;
   }
 
-  // Global shortcuts for TTT & Chess
+  // Global shortcuts for TTT, Chess, Wordle, Poker, Imposter
   if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "4") { hubState.game = "wordle"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+  if (k === "5") { hubState.game = "poker"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+  if (k === "6") { hubState.game = "imposter"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
 
   if (k === "R") { newGameBtn?.click(); return; }
   if (k === "Z") { undoBtn?.click(); return; }
@@ -1856,6 +2807,9 @@ undoBtn?.addEventListener("click", () => {
   resetIdleWatchdog();
   if (hubState.game === "wordle") {
     handleWordleKey("DEL");
+    return;
+  }
+  if (hubState.game === "poker" || hubState.game === "imposter") {
     return;
   }
   const mode = modeSelect.value;
@@ -1955,6 +2909,8 @@ function initBoard(forceFresh = false) {
 
   hubFromMode(modeSelect.value);
   if (hubState.game === "wordle") initWordle();
+  else if (hubState.game === "poker") initPoker();
+  else if (hubState.game === "imposter") initImposter();
   else if (modeSelect.value.startsWith("ttt3")) initTTT(3);
   else if (modeSelect.value.startsWith("ttt5")) initTTT(5);
   else initChess();
