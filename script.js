@@ -2637,7 +2637,7 @@ imposterGuessGridEl?.addEventListener("click", (e) => {
 function persistLiveState() {
   const payload = {
     hubState: { ...hubState },
-    mode: modeSelect.value,
+    mode: modeFromHub(),
     scores: { scoreA, scoreB, scoreD, streak },
     moveCount,
     ttt: {
@@ -2907,12 +2907,12 @@ function initBoard(forceFresh = false) {
     }
   }
 
-  hubFromMode(modeSelect.value);
+  if (modeSelect) modeSelect.value = modeFromHub();
   if (hubState.game === "wordle") initWordle();
   else if (hubState.game === "poker") initPoker();
   else if (hubState.game === "imposter") initImposter();
-  else if (modeSelect.value.startsWith("ttt3")) initTTT(3);
-  else if (modeSelect.value.startsWith("ttt5")) initTTT(5);
+  else if (hubState.game === "ttt3") initTTT(3);
+  else if (hubState.game === "ttt5") initTTT(5);
   else initChess();
 
   startTurnTimer();
