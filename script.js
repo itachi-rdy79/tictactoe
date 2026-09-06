@@ -14,6 +14,8 @@ const resetScoreBtn = document.getElementById("resetScoreBtn");
 const undoBtn = document.getElementById("undoBtn");
 
 const statusPill = document.getElementById("statusPill");
+const moveCounterPill = document.getElementById("moveCounterPill");
+const moveCountEl = document.getElementById("moveCount");
 const radialWrap = document.getElementById("radialWrap");
 const ringFg = document.getElementById("ringFg");
 const radialText = document.getElementById("radialText");
@@ -25,8 +27,8 @@ const wordleGameEl = document.getElementById("wordleGame");
 const wordleBoardEl = document.getElementById("wordleBoard");
 const wordleKeyboardEl = document.getElementById("wordleKeyboard");
 
-const capturedTop = document.getElementById("capturedTop");
-const capturedBottom = document.getElementById("capturedBottom");
+const capturedLeft = document.getElementById("capturedLeft");
+const capturedRight = document.getElementById("capturedRight");
 const whiteCapturedEl = document.getElementById("whiteCaptured");
 const blackCapturedEl = document.getElementById("blackCaptured");
 
@@ -52,16 +54,13 @@ const closeStatsBtn = document.getElementById("closeStatsBtn");
 const statsGridContent = document.getElementById("statsGridContent");
 const confettiCanvas = document.getElementById("confettiCanvas");
 
-/* ---------- Expanded Dynamic Colors on Reload (No Pink, Non-Gold) ---------- */
+/* ---------- 5 Vibrant Neon Accent Palettes on Reload ---------- */
 const DYNAMIC_PALETTES = [
-  { accent: "#06b6d4", border: "#22d3ee", shadow: "#0891b2", tint: "rgba(6, 182, 212, 0.18)", lightBg: "#f1f5f9" },
-  { accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.18)", lightBg: "#f1f5f9" },
-  { accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.18)", lightBg: "#f1f5f9" },
-  { accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.18)", lightBg: "#f1f5f9" },
-  { accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.18)", lightBg: "#f1f5f9" },
-  { accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.18)", lightBg: "#f1f5f9" },
-  { accent: "#3b82f6", border: "#60a5fa", shadow: "#1d4ed8", tint: "rgba(59, 130, 246, 0.18)", lightBg: "#f1f5f9" },
-  { accent: "#f97316", border: "#fb923c", shadow: "#c2410c", tint: "rgba(249, 115, 22, 0.18)", lightBg: "#f1f5f9" }
+  { name: "Emerald", accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.2)", lightBg: "#ecfdf5" },
+  { name: "Amber",   accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.2)", lightBg: "#fffbeb" },
+  { name: "Violet",  accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.2)", lightBg: "#f5f3ff" },
+  { name: "Teal",    accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.2)", lightBg: "#f0fdfa" },
+  { name: "Lime",    accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.2)", lightBg: "#f7fee7" }
 ];
 
 function applyRandomPalette() {
@@ -88,9 +87,21 @@ const hubState = {
 };
 
 let scoreA = 0, scoreB = 0, scoreD = 0, streak = 0;
+let moveCount = 0;
+
+/* ---------- Move Counter Display ---------- */
+function updateMoveCounter(show = true) {
+  if (!moveCounterPill || !moveCountEl) return;
+  if (!show) {
+    moveCounterPill.classList.add("hidden");
+    return;
+  }
+  moveCounterPill.classList.remove("hidden");
+  moveCountEl.textContent = String(moveCount);
+}
 
 /* ---------- PERSIST KEYS ---------- */
-const LIVE_STATE_KEY = "liveGameState_v3";
+const LIVE_STATE_KEY = "liveGameState_v4";
 
 /* ---------- Idle Watchdog ---------- */
 let idleSeconds = 0;
@@ -306,7 +317,7 @@ scoreTickerBtn?.addEventListener("click", () => {
 closeStatsBtn?.addEventListener("click", () => statsModal?.classList.add("hidden"));
 statsModal?.addEventListener("click", (e) => { if (e.target === statsModal) statsModal.classList.add("hidden"); });
 
-/* ---------- Confetti ---------- */
+/* ---------- Confetti (Zero Audio, Pure Visual) ---------- */
 function triggerConfetti() {
   if (!confettiCanvas) return;
   const ctx = confettiCanvas.getContext("2d");
@@ -314,13 +325,13 @@ function triggerConfetti() {
   confettiCanvas.height = window.innerHeight;
 
   const particles = [];
-  const colors = ["#ff0033", "#ffd000", "#10b981", "#3b82f6", "#8b5cf6", "#fbbf24"];
-  for (let i = 0; i < 100; i++) {
+  const colors = ["#ff0033", "#ffd000", "#10b981", "#3b82f6", "#8b5cf6", "#fbbf24", "#14b8a6", "#84cc16"];
+  for (let i = 0; i < 110; i++) {
     particles.push({
       x: confettiCanvas.width / 2,
       y: confettiCanvas.height / 2,
-      vx: (Math.random() - 0.5) * 16,
-      vy: (Math.random() - 0.7) * 16,
+      vx: (Math.random() - 0.5) * 18,
+      vy: (Math.random() - 0.7) * 18,
       size: Math.random() * 8 + 4,
       color: colors[Math.floor(Math.random() * colors.length)],
       rotation: Math.random() * 360,
@@ -332,7 +343,7 @@ function triggerConfetti() {
   function loop() {
     ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     particles.forEach(p => {
-      p.x += p.vx; p.y += p.vy; p.vy += 0.4; p.rotation += p.vRot;
+      p.x += p.vx; p.y += p.vy; p.vy += 0.42; p.rotation += p.vRot;
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate((p.rotation * Math.PI) / 180);
@@ -404,7 +415,7 @@ function startTurnTimer() {
   }, 100);
 }
 
-/* ---------- Win ---------- */
+/* ---------- Win Modal ---------- */
 function showWinScreen(msg) {
   resetIdleWatchdog();
   if (winMessage) winMessage.textContent = msg.toUpperCase();
@@ -417,7 +428,7 @@ function hideWinScreen() {
 winRestartBtn?.addEventListener("click", () => { hideWinScreen(); initBoard(true); });
 winOverlay?.addEventListener("click", (e) => { if (e.target === winOverlay) hideWinScreen(); });
 
-/* ---------- Tic-Tac-Toe ---------- */
+/* ---------- Tic-Tac-Toe (3x3 & 5x5) ---------- */
 let tttBoard = [], tttSize = 3, tttWinLen = 3, tttTurn = "X", tttOver = false, tttWinningCells = [];
 let tttSnapshots = [];
 
@@ -429,24 +440,84 @@ function drawWinLineTTT(line) {
   const ar = Math.floor(a / s), ac = a % s, br = Math.floor(b / s), bc = b % s;
   winLineSvg.innerHTML = `<line x1="${((ac + 0.5) / s) * 100}" y1="${((ar + 0.5) / s) * 100}" x2="${((bc + 0.5) / s) * 100}" y2="${((br + 0.5) / s) * 100}"></line>`;
 }
+
 function buildTTTLines(size, len) {
   const lines = [];
-  for (let r = 0; r < size; r++) for (let c = 0; c <= size - len; c++) { const l = []; for (let k = 0; k < len; k++) l.push(r * size + c + k); lines.push(l); }
-  for (let c = 0; c < size; c++) for (let r = 0; r <= size - len; r++) { const l = []; for (let k = 0; k < len; k++) l.push((r + k) * size + c); lines.push(l); }
-  for (let r = 0; r <= size - len; r++) for (let c = 0; c <= size - len; c++) { const l = []; for (let k = 0; k < len; k++) l.push((r + k) * size + (c + k)); lines.push(l); }
-  for (let r = 0; r <= size - len; r++) for (let c = len - 1; c < size; c++) { const l = []; for (let k = 0; k < len; k++) l.push((r + k) * size + (c - k)); lines.push(l); }
+  // Rows
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c <= size - len; c++) {
+      const l = [];
+      for (let k = 0; k < len; k++) l.push(r * size + c + k);
+      lines.push(l);
+    }
+  }
+  // Columns
+  for (let c = 0; c < size; c++) {
+    for (let r = 0; r <= size - len; r++) {
+      const l = [];
+      for (let k = 0; k < len; k++) l.push((r + k) * size + c);
+      lines.push(l);
+    }
+  }
+  // Diagonals down-right
+  for (let r = 0; r <= size - len; r++) {
+    for (let c = 0; c <= size - len; c++) {
+      const l = [];
+      for (let k = 0; k < len; k++) l.push((r + k) * size + (c + k));
+      lines.push(l);
+    }
+  }
+  // Diagonals down-left
+  for (let r = 0; r <= size - len; r++) {
+    for (let c = len - 1; c < size; c++) {
+      const l = [];
+      for (let k = 0; k < len; k++) l.push((r + k) * size + (c - k));
+      lines.push(l);
+    }
+  }
   return lines;
 }
-function getTTTResult(board, size = tttSize, winLen = tttWinLen) {
-  for (const line of buildTTTLines(size, winLen)) {
-    const first = board[line[0]];
-    if (first && line.every(i => board[i] === first)) return { winner: first, line };
-  }
-  if (board.every(Boolean)) return { winner: "draw", line: [] };
-  return { winner: null, line: [] };
+
+const TTT_LINES_3 = buildTTTLines(3, 3);
+// 5x5: precompute winning vectors
+const TTT_LINES_5 = buildTTTLines(5, 4);
+
+function getTTTLines(size, len) {
+  if (size === 3 && len === 3) return TTT_LINES_3;
+  if (size === 5 && len === 4) return TTT_LINES_5;
+  return buildTTTLines(size, len);
 }
-function getEmptyCells(board) { const a = []; for (let i = 0; i < board.length; i++) if (!board[i]) a.push(i); return a; }
-function saveTTTSnapshot() { tttSnapshots.push({ board: [...tttBoard], turn: tttTurn, over: tttOver, win: [...tttWinningCells], scoreA, scoreB, scoreD, streak }); }
+
+function getTTTResult(board, size = tttSize, winLen = tttWinLen) {
+  const lines = getTTTLines(size, winLen);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const first = board[line[0]];
+    if (!first) continue;
+    let match = true;
+    for (let k = 1; k < line.length; k++) {
+      if (board[line[k]] !== first) { match = false; break; }
+    }
+    if (match) return { winner: first, line };
+  }
+  for (let i = 0; i < board.length; i++) {
+    if (!board[i]) return { winner: null, line: [] };
+  }
+  return { winner: "draw", line: [] };
+}
+
+function getEmptyCells(board) {
+  const a = [];
+  for (let i = 0; i < board.length; i++) if (!board[i]) a.push(i);
+  return a;
+}
+
+function saveTTTSnapshot() {
+  tttSnapshots.push({
+    board: [...tttBoard], turn: tttTurn, over: tttOver, win: [...tttWinningCells],
+    scoreA, scoreB, scoreD, streak, moveCount
+  });
+}
 
 function initTTT(size) {
   tttSize = size;
@@ -456,24 +527,25 @@ function initTTT(size) {
   tttOver = false;
   tttWinningCells = [];
   tttSnapshots = [];
+  moveCount = 0;
   clearWinLine();
+  updateMoveCounter(true);
   renderTTT();
   startTurnTimer();
 }
+
 function renderTTT() {
   resetIdleWatchdog();
   boardWrap?.classList.remove("wordle-mode", "chess-mode");
-  capturedTop?.classList.remove("chess-mode");
-  capturedBottom?.classList.remove("chess-mode");
+  capturedLeft?.classList.add("hidden");
+  capturedRight?.classList.add("hidden");
   tttBoardEl?.classList.remove("hidden");
   chessBoardEl?.classList.add("hidden");
   wordleGameEl?.classList.add("hidden");
-  capturedTop?.classList.add("hidden");
-  capturedBottom?.classList.add("hidden");
 
   if (!tttBoardEl) return;
   tttBoardEl.innerHTML = "";
-  tttBoardEl.style.gridTemplateColumns = `repeat(${tttSize}, minmax(50px, 1fr))`;
+  tttBoardEl.style.gridTemplateColumns = `repeat(${tttSize}, minmax(48px, 1fr))`;
 
   const isItachi = hubState.theme === "itachi";
   tttBoard.forEach((v, i) => {
@@ -496,35 +568,204 @@ function renderTTT() {
     }
   }
 }
-function minimaxTTT(board, size, winLen, depth, maxing) {
-  const r = getTTTResult(board, size, winLen);
-  if (r.winner === "O") return { score: 1000 + depth };
-  if (r.winner === "X") return { score: -1000 - depth };
-  if (r.winner === "draw" || depth === 0) return { score: 0 };
+
+/* ---------- 3x3 Tic-Tac-Toe Minimax (Mathematically Unbeatable on Hard) ---------- */
+function minimaxTTT3(board, depth, alpha, beta, maxing) {
+  const r = getTTTResult(board, 3, 3);
+  if (r.winner === "O") return { score: 1000 + depth, move: null };
+  if (r.winner === "X") return { score: -1000 - depth, move: null };
+  if (r.winner === "draw" || depth === 0) return { score: 0, move: null };
+
   const empties = getEmptyCells(board);
-  let best = { score: maxing ? -Infinity : Infinity, move: null };
-  for (const i of empties) {
-    board[i] = maxing ? "O" : "X";
-    const out = minimaxTTT(board, size, winLen, depth - 1, !maxing);
-    board[i] = null;
-    if (maxing ? out.score > best.score : out.score < best.score) best = { score: out.score, move: i };
+  let best = { score: maxing ? -Infinity : Infinity, move: empties[0] };
+
+  for (let i = 0; i < empties.length; i++) {
+    const idx = empties[i];
+    board[idx] = maxing ? "O" : "X";
+    const out = minimaxTTT3(board, depth - 1, alpha, beta, !maxing);
+    board[idx] = null;
+    if (maxing) {
+      if (out.score > best.score) { best.score = out.score; best.move = idx; }
+      alpha = Math.max(alpha, best.score);
+      if (beta <= alpha) break;
+    } else {
+      if (out.score < best.score) { best.score = out.score; best.move = idx; }
+      beta = Math.min(beta, best.score);
+      if (beta <= alpha) break;
+    }
   }
   return best;
 }
+
+/* ---------- 5x5 Tic-Tac-Toe Tactical Heuristic & AI ---------- */
+const TTT5_CENTER_WEIGHTS = [
+  1, 2, 3, 2, 1,
+  2, 4, 6, 4, 2,
+  3, 6, 9, 6, 3,
+  2, 4, 6, 4, 2,
+  1, 2, 3, 2, 1
+];
+
+function evalTTT5(board) {
+  let score = 0;
+  const lines = TTT_LINES_5;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    let o = 0, x = 0;
+    for (let k = 0; k < 4; k++) {
+      const v = board[line[k]];
+      if (v === "O") o++;
+      else if (v === "X") x++;
+    }
+    if (o > 0 && x > 0) continue;
+    if (o === 4) return 100000;
+    if (x === 4) return -100000;
+    if (o === 3) score += 950;
+    else if (o === 2) score += 75;
+    else if (o === 1) score += 6;
+    if (x === 3) score -= 1300;
+    else if (x === 2) score -= 90;
+    else if (x === 1) score -= 7;
+  }
+  for (let i = 0; i < 25; i++) {
+    const v = board[i];
+    if (v === "O") score += TTT5_CENTER_WEIGHTS[i];
+    else if (v === "X") score -= TTT5_CENTER_WEIGHTS[i];
+  }
+  return score;
+}
+
+function getTTT5Candidates(board) {
+  const empties = getEmptyCells(board);
+  if (empties.length === 25) return [12];
+  if (empties.length <= 1) return empties;
+
+  const candidates = [];
+  for (let i = 0; i < empties.length; i++) {
+    const idx = empties[i];
+    const r = Math.floor(idx / 5), c = idx % 5;
+    let hasNeighbor = false;
+    for (let dr = -2; dr <= 2 && !hasNeighbor; dr++) {
+      for (let dc = -2; dc <= 2 && !hasNeighbor; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5) {
+          if (board[nr * 5 + nc]) hasNeighbor = true;
+        }
+      }
+    }
+    if (hasNeighbor) candidates.push(idx);
+  }
+  return candidates.length ? candidates : empties;
+}
+
+function findTTTImmediateThreat(board, size, winLen, piece) {
+  const lines = getTTTLines(size, winLen);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    let pieceCount = 0, emptyIdx = null;
+    for (let k = 0; k < line.length; k++) {
+      const v = board[line[k]];
+      if (v === piece) pieceCount++;
+      else if (!v) emptyIdx = line[k];
+    }
+    if (pieceCount === winLen - 1 && emptyIdx != null) {
+      return emptyIdx;
+    }
+  }
+  return null;
+}
+
+function minimaxTTT5(board, depth, alpha, beta, maxing) {
+  const res = getTTTResult(board, 5, 4);
+  if (res.winner === "O") return { score: 100000 + depth, move: null };
+  if (res.winner === "X") return { score: -100000 - depth, move: null };
+  if (res.winner === "draw" || depth === 0) return { score: evalTTT5(board), move: null };
+
+  const candidates = getTTT5Candidates(board);
+  let best = { score: maxing ? -Infinity : Infinity, move: candidates[0] };
+
+  for (let i = 0; i < candidates.length; i++) {
+    const idx = candidates[i];
+    board[idx] = maxing ? "O" : "X";
+    const out = minimaxTTT5(board, depth - 1, alpha, beta, !maxing);
+    board[idx] = null;
+    if (maxing) {
+      if (out.score > best.score) { best.score = out.score; best.move = idx; }
+      alpha = Math.max(alpha, best.score);
+      if (beta <= alpha) break;
+    } else {
+      if (out.score < best.score) { best.score = out.score; best.move = idx; }
+      beta = Math.min(beta, best.score);
+      if (beta <= alpha) break;
+    }
+  }
+  return best;
+}
+
 function aiTTTMove() {
   if (tttOver) return;
   const empties = getEmptyCells(tttBoard);
   if (!empties.length) return;
 
   saveTTTSnapshot();
+  const diff = difficultySelect.value;
   let move = empties[Math.floor(Math.random() * empties.length)];
-  if (difficultySelect.value !== "easy") {
-    const depth = tttSize === 3 ? Math.min(empties.length, 7) : (difficultySelect.value === "medium" ? 2 : 3);
-    const best = minimaxTTT(tttBoard, tttSize, tttWinLen, depth, true);
-    if (best.move != null) move = best.move;
+
+  if (tttSize === 3) {
+    if (diff === "easy") {
+      if (Math.random() > 0.5) {
+        const best = minimaxTTT3(tttBoard, 1, -Infinity, Infinity, true);
+        if (best.move != null) move = best.move;
+      }
+    } else if (diff === "medium") {
+      const winMove = findTTTImmediateThreat(tttBoard, 3, 3, "O");
+      if (winMove != null) {
+        move = winMove;
+      } else {
+        const blockMove = findTTTImmediateThreat(tttBoard, 3, 3, "X");
+        if (blockMove != null) {
+          move = blockMove;
+        } else if (!tttBoard[4] && Math.random() < 0.7) {
+          move = 4;
+        } else {
+          const best = minimaxTTT3(tttBoard, 4, -Infinity, Infinity, true);
+          if (best.move != null) move = best.move;
+        }
+      }
+    } else {
+      // Hard: Mathematically unbeatable full depth-first alpha-beta minimax algorithm
+      const best = minimaxTTT3(tttBoard, 9, -Infinity, Infinity, true);
+      if (best.move != null) move = best.move;
+    }
+  } else {
+    // 5x5 Tic-Tac-Toe: sub-50ms latency tactical heuristic
+    const winMove = findTTTImmediateThreat(tttBoard, 5, 4, "O");
+    if (winMove != null) {
+      move = winMove;
+    } else {
+      const blockMove = findTTTImmediateThreat(tttBoard, 5, 4, "X");
+      if (blockMove != null) {
+        move = blockMove;
+      } else if (diff === "easy") {
+        if (Math.random() > 0.4) {
+          const best = minimaxTTT5(tttBoard, 1, -Infinity, Infinity, true);
+          if (best.move != null) move = best.move;
+        }
+      } else if (diff === "medium") {
+        const best = minimaxTTT5(tttBoard, 2, -Infinity, Infinity, true);
+        if (best.move != null) move = best.move;
+      } else {
+        // Hard: Depth 3 search with candidate pruning and heuristic
+        const best = minimaxTTT5(tttBoard, 3, -Infinity, Infinity, true);
+        if (best.move != null) move = best.move;
+      }
+    }
   }
 
   tttBoard[move] = "O";
+  moveCount++;
+  updateMoveCounter(true);
   const r = getTTTResult(tttBoard);
   if (r.winner) return finishTTT(r.winner, r.line);
 
@@ -533,6 +774,7 @@ function aiTTTMove() {
   startTurnTimer();
   persistLiveState();
 }
+
 function finishTTT(winner, line) {
   stopTurnTimer();
   resetIdleWatchdog();
@@ -557,6 +799,7 @@ function finishTTT(winner, line) {
   renderTTT();
   persistLiveState();
 }
+
 function onTTTClick(i) {
   const aiMode = modeSelect.value.endsWith("-ai");
   if (tttOver || tttBoard[i]) return;
@@ -565,6 +808,8 @@ function onTTTClick(i) {
   resetIdleWatchdog();
   saveTTTSnapshot();
   tttBoard[i] = tttTurn;
+  moveCount++;
+  updateMoveCounter(true);
   const r = getTTTResult(tttBoard);
   if (r.winner) return finishTTT(r.winner, r.line);
 
@@ -575,24 +820,26 @@ function onTTTClick(i) {
 
   if (aiMode && tttTurn === "O") {
     if (hubState.timer === "off" && statusPill) statusPill.textContent = "AI Thinking...";
-    setTimeout(aiTTTMove, difficultySelect.value === "easy" ? 260 : difficultySelect.value === "medium" ? 500 : 760);
+    setTimeout(aiTTTMove, difficultySelect.value === "easy" ? 220 : difficultySelect.value === "medium" ? 420 : 640);
   }
 }
 
-/* ---------- Chess ---------- */
+/* ---------- Chess Engine & Custom UI ---------- */
 const CHESS_U = { wp: "♟", wr: "♜", wn: "♞", wb: "♝", wq: "♛", wk: "♚", bp: "♟", br: "♜", bn: "♞", bb: "♝", bq: "♛", bk: "♚" };
 const PIECE_VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 let chessBoard = [], chessTurn = "w", chessSelected = null, chessOver = false, whiteCaptured = [], blackCaptured = [], chessSnapshots = [];
 
 function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
 function cloneBoard(b) { return b.map(row => row.map(cell => cell ? { ...cell } : null)); }
+
 function saveChessSnapshot() {
   chessSnapshots.push({
     board: cloneBoard(chessBoard), turn: chessTurn, selected: chessSelected ? { ...chessSelected } : null,
     over: chessOver, whiteCaptured: [...whiteCaptured], blackCaptured: [...blackCaptured],
-    scoreA, scoreB, scoreD, streak
+    scoreA, scoreB, scoreD, streak, moveCount
   });
 }
+
 function initChess() {
   chessBoard = Array.from({ length: 8 }, () => Array(8).fill(null));
   const back = ["r", "n", "b", "q", "k", "b", "n", "r"];
@@ -603,14 +850,49 @@ function initChess() {
     chessBoard[7][c] = { color: "w", type: back[c] };
   }
   chessTurn = "w"; chessSelected = null; chessOver = false; whiteCaptured = []; blackCaptured = []; chessSnapshots = [];
+  moveCount = 0;
+  updateMoveCounter(true);
   renderCaptured();
   renderChess();
   startTurnTimer();
 }
+
+/* ---------- 3D Embossed Tactile Chess Captured Counters ---------- */
 function renderCaptured() {
-  if (whiteCapturedEl) whiteCapturedEl.textContent = whiteCaptured.map(p => CHESS_U[p.color + p.type]).join(" ");
-  if (blackCapturedEl) blackCapturedEl.textContent = blackCaptured.map(p => CHESS_U[p.color + p.type]).join(" ");
+  const pieceOrder = ["q", "r", "b", "n", "p"];
+
+  function buildTrayHTML(capturedList, pieceColor) {
+    if (!capturedList.length) return "";
+    const counts = {};
+    capturedList.forEach(p => {
+      counts[p.type] = (counts[p.type] || 0) + 1;
+    });
+
+    return pieceOrder
+      .filter(type => counts[type])
+      .map(type => {
+        const glyph = CHESS_U[pieceColor + type];
+        const pieceClass = pieceColor === "w" ? "white-piece" : "black-piece";
+        const count = counts[type];
+        return `
+          <div class="captured-piece-chip" title="${count} piece(s) captured">
+            <span class="chip-icon ${pieceClass}">${glyph}</span>
+            <span class="chip-badge">×${count}</span>
+          </div>
+        `;
+      })
+      .join("");
+  }
+
+  // Left tray holds white captured pieces; Right tray holds black captured pieces
+  if (whiteCapturedEl) {
+    whiteCapturedEl.innerHTML = buildTrayHTML(whiteCaptured, "w");
+  }
+  if (blackCapturedEl) {
+    blackCapturedEl.innerHTML = buildTrayHTML(blackCaptured, "b");
+  }
 }
+
 function getPseudoMoves(board, r, c) {
   const p = board[r][c];
   if (!p) return [];
@@ -641,29 +923,26 @@ function getPseudoMoves(board, r, c) {
   }
   return out;
 }
+
 function renderChess() {
   resetIdleWatchdog();
   boardWrap?.classList.remove("wordle-mode");
   boardWrap?.classList.add("chess-mode");
-  capturedTop?.classList.add("chess-mode");
-  capturedBottom?.classList.add("chess-mode");
 
   clearWinLine();
   tttBoardEl?.classList.add("hidden");
   wordleGameEl?.classList.add("hidden");
   chessBoardEl?.classList.remove("hidden");
-  capturedTop?.classList.remove("hidden");
-  capturedBottom?.classList.remove("hidden");
+  capturedLeft?.classList.remove("hidden");
+  capturedRight?.classList.remove("hidden");
 
   if (!chessBoardEl || !Array.isArray(chessBoard) || !chessBoard.length) return;
   chessBoardEl.innerHTML = "";
 
-  const hints = chessSelected ? getPseudoMoves(chessBoard, chessSelected.r, chessSelected.c) : [];
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
     const cell = document.createElement("div");
     cell.className = "chess-cell " + (((r + c) % 2 === 0) ? "light" : "dark");
     if (chessSelected && chessSelected.r === r && chessSelected.c === c) cell.classList.add("selected");
-    if (hints.some(m => m.r === r && m.c === c)) cell.classList.add("hint");
 
     const p = chessBoard[r][c];
     if (p) {
@@ -677,6 +956,7 @@ function renderChess() {
 
   if (hubState.timer === "off" && statusPill) statusPill.textContent = chessOver ? "Game Over" : `${chessTurn === "w" ? "White" : "Black"}'s Turn`;
 }
+
 function moveChess(board, mv, real = false) {
   const piece = board[mv.fr][mv.fc], target = board[mv.tr][mv.tc];
   if (target && real) {
@@ -692,6 +972,7 @@ function moveChess(board, mv, real = false) {
   board[mv.tr][mv.tc] = piece; board[mv.fr][mv.fc] = null;
   if (piece.type === "p" && (mv.tr === 0 || mv.tr === 7)) piece.type = "q";
 }
+
 function allMovesForColor(board, color) {
   const out = [];
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
@@ -701,41 +982,149 @@ function allMovesForColor(board, color) {
   }
   return out;
 }
+
+/* ---------- Chess Positional Tables (PST) & Move Ordering ---------- */
+const PST_W = {
+  p: [
+    [ 0,  0,  0,  0,  0,  0,  0,  0],
+    [50, 50, 50, 50, 50, 50, 50, 50],
+    [10, 10, 20, 30, 30, 20, 10, 10],
+    [ 5,  5, 10, 25, 25, 10,  5,  5],
+    [ 0,  0,  0, 20, 20,  0,  0,  0],
+    [ 5, -5,-10,  0,  0,-10, -5,  5],
+    [ 5, 10, 10,-20,-20, 10, 10,  5],
+    [ 0,  0,  0,  0,  0,  0,  0,  0]
+  ],
+  n: [
+    [-50,-40,-30,-30,-30,-30,-40,-50],
+    [-40,-20,  0,  5,  5,  0,-20,-40],
+    [-30,  5, 10, 15, 15, 10,  5,-30],
+    [-30,  0, 15, 20, 20, 15,  0,-30],
+    [-30,  5, 15, 20, 20, 15,  5,-30],
+    [-30,  0, 10, 15, 15, 10,  0,-30],
+    [-40,-20,  0,  0,  0,  0,-20,-40],
+    [-50,-40,-30,-30,-30,-30,-40,-50]
+  ],
+  b: [
+    [-20,-10,-10,-10,-10,-10,-10,-20],
+    [-10,  5,  0,  0,  0,  0,  5,-10],
+    [-10, 10, 10, 10, 10, 10, 10,-10],
+    [-10,  0, 10, 10, 10, 10,  0,-10],
+    [-10,  5,  5, 10, 10,  5,  5,-10],
+    [-10,  0,  5, 10, 10,  5,  0,-10],
+    [-10,  5,  0,  0,  0,  0,  5,-10],
+    [-20,-10,-10,-10,-10,-10,-10,-20]
+  ],
+  r: [
+    [ 0,  0,  0,  5,  5,  0,  0,  0],
+    [10, 10, 10, 10, 10, 10, 10, 10],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [ 5, 10, 10, 10, 10, 10, 10,  5],
+    [ 0,  0,  0,  5,  5,  0,  0,  0]
+  ],
+  q: [
+    [-20,-10,-10, -5, -5,-10,-10,-20],
+    [-10,  0,  5,  0,  0,  0,  0,-10],
+    [-10,  5,  5,  5,  5,  5,  0,-10],
+    [  0,  0,  5,  5,  5,  5,  0, -5],
+    [ -5,  0,  5,  5,  5,  5,  0, -5],
+    [-10,  0,  5,  5,  5,  5,  0,-10],
+    [-10,  0,  0,  0,  0,  0,  0,-10],
+    [-20,-10,-10, -5, -5,-10,-10,-20]
+  ],
+  k: [
+    [-30,-40,-40,-50,-50,-40,-40,-30],
+    [-30,-40,-40,-50,-50,-40,-40,-30],
+    [-30,-40,-40,-50,-50,-40,-40,-30],
+    [-30,-40,-40,-50,-50,-40,-40,-30],
+    [-20,-30,-30,-40,-40,-30,-30,-20],
+    [-10,-20,-20,-20,-20,-20,-20,-10],
+    [ 20, 20,  0,  0,  0,  0, 20, 20],
+    [ 20, 30, 10,  0,  0, 10, 30, 20]
+  ]
+};
+
+function orderChessMoves(board, moves) {
+  return moves.map(mv => {
+    const target = board[mv.tr][mv.tc];
+    const piece = board[mv.fr][mv.fc];
+    let score = 0;
+    if (target) {
+      score = 10000 + (PIECE_VAL[target.type] || 0) * 10 - (PIECE_VAL[piece.type] || 0);
+    }
+    return { mv, score };
+  }).sort((a, b) => b.score - a.score).map(x => x.mv);
+}
+
 function evalChess(board) {
   let s = 0;
-  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
-    const p = board[r][c];
-    if (!p) continue;
-    s += (p.color === "b" ? 1 : -1) * PIECE_VAL[p.type];
+  let hasWhiteKing = false, hasBlackKing = false;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = board[r][c];
+      if (!p) continue;
+      const base = PIECE_VAL[p.type] || 0;
+      const pst = PST_W[p.type] ? (p.color === "w" ? PST_W[p.type][r][c] : PST_W[p.type][7 - r][c]) : 0;
+      const total = base + pst;
+      if (p.color === "b") {
+        s += total;
+        if (p.type === "k") hasBlackKing = true;
+      } else {
+        s -= total;
+        if (p.type === "k") hasWhiteKing = true;
+      }
+    }
   }
+  if (!hasBlackKing) return -50000;
+  if (!hasWhiteKing) return 50000;
   return s;
 }
+
 function minimaxChess(board, depth, alpha, beta, maxing) {
-  if (depth === 0) return { score: evalChess(board), move: null };
-  const color = maxing ? "b" : "w", moves = allMovesForColor(board, color);
-  if (!moves.length) return { score: evalChess(board), move: null };
-  let bestMove = null;
+  const currentEval = evalChess(board);
+  if (Math.abs(currentEval) >= 40000) return { score: currentEval, move: null };
+  if (depth === 0) return { score: currentEval, move: null };
+
+  const color = maxing ? "b" : "w";
+  let moves = allMovesForColor(board, color);
+  if (!moves.length) return { score: currentEval, move: null };
+  moves = orderChessMoves(board, moves);
+  let bestMove = moves[0];
 
   if (maxing) {
     let best = -Infinity;
-    for (const mv of moves) {
-      const b2 = cloneBoard(board); moveChess(b2, mv, false);
+    for (let i = 0; i < moves.length; i++) {
+      const mv = moves[i];
+      const target = board[mv.tr][mv.tc];
+      if (target && target.type === "k") return { score: 50000 + depth, move: mv };
+      const b2 = cloneBoard(board);
+      moveChess(b2, mv, false);
       const r = minimaxChess(b2, depth - 1, alpha, beta, false);
       if (r.score > best) { best = r.score; bestMove = mv; }
-      alpha = Math.max(alpha, r.score); if (beta <= alpha) break;
+      alpha = Math.max(alpha, best.score);
+      if (beta <= alpha) break;
+    }
+    return { score: best, move: bestMove };
+  } else {
+    let best = Infinity;
+    for (let i = 0; i < moves.length; i++) {
+      const mv = moves[i];
+      const target = board[mv.tr][mv.tc];
+      if (target && target.type === "k") return { score: -50000 - depth, move: mv };
+      const b2 = cloneBoard(board);
+      moveChess(b2, mv, false);
+      const r = minimaxChess(b2, depth - 1, alpha, beta, true);
+      if (r.score < best) { best = r.score; bestMove = mv; }
+      beta = Math.min(beta, r.score);
+      if (beta <= alpha) break;
     }
     return { score: best, move: bestMove };
   }
-
-  let best = Infinity;
-  for (const mv of moves) {
-    const b2 = cloneBoard(board); moveChess(b2, mv, false);
-    const r = minimaxChess(b2, depth - 1, alpha, beta, true);
-    if (r.score < best) { best = r.score; bestMove = mv; }
-    beta = Math.min(beta, r.score); if (beta <= alpha) break;
-  }
-  return { score: best, move: bestMove };
 }
+
 function onChessClick(r, c) {
   const aiMode = modeSelect.value === "chess-ai";
   if (chessOver) return;
@@ -758,6 +1147,9 @@ function onChessClick(r, c) {
 
   saveChessSnapshot();
   moveChess(chessBoard, { fr: chessSelected.r, fc: chessSelected.c, tr: r, tc: c }, true);
+  moveCount++;
+  updateMoveCounter(true);
+
   if (chessOver) { renderChess(); stopTurnTimer(); persistLiveState(); return; }
 
   chessSelected = null;
@@ -770,132 +1162,457 @@ function onChessClick(r, c) {
     if (hubState.timer === "off" && statusPill) statusPill.textContent = "AI Thinking...";
     setTimeout(() => {
       saveChessSnapshot();
-      const depth = difficultySelect.value === "easy" ? 1 : difficultySelect.value === "medium" ? 2 : 3;
-      const res = minimaxChess(chessBoard, depth, -Infinity, Infinity, true);
-      const mv = res.move || allMovesForColor(chessBoard, "b")[0];
-      if (mv) { moveChess(chessBoard, mv, true); if (!chessOver) chessTurn = "w"; }
+      const diff = difficultySelect.value;
+      const allMoves = allMovesForColor(chessBoard, "b");
+      let mv = null;
+
+      if (diff === "easy") {
+        if (Math.random() < 0.35 && allMoves.length) {
+          mv = allMoves[Math.floor(Math.random() * allMoves.length)];
+        } else {
+          const res = minimaxChess(chessBoard, 1, -Infinity, Infinity, true);
+          mv = res.move || allMoves[0];
+        }
+      } else if (diff === "medium") {
+        const res = minimaxChess(chessBoard, 2, -Infinity, Infinity, true);
+        mv = res.move || allMoves[0];
+      } else {
+        // Hard: Depth 3 search with PST and MVV-LVA move ordering
+        const res = minimaxChess(chessBoard, 3, -Infinity, Infinity, true);
+        mv = res.move || allMoves[0];
+      }
+
+      if (mv) {
+        moveChess(chessBoard, mv, true);
+        moveCount++;
+        updateMoveCounter(true);
+        if (!chessOver) chessTurn = "w";
+      }
       renderChess();
       startTurnTimer();
       persistLiveState();
-    }, 500);
+    }, 420);
   }
 }
 
-/* ---------- Wordle ---------- */
+/* ---------- Wordle Engine & Offline Dictionary ---------- */
 const WORDLE_TIERS = {
-  easy: ["AISLE","CHAIR","PLANT","CRANE","BEACH","BREAD","CLEAN","DANCE","EARTH","LIGHT"],
-  medium: ["PIPER","FLIPS","CHASM","BRAIN","CRAFT","CRIME","DRAFT","DRILL","FLOAT","GLOVE"],
-  hard: ["KNOLL","VIVID","FJORD","PROXY","QUIRK","PUPPY","MUMMY","CYNIC","GAUZE","ENVOY"]
+  easy: [
+    "APPLE","BEACH","BREAD","CHAIR","CLEAN","CLOUD","CRANE","DANCE","EARTH","FLAME",
+    "FRUIT","GRASS","GREEN","HEART","HOUSE","LIGHT","MONEY","MUSIC","NIGHT","OCEAN",
+    "PARTY","PHONE","PIANO","PLANT","POWER","QUEEN","RADIO","RIVER","ROUND","SHARE",
+    "SHINE","SIGHT","SLEEP","SMILE","SNAKE","SPACE","STAGE","STORM","SUGAR","SWEET",
+    "TABLE","TIGER","TRAIN","TRUTH","VOICE","WATCH","WATER","WHITE","WOMAN","WORLD",
+    "YOUTH","ANGEL","BIRTH","BLACK","BRAIN","BRAVE","BROWN","CHILD","CLOCK","CROSS",
+    "CROWN","DREAM","DRIVE","EAGLE","EARLY","FIELD","FIRST","FLASH","FRESH","FRONT",
+    "GLASS","GLOBE","GLOVE","GRACE","GRAND","GRAPE","GREAT","GROUP","GUARD","GUIDE",
+    "HAPPY","HORSE","HOTEL","IMAGE","LARGE","LEARN","LEMON","LUCKY","MAGIC","MAJOR",
+    "MARCH","MATCH","METAL","MOUNT","MOUSE","MOUTH","NOBLE","NORTH","OFFER","PAINT",
+    "PAPER","PEACE","PEACH","PILOT","PITCH","PLACE","PLAIN","PLANE","PLATE","POINT",
+    "PRIDE","PRIZE","PROUD","QUIET","RANGE","REACH","RIGHT","ROBOT","ROYAL","SCALE",
+    "SCENE","SCOPE","SCORE","SHAPE","SHARP","SHIRT","SHOCK","SHOOT","SHORT","SKILL",
+    "SMART","SOLID","SOUND","SOUTH","SPEAK","SPEED","SPEND","SPORT","STAFF","STAND",
+    "START","STATE","STEAM","STEEL","STONE","STORY","STYLE","TASTE","TEACH","THANK",
+    "THEME","THINK","TOTAL","TOUCH","TOWER","TRACK","TRADE","TREAT","TREND","TRIAL",
+    "TRUCK","TRUST","UNCLE","UNDER","UNION","VALUE","VIDEO","VISIT","WHEEL","WHOLE",
+    "WRITE","WRONG"
+  ],
+  medium: [
+    "ABOVE","ACUTE","ADAPT","ADMIT","ADULT","ALERT","ALIVE","ALLOW","ALTER","AMBER",
+    "ANGER","ANGLE","ANGRY","APART","APPLY","ARENA","ARGUE","ARISE","ARROW","ASIDE",
+    "ASSET","AUDIO","AUDIT","AVOID","AWAIT","AWAKE","AWARD","AWARE","BADGE","BASIC",
+    "BASIN","BASIS","BATCH","BEAST","BEGAN","BEGIN","BEGUN","BEING","BELOW","BENCH",
+    "BERRY","BLADE","BLAME","BLANK","BLAST","BLAZE","BLEED","BLEND","BLESS","BLIND",
+    "BLINK","BLOCK","BLOOD","BLOOM","BLOWN","BLUSH","BOARD","BOAST","BOOST","BOOTH",
+    "BOUND","BRACE","BRAID","BRAKE","BRAND","BRASS","BREED","BRICK","BRIDE","BRIEF",
+    "BRING","BROAD","BROKE","BROOK","BROOM","BROTH","BRUSH","BUILD","BUILT","BURST",
+    "CABIN","CABLE","CAMEL","CANAL","CANDY","CANOE","CARGO","CARRY","CARVE","CATER",
+    "CAUSE","CEASE","CELLO","CHALK","CHAMP","CHANT","CHAOS","CHARM","CHART","CHASE",
+    "CHASM","CHEAP","CHEAT","CHECK","CHEEK","CHEER","CHEST","CHIEF","CHILL","CHIPS",
+    "CHOIR","CHOKE","CHORD","CHOSE","CHUNK","CIDER","CIGAR","CIVIC","CIVIL","CLAIM",
+    "CLAMP","CLASH","CLASP","CLASS","CLEAR","CLERK","CLICK","CLIFF","CLIMB","CLOAK",
+    "CLONE","CLOSE","CLOTH","CLOWN","COAST","COBRA","COCOA","COLON","COLOR","COMET",
+    "COMIC","CORAL","COUCH","COUGH","COULD","COUNT","COURT","COVER","CRACK","CRAFT",
+    "CRASH","CRATE","CRAZY","CREAM","CREEK","CREST","CRIME","CRISP","CROWD","CRUEL",
+    "CRUSH","CRUST","CUBIC","CURRY","CURSE","CURVE","CYCLE","DAILY","DAIRY","DATED",
+    "DEALT","DEATH","DEBIT","DEBUT","DECAY","DECOR","DELAY","DELTA","DEMON","DENSE",
+    "DEPOT","DEPTH","DERBY","DETER","DEVIL","DIARY","DIGIT","DIRTY","DISCO","DITCH",
+    "DIVER","DODGE","DOING","DONOR","DONUT","DOUBT","DOUGH","DOZEN","DRAFT","DRAIN",
+    "DRAMA","DRANK","DRAWN","DREAD","DRESS","DRIED","DRIFT","DRILL","DRINK","DROLL",
+    "DROVE","DROWN","DRUNK","DRYER","DUSKY","DUSTY","DUTCH","DWELL","DYING","EAGER",
+    "EASEL","EATEN","EIGHT","ELBOW","ELDER","ELECT","ELITE","EMBER","EMPTY","ENACT",
+    "ENEMY","ENJOY","ENTER","ENTRY","EQUAL","EQUIP","ERASE","ERECT","ERROR","ERUPT",
+    "ESSAY","ETHER","ETHIC","EVENT","EVERY","EXACT","EXALT","EXCEL","EXERT","EXILE",
+    "EXIST","EXTRA","FAINT","FAITH","FALSE","FANCY","FATAL","FAULT","FAVOR","FEAST",
+    "FEVER","FIBER","FIEND","FIFTH","FIFTY","FIGHT","FINAL","FINCH","FIRST","FISHY",
+    "FLASK","FLEET","FLESH","FLOAT","FLOCK","FLOOD","FLOOR","FLOUR","FLOWN","FLUID",
+    "FLUTE","FOCUS","FORCE","FORGE","FORTH","FORTY","FORUM","FOUND","FOYER","FRAIL",
+    "FRAME","FRANK","FRAUD","FREAK","FROST","FROZE","FUDGE","FUNNY","GIANT","GIVEN",
+    "GLARE","GLAZE","GLEAM","GLIDE","GLORY","GOING","GOOSE","GORGE","GRAIN","GRANT",
+    "GRAPH","GRASP","GRAVE","GRAVY","GREED","GREET","GRIEF","GRILL","GRIND","GROAN",
+    "GROOM","GROSS","GROVE","GROWL","GROWN","GRUNT","GUESS","GUEST","GUILT","HABIT",
+    "HAIRY","HANDY","HARSH","HASTE","HASTY","HATCH","HAVEN","HAVOC","HAZEL","HEAVY",
+    "HEDGE","HELLO","HENCE","HONEY","HONOR","HOUND","HOVER","HUMAN","HUMID","HUMOR",
+    "HURRY","INDEX","INNER","INPUT","ISSUE","IVORY","JEANS","JELLY","JEWEL","JOINT",
+    "JOKER","JUDGE","JUICE","JUICY","KNIFE","KNOCK","KNOWN","LABEL","LABOR","LASER",
+    "LATCH","LATER","LAUGH","LAYER","LEAST","LEAVE","LEGAL","LEVEL","LEVER","LIMIT",
+    "LINEN","LOCAL","LODGE","LOGIC","LOOSE","LOWER","LOYAL","LUCID","LUNCH","MAGIC",
+    "MAKER","MANOR","MARRY","MARSH","MASON","MAYOR","MEANT","MEDAL","MEDIA","MELON",
+    "MERCY","MERGE","MERIT","MERRY","METER","METRO","MICRO","MIDST","MIGHT","MINOR",
+    "MINUS","MODEL","MODEM","MOIST","MONTH","MORAL","MOTOR","MOTTO","MOUNT","MOURN",
+    "MOUSE","MOUTH","MOVIE","MUDDY","MURAL","MUSIC","NAIVE","NERVE","NEVER","NEWER",
+    "NICER","NICHE","NIGHT","NINJA","NINTH","NOBLE","NOISE","NORTH","NOTED","NOVEL",
+    "NURSE","OCCUR","OCTAL","OFFER","OFTEN","OLDER","OLIVE","ONION","ONSET","OPERA",
+    "OPTIC","ORBIT","ORDER","ORGAN","OTHER","OTTER","OUGHT","OUNCE","OUTER","OWNER",
+    "OXIDE","PAGAN","PANEL","PANIC","PAPER","PARTY","PASTA","PASTE","PATCH","PATIO",
+    "PAUSE","PEARL","PENNY","PERCH","PERIL","PETAL","PHASE","PHOTO","PIECE","PINCH",
+    "PITCH","PIXEL","PIZZA","PLAZA","POINT","POLAR","PORCH","POUND","POWER","PRANK",
+    "PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRIZE","PROBE","PRONE","PROOF",
+    "PROSE","PROUD","PROVE","PULSE","PUNCH","PUPIL","PUPPY","PURSE","QUEEN","QUERY",
+    "QUEST","QUICK","QUIET","QUOTA","QUOTE","RADAR","RADIO","RAISE","RALLY","RANCH",
+    "RAPID","RATIO","RAVEN","RAZOR","REACT","READY","REALM","REBEL","REFER","RELAX",
+    "REPLY","RESET","RIDGE","RIGHT","RIGID","RIVAL","ROAST","ROBOT","ROUGH","ROUTE",
+    "ROYAL","RULER","RUMOR","RURAL","RUSTY","SADLY","SAINT","SALAD","SALON","SALSA",
+    "SALTY","SAUCE","SAUNA","SAVOR","SCALE","SCARF","SCENE","SCENT","SCOPE","SCORE",
+    "SCORN","SCOUT","SCRAP","SCREW","SCRUB","SEDAN","SEIZE","SENSE","SERVE","SETUP",
+    "SEVEN","SEVER","SHADE","SHAFT","SHAKE","SHAME","SHARE","SHARK","SHARP","SHEEP",
+    "SHEET","SHELF","SHELL","SHIFT","SHINE","SHIRT","SHOCK","SHOOT","SHORE","SHORT",
+    "SHOUT","SHOWN","SIGHT","SINCE","SIREN","SIXTH","SIXTY","SKILL","SKIRT","SKULL",
+    "SLASH","SLATE","SLEEP","SLICE","SLIDE","SLOPE","SMART","SMELL","SMILE","SMOKE",
+    "SNACK","SNAKE","SOLAR","SOLID","SOLVE","SORRY","SOUND","SOUTH","SPACE","SPARE",
+    "SPARK","SPEAK","SPEAR","SPEED","SPELL","SPEND","SPENT","SPICE","SPICY","SPILL",
+    "SPINE","SPITE","SPLIT","SPOON","SPORT","SPRAY","SQUAD","STAFF","STAGE","STAIN",
+    "STAIR","STAKE","STALE","STAMP","STAND","STARE","START","STATE","STEAM","STEEL",
+    "STEEP","STEER","STICK","STIFF","STILL","STOCK","STONE","STOOL","STOOP","STORE",
+    "STORM","STORY","STRAP","STRAW","STRIP","STUCK","STUDY","STUFF","STYLE","SUGAR",
+    "SUITE","SUNNY","SUPER","SURGE","SWEAT","SWEET","SWIFT","SWING","SWORD","TABLE",
+    "TAKEN","TASTE","TEACH","TEETH","TEMPO","THANK","THEFT","THEIR","THEME","THERE",
+    "THESE","THICK","THIEF","THIGH","THING","THINK","THIRD","THOSE","THREE","THREW",
+    "THROW","THUMB","TIGER","TIGHT","TIMER","TITLE","TOAST","TODAY","TOKEN","TOOTH",
+    "TOPIC","TOTAL","TOUCH","TOUGH","TOWER","TOXIC","TRACE","TRACK","TRADE","TRAIL",
+    "TRAIN","TRAIT","TRASH","TREAT","TREND","TRIAL","TRIBE","TRICK","TRIED","TROOP",
+    "TRUCK","TRULY","TRUMP","TRUNK","TRUST","TRUTH","TUTOR","TWICE","TWIST","UNCLE",
+    "UNDER","UNION","UNITE","UNITY","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL",
+    "VALID","VALUE","VALVE","VAPOR","VAULT","VEGAN","VENUE","VERSE","VIDEO","VIRAL",
+    "VIRUS","VISIT","VITAL","VOICE","VOTER","VOWEL","WASTE","WATCH","WATER","WEARY",
+    "WEAVE","WEIGH","WEIRD","WHEAT","WHEEL","WHERE","WHICH","WHILE","WHITE","WHOLE",
+    "WHOSE","WIDOW","WIDTH","WINDY","WOMAN","WOMEN","WORLD","WORRY","WORSE","WORST",
+    "WORTH","WOULD","WOUND","WRIST","WRITE","WRONG","YACHT","YEARN","YEAST","YIELD",
+    "YOUNG","YOUTH","ZEBRA"
+  ],
+  hard: [
+    "KNOLL","VIVID","FJORD","PROXY","QUIRK","PUPPY","MUMMY","CYNIC","GAUZE","ENVOY",
+    "GLYPH","OZONE","WALTZ","CRYPT","ABYSS","AGONY","AMISS","ANNEX","APHID","ATOLL",
+    "AXIOM","BAYOU","BICEP","BOGEY","BOOZE","BUXOM","CABAL","COVEN","DECOY","DIZZY",
+    "DOWRY","DWARF","EPOXY","EQUIP","FEIGN","FERRY","FLAIL","FLUFF","FOYER","FUNKY",
+    "GAFFE","GECKO","GIZMO","GNOME","GOLEM","GOUGE","GUPPY","HYENA","ICHOR","IDIOM",
+    "IGLOO","IONIC","ITCHY","JAZZY","JERKY","JOUST","JUMBO","JUMPY","JUNTO","KAPUT",
+    "KAYAK","KAZOO","KHAKI","KINKY","KIOSK","KOALA","KRILL","KUDOS","LEMUR","LILAC",
+    "LIMBO","LIVID","LLAMA","LOBBY","LYMPH","MADAM","MAFIA","MAGMA","MAMBO","MAXIM",
+    "MIMIC","MINX","MODAL","MOCHA","MOGUL","MYRRH","NADIR","NANNY","NYMPH","OCTAL",
+    "ODDLY","OFFAL","OGRE","OPINE","OPIUM","OXIDE","PADDY","PALSY","PAPPY","PIQUE",
+    "PIZZA","POLYP","POPPY","POSSE","POUCH","PYGMY","QUACK","QUAFF","QUAIL","QUAKE",
+    "QUALM","QUARK","QUART","QUASH","QUASI","QUELL","QUEUE","QUILL","QUILT","RADII",
+    "RADON","RAYON","RHINO","ROUGE","SALVO","SAVVY","SCION","SCOFF","SEGUE","SHEIK",
+    "SHREW","SHRUB","SHRUG","SKULK","SLOTH","SMELT","SNOUT","SNOWY","SPASM","SQUID",
+    "SWAMI","SWAMP","SYNOD","TAFFY","TALON","THYME","TIARA","TIBIA","TITAN","TONIC",
+    "TOPAZ","TOXIN","TRAWL","TRIAD","TRITE","TROLL","TWANG","UDDER","ULCER","ULTRA",
+    "UMBRA","UNFED","UNFIT","UNIFY","UNLIT","UNMET","UNSET","UNTIE","UNZIP","UPBEAT",
+    "USURP","VALET","VALOR","VENOM","VERGE","VICAR","VIGOR","VILLA","VINYL","VIOLA",
+    "VIPER","VISOR","VISTA","VIXEN","VODKA","VOGUE","VOILA","WAFER","WAGER","WHELP",
+    "WHINY","WHIRL","WHISK","WIGHT","WINCH","WOKEN","WRACK","WRATH","WREAK","WRECK",
+    "WRUNG","WRYLY","XENON","YUCCA","ZESTY","ZILCH","ZONAL"
+  ]
 };
-const VALID_DICTIONARY_WORDS = new Set([...WORDLE_TIERS.easy, ...WORDLE_TIERS.medium, ...WORDLE_TIERS.hard]);
+
+const WORDLE_DICTIONARY_RAW = "ABOUT ABOVE ABUSE ACTOR ACUTE ADAPT ADMIT ADOPT ADULT AFTER AGAIN AGENT AGREE AHEAD AISLE ALARM ALBUM ALERT ALIKE ALIVE ALLOW ALONE ALONG ALTER AMBER AMISS AMONG AMUSE ANGEL ANGER ANGLE ANGRY ANNEX ANNOY APART APHID APPLE APPLY ARENA ARGUE ARISE ARRAY ARROW ASIDE ASSET ATOLL AUDIO AUDIT AVOID AWAIT AWAKE AWARD AWARE AWFUL AXIOM BACON BADGE BADLY BAKER BALDY BANJO BARGE BARON BASIC BASIN BASIS BATCH BATHE BAYOU BEACH BEAST BEGAN BEGIN BEGUN BEING BELLY BELOW BENCH BERRY BERTH BESET BIBLE BICEP BIKER BIRTH BISON BLACK BLADE BLAME BLANK BLAST BLAZE BLEAK BLEED BLEND BLESS BLIMP BLIND BLINK BLISS BLOCK BLOND BLOOD BLOOM BLOWN BLUFF BLUNT BLURB BLURT BLUSH BOARD BOAST BOBBY BOGEY BOOST BOOTH BOOTY BOOZE BOSOM BOSSY BOUND BOWEL BOXER BRACE BRAID BRAIN BRAKE BRAND BRASS BRAVE BREAD BREAK BREED BRIAR BRIBE BRICK BRIDE BRIEF BRINE BRING BRINK BROAD BROKE BROOD BROOK BROOM BROTH BROWN BRUSH BRUTE BUDDY BUILD BUILT BULGE BULLY BUNCH BUNNY BURST BUYER BYLAW CABAL CABIN CABLE CADET CAMEL CANAL CANDY CANOE CANON CARAT CARGO CARRY CARVE CATER CAUSE CEASE CELLO CHAIR CHALK CHAMP CHANT CHAOS CHARM CHART CHASE CHASM CHEAP CHEAT CHECK CHEEK CHEER CHESS CHEST CHICK CHIEF CHILD CHILL CHIPS CHOIR CHOKE CHORD CHOSE CHUCK CHUNK CHURN CIDER CIGAR CINCH CIRCA CIVIC CIVIL CLAIM CLAMP CLASH CLASP CLASS CLEAN CLEAR CLERK CLICK CLIFF CLIMB CLING CLOAK CLOCK CLONE CLOSE CLOTH CLOUD CLOVE CLOWN COAST COBRA COCOA COLON COLOR COMET COMIC CONDO CORAL COUCH COUGH COULD COUNT COUPE COURT COVEN COVER CRACK CRAFT CRANE CRANK CRASH CRATE CRAVE CRAZY CREAM CREEK CREEP CREST CRICK CRIME CRIMP CRISP CROAK CROCK CRONY CROOK CROSS CROWD CROWN CRUDE CRUEL CRUSH CRUST CRYPT CUBIC CUPID CURRY CURSE CURVE CYCLE CYNIC DADDY DAILY DAIRY DAISY DANCE DANDY DATED DEALT DEATH DEBIT DEBUT DECAL DECAY DECOY DECRY DEFER DEIGN DELAY DELTA DEMON DEMUR DENIM DENSE DEPOT DEPTH DERBY DETER DETOX DEUCE DEVIL DIARY DICEY DIGIT DINER DINGO DIRTY DISCO DITCH DIVER DIZZY DODGE DOGMA DOING DONOR DONUT DOPEY DOUBT DOUGH DOWRY DOZEN DRAFT DRAIN DRAMA DRANK DRAWN DREAD DREAM DRESS DRIED DRIFT DRILL DRINK DRIVE DROLL DRONE DROOP DROVE DROWN DRUID DRUNK DRYER DUCAL DULLY DUMMY DUMPY DUNCE DUSKY DUSTY DUTCH DWARF DWELL DYING EAGER EAGLE EARLY EARTH EASEL EATEN EATER EBONY ECLAT EDEMA EERIE EIGHT ELBOW ELDER ELECT ELEGY ELFIN ELITE ELUDE EMBER EMPTY ENACT ENDOW ENEMY ENJOY ENNUI ENTER ENTRY ENVOY EPOCH EPOXY EQUAL EQUIP ERASE ERECT ERODE ERROR ERUPT ESSAY ETHER ETHIC ETHOS EVADE EVENT EVERY EVICT EXACT EXALT EXCEL EXERT EXILE EXIST EXPEL EXTRA FAINT FAITH FAKIR FALSE FANCY FATAL FATTY FAULT FAUNA FAVOR FEAST FECAL FEIGN FEINT FELON FEMUR FENCE FERAL FERRY FETCH FEVER FEWER FIBER FIELD FIEND FIERY FIFTH FIFTY FIGHT FILER FILTH FINAL FINCH FINER FIRST FISHY FIXER FJORD FLACK FLAIL FLAIR FLAKE FLAME FLANK FLASH FLASK FLECK FLEET FLESH FLICK FLIER FLING FLINT FLIPS FLIRT FLOAT FLOCK FLOOD FLOOR FLORA FLOUR FLOWN FLUFF FLUID FLUKE FLUNG FLUSH FLUTE FLYER FOAMY FOCAL FOCUS FOGGY FOIST FOLIO FOLLY FORAY FORCE FORGE FORGO FORTE FORTH FORTY FORUM FOUND FOUNT FOYER FRAIL FRAME FRANK FRAUD FREAK FREED FREER FRESH FRIAR FRIED FRILL FRISK FROST FROTH FROWN FROZE FRUIT FUDGE FUGUE FULLY FUNGI FUNKY FUNNY FUROR FURRY FUSED FUSSY FUZZY GAFFE GAILY GAMER GAMMA GAMUT GAUGE GAUZE GAWKY GECKO GEESE GENIE GENRE GHOST GHOUL GIANT GIDDY GIVEN GIVER GLADE GLAND GLARE GLASS GLAZE GLEAM GLEAN GLIDE GLINT GLOAT GLOBE GLOOM GLORY GLOSS GLOVE GLYPH GNASH GNOME GODLY GOING GOLEM GONER GOOFY GOOSE GORGE GOUGE GOURD GRACE GRADE GRAFT GRAIL GRAIN GRAND GRANT GRAPE GRAPH GRASP GRASS GRATE GRAVE GRAVY GRAZE GREAT GREED GREEN GREET GRIEF GRILL GRIME GRIMY GRIND GRIPE GROAN GROIN GROOM GROSS GROUP GROUT GROVE GROWL GROWN GRUEL GRUFF GRUNT GUARD GUAVA GUESS GUEST GUIDE GUILD GUILT GUISE GULCH GULLY GUMBO GUMMY GUPPY GUSTO GUSTY HABIT HAIRY HALVE HANDY HAPPY HARDY HAREM HARSH HASTE HASTY HATCH HATER HAUNT HAUTE HAVEN HAVOC HAZEL HEADY HEARD HEART HEATH HEAVE HEAVY HEDGE HEFTY HELLO HENCE HERON HILLY HINGE HIPPO HIPPY HITCH HOARD HOBBY HOIST HOLLY HOMER HONEY HONOR HORDE HORSE HOTEL HOUND HOUSE HOVEL HOVER HOWDY HUMAN HUMID HUMOR HUMPH HUMUS HUNCH HURRY HUSKY HUTCH HYDRA HYENA HYPER ICING IDEAL IDIOT IGLOO ILIAC IMAGE IMBUE IMPEL IMPLY INANE INCUR INDEX INEPT INERT INFER INGOT INLAY INLET INNER INPUT INTER INTRO IONIC IRATE IRONY ISLET ISSUE ITCHY IVORY JAUNT JAZZY JELLY JERKY JETTY JEWEL JIFFY JOINT JOKER JOLLY JOUST JUDGE JUICE JUICY JUMBO JUMPY JUNTO JUROR KARMA KAYAK KEBAB KHAKI KIOSK KNACK KNAVE KNEAD KNEEL KNELT KNIFE KNOCK KNOLL KNOWN KOALA KRILL LABEL LABOR LADLE LAGER LANCE LANKY LAPEL LAPSE LARGE LARVA LASER LATCH LATER LATHE LATTE LAUGH LAYER LEACH LEAFY LEAKY LEANT LEAPT LEARN LEASE LEASH LEAST LEAVE LEDGE LEECH LEERY LEFTY LEGAL LEGGY LEMON LEMUR LEPER LEVEL LEVER LIBEL LIEGE LIGHT LIKEN LILAC LIMBO LIMIT LINEN LINER LINGO LIPID LITHE LIVER LIVID LLAMA LOAMY LOATH LOBBY LOCAL LOCUS LODGE LOFTY LOGIC LOGIN LOOSE LORRY LOSER LOTTO LOTUS LOUSE LOUSY LOVER LOWER LOWLY LOYAL LUCID LUCKY LUMEN LUMPY LUNAR LUNCH LUNGE LURCH LURID LUSTY LYING LYMPH LYNCH LYRIC MACAW MACHO MACRO MADAM MADLY MAFIA MAGIC MAGMA MAIZE MAJOR MAKER MAMBO MAMMA MAMMY MANGA MANGO MANGY MANIA MANIC MANLY MANOR MAPLE MARCH MARRY MARSH MASON MATCH MATEY MAUVE MAXIM MAYBE MAYOR MEALY MEANT MEATY MECCA MEDAL MEDIA MEDIC MELEE MELON MERCY MERGE MERIT MERRY METAL METER METRO MICRO MIDGE MIDST MIGHT MILKY MIMIC MINCE MINER MINOR MINTY MINUS MIRTH MISER MISSY MOCHA MODAL MODEL MODEM MOIST MOLAR MOLDY MONEY MONTH MOODY MOOSE MORAL MORON MORPH MOSSY MOTEL MOTIF MOTOR MOTTO MOULT MOUND MOUNT MOURN MOUSE MOUTH MOVER MOVIE MOWER MUCKY MUCUS MUDDY MULCH MUMMY MURAL MURKY MUSHY MUSIC MUSKY MUSTY MYRRH NADIR NAIVE NANNY NASAL NASTY NATAL NAVAL NAVEL NEEDY NEIGH NERDY NERVE NEVER NEWER NEWLY NICER NICHE NIECE NIGHT NINJA NINTH NOBLE NOBLY NOISE NOISY NOMAD NOOSE NORTH NOSEY NOTCH NOVEL NUDGE NURSE NUTTY NYMPH OASIS OBESE OCCUR OCEAN OCTAL OCTET ODDER ODDLY OFFAL OFFER OFTEN OLDER OLIVE OMEGA ONION ONSET OPERA OPINE OPIUM OPTIC ORBIT ORDER ORGAN OTHER OTTER OUGHT OUNCE OUTDO OUTER OUTGO OVARY OVATE OVERT OVINE OVOID OWING OWNER OXIDE OZONE PADDY PAGAN PAINT PALER PALSY PANEL PANIC PANSY PAPAL PAPER PARER PARKA PARRY PARSE PARTY PASTA PASTE PASTY PATCH PATIO PATSY PATTY PAUSE PAYEE PAYER PEACE PEACH PEARL PECAN PEDAL PENAL PENCE PENNE PENNY PERCH PERIL PERKY PESKY PESTO PETAL PETTY PHASE PHONE PHOTO PIANO PICKY PIECE PIETY PIGGY PILOT PINCH PINEY PINKY PINTO PIPER PIPES PIQUE PITCH PITHY PIVOT PIXEL PIZZA PLACE PLAID PLAIN PLAIT PLANE PLANK PLANT PLATE PLAZA PLEAD PLEAT PLIED PLIER PLUCK PLUMB PLUME PLUMP PLUSH POESY POINT POISE POKER POLAR POLKA POLYP POPPY PORCH POSER POSSE POUCH POUND POWER PRANK PRAWN PREEN PRESS PRICE PRICK PRIDE PRIED PRIME PRIMO PRINT PRIOR PRISM PRIVY PRIZE PROBE PRONE PRONG PROOF PROSE PROUD PROVE PROWL PROXY PRUDE PRUNE PSALM PUBIC PUDGY PUFFY PULSE PUNCH PUPIL PUPPY PUREE PURER PURGE PURSE PUSHY PUTTY PYGMY QUACK QUAFF QUAIL QUAKE QUALM QUARK QUART QUASH QUASI QUEEN QUEER QUELL QUERY QUEST QUEUE QUICK QUIET QUILL QUILT QUIRK QUITE QUOTA QUOTE RABBI RABID RACER RADAR RADII RADIO RAINY RAISE RAJAH RALLY RAMEN RANCH RANGE RAPID RARER RASPY RATIO RATTY RAVEN RAYON RAZOR REACH REACT READY REALM REARM REBAR REBEL REBUS REBUT RECAP RECUR REEDY REFER REFIT REGAL REHAB REIGN RELAX RELAY RELIC REMIT RENAL RENEW REPAY REPEL REPLY RESET RESIN RETRO REUSE REVEL REVUE RHINO RHYME RIDER RIDGE RIFLE RIGHT RIGID RIGOR RINSE RIPEN RIPER RISEN RISER RISKY RIVAL RIVER RIVET ROACH ROAST ROBIN ROBOT ROCKY RODEO ROGUE ROOMY ROOST ROTOR ROUGE ROUGH ROUND ROUSE ROUTE ROVER ROWDY ROYAL RUBLE RUDDY RUDER RUGBY RULER RUMBA RUMOR RUNNY RURAL RUSTY SADLY SAFER SAINT SALAD SALLY SALON SALSA SALTY SALVE SALVO SANDY SANER SAPPY SASSY SATIN SATYR SAUCE SAUCY SAUNA SAUTE SAVOR SAVVY SCALD SCALE SCALP SCALY SCAMP SCANT SCARE SCARF SCARY SCENE SCENT SCION SCOFF SCOLD SCONE SCOOP SCOPE SCORE SCORN SCOUR SCOUT SCOWL SCRAM SCRAP SCREE SCREW SCRUB SCRUM SCUBA SEDAN SEEDY SEGUE SEIZE SEMEN SENOR SENSE SEPIA SERIF SERUM SERVE SETUP SEVEN SEVER SEWER SHACK SHADE SHADY SHAFT SHAKE SHAKY SHALE SHALL SHAME SHANK SHAPE SHARD SHARE SHARK SHARP SHAVE SHAWL SHEAF SHEAR SHEEN SHEEP SHEER SHEET SHEIK SHELF SHELL SHIED SHIFT SHINE SHINY SHIRE SHIRK SHIRT SHOCK SHOED SHOOT SHORE SHORN SHORT SHOUT SHOVE SHOWN SHOWY SHREW SHRUB SHRUG SHUCK SHUNT SHUSH SHYLY SIEGE SIEVE SIGHT SIGMA SILKY SILLY SINCE SINEW SINGE SIREN SISSY SIXTH SIXTY SKATE SKIER SKIFF SKILL SKIMP SKIRT SKULK SKULL SKUNK SLACK SLAIN SLANG SLANT SLASH SLATE SLEEK SLEEP SLEET SLEPT SLICE SLICK SLIDE SLIME SLIMY SLING SLINK SLOOP SLOPE SLOSH SLOTH SLUMP SLUNG SLUNK SLURP SLUSH SLYLY SMACK SMALL SMART SMASH SMEAR SMELL SMELT SMILE SMIRK SMITE SMITH SMOCK SMOKE SMOKY SMOTE SNACK SNAIL SNAKE SNAKY SNARE SNARL SNEAK SNEER SNIDE SNIFF SNIPE SNOOP SNORE SNORT SNOUT SNOWY SNUCK SNUFF SOAPY SOBER SOGGY SOLAR SOLID SOLVE SONAR SONIC SOOTH SOOTY SORRY SOUND SOUTH SOWER SPACE SPADE SPANK SPARE SPARK SPASM SPAWN SPEAK SPEAR SPECK SPEED SPELL SPELT SPEND SPENT SPERM SPICE SPICY SPIED SPIEL SPIKE SPIKY SPILL SPILT SPINE SPINY SPIRE SPITE SPLAT SPLIT SPOIL SPOKE SPOOF SPOOK SPOOL SPOON SPORE SPORT SPOUT SPRAY SPREE SPRIG SPURT SQUAD SQUAT SQUIB SQUID STACK STAFF STAGE STAID STAIN STAIR STAKE STALE STALK STALL STAMP STAND STANK STARE STARK START STASH STATE STAVE STEAD STEAK STEAL STEAM STEED STEEL STEEP STEER STEIN STERN STICK STIFF STILL STILT STING STINK STINT STOCK STOIC STOKE STOLE STOMP STONE STONY STOOD STOOL STOOP STORE STORK STORM STORY STOUT STOVE STRAP STRAW STRAY STRIP STRUT STUCK STUDY STUFF STUMP STUNG STUNK STUNT STYLE SUAVE SUGAR SUING SUITE SULKY SULLY SUMAC SUNNY SUPER SURER SURGE SURLY SUSHI SWAMI SWAMP SWARM SWASH SWATH SWEAR SWEAT SWEEP SWEET SWELL SWEPT SWIFT SWILL SWINE SWING SWIRL SWISH SWOON SWOOP SWORD SWORE SWORN SYLPH SYNOD SYRUP TABBY TABLE TABOO TACIT TACKY TAFFY TAINT TAKEN TAKER TALLY TALON TAMER TANGO TANGY TAPER TAPIR TARDY TAROT TASTE TASTY TATTY TAUNT TAWNY TEACH TEARY TEASE TEDDY TEETH TEMPO TENET TENOR TENSE TENTH TEPEE TEPID TERRA TERSE TESTY THANK THEFT THEIR THEME THERE THESE THICK THIEF THIGH THING THINK THIRD THONG THORN THOSE THREE THREW THROB THROW THUMB THUMP THYME TIARA TIBIA TIDAL TIGER TIGHT TILDE TIMER TIMID TIPSY TITAN TITHE TITLE TOAST TODAY TODDY TOKEN TONAL TONGS TONIC TOOTH TOPAZ TOPIC TORCH TORSO TOTAL TOTEM TOUCH TOUGH TOWEL TOWER TOXIC TOXIN TRACE TRACK TRACT TRADE TRAIL TRAIN TRAIT TRAMP TRASH TRAWL TREAD TREAT TREND TRIAD TRIAL TRIBE TRICE TRICK TRIED TRIPE TRITE TROLL TROOP TROPE TROUT TROVE TRUCE TRUCK TRUER TRULY TRUMP TRUNK TRUSS TRUST TRUTH TRYST TUBAL TUBER TULIP TUMOR TUNIC TURBO TUTOR TWANG TWEAK TWEED TWEET TWICE TWINE TWIRL TWIST TYING UDDER ULCER ULTRA UMBRA UNCLE UNCUT UNDER UNDUE UNFED UNFIT UNIFY UNION UNITE UNITY UNLIT UNMET UNSET UNTIE UNTIL UNZIP UPEND UPPER UPSET URBAN URINE USAGE USHER USING USUAL USURP UTTER VAGUE VALET VALID VALOR VALUE VALVE VAPID VAPOR VAULT VAUNT VEGAN VENOM VENUE VERGE VERSE VERSO VERVE VICAR VIDEO VIGIL VIGOR VILLA VINYL VIOLA VIPER VIRAL VIRUS VISOR VISTA VITAL VIVID VIXEN VOCAL VODKA VOGUE VOICE VOILA VOMIT VOTER VOUCH VOWEL VYING WACKY WAFER WAGER WAGON WAIST WAIVE WALTZ WARTY WASTE WATCH WATER WAVER WAXEN WEARY WEAVE WEDGE WEEDY WEIGH WEIRD WELCH WELSH WENCH WHACK WHALE WHARF WHEAT WHEEL WHELP WHERE WHICH WHIFF WHILE WHINE WHINY WHIRL WHISK WHITE WHOLE WHOOP WHOSE WIDEN WIDER WIDOW WIDTH WIELD WIGHT WILLY WIMPY WINCE WINCH WINDY WIPER WIRED WISER WISPY WITCH WITTY WOKEN WOMAN WOMEN WOODY WOOER WOOZY WORDY WORLD WORRY WORSE WORST WORTH WOULD WOUND WOVEN WRACK WRATH WREAK WRECK WREST WRING WRIST WRITE WRONG WROTE WRUNG WRYLY YACHT YEARN YEAST YIELD YOUNG YOUTH ZEBRA ZESTY ZILCH ZONAL";
+
+const VALID_DICTIONARY_WORDS = new Set([
+  ...WORDLE_TIERS.easy,
+  ...WORDLE_TIERS.medium,
+  ...WORDLE_TIERS.hard,
+  ...WORDLE_DICTIONARY_RAW.split(" ")
+]);
+
+const WORDLE_KEYBOARD_LAYOUT = [
+  ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+  ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+  ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "DEL"]
+];
 
 let wordleTarget = "CHAIR", wordleRow = 0, wordleCol = 0, wordleGrid = [], wordleOver = false;
+let wordleLocked = false;
+
+function evaluateWordleGuess(guess, target) {
+  const result = Array(5).fill("absent");
+  const targetChars = target.split("");
+  const guessChars = guess.split("");
+  const counts = {};
+
+  for (let i = 0; i < 5; i++) {
+    counts[targetChars[i]] = (counts[targetChars[i]] || 0) + 1;
+  }
+
+  // Pass 1: exact matches
+  for (let i = 0; i < 5; i++) {
+    if (guessChars[i] === targetChars[i]) {
+      result[i] = "correct";
+      counts[guessChars[i]]--;
+    }
+  }
+
+  // Pass 2: misplaced matches
+  for (let i = 0; i < 5; i++) {
+    if (result[i] === "correct") continue;
+    const c = guessChars[i];
+    if (counts[c] && counts[c] > 0) {
+      result[i] = "present";
+      counts[c]--;
+    }
+  }
+
+  return result;
+}
 
 function getWordleTargetByDifficulty() {
   const tier = hubState.difficulty || "medium";
   const pool = WORDLE_TIERS[tier] || WORDLE_TIERS.medium;
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
 function initWordle() {
   resetIdleWatchdog();
   clearWinLine();
   stopTurnTimer();
   showTimerInactive();
+  updateMoveCounter(false);
   boardWrap?.classList.remove("chess-mode");
-  capturedTop?.classList.remove("chess-mode");
-  capturedBottom?.classList.remove("chess-mode");
   boardWrap?.classList.add("wordle-mode");
-
+  capturedLeft?.classList.add("hidden");
+  capturedRight?.classList.add("hidden");
   tttBoardEl?.classList.add("hidden");
   chessBoardEl?.classList.add("hidden");
-  capturedTop?.classList.add("hidden");
-  capturedBottom?.classList.add("hidden");
   wordleGameEl?.classList.remove("hidden");
 
   wordleTarget = getWordleTargetByDifficulty();
-  wordleRow = 0; wordleCol = 0; wordleOver = false;
+  wordleRow = 0;
+  wordleCol = 0;
+  wordleOver = false;
+  wordleLocked = false;
   wordleGrid = Array.from({ length: 6 }, () => Array(5).fill(""));
-  if (statusPill) statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`;
+  if (statusPill) statusPill.textContent = "Wordle (" + hubState.difficulty.toUpperCase() + ")";
   renderWordle();
 }
+
+function renderWordleKeyboard(keyStatuses) {
+  if (!wordleKeyboardEl) return;
+  wordleKeyboardEl.innerHTML = "";
+  WORDLE_KEYBOARD_LAYOUT.forEach(row => {
+    const rowEl = document.createElement("div");
+    rowEl.className = "kb-row";
+    row.forEach(key => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "kb-key" + (key === "ENTER" || key === "DEL" ? " wide" : "");
+      btn.dataset.key = key;
+      if (key === "DEL") {
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>';
+      } else {
+        btn.textContent = key;
+      }
+      if (keyStatuses[key]) {
+        btn.classList.add(keyStatuses[key]);
+      }
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        handleWordleKey(key);
+      });
+      rowEl.appendChild(btn);
+    });
+    wordleKeyboardEl.appendChild(rowEl);
+  });
+}
+
+function updateVirtualKey(char, newStatus) {
+  const btn = wordleKeyboardEl?.querySelector(`[data-key="${char}"]`);
+  if (!btn) return;
+  if (newStatus === "correct") {
+    btn.classList.remove("present", "absent");
+    btn.classList.add("correct");
+  } else if (newStatus === "present" && !btn.classList.contains("correct")) {
+    btn.classList.remove("absent");
+    btn.classList.add("present");
+  } else if (newStatus === "absent" && !btn.classList.contains("correct") && !btn.classList.contains("present")) {
+    btn.classList.add("absent");
+  }
+}
+
 function renderWordle() {
   if (!wordleBoardEl || !wordleKeyboardEl) return;
   wordleBoardEl.innerHTML = "";
+  const keyStatuses = {};
+
   for (let r = 0; r < 6; r++) {
     const rowEl = document.createElement("div");
     rowEl.className = "wordle-row";
-    rowEl.id = `wr-${r}`;
+    rowEl.id = "wr-" + r;
+
+    const isSubmitted = (r < wordleRow) || (r === wordleRow && wordleOver && wordleGrid[r].every(Boolean));
+    const rowWord = wordleGrid[r].join("");
+    const rowStatuses = (isSubmitted && rowWord.length === 5) ? evaluateWordleGuess(rowWord, wordleTarget) : null;
+
     for (let c = 0; c < 5; c++) {
       const tile = document.createElement("div");
       tile.className = "wordle-tile";
-      tile.id = `wt-${r}-${c}`;
+      tile.id = "wt-" + r + "-" + c;
       tile.textContent = wordleGrid[r][c];
+
+      if (rowStatuses) {
+        const st = rowStatuses[c];
+        tile.classList.add(st);
+        const char = wordleGrid[r][c];
+        if (st === "correct") {
+          keyStatuses[char] = "correct";
+        } else if (st === "present" && keyStatuses[char] !== "correct") {
+          keyStatuses[char] = "present";
+        } else if (st === "absent" && !keyStatuses[char]) {
+          keyStatuses[char] = "absent";
+        }
+      }
       rowEl.appendChild(tile);
     }
     wordleBoardEl.appendChild(rowEl);
   }
+
+  renderWordleKeyboard(keyStatuses);
 }
+
 function handleWordleKey(k) {
-  if (wordleOver || hubState.game !== "wordle") return;
+  if (wordleOver || wordleLocked || hubState.game !== "wordle") return;
   resetIdleWatchdog();
 
   if (k === "DEL" || k === "BACKSPACE") {
     if (wordleCol > 0) {
       wordleCol--;
       wordleGrid[wordleRow][wordleCol] = "";
-      const tile = document.getElementById(`wt-${wordleRow}-${wordleCol}`);
-      if (tile) tile.textContent = "";
+      const tile = document.getElementById("wt-" + wordleRow + "-" + wordleCol);
+      if (tile) {
+        tile.textContent = "";
+        tile.classList.remove("pop");
+      }
+      persistLiveState();
     }
-    persistLiveState();
     return;
   }
 
   if (k === "ENTER") {
-    if (wordleCol === 5) checkWordleRow();
+    if (wordleCol === 5) {
+      checkWordleRow();
+    } else {
+      if (statusPill) statusPill.textContent = "Not enough letters";
+      const rowEl = document.getElementById("wr-" + wordleRow);
+      if (rowEl) {
+        rowEl.classList.remove("shake");
+        void rowEl.offsetWidth;
+        rowEl.classList.add("shake");
+      }
+      setTimeout(() => {
+        if (statusPill && !wordleOver) statusPill.textContent = "Wordle (" + hubState.difficulty.toUpperCase() + ")";
+      }, 1200);
+    }
     return;
   }
 
   if (/^[A-Z]$/.test(k) && wordleCol < 5) {
     wordleGrid[wordleRow][wordleCol] = k;
-    const tile = document.getElementById(`wt-${wordleRow}-${wordleCol}`);
-    if (tile) tile.textContent = k;
+    const tile = document.getElementById("wt-" + wordleRow + "-" + wordleCol);
+    if (tile) {
+      tile.textContent = k;
+      tile.classList.remove("pop");
+      void tile.offsetWidth;
+      tile.classList.add("pop");
+    }
     wordleCol++;
     persistLiveState();
   }
 }
+
+/* ---------- Sequential 3D Flip Animation on Wordle Submit ---------- */
 function checkWordleRow() {
+  if (wordleLocked) return;
   const guess = wordleGrid[wordleRow].join("");
   if (!VALID_DICTIONARY_WORDS.has(guess)) {
     if (statusPill) statusPill.textContent = "Not in word list!";
-    setTimeout(() => { if (statusPill) statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`; }, 1000);
+    const rowEl = document.getElementById("wr-" + wordleRow);
+    if (rowEl) {
+      rowEl.classList.remove("shake");
+      void rowEl.offsetWidth;
+      rowEl.classList.add("shake");
+    }
+    setTimeout(() => {
+      if (statusPill && !wordleOver) statusPill.textContent = "Wordle (" + hubState.difficulty.toUpperCase() + ")";
+    }, 1200);
     return;
   }
 
-  if (guess === wordleTarget) {
-    wordleOver = true;
-    scoreA++; streak++;
-    persistScores(); renderScores();
-    showWinScreen("Word Solved!");
+  const clueStatuses = evaluateWordleGuess(guess, wordleTarget);
+  const isWin = (guess === wordleTarget);
+  const currentRow = wordleRow;
+  wordleLocked = true;
+
+  // Trigger 3D flip animation sequentially with 250ms stagger
+  clueStatuses.forEach((status, col) => {
+    const tile = document.getElementById("wt-" + currentRow + "-" + col);
+    if (!tile) return;
+    setTimeout(() => {
+      tile.classList.add("flip");
+      // Reveal clue color halfway through the 3D flip (at 90deg)
+      setTimeout(() => {
+        tile.classList.add(status);
+        updateVirtualKey(guess[col], status);
+      }, 250);
+    }, col * 250);
+  });
+
+  const totalFlipTime = 5 * 250 + 260;
+  setTimeout(() => {
+    wordleRow++;
+    wordleCol = 0;
+    wordleLocked = false;
+
+    if (isWin) {
+      wordleOver = true;
+      scoreA++;
+      streak++;
+      persistScores();
+      renderScores();
+      showWinScreen("Word Solved!");
+      persistLiveState();
+      return;
+    }
+
+    if (wordleRow === 6) {
+      wordleOver = true;
+      scoreB++;
+      streak = 0;
+      persistScores();
+      renderScores();
+      showWinScreen("The Word was: " + wordleTarget);
+      persistLiveState();
+      return;
+    }
+
     persistLiveState();
-    return;
-  }
-
-  wordleRow++; wordleCol = 0;
-  if (wordleRow === 6) {
-    wordleOver = true;
-    scoreB++; streak = 0;
-    persistScores(); renderScores();
-    showWinScreen(`The Word was: ${wordleTarget}`);
-  }
-  persistLiveState();
+  }, totalFlipTime);
 }
 
-/* ---------- live game persistence ---------- */
+/* ---------- Live Game Persistence ---------- */
 function persistLiveState() {
   const payload = {
     hubState: { ...hubState },
     mode: modeSelect.value,
     scores: { scoreA, scoreB, scoreD, streak },
+    moveCount,
     ttt: {
       board: tttBoard, size: tttSize, winLen: tttWinLen, turn: tttTurn, over: tttOver, winning: tttWinningCells
     },
@@ -909,6 +1626,7 @@ function persistLiveState() {
   };
   localStorage.setItem(LIVE_STATE_KEY, JSON.stringify(payload));
 }
+
 function restoreLiveStateIfAny() {
   const raw = localStorage.getItem(LIVE_STATE_KEY);
   if (!raw) return false;
@@ -926,16 +1644,20 @@ function restoreLiveStateIfAny() {
       streak = s.scores.streak || 0;
       renderScores();
     }
+    if (typeof s.moveCount === "number") {
+      moveCount = s.moveCount;
+    }
 
-    // restore by mode
     if (s.mode === "wordle" && s.wordle) {
       wordleTarget = s.wordle.target || getWordleTargetByDifficulty();
       wordleRow = s.wordle.row || 0;
       wordleCol = s.wordle.col || 0;
       wordleGrid = s.wordle.grid || Array.from({ length: 6 }, () => Array(5).fill(""));
       wordleOver = !!s.wordle.over;
+      wordleLocked = false;
+      updateMoveCounter(false);
       renderWordle();
-      statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`;
+      if (statusPill) statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`;
       return true;
     }
 
@@ -946,6 +1668,7 @@ function restoreLiveStateIfAny() {
       tttTurn = s.ttt.turn || "X";
       tttOver = !!s.ttt.over;
       tttWinningCells = Array.isArray(s.ttt.winning) ? s.ttt.winning : [];
+      updateMoveCounter(true);
       renderTTT();
       return true;
     }
@@ -958,10 +1681,10 @@ function restoreLiveStateIfAny() {
       whiteCaptured = Array.isArray(s.chess.whiteCaptured) ? s.chess.whiteCaptured : [];
       blackCaptured = Array.isArray(s.chess.blackCaptured) ? s.chess.blackCaptured : [];
 
-      // if corrupt/empty, re-init chess
       const looksValid = chessBoard.length === 8 && Array.isArray(chessBoard[0]) && chessBoard[0].length === 8;
       if (!looksValid) return false;
 
+      updateMoveCounter(true);
       renderCaptured();
       renderChess();
       return true;
@@ -973,22 +1696,34 @@ function restoreLiveStateIfAny() {
   }
 }
 
-/* ---------- Global Keyboard ---------- */
+/* ---------- Global Keyboard Event Guard ---------- */
 window.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
   const k = e.key.toUpperCase();
 
-  if (e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") {
+  // Keyboard Event Guard for Wordle Mode
+  if (hubState.game === "wordle") {
+    // Isolated keypresses: Enter, Backspace, or Letters
+    if (k === "ENTER" || k === "BACKSPACE" || /^[A-Z]$/.test(k)) {
+      e.preventDefault();
+      handleWordleKey(k);
+      return;
+    }
+    // Number row switches games
     if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
-    if (k === "4") { hubState.game = "wordle"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
-
-    if (k === "R") { newGameBtn?.click(); return; }
-    if (k === "Z") { undoBtn?.click(); return; }
+    return;
   }
 
-  if (hubState.game !== "wordle") return;
-  if (k === "ENTER" || k === "BACKSPACE" || /^[A-Z]$/.test(k)) handleWordleKey(k);
+  // Global shortcuts for TTT & Chess
+  if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+  if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+  if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+  if (k === "4") { hubState.game = "wordle"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+
+  if (k === "R") { newGameBtn?.click(); return; }
+  if (k === "Z") { undoBtn?.click(); return; }
 });
 
 /* ---------- Timer Expiration ---------- */
@@ -1004,6 +1739,8 @@ function onTimerExpired() {
     const moves = allMovesForColor(chessBoard, chessTurn);
     if (!moves.length) return;
     moveChess(chessBoard, moves[Math.floor(Math.random() * moves.length)], true);
+    moveCount++;
+    updateMoveCounter(true);
     chessTurn = chessTurn === "w" ? "b" : "w";
     renderChess();
     startTurnTimer();
@@ -1037,8 +1774,10 @@ undoBtn?.addEventListener("click", () => {
     if (!s) return;
     tttBoard = [...s.board]; tttTurn = s.turn; tttOver = s.over; tttWinningCells = [...s.win];
     scoreA = s.scoreA; scoreB = s.scoreB; scoreD = s.scoreD; streak = s.streak;
+    moveCount = s.moveCount || Math.max(0, moveCount - 1);
     hideWinScreen();
     renderScores();
+    updateMoveCounter(true);
     renderTTT();
     startTurnTimer();
     persistLiveState();
@@ -1049,9 +1788,11 @@ undoBtn?.addEventListener("click", () => {
   chessBoard = cloneBoard(s.board); chessTurn = s.turn; chessSelected = s.selected; chessOver = s.over;
   whiteCaptured = [...s.whiteCaptured]; blackCaptured = [...s.blackCaptured];
   scoreA = s.scoreA; scoreB = s.scoreB; scoreD = s.scoreD; streak = s.streak;
+  moveCount = s.moveCount || Math.max(0, moveCount - 1);
   hideWinScreen();
   renderCaptured();
   renderScores();
+  updateMoveCounter(true);
   renderChess();
   startTurnTimer();
   persistLiveState();

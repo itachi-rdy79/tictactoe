@@ -1,21 +1,123 @@
-# GAP — Arcade Gaming Hub (Offline-First)
+# GAP — Arcade Gaming Hub (100% Offline-First)
 
-A high-performance, 100% offline browser arcade hub featuring **Tic-Tac-Toe (3×3 & 5×5)**, **Chess**, and an expanded **Wordle** engine.
+A high-performance, completely offline, zero-dependency browser arcade gaming hub built with Vanilla HTML5, CSS3, and JavaScript (ES6+). Includes **Tic-Tac-Toe (3×3 & 5×5)**, **Chess Engine & Tactical UI**, and **Wordle Engine with Offline Dictionary**, backed by intelligent AI algorithms and responsive glassmorphism visual design.
 
-## Features
-- **Konohagakure Flame Vector Branding**: Glowing Leaf Village emblem integrated directly into the top command island and browser favicon.
-- **Wordle with Player-Controlled Difficulty & Comprehensive Dictionary**:
-  - Direct player control over Easy, Medium, and Hard tiers[cite: 3].
-  - Common 5-letter words like `AISLE` and thousands more are strictly recognized by the offline dictionary.
-  - Enlarged 64px–74px tile grid with 34px vertical separation, guaranteeing zero collision with the on-screen keyboard.
-  - Opponent toggle is hidden in Wordle mode while keeping Difficulty controls fully functional[cite: 3].
-- **Scaled-Up Layout**:
-  - Top Command Island (84px) and Bottom Quick-Dock (76px) provide improved touch and click targets.
-  - Tactile 48px buttons with vector icon illustrations for Undo, Reset, and New Game.
-- **Theming & Vector Aesthetics**:
-  - **Light**: Background automatically dims to a soft pastel tint matching the active reload color.
-  - **Dark**: Solid pure black (`#000000`) canvas with vibrant neon buttons.
-  - **Itachi**: Standalone SVG red moon with Sharingan blades, ninja silhouette, and custom Sharingan/Crow markers on Tic-Tac-Toe boards.
-  - **Dynamic Reload Colors**: Automatically assigns a random neon palette (Emerald, Amber, Violet, Teal, or Lime) on reload.
-- **Idle Move Watchdog**: An alert animation gently prompts the player if no move is made for over 60 seconds with the timer off[cite: 3].
-- **100% Offline Guarantee**: No external CDNs, fonts, or tracking scripts.
+---
+
+## 🚨 Strict Architectural Principles
+
+1. **100% Offline / Zero Internet**:
+   - **No CDNs, no remote fonts, no remote scripts, and zero network API calls**.
+   - System font stack utilized exclusively: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`.
+   - All vector icons and illustrations are self-contained **inline SVGs**.
+   - Runs directly and flawlessly by double-clicking `index.html` via `file://` or serving from any local HTTP server.
+2. **Zero Audio / No Sound Effects**:
+   - Strictly visual haptic feedback: dynamic glowing borders, 3D flip rotations, tile pop scaling, row shakes, and confetti particle physics.
+   - Zero usage of Web Audio API, `AudioContext`, synthesizer oscillators, or audio elements.
+
+---
+
+## 🎮 Game Modes & Logic
+
+### 1. Tic-Tac-Toe (3×3 & 5×5)
+- **3×3 Mode**:
+  - **Easy**: Casual play with basic blocking.
+  - **Medium**: Immediate win detection and critical player threat blocking.
+  - **Hard**: Mathematically unbeatable full depth-first minimax algorithm with Alpha-Beta pruning.
+- **5×5 Mode (4-in-a-Row Objective)**:
+  - Precomputes all four-in-a-row winning vectors across rows, columns, and diagonals.
+  - **AI Heuristics**: Immediate 4-in-a-row win and block detection, open-3 threat recognition, center board weight prioritization, and candidate move pruning for guaranteed sub-50ms turn latency.
+- Turn indicator, move counters, undo stack, and SVG strikethrough win-lines.
+
+### 2. Chess Engine & Tactical UI
+- **Intelligent Chess AI**:
+  - Full legal move generation (Pawns with 2-square initial push and diagonal captures, Knights, Bishops, Rooks, Queens, Kings).
+  - Minimax with Alpha-Beta Pruning.
+  - **Evaluation Function**: Standard material values combined with Piece-Square Tables (PST) for positional center control, knight mobility, and pawn advancement.
+  - **Move Ordering**: MVV-LVA (Most Valuable Victim – Least Valuable Aggressor) to maximize alpha-beta cutoff efficiency.
+  - **King Capture Evaluation**: $\pm 50,000$ to prevent suicidal blunders and force checkmates.
+- **Chess UI Rules (CRITICAL)**:
+  - **NO MOVE HINT DOTS**: When a piece is clicked/selected, move destination hint dots are never rendered, preserving authentic over-the-board strategic play.
+  - **SIDE-FLANKED CAPTURED PIECE TRAYS**: Captured pieces are positioned on the **Left (White captured)** and **Right (Black captured)** sides of the board rather than top/bottom.
+  - **3D Embossed Tactile Piece Counters**: Grouped tactile chips showing piece icons and count badges (e.g., `♟ ×3`, `♞ ×1`).
+
+### 3. Wordle Engine & Offline Dictionary
+- **Embedded 1,940+ Word Offline Dictionary**:
+  - 100% offline local dictionary including everyday vocabulary (`CRANE`, `BREAD`, `HEART`, `AISLE`, `PIPER`, `SLATE`, etc.).
+  - Target words stratified across **Easy**, **Medium**, and **Hard** tiers.
+- **Two-Pass Clue Scoring**:
+  - Pass 1: Identifies exact position matches (**Green**).
+  - Pass 2: Identifies misplaced matches (**Yellow**) while properly balancing duplicate letter counts.
+- **Micro-Animations**:
+  - Tile pop scale on character entry.
+  - Sequential **3D Flip Animation** on row submit (`rotateX(90deg)` reveals clue color, then `rotateX(0deg)`).
+  - Row shake on invalid words or incomplete submissions.
+- **Virtual On-Screen Keyboard**: Full QWERTY keyboard dynamically updated with clue colors (Green > Yellow > Gray).
+- **Keyboard Event Guard**: When playing Wordle, physical key presses type letters directly into Wordle and never trigger global shortcuts (`R` types 'R', NOT New Game; `Z` types 'Z', NOT Undo).
+
+---
+
+## 🎨 Design, Theming & Vector Branding
+
+- **Konohagakure Flame Vector Branding**:
+  - Glowing Leaf Village spiral flame emblem integrated into the top command island and inline SVG page favicon.
+- **Themes**:
+  - **Light**: Crisp glass panels paired with soft pastel background tint matching the active reload color.
+  - **Dark**: Deep true black (`#000000`) canvas with glowing neon buttons and borders.
+  - **Itachi Theme**: Blood-red SVG moon with rotating Sharingan blades, ninja silhouette, and crimson marker glows.
+- **Dynamic Reload Palettes**:
+  - Randomly assigns one of 5 vibrant neon accent palettes on reload: **Emerald**, **Amber**, **Violet**, **Teal**, or **Lime**.
+- **Layout**:
+  - Scaled-up **Top Command Island (84px)** and **Bottom Dock (76px)** for effortless touch and desktop interaction.
+  - Fully responsive across mobile (320px) up to 4K desktop screens.
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Key | Action (In TTT / Chess) | Action (In Wordle) |
+|---|---|---|
+| `1` | Switch to 3×3 Tic-Tac-Toe | Switch to 3×3 Tic-Tac-Toe |
+| `2` | Switch to 5×5 Tic-Tac-Toe | Switch to 5×5 Tic-Tac-Toe |
+| `3` | Switch to Chess | Switch to Chess |
+| `4` | Switch to Wordle | — |
+| `R` | Trigger New Game | Types letter 'R' |
+| `Z` | Undo last move | Types letter 'Z' |
+| `A-Z` | — | Inputs letter into current tile |
+| `Enter` | — | Submits 5-letter guess |
+| `Backspace` | — | Deletes previous letter |
+
+---
+
+## 📁 File Structure
+
+```text
+├── index.html       # Semantic HTML5 layout, inline SVG flame assets & command docks
+├── style.css        # Responsive CSS styling, CSS variables, themes & 3D animations
+├── script.js        # Minimax/tactical AI, chess rules & PST, Wordle dictionary & logic
+└── README.md        # Comprehensive documentation
+```
+
+---
+
+## 🚀 Getting Started
+
+Simply open `index.html` in any modern web browser:
+
+```bash
+# Windows
+start index.html
+
+# macOS
+open index.html
+
+# Linux
+xdg-open index.html
+```
+
+Or run any local static HTTP server (optional):
+```bash
+python -m http.server 8080
+# or
+npx serve .
+```
