@@ -64,7 +64,19 @@ A high-performance, completely offline, zero-dependency browser arcade gaming hu
 - **Themes**:
   - **Light**: Crisp glass panels paired with soft pastel background tint matching the active reload color.
   - **Dark**: Deep true black (`#000000`) canvas with glowing neon buttons and borders.
-  - **Itachi Theme**: Blood-red SVG moon with rotating Sharingan blades, ninja silhouette, and crimson marker glows.
+  - **Itachi Theme**: Blood-red SVG moon with rotating Sharingan blades, silhouette crows, crimson markers, and Tsukuyomi victory screens.
+  - **Naruto Theme ("Will of Fire")**:
+    - Radiant fiery orange (`#ea580c`) & electric cyan Rasengan styling.
+    - Custom Kurama flame backdrop with central Konoha spiral leaf vector art.
+    - **Chess Pieces**: Sky-blue chakra white pieces with cyan auras (`#0284c7`) and crimson cloak rogue black pieces (`#e11d48`).
+    - **Captured Piece Trays**: Dynamic headers for **"Konoha Shinobi"** and **"Akatsuki Rogue"** with glowing 3D chips.
+    - **Tic-Tac-Toe**: Thematic inline SVG marks — **Konoha Leaf** (`X`) vs **Akatsuki Cloud** (`O`).
+  - **Game of Thrones Theme ("Ice & Fire")**:
+    - Glacial permafrost blue (`#38bdf8`) & Valyrian dragonfire gold-crimson styling.
+    - Northern blizzard backdrop with Stark Direwolf and Targaryen 3-headed dragon crests.
+    - **Chess Pieces**: Stark winter frost white pieces (`#f0f9ff`) and Targaryen dragonfire crimson black pieces (`#dc2626`).
+    - **Captured Piece Trays**: Dynamic headers for **"Winterfell (Stark)"** and **"Dragonstone (Targaryen)"**.
+    - **Tic-Tac-Toe**: Thematic inline SVG marks — **Direwolf Sigil** (`X`) vs **Dragon Fire** (`O`).
 - **Dynamic Reload Palettes**:
   - Randomly assigns one of 5 vibrant neon accent palettes on reload: **Emerald**, **Amber**, **Violet**, **Teal**, or **Lime**.
 - **Layout**:

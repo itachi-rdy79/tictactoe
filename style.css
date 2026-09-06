@@ -142,6 +142,74 @@ body[data-theme="itachi"] {
   --chess-piece-black: #ff0033;
 }
 
+body[data-theme="naruto"] {
+  --bg: #060c18;
+  --surface: rgba(15, 23, 42, 0.94);
+  --surface-border: #f97316;
+  --text: #f8fafc;
+  --muted: #fdba74;
+  --brand: #ea580c;
+
+  --btn-bg: rgba(30, 41, 59, 0.9);
+  --btn-border: #9a3412;
+  --btn-text: #fed7aa;
+
+  --btn-active-bg: #ea580c;
+  --btn-active-border: #f97316;
+  --btn-active-text: #ffffff;
+  --btn-active-shadow: 0 4px 0 #9a3412, 0 0 24px rgba(234, 88, 12, 0.7);
+
+  --accent: #f97316;
+  --x: #06b6d4;
+  --o: #ea580c;
+  --tile-bg: rgba(15, 23, 42, 0.94);
+  --tile-border: #c2410c;
+  --shadow: 0 16px 45px rgba(234, 88, 12, 0.25), 0 22px 50px rgba(0, 0, 0, 0.95);
+
+  --turn-bg: rgba(15, 23, 42, 0.96);
+  --turn-border: #ea580c;
+  --turn-text: #fb923c;
+
+  --chess-light: #fef3c7;
+  --chess-dark: #1e293b;
+  --chess-piece-white: #0284c7;
+  --chess-piece-black: #e11d48;
+}
+
+body[data-theme="got"] {
+  --bg: #050811;
+  --surface: rgba(10, 16, 28, 0.94);
+  --surface-border: #38bdf8;
+  --text: #f0f9ff;
+  --muted: #7dd3fc;
+  --brand: #38bdf8;
+
+  --btn-bg: rgba(15, 23, 42, 0.92);
+  --btn-border: #0369a1;
+  --btn-text: #e0f2fe;
+
+  --btn-active-bg: #0284c7;
+  --btn-active-border: #38bdf8;
+  --btn-active-text: #ffffff;
+  --btn-active-shadow: 0 4px 0 #075985, 0 0 26px rgba(56, 189, 248, 0.7);
+
+  --accent: #38bdf8;
+  --x: #38bdf8;
+  --o: #ef4444;
+  --tile-bg: rgba(10, 16, 28, 0.95);
+  --tile-border: #0c4a6e;
+  --shadow: 0 16px 45px rgba(56, 189, 248, 0.25), 0 22px 55px rgba(0, 0, 0, 0.98);
+
+  --turn-bg: rgba(10, 16, 28, 0.96);
+  --turn-border: #38bdf8;
+  --turn-text: #7dd3fc;
+
+  --chess-light: #e0f2fe;
+  --chess-dark: #0f172a;
+  --chess-piece-white: #f0f9ff;
+  --chess-piece-black: #dc2626;
+}
+
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
 
@@ -166,10 +234,43 @@ body {
 
 body[data-theme="itachi"] .itachi-bg-art { display: flex !important; }
 
+.naruto-bg-art,
+.got-bg-art {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+body[data-theme="naruto"] .naruto-bg-art {
+  display: flex !important;
+  background: radial-gradient(circle at 50% 45%, #1f0d01 0%, #0c0500 55%, #060c18 100%);
+}
+
+body[data-theme="got"] .got-bg-art {
+  display: flex !important;
+  background: radial-gradient(circle at 50% 45%, #08182b 0%, #070e1a 55%, #050811 100%);
+}
+
 .itachi-moon-svg {
   width: min(92vmin, 740px);
   height: min(92vmin, 740px);
   filter: drop-shadow(0 0 80px rgba(255, 0, 51, 0.55));
+}
+
+.naruto-crest-svg {
+  width: min(92vmin, 740px);
+  height: min(92vmin, 740px);
+  filter: drop-shadow(0 0 70px rgba(249, 115, 22, 0.4));
+}
+
+.got-crest-svg {
+  width: min(92vmin, 740px);
+  height: min(92vmin, 740px);
+  filter: drop-shadow(0 0 70px rgba(56, 189, 248, 0.45));
 }
 
 .glass-island {
@@ -534,6 +635,28 @@ body[data-theme="itachi"] .chip-icon.white-piece {
   text-shadow: 0 1px 0 #fda4af, 0 2px 8px rgba(255, 255, 255, 0.5) !important;
 }
 
+/* Naruto Theme Captured Piece Chips */
+body[data-theme="naruto"] .chip-icon.white-piece {
+  color: #0284c7 !important;
+  text-shadow: 0 1px 0 #0369a1, 0 2px 6px rgba(2, 132, 199, 0.7) !important;
+}
+
+body[data-theme="naruto"] .chip-icon.black-piece {
+  color: #e11d48 !important;
+  text-shadow: 0 1px 0 #9f1239, 0 2px 6px rgba(225, 29, 72, 0.7) !important;
+}
+
+/* Game of Thrones Theme Captured Piece Chips */
+body[data-theme="got"] .chip-icon.white-piece {
+  color: #f0f9ff !important;
+  text-shadow: 0 1px 0 #bae6fd, 0 2px 8px rgba(56, 189, 248, 0.75) !important;
+}
+
+body[data-theme="got"] .chip-icon.black-piece {
+  color: #dc2626 !important;
+  text-shadow: 0 1px 0 #7f1d1d, 0 2px 8px rgba(220, 38, 38, 0.75) !important;
+}
+
 @media (max-width: 640px) {
   .board-shell.chess-mode {
     width: min(64vmin, 320px) !important;
@@ -635,6 +758,28 @@ body[data-theme="itachi"] .chess-cell.black-piece {
 body[data-theme="itachi"] .chess-cell.white-piece {
   color: #ffffff !important;
   text-shadow: 0 1px 0 #fda4af, 0 3px 10px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Naruto Theme Chess Pieces */
+body[data-theme="naruto"] .chess-cell.white-piece {
+  color: #0284c7 !important;
+  text-shadow: 0 1px 0 #0369a1, 0 3px 10px rgba(2, 132, 199, 0.85), 0 0 16px rgba(56, 189, 248, 0.8) !important;
+}
+
+body[data-theme="naruto"] .chess-cell.black-piece {
+  color: #e11d48 !important;
+  text-shadow: 0 1px 0 #9f1239, 0 3px 10px rgba(225, 29, 72, 0.85), 0 0 16px rgba(244, 63, 94, 0.8) !important;
+}
+
+/* Game of Thrones Theme Chess Pieces */
+body[data-theme="got"] .chess-cell.white-piece {
+  color: #f0f9ff !important;
+  text-shadow: 0 1px 0 #bae6fd, 0 3px 10px rgba(56, 189, 248, 0.85), 0 0 18px rgba(224, 242, 254, 0.9) !important;
+}
+
+body[data-theme="got"] .chess-cell.black-piece {
+  color: #dc2626 !important;
+  text-shadow: 0 1px 0 #7f1d1d, 0 3px 10px rgba(220, 38, 38, 0.85), 0 0 18px rgba(245, 158, 11, 0.8) !important;
 }
 
 .chess-cell:hover { filter: brightness(1.15); transform: translateY(-2px) scale(1.03); }
