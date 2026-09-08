@@ -3136,14 +3136,13 @@ function renderPattuUI() {
 
 function updatePattuConnectionBadge() {
   const dot = document.getElementById("pattuBadgeDot");
-  const text = document.getElementById("pattuBadgeText");
-  if (!dot || !text) return;
+  if (!dot) return;
   if (navigator.onLine) {
     dot.className = "pattu-badge-dot online";
-    text.textContent = "Cloud Stills (Live)";
+    dot.title = "Live Cloud Stills (Online)";
   } else {
     dot.className = "pattu-badge-dot offline";
-    text.textContent = "Offline Mode (Local)";
+    dot.title = "Offline Mode (Local)";
   }
 }
 

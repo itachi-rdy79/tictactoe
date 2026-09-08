@@ -1411,7 +1411,7 @@ body[data-theme="itachi"] .poker-card.back {
   justify-content: center !important;
   align-items: center !important;
   overflow-y: auto !important;
-  padding: 4px 0 !important;
+  padding: 4px 0 80px 0 !important;
   scrollbar-width: thin;
 }
 
@@ -1450,7 +1450,7 @@ body[data-theme="itachi"] .poker-card.back {
     18px 0 45px -6px rgba(14, 165, 233, 0.42),
     0 18px 45px rgba(0, 0, 0, 0.85) !important;
   margin: 0 auto !important;
-  overflow: hidden !important;
+  overflow: visible !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
@@ -1513,31 +1513,25 @@ body[data-theme="itachi"] .poker-card.back {
   white-space: nowrap;
 }
 
-.pattu-mode-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 1px 6px;
-  border-radius: 9999px;
-  font-size: 0.65rem;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #94a3b8;
-  letter-spacing: 0.3px;
-  flex-shrink: 0;
-}
-
 .pattu-badge-dot {
-  width: 5px;
-  height: 5px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   display: inline-block;
+  margin-left: 6px;
+  flex-shrink: 0;
+  transition: all 0.25s ease;
 }
 
 .pattu-badge-dot.online {
   background: #22c55e;
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
+  box-shadow: 0 0 8px #22c55e;
+}
+
+.pattu-badge-dot.offline {
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.85);
+  opacity: 0.9;
 }
 
 /* Top Nav Actions (Stats, Time Travel, Instructions) */
@@ -1880,13 +1874,13 @@ body[data-theme="itachi"] .poker-card.back {
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  max-height: 220px;
+  max-height: 200px;
   overflow-y: auto;
-  border-radius: 14px !important;
+  border-radius: 12px !important;
   background: rgba(15, 23, 42, 0.98) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85) !important;
-  z-index: 10000;
+  border: 1.5px solid #38bdf8 !important;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95), 0 0 16px rgba(56, 189, 248, 0.25) !important;
+  z-index: 99999 !important;
 }
 
 .pattu-drop-item {
