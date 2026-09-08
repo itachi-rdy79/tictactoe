@@ -98,6 +98,7 @@ const themeTrigger = document.getElementById("themeTrigger");
 const themeMenu = document.getElementById("themeMenu");
 const themeCurrentIcon = document.getElementById("themeCurrentIcon");
 const themeCurrentText = document.getElementById("themeCurrentText");
+const miniWindowBtn = document.getElementById("miniWindowBtn");
 
 const scoreTickerBtn = document.getElementById("scoreTickerBtn");
 const statsModal = document.getElementById("statsModal");
@@ -344,6 +345,65 @@ themeMenu?.addEventListener("click", (e) => {
 });
 
 document.addEventListener("click", () => themePicker?.classList.remove("open"));
+
+/* ---------- Mini-Window (Pop-Out / Floating Mode) ---------- */
+function isMiniWindow() {
+  const params = new URLSearchParams(window.location.search);
+  return window.name === "GAP_MiniWindow" || params.get("mini") === "1" || window.innerWidth <= 520;
+}
+
+function updateMiniWindowUI() {
+  const isMini = isMiniWindow();
+  document.body.classList.toggle("mini-window", isMini);
+
+  if (miniWindowBtn) {
+    const params = new URLSearchParams(window.location.search);
+    const inPopout = window.name === "GAP_MiniWindow" || params.get("mini") === "1";
+    if (inPopout) {
+      miniWindowBtn.title = "Expand to Full Tab";
+      miniWindowBtn.setAttribute("aria-label", "Expand to Full Tab");
+      miniWindowBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+          <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+          <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+        </svg>
+      `;
+    } else {
+      miniWindowBtn.title = "Pop out into Mini Window";
+      miniWindowBtn.setAttribute("aria-label", "Pop out into Mini Window");
+      miniWindowBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h6v6"/>
+          <path d="M10 14L21 3"/>
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        </svg>
+      `;
+    }
+  }
+}
+
+miniWindowBtn?.addEventListener("click", () => {
+  persistLiveState();
+  persistHub();
+
+  const params = new URLSearchParams(window.location.search);
+  const inPopout = window.name === "GAP_MiniWindow" || params.get("mini") === "1";
+
+  if (inPopout) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("mini");
+    window.open(url.toString(), "_blank");
+  } else {
+    const url = new URL(window.location.href);
+    url.searchParams.set("mini", "1");
+    const features = "width=430,height=720,left=100,top=80,menubar=no,toolbar=no,location=no,status=no,resizable=yes";
+    window.open(url.toString(), "GAP_MiniWindow", features);
+  }
+});
+
+window.addEventListener("resize", updateMiniWindowUI);
 
 /* ---------- Score Tracking & Statistics Modal ---------- */
 function scoreKey() { return `scores_${modeSelect.value}_${difficultySelect.value}`; }
@@ -2923,6 +2983,7 @@ function initBoard(forceFresh = false) {
 /* ---------- App Boot ---------- */
 function boot() {
   loadHub();
+  updateMiniWindowUI();
 
   if (!hubState.timer) hubState.timer = "off";
 

@@ -113,9 +113,11 @@ A high-performance, completely offline, zero-dependency browser arcade gaming hu
     - **Tic-Tac-Toe**: Thematic inline SVG marks — **Direwolf Sigil** (`X`) vs **Dragon Fire** (`O`).
 - **Dynamic Reload Palettes**:
   - Randomly assigns one of 5 vibrant neon accent palettes on reload: **Emerald**, **Amber**, **Violet**, **Teal**, or **Lime**.
-- **Layout**:
-  - Scaled-up **Top Command Island (84px)** and **Bottom Dock (76px)** for effortless touch and desktop interaction.
-  - Fully responsive across mobile (320px) up to 4K desktop screens.
+- **Browser Mini-Window Mode (Pop-Out Floating App)**:
+  - Click the **Mini Window** button in the top right (next to the theme picker) to pop out the entire hub into a compact `430×720px` floating desktop window without browser toolbars or tab strips.
+  - All 6 games (TTT 3x3, TTT 5x5, Chess, Wordle, Poker, Imposter) adapt responsively with zero vertical scrolling.
+  - Live game progress seamlessly syncs between full tabs and the mini window via `localStorage`.
+  - Click "Expand to Full Tab" inside the mini window to return to full-screen view.
 
 ---
 

@@ -425,6 +425,20 @@ body[data-theme="itachi"] .brand { text-shadow: 0 0 20px rgba(255, 0, 51, 0.75);
   gap: 6px !important;
 }
 
+.mini-window-btn {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  cursor: pointer;
+}
+.mini-window-btn svg {
+  display: block;
+}
+
 .theme-menu {
   position: absolute;
   right: 0;
@@ -1691,4 +1705,251 @@ body[data-theme="itachi"] .poker-card.back {
   .hud-right { margin-left: 0 !important; }
   .quick-dock { flex-wrap: wrap; justify-content: center; bottom: 4px !important; }
   .arena { padding-bottom: 100px; height: calc(100vh - 180px); }
+}
+
+/* ==========================================================================
+   Mini-Window & Ultra-Compact Mode (body.mini-window & @media max-width 520px)
+   ========================================================================== */
+body.mini-window,
+@media (max-width: 520px) {
+  html, body {
+    overflow: hidden !important;
+  }
+
+  /* Compact Top Command Island */
+  .top-hud {
+    height: auto !important;
+    min-height: 44px !important;
+    padding: 4px 8px !important;
+    border-radius: 14px !important;
+    margin: 3px auto 2px !important;
+    gap: 4px !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    width: 98vw !important;
+  }
+
+  .hud-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .brand {
+    font-size: 1.12rem !important;
+    margin-right: 2px !important;
+    gap: 4px !important;
+  }
+
+  .brand-flame-svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  #gameTypePills {
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    flex-wrap: nowrap !important;
+    max-width: calc(100vw - 110px) !important;
+    padding: 1px 0 !important;
+    gap: 3px !important;
+  }
+  #gameTypePills::-webkit-scrollbar { display: none !important; }
+
+  #gameTypePills .seg-btn {
+    height: 28px !important;
+    padding: 0 7px !important;
+    font-size: 0.72rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Compact Center Controls (Opponent & Difficulty) */
+  .hud-center {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 4px !important;
+    margin-top: 2px !important;
+    padding-top: 2px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .group-label { display: none !important; }
+
+  .hud-center .seg {
+    gap: 2px !important;
+  }
+
+  .hud-center .seg-btn {
+    height: 24px !important;
+    padding: 0 6px !important;
+    font-size: 0.68rem !important;
+  }
+
+  .hud-right {
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .theme-trigger {
+    height: 28px !important;
+    padding: 0 6px !important;
+  }
+  .theme-trigger #themeCurrentText {
+    display: none !important;
+  }
+
+  .mini-window-btn {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Arena Scaling & Vertical Budget */
+  .arena {
+    height: calc(100vh - 122px) !important;
+    padding-bottom: 42px !important;
+    padding-top: 2px !important;
+    overflow: hidden !important;
+  }
+
+  .status-wrap {
+    margin-bottom: 3px !important;
+    gap: 4px !important;
+  }
+
+  .turn-pill, .move-pill {
+    height: 26px !important;
+    font-size: 0.72rem !important;
+    padding: 0 7px !important;
+  }
+
+  .radial-wrap {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  /* Chess Scaling */
+  .board-shell.chess-mode {
+    width: min(84vmin, 310px) !important;
+    height: min(84vmin, 310px) !important;
+  }
+
+  .captured-sidebar {
+    width: 30px !important;
+    height: min(84vmin, 310px) !important;
+    padding: 2px 1px !important;
+  }
+  .captured-header { font-size: 0.42rem !important; }
+  .captured-piece-chip {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 0.9rem !important;
+  }
+  .chip-badge { font-size: 0.48rem !important; }
+
+  /* Tic-Tac-Toe Scaling */
+  .board-shell:not(.chess-mode):not(.wordle-mode):not(.poker-mode):not(.imposter-mode) {
+    width: min(78vmin, 290px) !important;
+    height: min(78vmin, 290px) !important;
+  }
+
+  .ttt-grid {
+    max-width: min(78vmin, 290px) !important;
+    max-height: min(78vmin, 290px) !important;
+    gap: 4px !important;
+  }
+  .ttt-cell {
+    border-radius: 9px !important;
+    font-size: 1.85rem !important;
+  }
+
+  /* Wordle Scaling */
+  .board-shell.wordle-mode {
+    width: min(94vw, 340px) !important;
+  }
+  .wordle-grid {
+    gap: 3px !important;
+    margin-bottom: 5px !important;
+  }
+  .wordle-tile {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 1.05rem !important;
+  }
+  .wordle-key {
+    height: 32px !important;
+    font-size: 0.7rem !important;
+    padding: 0 2px !important;
+  }
+
+  /* Poker Scaling */
+  .board-shell.poker-mode {
+    width: min(96vw, 410px) !important;
+    padding: 4px !important;
+  }
+  .poker-felt {
+    padding: 6px 4px !important;
+    min-height: 210px !important;
+    gap: 4px !important;
+  }
+  .poker-seat {
+    gap: 4px !important;
+  }
+  .poker-avatar {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.9rem !important;
+  }
+  .poker-card {
+    width: 36px !important;
+    height: 52px !important;
+    font-size: 0.72rem !important;
+    border-radius: 4px !important;
+  }
+  .poker-card-center {
+    font-size: 0.95rem !important;
+  }
+  .poker-dock {
+    padding: 3px 6px !important;
+    gap: 4px !important;
+  }
+  .poker-quick-pills .seg-btn {
+    height: 22px !important;
+    padding: 0 5px !important;
+    font-size: 0.65rem !important;
+  }
+  .poker-btn {
+    height: 30px !important;
+    font-size: 0.74rem !important;
+    padding: 0 6px !important;
+  }
+
+  /* Imposter Scaling */
+  .board-shell.imposter-mode {
+    width: min(96vw, 410px) !important;
+    padding: 4px !important;
+  }
+  .imposter-title { font-size: 1.05rem !important; }
+  .imposter-subtitle { font-size: 0.72rem !important; }
+  .imposter-curtain-card { height: 150px !important; }
+  .imposter-categories { gap: 4px !important; }
+  .imposter-cat-card { padding: 5px 3px !important; font-size: 0.7rem !important; }
+
+  /* Compact Bottom Dock */
+  .quick-dock {
+    bottom: 2px !important;
+    padding: 3px 6px !important;
+    gap: 4px !important;
+    border-radius: 12px !important;
+  }
+  .quick-dock .seg-btn {
+    height: 24px !important;
+    padding: 0 6px !important;
+    font-size: 0.68rem !important;
+  }
+  #scoreStatsBar {
+    font-size: 0.65rem !important;
+  }
 }
