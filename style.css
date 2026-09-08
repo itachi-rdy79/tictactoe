@@ -1474,54 +1474,109 @@ body[data-theme="itachi"] .poker-card.back {
   z-index: 2;
 }
 
-/* PC Card Header */
-.pc-arena-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  margin-bottom: 14px;
-}
-
-.pc-arena-title {
-  font-size: clamp(1.15rem, 3.2vmin, 1.4rem);
-  font-weight: 700;
-  color: #f1f5f9;
-  letter-spacing: -0.2px;
-  margin: 0;
+/* Title & Subtitle Badge matching pic 2 & 3 */
+.pattu-orig-title {
+  font-size: clamp(1.4rem, 4vmin, 1.75rem);
+  font-weight: 800;
+  color: #ffffff;
   text-align: center;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.3px;
   font-family: inherit;
 }
 
-/* Time Travel Option on Right Edge */
-.pc-edge-timetravel-btn {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+.pattu-mode-badge-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.pattu-mode-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
-  background: rgba(14, 165, 233, 0.14);
-  border: 1.5px solid rgba(14, 165, 233, 0.55);
-  border-radius: 20px;
-  color: #38bdf8;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  cursor: pointer;
-  box-shadow: 0 0 16px rgba(14, 165, 233, 0.35);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  letter-spacing: 0.3px;
 }
 
-.pc-edge-timetravel-btn:hover {
-  background: rgba(14, 165, 233, 0.3);
-  box-shadow: 0 0 24px rgba(14, 165, 233, 0.65);
-  color: #ffffff;
-  transform: translateY(-50%) scale(1.04);
+.pattu-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.pattu-badge-dot.online {
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
+}
+
+/* 3 Navigation Boxes: Stats, Time Travel, Instructions (No collision with name) */
+.pattu-orig-nav {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.pattu-orig-nav-btn-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.pattu-orig-icon-box {
+  width: 44px;
+  height: 38px;
+  border-radius: 8px;
+  border: 2px solid #334155;
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
+}
+
+.pattu-orig-icon-box.stats-icon {
+  border-color: #f87171;
+  color: #f87171;
+}
+.pattu-orig-icon-box.stats-icon:hover {
+  box-shadow: 0 0 12px rgba(248, 113, 113, 0.5);
+  transform: translateY(-2px);
+}
+
+.pattu-orig-icon-box.timetravel-icon {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+.pattu-orig-icon-box.timetravel-icon:hover {
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+  transform: translateY(-2px);
+}
+
+.pattu-orig-icon-box.help-icon {
+  border-color: #60a5fa;
+  color: #60a5fa;
+}
+.pattu-orig-icon-box.help-icon:hover {
+  box-shadow: 0 0 12px rgba(96, 165, 250, 0.5);
+  transform: translateY(-2px);
+}
+
+.pattu-orig-nav-label {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  font-weight: 500;
 }
 
 /* Cinema Viewport (Real Movie Image Stage) */
@@ -1626,147 +1681,97 @@ body[data-theme="itachi"] .poker-card.back {
   color: #94a3b8;
 }
 
-/* 5 Step Status Pills Grid */
-.pc-step-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+/* Frame Tabs [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] (No lock of steps!) */
+.pattu-frame-tabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 8px;
-  width: 100%;
-  margin: 14px 0 12px 0;
+  margin: 12px 0 6px 0;
 }
 
-.pc-step-card {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 8px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-  text-align: left;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.pc-step-card:hover:not(.locked) {
-  transform: translateY(-2px);
-  filter: brightness(1.2);
-}
-
-.pc-step-icon-col {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.pc-step-badge {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-
-.pc-step-badge.check {
-  background: #22c55e;
-  color: #ffffff;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
-}
-
-.pc-step-badge.cross {
-  background: #ef4444;
-  color: #ffffff;
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-}
-
-.pc-step-badge.lock {
-  background: rgba(255, 255, 255, 0.08);
-  color: #64748b;
-  font-size: 0.65rem;
-}
-
-.pc-step-badge.active-dot {
-  background: rgba(239, 68, 68, 0.25);
-  color: #ef4444;
-  border: 1.5px solid #ef4444;
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
-}
-
-.pc-step-badge.neutral {
-  background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
-}
-
-.pc-step-text-col {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  line-height: 1.2;
-  overflow: hidden;
-}
-
-.pc-step-label {
-  font-size: 0.74rem;
+.pattu-frame-tab {
+  min-width: 38px;
+  height: 34px;
+  border-radius: 6px;
+  background: #1e293b;
+  color: #cbd5e1;
   font-weight: 700;
-  color: #f1f5f9;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.92rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+  user-select: none;
 }
 
-.pc-step-sub {
-  font-size: 0.62rem;
-  color: #64748b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.pattu-frame-tab:hover {
+  filter: brightness(1.2);
+  transform: translateY(-1px);
 }
 
-/* Green Card (Correct guess) */
-.pc-step-card.correct {
-  background: rgba(34, 197, 94, 0.14) !important;
-  border: 1.5px solid #22c55e !important;
-  box-shadow: 0 0 12px rgba(34, 197, 94, 0.25);
-}
-.pc-step-card.correct .pc-step-label { color: #86efac; }
-.pc-step-card.correct .pc-step-sub { color: #4ade80; }
-
-/* Red Card (Wrong / Missed / Skipped) */
-.pc-step-card.wrong {
-  background: rgba(239, 68, 68, 0.14) !important;
-  border: 1.5px solid #ef4444 !important;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
-}
-.pc-step-card.wrong .pc-step-label { color: #fca5a5; }
-.pc-step-card.wrong .pc-step-sub { color: #f87171; }
-
-/* Active Current Step Card */
-.pc-step-card.active.current {
-  background: rgba(239, 68, 68, 0.12) !important;
-  border: 1.5px solid #ef4444 !important;
-  box-shadow: 0 0 14px rgba(239, 68, 68, 0.35);
+.pattu-frame-tab.active {
+  background: #334155;
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
 }
 
-/* Viewing Active Frame Outline */
-.pc-step-card.viewing-active {
-  outline: 2px solid #38bdf8;
-  outline-offset: 1px;
+.pattu-frame-tab.wrong {
+  background: rgba(220, 38, 38, 0.28);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+.pattu-frame-tab.wrong.active {
+  background: rgba(220, 38, 38, 0.55);
+  border-color: #f87171;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
 }
 
-/* Locked Card */
-.pc-step-card.locked {
-  opacity: 0.55;
-  cursor: not-allowed;
-  background: rgba(15, 23, 42, 0.5) !important;
-  border-color: rgba(255, 255, 255, 0.06) !important;
+.pattu-frame-tab.correct {
+  background: rgba(34, 197, 94, 0.28);
+  border-color: #22c55e;
+  color: #86efac;
+}
+.pattu-frame-tab.correct.active {
+  background: rgba(34, 197, 94, 0.55);
+  border-color: #4ade80;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+}
+
+.pattu-frame-tab.unrevealed {
+  background: #111827;
+  border-color: #1f2937;
+  color: #4b5563;
+}
+
+/* Centered Red Skip Button (Exact pic 2 & 3 style) */
+.pattu-skip-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 10px 0;
+}
+
+.pattu-orig-skip-btn {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  border: 1.5px solid #ef4444;
+  padding: 5px 22px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+  transition: all 0.15s ease;
+}
+
+.pattu-orig-skip-btn:hover {
+  background: #b91c1c !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.65);
 }
 
 /* Search Pill Wrap & Inner */

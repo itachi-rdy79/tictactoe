@@ -3018,7 +3018,7 @@ function initPattu(targetDay = null) {
 }
 
 function renderPattuUI() {
-  // 1. Frame Tabs / Step Cards: 5 step cards matching user reference design
+  // 1. Frame Tabs: 5 step tabs showing ❌ for skipped/wrong, ✅ for correct, clean numbers without locks
   const maxRevealed = pattuOver ? 5 : pattuAttempt;
   const pcAttemptNumEl = document.getElementById("pcAttemptNum");
   if (pcAttemptNumEl) {
@@ -3029,60 +3029,34 @@ function renderPattuUI() {
     let tabsHtml = "";
     for (let i = 1; i <= 5; i++) {
       const isRevealed = i <= maxRevealed;
-      const isViewing = (i === pattuActiveFrame);
-      const isCurrentActiveAttempt = (i === pattuAttempt && !pattuOver);
+      const isActive = (i === pattuActiveFrame);
       const guess = pattuGuesses[i - 1];
-      
-      let cardClass = "pc-step-card";
-      let iconBadgeHtml = "";
-      let titleText = `Step ${i}`;
-      let subText = "Locked";
-      let tabTitle = `Step ${i}`;
+      let tabClass = "pattu-frame-tab";
+      let tabContent = `${i}`;
+      let tabTitle = `Frame ${i}`;
 
       if (guess) {
         if (guess.status === "skipped") {
-          cardClass += " wrong";
-          iconBadgeHtml = `<span class="pc-step-badge cross">✖</span>`;
-          subText = "Skipped";
+          tabClass += " wrong";
+          tabContent = "❌";
           tabTitle = `Step ${i}: Skipped`;
         } else if (guess.status === "wrong") {
-          cardClass += " wrong";
-          iconBadgeHtml = `<span class="pc-step-badge cross">✖</span>`;
-          subText = guess.text ? (guess.text.length > 9 ? guess.text.substring(0, 8) + "…" : guess.text) : "Missed";
+          tabClass += " wrong";
+          tabContent = "❌";
           tabTitle = `Step ${i}: Guessed "${guess.text}"`;
         } else if (guess.status === "correct") {
-          cardClass += " correct";
-          iconBadgeHtml = `<span class="pc-step-badge check">✔</span>`;
-          subText = guess.text ? (guess.text.length > 9 ? guess.text.substring(0, 8) + "…" : guess.text) : "Correct";
+          tabClass += " correct";
+          tabContent = "✅";
           tabTitle = `Step ${i}: Correct! ("${guess.text}")`;
         }
-      } else if (isCurrentActiveAttempt) {
-        cardClass += " active current";
-        iconBadgeHtml = `<span class="pc-step-badge active-dot">●</span>`;
-        subText = "Active";
-        tabTitle = `Step ${i}: Current Attempt`;
       } else if (!isRevealed) {
-        cardClass += " locked";
-        iconBadgeHtml = `<span class="pc-step-badge lock">🔒</span>`;
-        subText = "Locked";
-        tabTitle = `Step ${i}: Locked`;
-      } else {
-        cardClass += " unlocked";
-        iconBadgeHtml = `<span class="pc-step-badge neutral">👁</span>`;
-        subText = `Frame ${i}`;
-        tabTitle = `Step ${i}: View Frame`;
+        tabClass += " unrevealed";
+        tabContent = `${i}`;
+        tabTitle = `Frame ${i}`;
       }
 
-      if (isViewing) cardClass += " viewing-active";
-
-      tabsHtml += `
-        <button class="${cardClass}" data-frame="${i}" type="button" title="${tabTitle}">
-          <div class="pc-step-icon-col">${iconBadgeHtml}</div>
-          <div class="pc-step-text-col">
-            <span class="pc-step-label">${titleText}</span>
-            <span class="pc-step-sub">${subText}</span>
-          </div>
-        </button>`;
+      if (isActive) tabClass += " active";
+      tabsHtml += `<button class="${tabClass}" data-frame="${i}" type="button" title="${tabTitle}">${tabContent}</button>`;
     }
     pattuFramePillsEl.innerHTML = tabsHtml;
   }
