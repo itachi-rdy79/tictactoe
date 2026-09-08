@@ -305,8 +305,9 @@ body[data-theme="got"] .got-bg-art {
   align-items: center !important;
   justify-content: space-between !important;
   gap: clamp(6px, 1vw, 12px) !important;
-  position: relative;
-  z-index: 100;
+  position: sticky !important;
+  top: 6px !important;
+  z-index: 1000 !important;
 }
 
 .hud-left {
@@ -1405,19 +1406,21 @@ body[data-theme="itachi"] .poker-card.back {
    ========================================================================== */
 
 .arena.pattu-arena-mode {
-  height: calc(100vh - 110px) !important;
-  max-height: calc(100vh - 90px) !important;
+  height: calc(100vh - 82px) !important;
+  max-height: calc(100vh - 82px) !important;
   min-height: auto !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
   align-items: center !important;
-  overflow-y: auto !important;
-  padding: 4px 0 80px 0 !important;
-  scrollbar-width: thin;
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+  padding: 8px 0 16px 0 !important;
+  margin: 0 auto !important;
+  gap: 0 !important;
 }
 
 .pattu-original-arena {
   width: 100%;
-  max-width: 460px;
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1433,12 +1436,12 @@ body[data-theme="itachi"] .poker-card.back {
 
 .board-shell.pattu-mode {
   position: relative !important;
-  width: min(92vw, calc(100vh - 130px), 430px) !important;
-  height: min(92vw, calc(100vh - 130px), 430px) !important;
-  max-width: 430px !important;
-  max-height: 430px !important;
+  width: min(92vw, calc(100vh - 240px), 415px) !important;
+  height: min(92vw, calc(100vh - 240px), 415px) !important;
+  max-width: 415px !important;
+  max-height: 415px !important;
   aspect-ratio: 1 / 1 !important;
-  padding: 12px 14px 12px 14px !important;
+  padding: 10px 14px 10px 14px !important;
   background: rgba(14, 20, 35, 0.94) !important;
   backdrop-filter: blur(28px) !important;
   -webkit-backdrop-filter: blur(28px) !important;
@@ -1449,7 +1452,7 @@ body[data-theme="itachi"] .poker-card.back {
     -18px 0 45px -6px rgba(239, 68, 68, 0.38),
     18px 0 45px -6px rgba(14, 165, 233, 0.42),
     0 18px 45px rgba(0, 0, 0, 0.85) !important;
-  margin: 0 auto !important;
+  margin: 2px auto 0 auto !important;
   overflow: visible !important;
   display: flex !important;
   flex-direction: column !important;
@@ -1874,7 +1877,7 @@ body[data-theme="itachi"] .poker-card.back {
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  max-height: 200px;
+  max-height: 185px;
   overflow-y: auto;
   border-radius: 12px !important;
   background: rgba(15, 23, 42, 0.98) !important;

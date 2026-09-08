@@ -3371,7 +3371,14 @@ function renderPattuStatsModal() {
 }
 
 // Pattu DOM Event Listeners
+pattuInputEl?.addEventListener("focus", () => {
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+});
+
 pattuInputEl?.addEventListener("input", (e) => {
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
   const val = e.target.value;
   pattuClearBtn?.classList.toggle("hidden", !val);
   if (!val.trim()) {
@@ -3389,14 +3396,22 @@ pattuInputEl?.addEventListener("keydown", (e) => {
     if (!items || !items.length) return;
     pattuSelectedDropIndex = (pattuSelectedDropIndex + 1) % items.length;
     items.forEach((it, idx) => it.classList.toggle("selected", idx === pattuSelectedDropIndex));
-    items[pattuSelectedDropIndex]?.scrollIntoView({ block: "nearest" });
+    const targetItem = items[pattuSelectedDropIndex];
+    if (targetItem && pattuDropdownEl) {
+      targetItem.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+      window.scrollTo(0, 0);
+    }
   } else if (e.key === "ArrowUp") {
     e.preventDefault();
     const items = pattuDropdownEl?.querySelectorAll(".pattu-drop-item[data-movie]");
     if (!items || !items.length) return;
     pattuSelectedDropIndex = (pattuSelectedDropIndex - 1 + items.length) % items.length;
     items.forEach((it, idx) => it.classList.toggle("selected", idx === pattuSelectedDropIndex));
-    items[pattuSelectedDropIndex]?.scrollIntoView({ block: "nearest" });
+    const targetItem = items[pattuSelectedDropIndex];
+    if (targetItem && pattuDropdownEl) {
+      targetItem.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+      window.scrollTo(0, 0);
+    }
   } else if (e.key === "Enter") {
     e.preventDefault();
     const items = pattuDropdownEl?.querySelectorAll(".pattu-drop-item[data-movie]");
