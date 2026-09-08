@@ -535,7 +535,20 @@ body[data-theme="itachi"] .brand { text-shadow: 0 0 20px rgba(255, 0, 51, 0.75);
   50% { transform: translateY(0); }
 }
 
-.hidden { display: none !important; }
+.hidden,
+[hidden],
+#boardWrap > .hidden,
+.board-shell > .hidden,
+body.mini-window .hidden,
+body.mini-window [hidden],
+body.mini-window #boardWrap > .hidden,
+body.mini-window .chess-board.hidden,
+body.mini-window .ttt-board.hidden,
+body.mini-window .wordle-arena.hidden,
+body.mini-window .poker-arena.hidden,
+body.mini-window .captured-sidebar.hidden {
+  display: none !important;
+}
 
 .radial-wrap { position: relative; width: 66px; height: 66px; border-radius: 9999px; display: grid; place-items: center; }
 .radial { width: 58px; height: 58px; transform: rotate(-90deg); }
@@ -578,8 +591,7 @@ body[data-theme="itachi"] .brand { text-shadow: 0 0 20px rgba(255, 0, 51, 0.75);
 }
 
 .board-shell.wordle-mode,
-.board-shell.poker-mode,
-.board-shell.imposter-mode {
+.board-shell.poker-mode {
   width: min(94vw, 550px) !important;
   max-width: 550px !important;
   aspect-ratio: auto !important;
@@ -1364,351 +1376,6 @@ body[data-theme="itachi"] .poker-card.back {
   box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
 }
 
-/* =========================================
-   THE IMPOSTER (SOCIAL DEDUCTION)
-========================================= */
-.imposter-arena {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  user-select: none;
-}
-
-.imposter-screen {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-
-.imposter-title-box {
-  text-align: center;
-}
-
-.imposter-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  font-size: 0.72rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 6px;
-}
-
-.imposter-title {
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 900;
-  letter-spacing: 1.5px;
-  color: var(--text);
-}
-
-.imposter-subtitle {
-  margin: 4px 0 0;
-  font-size: 0.82rem;
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.imposter-settings-grid {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.imposter-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.imposter-label {
-  font-size: 0.78rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
-
-.imposter-categories {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-
-.imposter-cat-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: var(--btn-bg);
-  border: 1.5px solid var(--btn-border);
-  color: var(--btn-text);
-  font-weight: 800;
-  font-size: 0.86rem;
-  cursor: pointer;
-  transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
-}
-
-.imposter-cat-card:hover {
-  filter: brightness(1.15);
-  transform: translateY(-1px);
-}
-
-.imposter-cat-card.active {
-  border-color: var(--accent);
-  background: var(--btn-active-bg);
-  color: var(--btn-active-text);
-  box-shadow: var(--btn-active-shadow);
-}
-
-.imposter-cat-card .cat-icon {
-  font-size: 1.3rem;
-}
-
-.imposter-start-btn {
-  width: 100%;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--btn-active-bg);
-  border: 1.5px solid var(--btn-active-border);
-  color: var(--btn-active-text);
-  font-weight: 900;
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  box-shadow: var(--btn-active-shadow);
-  transition: transform 0.08s ease, filter 0.15s ease;
-}
-
-.imposter-start-btn:hover {
-  filter: brightness(1.15);
-  transform: translateY(-1px);
-}
-
-/* Privacy Curtain Card */
-.imposter-pass-header {
-  font-size: 1.15rem;
-  font-weight: 900;
-  color: var(--accent);
-  text-align: center;
-}
-
-.imposter-curtain-card {
-  width: 100%;
-  min-height: 190px;
-  border-radius: 18px;
-  background: var(--tile-bg);
-  border: 2px dashed var(--surface-border);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  cursor: pointer;
-  user-select: none;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-}
-
-.imposter-curtain-card:active {
-  border-color: var(--accent);
-  background: rgba(0, 0, 0, 0.6);
-}
-
-.imposter-curtain-hidden {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  text-align: center;
-}
-
-.curtain-lock-icon {
-  font-size: 2.4rem;
-}
-
-.curtain-instruction {
-  font-size: 1.05rem;
-  font-weight: 900;
-  color: var(--text);
-}
-
-.curtain-warning {
-  font-size: 0.76rem;
-  color: var(--muted);
-}
-
-.imposter-curtain-revealed {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  text-align: center;
-}
-
-.role-badge {
-  padding: 3px 12px;
-  border-radius: 9999px;
-  font-size: 0.8rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background: #10b981;
-  color: #ffffff;
-}
-
-.role-badge.imposter {
-  background: #e11d48;
-  box-shadow: 0 0 14px rgba(225, 29, 72, 0.7);
-}
-
-.secret-word-display {
-  font-size: clamp(1.4rem, 4vmin, 1.8rem);
-  font-weight: 900;
-  color: var(--accent);
-  letter-spacing: 1px;
-}
-
-.secret-hint {
-  font-size: 0.82rem;
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.imposter-next-player-btn {
-  width: 100%;
-  height: 42px;
-  border-radius: 12px;
-  background: var(--btn-bg);
-  border: 1.5px solid var(--btn-border);
-  color: var(--btn-text);
-  font-weight: 900;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: transform 0.08s ease, filter 0.15s ease;
-}
-
-.imposter-next-player-btn:hover {
-  filter: brightness(1.15);
-  transform: translateY(-1px);
-}
-
-/* Discussion & Timer */
-.imposter-discuss-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: 900;
-  font-size: 1rem;
-}
-
-.discuss-timer-badge {
-  padding: 4px 12px;
-  border-radius: 9999px;
-  background: var(--btn-active-bg);
-  color: var(--btn-active-text);
-  font-weight: 900;
-  font-size: 0.95rem;
-}
-
-.imposter-prompt-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: var(--tile-bg);
-  border: 1.5px solid var(--tile-border);
-  width: 100%;
-}
-
-.prompt-icon {
-  font-size: 1.4rem;
-}
-
-.prompt-text {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.35;
-}
-
-.imposter-roster {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 8px;
-  width: 100%;
-}
-
-.imposter-player-pill {
-  padding: 10px 8px;
-  border-radius: 10px;
-  background: var(--btn-bg);
-  border: 1px solid var(--btn-border);
-  font-weight: 800;
-  font-size: 0.85rem;
-  text-align: center;
-  color: var(--btn-text);
-}
-
-.imposter-accuse-btn {
-  width: 100%;
-  height: 44px;
-  border-radius: 12px;
-  background: #e11d48;
-  border: 1.5px solid #f43f5e;
-  color: #ffffff;
-  font-weight: 900;
-  font-size: 0.92rem;
-  cursor: pointer;
-  box-shadow: 0 0 16px rgba(225, 29, 72, 0.5);
-  transition: transform 0.08s ease, filter 0.15s ease;
-}
-
-.imposter-accuse-btn:hover {
-  filter: brightness(1.15);
-  transform: translateY(-1px);
-}
-
-/* Voting & Guess Grids */
-.imposter-vote-grid,
-.imposter-guess-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  width: 100%;
-}
-
-.imposter-vote-btn,
-.imposter-guess-btn {
-  padding: 12px 10px;
-  border-radius: 12px;
-  background: var(--btn-bg);
-  border: 1.5px solid var(--btn-border);
-  color: var(--btn-text);
-  font-weight: 900;
-  font-size: 0.92rem;
-  cursor: pointer;
-  transition: transform 0.08s ease, filter 0.15s ease;
-}
-
-.imposter-vote-btn:hover,
-.imposter-guess-btn:hover {
-  filter: brightness(1.15);
-  transform: translateY(-1px);
-  border-color: var(--accent);
-}
-
 @media (max-width: 1420px) {
   .group-label { display: none !important; }
   .top-hud { gap: 6px !important; padding: 0 10px !important; }
@@ -1907,9 +1574,8 @@ body.mini-window .radial-wrap {
 }
 
 /* Constant Size Boards in Mini-Window (Identical for 5x5, 3x3, and Chess) */
-body.mini-window .board-shell,
-body.mini-window .board-shell.chess-mode,
-body.mini-window .board-shell:not(.wordle-mode):not(.poker-mode):not(.imposter-mode) {
+body.mini-window .board-shell:not(.wordle-mode):not(.poker-mode),
+body.mini-window .board-shell.chess-mode {
   width: min(78vmin, 310px) !important;
   height: min(78vmin, 310px) !important;
   aspect-ratio: 1 / 1 !important;
@@ -1941,7 +1607,7 @@ body.mini-window .ttt-cell {
   font-size: clamp(14px, 3.5vmin, 22px) !important;
 }
 
-body.mini-window .chess-board {
+body.mini-window .chess-board:not(.hidden) {
   width: 100% !important;
   height: 100% !important;
   display: grid !important;
@@ -1955,7 +1621,10 @@ body.mini-window .chess-board {
 /* Wordle */
 body.mini-window .board-shell.wordle-mode {
   width: min(94vw, 330px) !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
   padding: 4px !important;
+  box-sizing: border-box !important;
 }
 
 body.mini-window .wordle-grid {
@@ -1978,7 +1647,10 @@ body.mini-window .wordle-key {
 /* Poker */
 body.mini-window .board-shell.poker-mode {
   width: min(96vw, 380px) !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
   padding: 3px !important;
+  box-sizing: border-box !important;
 }
 
 body.mini-window .poker-felt {
@@ -2008,16 +1680,6 @@ body.mini-window .poker-btn {
   font-size: 0.72rem !important;
   padding: 0 6px !important;
 }
-
-/* Imposter */
-body.mini-window .board-shell.imposter-mode {
-  width: min(96vw, 380px) !important;
-  padding: 4px !important;
-}
-
-body.mini-window .imposter-title { font-size: 1rem !important; }
-body.mini-window .imposter-subtitle { font-size: 0.7rem !important; }
-body.mini-window .imposter-curtain-card { height: 130px !important; }
 
 /* Bottom Dock */
 body.mini-window .quick-dock {
@@ -2113,12 +1775,13 @@ body.mini-window #scoreStatsBar {
   .hud-center .seg-btn { height: 24px !important; padding: 0 6px !important; font-size: 0.68rem !important; }
   .arena { height: calc(100vh - 145px) !important; padding: 2px 4px 60px 4px !important; overflow: hidden !important; }
   .captured-sidebar { display: none !important; }
-  .board-shell,
-  .board-shell.chess-mode,
-  .board-shell:not(.wordle-mode):not(.poker-mode):not(.imposter-mode) { width: min(78vmin, 310px) !important; height: min(78vmin, 310px) !important; aspect-ratio: 1 / 1 !important; padding: 8px !important; box-sizing: border-box !important; }
+  .board-shell:not(.wordle-mode):not(.poker-mode),
+  .board-shell.chess-mode { width: min(78vmin, 310px) !important; height: min(78vmin, 310px) !important; aspect-ratio: 1 / 1 !important; padding: 8px !important; box-sizing: border-box !important; }
+  .board-shell.wordle-mode { width: min(94vw, 330px) !important; height: auto !important; aspect-ratio: auto !important; padding: 4px !important; box-sizing: border-box !important; }
+  .board-shell.poker-mode { width: min(96vw, 380px) !important; height: auto !important; aspect-ratio: auto !important; padding: 4px !important; box-sizing: border-box !important; }
   .ttt-grid { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; gap: 4px !important; box-sizing: border-box !important; }
   .ttt-cell { width: 100% !important; height: 100% !important; min-width: 0 !important; min-height: 0 !important; box-sizing: border-box !important; aspect-ratio: 1 / 1 !important; }
-  .chess-board { width: 100% !important; height: 100% !important; display: grid !important; grid-template-columns: repeat(8, 1fr) !important; grid-template-rows: repeat(8, 1fr) !important; box-sizing: border-box !important; border-radius: 8px !important; overflow: hidden !important; }
+  .chess-board:not(.hidden) { width: 100% !important; height: 100% !important; display: grid !important; grid-template-columns: repeat(8, 1fr) !important; grid-template-rows: repeat(8, 1fr) !important; box-sizing: border-box !important; border-radius: 8px !important; overflow: hidden !important; }
   .quick-dock { position: fixed !important; bottom: 2px !important; left: 50% !important; transform: translateX(-50%) !important; width: calc(100% - 10px) !important; }
   .quick-dock .seg-btn { height: 23px !important; padding: 0 6px !important; font-size: 0.67rem !important; }
 }

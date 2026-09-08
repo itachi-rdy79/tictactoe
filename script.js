@@ -53,31 +53,6 @@ const pokerCallBtn = document.getElementById("pokerCallBtn");
 const pokerRaiseBtn = document.getElementById("pokerRaiseBtn");
 const pokerNextHandBtn = document.getElementById("pokerNextHandBtn");
 
-// Imposter DOM
-const imposterGameEl = document.getElementById("imposterGame");
-const imposterSetupScreenEl = document.getElementById("imposterSetupScreen");
-const imposterCountPillsEl = document.getElementById("imposterCountPills");
-const imposterCategoryPillsEl = document.getElementById("imposterCategoryPills");
-const imposterStartBtn = document.getElementById("imposterStartBtn");
-const imposterRevealScreenEl = document.getElementById("imposterRevealScreen");
-const imposterPassHeaderEl = document.getElementById("imposterPassHeader");
-const imposterCurtainCardEl = document.getElementById("imposterCurtainCard");
-const imposterCurtainHiddenEl = document.getElementById("imposterCurtainHidden");
-const imposterCurtainRevealedEl = document.getElementById("imposterCurtainRevealed");
-const imposterRoleBadgeEl = document.getElementById("imposterRoleBadge");
-const imposterWordDisplayEl = document.getElementById("imposterWordDisplay");
-const imposterHintDisplayEl = document.getElementById("imposterHintDisplay");
-const imposterNextPlayerBtn = document.getElementById("imposterNextPlayerBtn");
-const imposterDiscussScreenEl = document.getElementById("imposterDiscussScreen");
-const imposterDiscussTimerEl = document.getElementById("imposterDiscussTimer");
-const imposterPromptTextEl = document.getElementById("imposterPromptText");
-const imposterDiscussRosterEl = document.getElementById("imposterDiscussRoster");
-const imposterAccuseBtn = document.getElementById("imposterAccuseBtn");
-const imposterVoteScreenEl = document.getElementById("imposterVoteScreen");
-const imposterVoteGridEl = document.getElementById("imposterVoteGrid");
-const imposterGuessScreenEl = document.getElementById("imposterGuessScreen");
-const imposterGuessGridEl = document.getElementById("imposterGuessGrid");
-
 const capturedLeft = document.getElementById("capturedLeft");
 const capturedRight = document.getElementById("capturedRight");
 const whiteCapturedEl = document.getElementById("whiteCaptured");
@@ -191,7 +166,6 @@ function startIdleWatchdog() {
 /* ---------- State Management ---------- */
 function modeFromHub() {
   if (hubState.game === "wordle") return "wordle";
-  if (hubState.game === "imposter") return "imposter";
   if (hubState.game === "poker") return hubState.opponent === "ai" ? "poker-ai" : "poker-2p";
   if (hubState.game === "ttt3") return hubState.opponent === "ai" ? "ttt3-ai" : "ttt3-2p";
   if (hubState.game === "ttt5") return hubState.opponent === "ai" ? "ttt5-ai" : "ttt5-2p";
@@ -201,11 +175,6 @@ function modeFromHub() {
 function hubFromMode(mode) {
   if (mode === "wordle") {
     hubState.game = "wordle";
-    hubState.opponent = "local";
-    return;
-  }
-  if (mode === "imposter") {
-    hubState.game = "imposter";
     hubState.opponent = "local";
     return;
   }
@@ -227,7 +196,7 @@ function setActive(groupEl, key, val) {
 }
 
 function persistHub() {
-  const opponentVal = (hubState.game === "wordle" || hubState.game === "imposter") ? "local" : hubState.opponent;
+  const opponentVal = (hubState.game === "wordle") ? "local" : hubState.opponent;
   localStorage.setItem("hubState", JSON.stringify({ ...hubState, opponent: opponentVal }));
   const hash = `#/${hubState.game}?vs=${opponentVal}&diff=${hubState.difficulty}&timer=${hubState.timer}&theme=${hubState.theme}`;
   history.replaceState(null, "", hash);
@@ -241,7 +210,7 @@ function loadHub() {
   const raw = location.hash || "";
   if (raw.startsWith("#/")) {
     const [path, query = ""] = raw.slice(2).split("?");
-    if (["ttt3", "ttt5", "chess", "wordle", "poker", "imposter"].includes(path)) hubState.game = path;
+    if (["ttt3", "ttt5", "chess", "wordle", "poker"].includes(path)) hubState.game = path;
 
     const q = new URLSearchParams(query);
     const vs = q.get("vs");
@@ -260,16 +229,14 @@ function loadHub() {
   if (!["dark", "light", "itachi", "naruto", "got"].includes(hubState.theme)) hubState.theme = "light";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
-  if (!["ttt3", "ttt5", "chess", "wordle", "poker", "imposter"].includes(hubState.game)) hubState.game = "ttt3";
+  if (!["ttt3", "ttt5", "chess", "wordle", "poker"].includes(hubState.game)) hubState.game = "ttt3";
 
-  if (hubState.game === "wordle" || hubState.game === "imposter") hubState.opponent = "local";
+  if (hubState.game === "wordle") hubState.opponent = "local";
 }
 
 function syncHud() {
   const isWordle = hubState.game === "wordle";
-  const isImposter = hubState.game === "imposter";
-  const isPartyGame = isWordle || isImposter;
-  if (isPartyGame) hubState.opponent = "local";
+  if (isWordle) hubState.opponent = "local";
 
   setActive(gameTypePills, "game", hubState.game);
   setActive(opponentPills, "opponent", hubState.opponent);
@@ -277,15 +244,92 @@ function syncHud() {
   setActive(timerPills, "timer", hubState.timer);
 
   if (opponentGroup) {
-    if (isPartyGame) opponentGroup.style.setProperty("display", "none", "important");
+    if (isWordle) opponentGroup.style.setProperty("display", "none", "important");
     else opponentGroup.style.display = "flex";
   }
 
   if (difficultyGroup) {
-    if (isImposter) difficultyGroup.style.setProperty("display", "none", "important");
-    else {
-      difficultyGroup.style.display = "flex";
-      difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
+    difficultyGroup.style.display = "flex";
+    difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
+  }
+}
+
+/* ---------- Exclusive Single-Game Matrix Display Guard ---------- */
+function showOnlyActiveGame(gameKey) {
+  const isTTT = (gameKey === "ttt3" || gameKey === "ttt5");
+  const isChess = (gameKey === "chess");
+  const isWordle = (gameKey === "wordle");
+  const isPoker = (gameKey === "poker");
+
+  // 1. TTT Board
+  if (tttBoardEl) {
+    if (isTTT) {
+      tttBoardEl.classList.remove("hidden");
+      tttBoardEl.style.removeProperty("display");
+    } else {
+      tttBoardEl.classList.add("hidden");
+      tttBoardEl.style.setProperty("display", "none", "important");
+    }
+  }
+
+  // 2. Chess Board
+  if (chessBoardEl) {
+    if (isChess) {
+      chessBoardEl.classList.remove("hidden");
+      chessBoardEl.style.removeProperty("display");
+    } else {
+      chessBoardEl.classList.add("hidden");
+      chessBoardEl.style.setProperty("display", "none", "important");
+    }
+  }
+
+  // 3. Wordle Arena
+  if (wordleGameEl) {
+    if (isWordle) {
+      wordleGameEl.classList.remove("hidden");
+      wordleGameEl.style.removeProperty("display");
+    } else {
+      wordleGameEl.classList.add("hidden");
+      wordleGameEl.style.setProperty("display", "none", "important");
+    }
+  }
+
+  // 4. Poker Arena
+  if (pokerGameEl) {
+    if (isPoker) {
+      pokerGameEl.classList.remove("hidden");
+      pokerGameEl.style.removeProperty("display");
+    } else {
+      pokerGameEl.classList.add("hidden");
+      pokerGameEl.style.setProperty("display", "none", "important");
+    }
+  }
+
+  // Board wrap shell classes
+  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode");
+  if (isChess) boardWrap?.classList.add("chess-mode");
+  else if (isWordle) boardWrap?.classList.add("wordle-mode");
+  else if (isPoker) boardWrap?.classList.add("poker-mode");
+
+  // Sidebars (Chess only, and hidden on small / mini-window)
+  const isMini = isMiniWindow();
+  const showSidebars = isChess && !isMini;
+  if (capturedLeft) {
+    if (showSidebars) {
+      capturedLeft.classList.remove("hidden");
+      capturedLeft.style.removeProperty("display");
+    } else {
+      capturedLeft.classList.add("hidden");
+      capturedLeft.style.setProperty("display", "none", "important");
+    }
+  }
+  if (capturedRight) {
+    if (showSidebars) {
+      capturedRight.classList.remove("hidden");
+      capturedRight.style.removeProperty("display");
+    } else {
+      capturedRight.classList.add("hidden");
+      capturedRight.style.setProperty("display", "none", "important");
     }
   }
 }
@@ -355,6 +399,7 @@ function isMiniWindow() {
 function updateMiniWindowUI() {
   const isMini = isMiniWindow();
   document.body.classList.toggle("mini-window", isMini);
+  showOnlyActiveGame(hubState.game);
 
   if (miniWindowBtn) {
     const params = new URLSearchParams(window.location.search);
@@ -683,14 +728,7 @@ function initTTT(size) {
 
 function renderTTT() {
   resetIdleWatchdog();
-  boardWrap?.classList.remove("wordle-mode", "chess-mode", "poker-mode", "imposter-mode");
-  capturedLeft?.classList.add("hidden");
-  capturedRight?.classList.add("hidden");
-  tttBoardEl?.classList.remove("hidden");
-  chessBoardEl?.classList.add("hidden");
-  wordleGameEl?.classList.add("hidden");
-  pokerGameEl?.classList.add("hidden");
-  imposterGameEl?.classList.add("hidden");
+  showOnlyActiveGame("ttt" + tttSize);
 
   if (!tttBoardEl) return;
   tttBoardEl.innerHTML = "";
@@ -1124,17 +1162,8 @@ function getPseudoMoves(board, r, c) {
 
 function renderChess() {
   resetIdleWatchdog();
-  boardWrap?.classList.remove("wordle-mode", "poker-mode", "imposter-mode");
-  boardWrap?.classList.add("chess-mode");
-
+  showOnlyActiveGame("chess");
   clearWinLine();
-  tttBoardEl?.classList.add("hidden");
-  wordleGameEl?.classList.add("hidden");
-  pokerGameEl?.classList.add("hidden");
-  imposterGameEl?.classList.add("hidden");
-  chessBoardEl?.classList.remove("hidden");
-  capturedLeft?.classList.remove("hidden");
-  capturedRight?.classList.remove("hidden");
 
   if (!chessBoardEl || !Array.isArray(chessBoard) || !chessBoard.length) return;
   chessBoardEl.innerHTML = "";
@@ -1611,15 +1640,7 @@ function initWordle() {
   stopTurnTimer();
   showTimerInactive();
   updateMoveCounter(false);
-  boardWrap?.classList.remove("chess-mode", "poker-mode", "imposter-mode");
-  boardWrap?.classList.add("wordle-mode");
-  capturedLeft?.classList.add("hidden");
-  capturedRight?.classList.add("hidden");
-  tttBoardEl?.classList.add("hidden");
-  chessBoardEl?.classList.add("hidden");
-  pokerGameEl?.classList.add("hidden");
-  imposterGameEl?.classList.add("hidden");
-  wordleGameEl?.classList.remove("hidden");
+  showOnlyActiveGame("wordle");
 
   wordleTarget = getWordleTargetByDifficulty();
   wordleRow = 0;
@@ -2104,16 +2125,7 @@ function initPoker(resetBankroll = true) {
   stopTurnTimer();
   showTimerInactive();
   updateMoveCounter(false);
-
-  boardWrap?.classList.remove("chess-mode", "wordle-mode", "imposter-mode");
-  boardWrap?.classList.add("poker-mode");
-  capturedLeft?.classList.add("hidden");
-  capturedRight?.classList.add("hidden");
-  tttBoardEl?.classList.add("hidden");
-  chessBoardEl?.classList.add("hidden");
-  wordleGameEl?.classList.add("hidden");
-  imposterGameEl?.classList.add("hidden");
-  pokerGameEl?.classList.remove("hidden");
+  showOnlyActiveGame("poker");
 
   if (statusPill) statusPill.textContent = "Texas Hold'em Poker";
 
@@ -2428,272 +2440,6 @@ pokerNextHandBtn?.addEventListener("click", () => {
   startNewPokerHand();
 });
 
-/* ==========================================================================
-   THE IMPOSTER ENGINE: SINGLE-DEVICE PASS & PLAY PARTY GAME
-   ========================================================================== */
-const IMPOSTER_PACKS = {
-  locations: {
-    name: "World Locations",
-    words: [
-      "Airport", "Bank Vault", "Casino", "Circus Tent", "Hospital ER",
-      "Hotel Resort", "Library", "Movie Theater", "Pirate Ship", "Police Station",
-      "Restaurant Kitchen", "Space Station", "Submarine", "Supermarket", "Theme Park", "Train Station"
-    ]
-  },
-  naruto: {
-    name: "Naruto Shinobi World",
-    words: [
-      "Hidden Leaf Village", "Valley of the End", "Akatsuki Hideout", "Chunin Exam Arena", "Mount Myoboku",
-      "Ichiraku Ramen", "Forest of Death", "Hokage Rock", "Sound Village", "Sand Village",
-      "Uchiha Compound", "Iron Country", "Five Kage Summit", "Turtle Island"
-    ]
-  },
-  got: {
-    name: "Westeros Realm",
-    words: [
-      "Winterfell", "King's Landing", "The Wall", "Dragonstone", "Braavos",
-      "Sunspear", "Iron Islands", "The Eyrie", "Harrenhal", "Highgarden",
-      "Citadel of Oldtown", "Casterly Rock", "Flea Bottom", "Tower of Joy"
-    ]
-  },
-  objects: {
-    name: "Everyday Objects",
-    words: [
-      "Smartphone", "Bicycle", "Umbrella", "Acoustic Guitar", "Wristwatch",
-      "Sunglasses", "DSLR Camera", "Laptop", "Backpack", "Telescope",
-      "Espresso Machine", "Diamond Ring", "Skateboard", "Compass", "Headphones", "Drone"
-    ]
-  }
-};
-
-const IMPOSTER_PROMPTS = [
-  "Ask the player to your left: What would you wear in this place?",
-  "Ask any player: How expensive is it to be here?",
-  "Ask the player across: How many people are usually around?",
-  "Ask any player: Is this place noisy or quiet?",
-  "Ask the player to your right: Have you ever been here in real life?",
-  "Ask any player: What is the most dangerous thing about this item/place?",
-  "Ask any player: What color best represents this word?"
-];
-
-let imposterPlayerCount = 3;
-let imposterCategory = "locations";
-let imposterCurrentPlayer = 0;
-let imposterIndex = 0;
-let imposterSecretWord = "";
-let imposterTimerInterval = null;
-let imposterTimeLeft = 180;
-
-function initImposter() {
-  resetIdleWatchdog();
-  clearWinLine();
-  stopTurnTimer();
-  showTimerInactive();
-  updateMoveCounter(false);
-
-  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode");
-  boardWrap?.classList.add("imposter-mode");
-  capturedLeft?.classList.add("hidden");
-  capturedRight?.classList.add("hidden");
-  tttBoardEl?.classList.add("hidden");
-  chessBoardEl?.classList.add("hidden");
-  wordleGameEl?.classList.add("hidden");
-  pokerGameEl?.classList.add("hidden");
-  imposterGameEl?.classList.remove("hidden");
-
-  if (statusPill) statusPill.textContent = "The Imposter (Social Deduction)";
-
-  showImposterScreen("setup");
-}
-
-function showImposterScreen(screenName) {
-  imposterSetupScreenEl?.classList.add("hidden");
-  imposterRevealScreenEl?.classList.add("hidden");
-  imposterDiscussScreenEl?.classList.add("hidden");
-  imposterVoteScreenEl?.classList.add("hidden");
-  imposterGuessScreenEl?.classList.add("hidden");
-
-  if (screenName === "setup") imposterSetupScreenEl?.classList.remove("hidden");
-  if (screenName === "reveal") imposterRevealScreenEl?.classList.remove("hidden");
-  if (screenName === "discuss") imposterDiscussScreenEl?.classList.remove("hidden");
-  if (screenName === "vote") imposterVoteScreenEl?.classList.remove("hidden");
-  if (screenName === "guess") imposterGuessScreenEl?.classList.remove("hidden");
-}
-
-imposterCountPillsEl?.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-count]");
-  if (!btn) return;
-  imposterCountPillsEl.querySelectorAll(".seg-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  imposterPlayerCount = Number(btn.dataset.count);
-});
-
-imposterCategoryPillsEl?.addEventListener("click", (e) => {
-  const card = e.target.closest(".imposter-cat-card");
-  if (!card) return;
-  imposterCategoryPillsEl.querySelectorAll(".imposter-cat-card").forEach(c => c.classList.remove("active"));
-  card.classList.add("active");
-  imposterCategory = card.dataset.cat;
-});
-
-imposterStartBtn?.addEventListener("click", () => {
-  const pack = IMPOSTER_PACKS[imposterCategory] || IMPOSTER_PACKS.locations;
-  imposterSecretWord = pack.words[Math.floor(Math.random() * pack.words.length)];
-  imposterIndex = Math.floor(Math.random() * imposterPlayerCount);
-  imposterCurrentPlayer = 0;
-
-  showImposterRevealPlayer(0);
-});
-
-function showImposterRevealPlayer(playerIdx) {
-  imposterCurrentPlayer = playerIdx;
-  showImposterScreen("reveal");
-
-  if (imposterPassHeaderEl) {
-    imposterPassHeaderEl.textContent = `Pass Device to Player ${playerIdx + 1}`;
-  }
-
-  imposterCurtainHiddenEl?.classList.remove("hidden");
-  imposterCurtainRevealedEl?.classList.add("hidden");
-  imposterNextPlayerBtn?.classList.add("hidden");
-
-  const isImposter = (playerIdx === imposterIndex);
-  if (imposterRoleBadgeEl) {
-    imposterRoleBadgeEl.textContent = isImposter ? "🚨 Imposter" : "Innocent";
-    imposterRoleBadgeEl.className = `role-badge ${isImposter ? "imposter" : ""}`;
-  }
-  if (imposterWordDisplayEl) {
-    imposterWordDisplayEl.textContent = isImposter ? "YOU ARE THE IMPOSTER" : imposterSecretWord;
-  }
-  if (imposterHintDisplayEl) {
-    const pack = IMPOSTER_PACKS[imposterCategory];
-    imposterHintDisplayEl.textContent = isImposter ? `Blend in! Category is ${pack.name}` : `Category: ${pack.name}`;
-  }
-}
-
-function onCurtainHoldStart() {
-  imposterCurtainHiddenEl?.classList.add("hidden");
-  imposterCurtainRevealedEl?.classList.remove("hidden");
-}
-function onCurtainHoldEnd() {
-  imposterCurtainHiddenEl?.classList.remove("hidden");
-  imposterCurtainRevealedEl?.classList.add("hidden");
-  imposterNextPlayerBtn?.classList.remove("hidden");
-}
-
-imposterCurtainCardEl?.addEventListener("mousedown", onCurtainHoldStart);
-imposterCurtainCardEl?.addEventListener("mouseup", onCurtainHoldEnd);
-imposterCurtainCardEl?.addEventListener("mouseleave", onCurtainHoldEnd);
-imposterCurtainCardEl?.addEventListener("touchstart", (e) => { e.preventDefault(); onCurtainHoldStart(); });
-imposterCurtainCardEl?.addEventListener("touchend", onCurtainHoldEnd);
-
-imposterNextPlayerBtn?.addEventListener("click", () => {
-  if (imposterCurrentPlayer + 1 < imposterPlayerCount) {
-    showImposterRevealPlayer(imposterCurrentPlayer + 1);
-  } else {
-    startImposterDiscussion();
-  }
-});
-
-function startImposterDiscussion() {
-  showImposterScreen("discuss");
-  imposterTimeLeft = 180;
-
-  if (imposterDiscussRosterEl) {
-    imposterDiscussRosterEl.innerHTML = Array.from({ length: imposterPlayerCount }, (_, i) => `
-      <div class="imposter-player-pill">Player ${i + 1}</div>
-    `).join("");
-  }
-
-  if (imposterPromptTextEl) {
-    imposterPromptTextEl.textContent = IMPOSTER_PROMPTS[Math.floor(Math.random() * IMPOSTER_PROMPTS.length)];
-  }
-
-  if (imposterTimerInterval) clearInterval(imposterTimerInterval);
-  imposterTimerInterval = setInterval(() => {
-    imposterTimeLeft--;
-    const mins = Math.floor(imposterTimeLeft / 60);
-    const secs = imposterTimeLeft % 60;
-    if (imposterDiscussTimerEl) imposterDiscussTimerEl.textContent = `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-
-    if (imposterTimeLeft % 30 === 0 && imposterPromptTextEl) {
-      imposterPromptTextEl.textContent = IMPOSTER_PROMPTS[Math.floor(Math.random() * IMPOSTER_PROMPTS.length)];
-    }
-
-    if (imposterTimeLeft <= 0) {
-      clearInterval(imposterTimerInterval);
-      startImposterVoting();
-    }
-  }, 1000);
-}
-
-imposterAccuseBtn?.addEventListener("click", () => {
-  if (imposterTimerInterval) clearInterval(imposterTimerInterval);
-  startImposterVoting();
-});
-
-function startImposterVoting() {
-  showImposterScreen("vote");
-
-  if (imposterVoteGridEl) {
-    imposterVoteGridEl.innerHTML = Array.from({ length: imposterPlayerCount }, (_, i) => `
-      <button class="imposter-vote-btn" data-player="${i}" type="button">
-        Accuse Player ${i + 1}
-      </button>
-    `).join("");
-  }
-}
-
-imposterVoteGridEl?.addEventListener("click", (e) => {
-  const btn = e.target.closest(".imposter-vote-btn");
-  if (!btn) return;
-  const accusedIdx = Number(btn.dataset.player);
-
-  if (accusedIdx === imposterIndex) {
-    startImposterGuess();
-  } else {
-    showWinScreen(`Imposter Escapes! Player ${imposterIndex + 1} was the Imposter. (Word: ${imposterSecretWord})`);
-    scoreB++;
-    persistScores();
-    renderScores();
-    showImposterScreen("setup");
-  }
-});
-
-function startImposterGuess() {
-  showImposterScreen("guess");
-  const pack = IMPOSTER_PACKS[imposterCategory] || IMPOSTER_PACKS.locations;
-  const pool = [...pack.words].filter(w => w !== imposterSecretWord);
-  pool.sort(() => Math.random() - 0.5);
-  const candidates = [imposterSecretWord, ...pool.slice(0, 7)];
-  candidates.sort(() => Math.random() - 0.5);
-
-  if (imposterGuessGridEl) {
-    imposterGuessGridEl.innerHTML = candidates.map(word => `
-      <button class="imposter-guess-btn" data-word="${word}" type="button">
-        ${word}
-      </button>
-    `).join("");
-  }
-}
-
-imposterGuessGridEl?.addEventListener("click", (e) => {
-  const btn = e.target.closest(".imposter-guess-btn");
-  if (!btn) return;
-  const guessedWord = btn.dataset.word;
-
-  if (guessedWord === imposterSecretWord) {
-    showWinScreen(`Imposter Guessed Correctly! (${imposterSecretWord}) Imposter Steals The Win!`);
-    scoreB++;
-  } else {
-    showWinScreen(`Innocents Prevail! The Imposter Guessed Wrong. (Word: ${imposterSecretWord})`);
-    scoreA++;
-  }
-  persistScores();
-  renderScores();
-  showImposterScreen("setup");
-});
-
 /* ---------- Live Game Persistence ---------- */
 function persistLiveState() {
   const payload = {
@@ -2783,11 +2529,6 @@ function restoreLiveStateIfAny() {
       return true;
     }
 
-    if (s.mode === "imposter") {
-      initImposter();
-      return true;
-    }
-
     return false;
   } catch {
     return false;
@@ -2812,17 +2553,15 @@ window.addEventListener("keydown", (e) => {
     if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     if (k === "5") { hubState.game = "poker"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
-    if (k === "6") { hubState.game = "imposter"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     return;
   }
 
-  // Global shortcuts for TTT, Chess, Wordle, Poker, Imposter
+  // Global shortcuts for TTT, Chess, Wordle, Poker
   if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "4") { hubState.game = "wordle"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "5") { hubState.game = "poker"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
-  if (k === "6") { hubState.game = "imposter"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
 
   if (k === "R") { newGameBtn?.click(); return; }
   if (k === "Z") { undoBtn?.click(); return; }
@@ -2870,7 +2609,7 @@ undoBtn?.addEventListener("click", () => {
     handleWordleKey("DEL");
     return;
   }
-  if (hubState.game === "poker" || hubState.game === "imposter") {
+  if (hubState.game === "poker") {
     return;
   }
   const mode = modeSelect.value;
@@ -2957,11 +2696,7 @@ function initBoard(forceFresh = false) {
     const restored = restoreLiveStateIfAny();
     if (restored) {
       syncHud();
-      if (hubState.game === "wordle") {
-        tttBoardEl?.classList.add("hidden");
-        chessBoardEl?.classList.add("hidden");
-        wordleGameEl?.classList.remove("hidden");
-      }
+      showOnlyActiveGame(hubState.game);
       startTurnTimer();
       persistHub();
       return;
@@ -2971,7 +2706,6 @@ function initBoard(forceFresh = false) {
   if (modeSelect) modeSelect.value = modeFromHub();
   if (hubState.game === "wordle") initWordle();
   else if (hubState.game === "poker") initPoker();
-  else if (hubState.game === "imposter") initImposter();
   else if (hubState.game === "ttt3") initTTT(3);
   else if (hubState.game === "ttt5") initTTT(5);
   else initChess();
