@@ -280,14 +280,6 @@
               </span>
             </div>
             <div class="pattu-top-nav-actions">
-              <button class="pattu-mini-nav-btn stats-icon" id="pattuStatsBtn" type="button" title="Stats">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="18" y1="20" x2="18" y2="10"></line>
-                  <line x1="12" y1="20" x2="12" y2="4"></line>
-                  <line x1="6" y1="20" x2="6" y2="14"></line>
-                </svg>
-                <span>Stats</span>
-              </button>
               <button class="pattu-mini-nav-btn timetravel-icon" id="pattuTimeTravelBtn" type="button" title="Time Travel (Play Past Dates)">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
@@ -319,43 +311,13 @@
             </div>
           </div>
 
-          <!-- Step Cards Grid (Look like second pic: Step 1 Active, Step 2..5, all clickable!) -->
-          <div class="pc-step-cards-grid" id="pattuFramePills">
-            <button class="pc-step-card active" data-frame="1" type="button">
-              <div class="pc-step-left"><span class="pc-radio-icon"><span class="pc-radio-dot"></span></span></div>
-              <div class="pc-step-info">
-                <span class="pc-step-num">Step 1</span>
-                <span class="pc-step-status">Active</span>
-              </div>
-            </button>
-            <button class="pc-step-card" data-frame="2" type="button">
-              <div class="pc-step-left"><span class="pc-step-idle-dot"></span></div>
-              <div class="pc-step-info">
-                <span class="pc-step-num">Step 2</span>
-                <span class="pc-step-status">Ready</span>
-              </div>
-            </button>
-            <button class="pc-step-card" data-frame="3" type="button">
-              <div class="pc-step-left"><span class="pc-step-idle-dot"></span></div>
-              <div class="pc-step-info">
-                <span class="pc-step-num">Step 3</span>
-                <span class="pc-step-status">Ready</span>
-              </div>
-            </button>
-            <button class="pc-step-card" data-frame="4" type="button">
-              <div class="pc-step-left"><span class="pc-step-idle-dot"></span></div>
-              <div class="pc-step-info">
-                <span class="pc-step-num">Step 4</span>
-                <span class="pc-step-status">Ready</span>
-              </div>
-            </button>
-            <button class="pc-step-card" data-frame="5" type="button">
-              <div class="pc-step-left"><span class="pc-step-idle-dot"></span></div>
-              <div class="pc-step-info">
-                <span class="pc-step-num">Step 5</span>
-                <span class="pc-step-status">Ready</span>
-              </div>
-            </button>
+          <!-- Frame Number Buttons [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] (Numbers only, no "Step", no "Active" text) -->
+          <div class="pattu-num-tabs" id="pattuFramePills">
+            <button class="pattu-num-tab active" data-frame="1" type="button">1</button>
+            <button class="pattu-num-tab" data-frame="2" type="button">2</button>
+            <button class="pattu-num-tab" data-frame="3" type="button">3</button>
+            <button class="pattu-num-tab" data-frame="4" type="button">4</button>
+            <button class="pattu-num-tab" data-frame="5" type="button">5</button>
           </div>
 
           <!-- Centered Red Skip Button (exact pic 2 & 3 style) -->
@@ -379,9 +341,19 @@
             <div id="pattuDropdown" class="pattu-orig-dropdown pc-modern-dropdown hidden"></div>
           </div>
 
-          <!-- Guesses Remaining Counter -->
-          <div class="pattu-remaining-text" id="pattuRemainingText">
-            You got <span class="rem-count" id="pattuRemainingCount">5</span> guesses remaining out of <b>5</b>.
+          <!-- Bottom Row: Stats Button under submit + Guesses Remaining Counter -->
+          <div class="pattu-bottom-row" id="pattuBottomRow">
+            <button class="pattu-bottom-stats-btn" id="pattuStatsBtn" type="button" title="View Statistics">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+              <span>Stats</span>
+            </button>
+            <div class="pattu-remaining-text" id="pattuRemainingText">
+              You got <span class="rem-count" id="pattuRemainingCount">5</span> guesses remaining out of <b>5</b>.
+            </div>
           </div>
 
           <!-- Hidden elements preserved for JS bindings -->
@@ -564,6 +536,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=21.0"></script>
+  <script src="script.js?v=22.0"></script>
 </body>
 </html>

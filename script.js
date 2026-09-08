@@ -3018,50 +3018,35 @@ function initPattu(targetDay = null) {
 }
 
 function renderPattuUI() {
-  // 1. Step Cards (Step 1 Active, Step 2..5, all freely navigable matching second pic)
+  // 1. Frame Number Buttons: 1, 2, 3, 4, 5 (Numbers only, no "Step", no "Active" label)
   if (pattuFramePillsEl) {
-    let cardsHtml = "";
+    let tabsHtml = "";
     for (let i = 1; i <= 5; i++) {
       const isActive = (i === pattuActiveFrame);
       const guess = pattuGuesses[i - 1];
-      let cardClass = "pc-step-card";
-      let statusText = "Ready";
-      let iconHtml = `<span class="pc-step-idle-dot"></span>`;
+      let tabClass = "pattu-num-tab";
+      let tabContent = `${i}`;
+      let tabTitle = `Frame ${i}`;
 
       if (guess) {
-        if (guess.status === "skipped") {
-          cardClass += " wrong";
-          statusText = "Skipped";
-          iconHtml = `<span class="pc-step-icon">❌</span>`;
-        } else if (guess.status === "wrong") {
-          cardClass += " wrong";
-          statusText = "Wrong";
-          iconHtml = `<span class="pc-step-icon">❌</span>`;
+        if (guess.status === "skipped" || guess.status === "wrong") {
+          tabClass += " wrong";
+          tabContent = "❌";
+          tabTitle = `Frame ${i}: Skipped / Wrong`;
         } else if (guess.status === "correct") {
-          cardClass += " correct";
-          statusText = "Correct";
-          iconHtml = `<span class="pc-step-icon">✅</span>`;
+          tabClass += " correct";
+          tabContent = "✅";
+          tabTitle = `Frame ${i}: Correct!`;
         }
-      } else if (isActive) {
-        statusText = "Active";
-        iconHtml = `<span class="pc-radio-icon"><span class="pc-radio-dot"></span></span>`;
       }
 
       if (isActive) {
-        cardClass += " active";
-        if (!guess) statusText = "Active";
+        tabClass += " active";
       }
 
-      cardsHtml += `
-        <button class="${cardClass}" data-frame="${i}" type="button" title="View Frame ${i}">
-          <div class="pc-step-left">${iconHtml}</div>
-          <div class="pc-step-info">
-            <span class="pc-step-num">Step ${i}</span>
-            <span class="pc-step-status">${statusText}</span>
-          </div>
-        </button>`;
+      tabsHtml += `<button class="${tabClass}" data-frame="${i}" type="button" title="${tabTitle}">${tabContent}</button>`;
     }
-    pattuFramePillsEl.innerHTML = cardsHtml;
+    pattuFramePillsEl.innerHTML = tabsHtml;
   }
 
   // 2. Skip Button
@@ -3173,24 +3158,12 @@ window.addEventListener("offline", () => {
 function renderPattuFrame(frameNum) {
   pattuActiveFrame = frameNum;
 
-  // Highlight active step card and update label
-  pattuFramePillsEl?.querySelectorAll(".pc-step-card, .pattu-frame-tab").forEach(tab => {
+  // Highlight active number tab
+  pattuFramePillsEl?.querySelectorAll(".pattu-num-tab, .pattu-frame-tab, .pc-step-card").forEach(tab => {
     const f = Number(tab.dataset.frame);
     const isThis = (f === frameNum);
     tab.classList.toggle("active", isThis);
     tab.classList.toggle("viewing-active", isThis);
-
-    const guess = pattuGuesses[f - 1];
-    const statusEl = tab.querySelector(".pc-step-status");
-    const leftEl = tab.querySelector(".pc-step-left");
-    if (statusEl && !guess) {
-      statusEl.textContent = isThis ? "Active" : "Ready";
-      if (leftEl) {
-        leftEl.innerHTML = isThis
-          ? `<span class="pc-radio-icon"><span class="pc-radio-dot"></span></span>`
-          : `<span class="pc-step-idle-dot"></span>`;
-      }
-    }
   });
 
   const todayDay = getPattuDayCount();
@@ -3467,9 +3440,9 @@ pattuClearBtn?.addEventListener("click", () => {
 pattuSubmitBtn?.addEventListener("click", () => submitPattuGuess());
 pattuSkipBtn?.addEventListener("click", () => skipPattuAttempt());
 
-// Frame navigation buttons delegation (Step cards: all steps 1..5 freely navigable)
+// Frame navigation buttons delegation (Number buttons 1..5 freely clickable)
 pattuFramePillsEl?.addEventListener("click", (e) => {
-  const tab = e.target.closest(".pc-step-card, .pattu-frame-tab");
+  const tab = e.target.closest(".pattu-num-tab, .pc-step-card, .pattu-frame-tab");
   if (!tab) return;
   const f = Number(tab.dataset.frame);
   if (f >= 1 && f <= 5) {
