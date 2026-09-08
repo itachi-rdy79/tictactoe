@@ -268,59 +268,32 @@
           </div>
         </div>
 
-        <!-- Pattukunte Pattucheera (Tollywood Movie Guesser - Exact Original UI) -->
+        <!-- PC (Tollywood Movie Cinema Guesser Arena) -->
         <div id="pattuGame" class="pattu-original-arena hidden">
-          <!-- Top Title -->
-          <h1 class="pattu-orig-title">Pattukunte Pattucheera</h1>
-          <div class="pattu-mode-badge-wrap">
-            <span class="pattu-mode-badge" id="pattuConnectionBadge">
-              <span class="pattu-badge-dot online" id="pattuBadgeDot"></span>
-              <span id="pattuBadgeText">Cloud Stills (Live)</span>
-            </span>
-          </div>
-
-          <!-- 3 Icon Navigation Boxes -->
-          <div class="pattu-orig-nav">
-            <!-- Stats -->
-            <div class="pattu-orig-nav-btn-wrap">
-              <button class="pattu-orig-icon-box stats-icon" id="pattuStatsBtn" type="button" title="Stats">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="18" y1="20" x2="18" y2="10"></line>
-                  <line x1="12" y1="20" x2="12" y2="4"></line>
-                  <line x1="6" y1="20" x2="6" y2="14"></line>
-                </svg>
-              </button>
-              <span class="pattu-orig-nav-label">Stats</span>
-            </div>
-
-            <!-- Time Travel -->
-            <div class="pattu-orig-nav-btn-wrap">
-              <button class="pattu-orig-icon-box timetravel-icon" id="pattuTimeTravelBtn" type="button" title="Time Travel">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                  <path d="M3 3v5h5"></path>
-                  <polyline points="12 7 12 12 15 15"></polyline>
-                </svg>
-              </button>
-              <span class="pattu-orig-nav-label">Time Travel</span>
-            </div>
-
-            <!-- Instructions -->
-            <div class="pattu-orig-nav-btn-wrap">
-              <button class="pattu-orig-icon-box help-icon" id="pattuHelpBtn" type="button" title="Instructions">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-              </button>
-              <span class="pattu-orig-nav-label">Instructions</span>
-            </div>
+          <!-- PC Card Header with Title and Right-Edge Time Travel Button -->
+          <div class="pc-arena-header">
+            <h1 class="pc-arena-title">PC (Cinema Guesser) Arena</h1>
+            <button id="pcTimeTravelEdgeBtn" class="pc-edge-timetravel-btn" type="button" title="Time Travel (Play Past Dates)">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+                <polyline points="12 7 12 12 15 15"></polyline>
+              </svg>
+              <span>Time Travel</span>
+            </button>
           </div>
 
           <!-- Cinema Movie Still Viewport -->
-          <div class="pattu-cinema-viewport" id="pattuViewport">
+          <div class="pattu-cinema-viewport pc-viewport" id="pattuViewport">
             <img id="pattuImg" class="pattu-cinema-img" alt="Telugu Movie Still" />
+            
+            <!-- Attempt Indicator Overlay in center of viewport -->
+            <div class="pc-attempt-overlay" id="pcAttemptOverlay">
+              <div class="pc-spinner-ring"></div>
+              <div class="pc-attempt-label">Attempt <span id="pcAttemptNum">1/5</span></div>
+            </div>
+
+            <!-- Fallback Card -->
             <div id="pattuFallbackCard" class="pattu-fallback-card hidden">
               <div class="pattu-fallback-watermark" id="pattuFallbackTag">FRAME 1 OF 5</div>
               <div class="pattu-fallback-icon">🎬</div>
@@ -329,37 +302,35 @@
             </div>
           </div>
 
-          <!-- Frame Buttons (1, 2, 3, 4, 5) -->
-          <div class="pattu-frame-tabs" id="pattuFramePills">
-            <button class="pattu-frame-tab active" data-frame="1" type="button">1</button>
+          <!-- 5 Step Status Pills Grid -->
+          <div class="pc-step-grid" id="pattuFramePills">
+            <!-- Dynamically populated in renderPattuUI -->
           </div>
 
-          <!-- Centered Red Skip Button -->
-          <div class="pattu-skip-wrap">
-            <button id="pattuSkipBtn" class="pattu-orig-skip-btn" type="button">Skip</button>
-          </div>
-
-          <!-- Movie Search Row -->
-          <div class="pattu-search-row" id="pattuSearchWrap">
-            <div class="pattu-input-box">
-              <input type="text" id="pattuInput" class="pattu-orig-input" placeholder="Enter a movie name" autocomplete="off" />
-              <div class="pattu-input-addon">
-                <span class="pattu-divider">|</span>
-                <span class="pattu-dropdown-chevron">▼</span>
-              </div>
-              <button id="pattuClearBtn" class="pattu-clear-btn hidden" type="button">✕</button>
-              <div id="pattuDropdown" class="pattu-orig-dropdown hidden"></div>
+          <!-- Movie Search Row (Sleek unified pill with electric blue SUBMIT >) -->
+          <div class="pc-search-pill-wrap" id="pattuSearchWrap">
+            <div class="pc-search-pill-inner">
+              <span class="pc-search-icon">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </span>
+              <input type="text" id="pattuInput" class="pc-movie-input" placeholder="GUESS THE MOVIE TITLE..." autocomplete="off" />
+              <button id="pattuClearBtn" class="pattu-clear-btn hidden" type="button" aria-label="Clear">✕</button>
+              <button id="pattuSubmitBtn" class="pc-submit-pill-btn" type="button">SUBMIT ❯</button>
             </div>
-            <button id="pattuSubmitBtn" class="pattu-orig-submit-btn" type="button">submit</button>
+            <div id="pattuDropdown" class="pattu-orig-dropdown pc-modern-dropdown hidden"></div>
           </div>
 
-          <!-- Guesses Remaining Counter -->
-          <div class="pattu-remaining-text" id="pattuRemainingText">
-            You got <span class="rem-count" id="pattuRemainingCount">5</span> guesses remaining out of <b>5</b>.
-          </div>
-
-          <!-- Guess History (Previous Guesses list) -->
-          <div class="pattu-guess-history" id="pattuHistory"></div>
+          <!-- Hidden elements preserved for JS event/element bindings -->
+          <button id="pattuSkipBtn" class="hidden" type="button" aria-hidden="true" style="display:none;"></button>
+          <div id="pattuRemainingText" class="hidden" style="display:none;"></div>
+          <div id="pattuHistory" class="hidden" style="display:none;"></div>
+          <button id="pattuTimeTravelBtn" class="hidden" type="button" aria-hidden="true" style="display:none;"></button>
+          <button id="pattuStatsBtn" class="hidden" type="button" aria-hidden="true" style="display:none;"></button>
+          <button id="pattuHelpBtn" class="hidden" type="button" aria-hidden="true" style="display:none;"></button>
+          <span id="pattuConnectionBadge" class="hidden" style="display:none;"><span id="pattuBadgeDot"></span><span id="pattuBadgeText"></span></span>
 
           <!-- Win / Loss Result Modal Overlay -->
           <div id="pattuResultBanner" class="pattu-result-card hidden">

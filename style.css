@@ -1425,146 +1425,119 @@ body[data-theme="itachi"] .poker-card.back {
   box-sizing: border-box;
 }
 
+/* ==========================================================================
+   PC (Cinema Guesser) Arena - Dual-Neon Rim Glassmorphic UI
+   Exact Reference Mockup Styling: Red Left Glow, Blue Right Glow
+   ========================================================================== */
+
 .board-shell.pattu-mode {
-  width: min(94vw, 470px) !important;
-  max-width: 470px !important;
+  position: relative !important;
+  width: min(94vw, 520px) !important;
+  max-width: 520px !important;
   height: auto !important;
   aspect-ratio: auto !important;
-  padding: 12px 14px 14px 14px !important;
-  background: rgba(12, 16, 28, 0.92) !important;
-  backdrop-filter: blur(24px) !important;
-  -webkit-backdrop-filter: blur(24px) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8) !important;
+  padding: 20px 22px 24px 22px !important;
+  background: rgba(14, 20, 35, 0.92) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  /* Dual Neon Rim Glow: Red left edge, Blue right edge */
+  box-shadow:
+    -26px 0 65px -8px rgba(239, 68, 68, 0.44),
+    26px 0 65px -8px rgba(14, 165, 233, 0.48),
+    0 24px 60px rgba(0, 0, 0, 0.85) !important;
   margin: 10px auto 20px auto !important;
   overflow: visible !important;
 }
 
-/* Original Title */
-.pattu-orig-title {
-  font-size: clamp(1.2rem, 3.5vmin, 1.45rem);
-  font-weight: 700;
-  color: #ffffff;
-  text-align: center;
-  margin: 0 0 2px 0;
-  letter-spacing: -0.3px;
+/* Gradient rim border highlight: Red on left edge, Blue on right edge */
+.board-shell.pattu-mode::before {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 25px;
+  padding: 1.5px;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.95) 0%, rgba(239, 68, 68, 0.12) 28%, rgba(14, 165, 233, 0.12) 72%, rgba(14, 165, 233, 0.95) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
 }
 
-/* Connection Status Badge */
-.pattu-mode-badge-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 3px;
-}
-
-.pattu-mode-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  font-size: 0.68rem;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #94a3b8;
-  letter-spacing: 0.3px;
-}
-
-.pattu-badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.pattu-badge-dot.online {
-  background: #22c55e;
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
-}
-
-.pattu-badge-dot.offline {
-  background: #f59e0b;
-  box-shadow: 0 0 6px rgba(245, 158, 11, 0.8);
-}
-
-/* 3 Navigation Boxes: Stats, Time Travel, Instructions */
-.pattu-orig-nav {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 4px;
-}
-
-.pattu-orig-nav-btn-wrap {
+.pattu-original-arena {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 3px;
+  position: relative;
+  z-index: 2;
 }
 
-.pattu-orig-icon-box {
-  width: 38px;
-  height: 34px;
-  border-radius: 6px;
-  border: 2px solid #334155;
-  background: transparent;
+/* PC Card Header */
+.pc-arena-header {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: transform 0.15s, filter 0.15s;
+  position: relative;
+  margin-bottom: 14px;
 }
 
-.pattu-orig-icon-box.stats-icon {
-  border-color: #f87171;
-  color: #f87171;
-}
-
-.pattu-orig-icon-box.timetravel-icon {
-  border-color: #22c55e;
-  color: #22c55e;
-}
-
-.pattu-orig-icon-box.help-icon {
-  border-color: #60a5fa;
-  color: #60a5fa;
-}
-
-.pattu-orig-icon-box:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.2);
-}
-
-.pattu-orig-nav-label {
-  font-size: 0.68rem;
-  color: #cbd5e1;
-  font-weight: 500;
-}
-
-/* Day Banner */
-.pattu-day-banner {
-  font-size: 0.78rem;
+.pc-arena-title {
+  font-size: clamp(1.15rem, 3.2vmin, 1.4rem);
   font-weight: 700;
-  color: #94a3b8;
-  letter-spacing: 0.5px;
+  color: #f1f5f9;
+  letter-spacing: -0.2px;
+  margin: 0;
+  text-align: center;
+  font-family: inherit;
 }
 
-/* Cinema Viewport (Real Movie Image) */
-.pattu-cinema-viewport {
+/* Time Travel Option on Right Edge */
+.pc-edge-timetravel-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(14, 165, 233, 0.14);
+  border: 1.5px solid rgba(14, 165, 233, 0.55);
+  border-radius: 20px;
+  color: #38bdf8;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.35);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.pc-edge-timetravel-btn:hover {
+  background: rgba(14, 165, 233, 0.3);
+  box-shadow: 0 0 24px rgba(14, 165, 233, 0.65);
+  color: #ffffff;
+  transform: translateY(-50%) scale(1.04);
+}
+
+/* Cinema Viewport (Real Movie Image Stage) */
+.pattu-cinema-viewport.pc-viewport {
   width: 100%;
-  max-width: 440px;
-  height: clamp(150px, 26vh, 210px);
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  height: clamp(180px, 30vh, 240px);
   background: #000000;
-  border-radius: 6px;
+  border-radius: 14px;
   overflow: hidden;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -1579,6 +1552,41 @@ body[data-theme="itachi"] .poker-card.back {
   margin: 0 auto;
 }
 
+/* Attempt Overlay in Center of Viewport */
+.pc-attempt-overlay {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
+}
+
+.pc-spinner-ring {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3.5px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #cbd5e1;
+  animation: pcRingSpin 1.8s linear infinite;
+}
+
+@keyframes pcRingSpin {
+  to { transform: rotate(360deg); }
+}
+
+.pc-attempt-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #f8fafc;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+  letter-spacing: 0.5px;
+}
+
 /* Fallback Card */
 .pattu-fallback-card {
   width: 100%;
@@ -1590,14 +1598,14 @@ body[data-theme="itachi"] .poker-card.back {
   padding: 12px;
   box-sizing: border-box;
   text-align: center;
-  background: radial-gradient(circle at center, rgba(34, 197, 94, 0.12) 0%, #090d16 80%);
+  background: radial-gradient(circle at center, rgba(14, 165, 233, 0.12) 0%, #090d16 80%);
 }
 
 .pattu-fallback-watermark {
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 2px;
-  color: #22c55e;
+  color: #38bdf8;
   margin-bottom: 4px;
 }
 
@@ -1618,166 +1626,259 @@ body[data-theme="itachi"] .poker-card.back {
   color: #94a3b8;
 }
 
-/* Frame Tabs [ 1 ] [ 2 ] ... */
-.pattu-frame-tabs {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  margin-top: 3px;
+/* 5 Step Status Pills Grid */
+.pc-step-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin: 14px 0 12px 0;
 }
 
-.pattu-frame-tab {
-  min-width: 32px;
-  height: 28px;
-  border-radius: 5px;
-  background: #334155;
-  color: #f8fafc;
-  font-weight: 700;
-  font-size: 0.85rem;
-  border: 1.5px solid transparent;
+.pc-step-card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
   cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  text-align: left;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pc-step-card:hover:not(.locked) {
+  transform: translateY(-2px);
+  filter: brightness(1.2);
+}
+
+.pc-step-icon-col {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
-  user-select: none;
 }
 
-.pattu-frame-tab.active {
-  background: #475569;
-  border-color: #38bdf8;
+.pc-step-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.pc-step-badge.check {
+  background: #22c55e;
   color: #ffffff;
-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
 }
 
-.pattu-frame-tab.wrong {
-  background: rgba(220, 38, 38, 0.25);
-  border-color: #ef4444;
-  color: #fca5a5;
+.pc-step-badge.cross {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
 }
-.pattu-frame-tab.wrong.active {
-  background: rgba(220, 38, 38, 0.5);
-  border-color: #f87171;
+
+.pc-step-badge.lock {
+  background: rgba(255, 255, 255, 0.08);
+  color: #64748b;
+  font-size: 0.65rem;
+}
+
+.pc-step-badge.active-dot {
+  background: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  border: 1.5px solid #ef4444;
   box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
 }
 
-.pattu-frame-tab.correct {
-  background: rgba(34, 197, 94, 0.25);
-  border-color: #22c55e;
-  color: #86efac;
-}
-.pattu-frame-tab.correct.active {
-  background: rgba(34, 197, 94, 0.5);
-  border-color: #4ade80;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+.pc-step-badge.neutral {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
 }
 
-.pattu-frame-tab.locked {
-  opacity: 0.35;
-  cursor: not-allowed;
-  background: #1e293b;
-  border-color: #334155;
-}
-
-/* Centered Red Skip Button */
-.pattu-skip-wrap {
-  width: 100%;
+.pc-step-text-col {
   display: flex;
-  justify-content: center;
-  margin: 2px 0;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+  overflow: hidden;
 }
 
-.pattu-orig-skip-btn {
-  background: #dc2626 !important;
-  color: #ffffff !important;
+.pc-step-label {
+  font-size: 0.74rem;
   font-weight: 700;
-  font-size: 0.82rem;
-  border-radius: 4px;
-  border: none;
-  padding: 5px 16px;
-  cursor: pointer;
-  transition: background 0.15s;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.pattu-orig-skip-btn:hover {
-  background: #b91c1c !important;
+.pc-step-sub {
+  font-size: 0.62rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Search Row */
-.pattu-search-row {
+/* Green Card (Correct guess) */
+.pc-step-card.correct {
+  background: rgba(34, 197, 94, 0.14) !important;
+  border: 1.5px solid #22c55e !important;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.25);
+}
+.pc-step-card.correct .pc-step-label { color: #86efac; }
+.pc-step-card.correct .pc-step-sub { color: #4ade80; }
+
+/* Red Card (Wrong / Missed / Skipped) */
+.pc-step-card.wrong {
+  background: rgba(239, 68, 68, 0.14) !important;
+  border: 1.5px solid #ef4444 !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+}
+.pc-step-card.wrong .pc-step-label { color: #fca5a5; }
+.pc-step-card.wrong .pc-step-sub { color: #f87171; }
+
+/* Active Current Step Card */
+.pc-step-card.active.current {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border: 1.5px solid #ef4444 !important;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.35);
+}
+
+/* Viewing Active Frame Outline */
+.pc-step-card.viewing-active {
+  outline: 2px solid #38bdf8;
+  outline-offset: 1px;
+}
+
+/* Locked Card */
+.pc-step-card.locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: rgba(15, 23, 42, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Search Pill Wrap & Inner */
+.pc-search-pill-wrap {
   width: 100%;
+  position: relative;
+  margin-top: 4px;
+}
+
+.pc-search-pill-inner {
+  width: 100%;
+  height: 46px;
+  background: rgba(22, 30, 49, 0.78);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 23px;
+  display: flex;
+  align-items: center;
+  padding: 3px 5px 3px 14px;
+  box-sizing: border-box;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pc-search-pill-inner:focus-within {
+  border-color: #38bdf8;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.35);
+  background: rgba(22, 30, 49, 0.95);
+}
+
+.pc-search-icon {
+  color: #64748b;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  margin-top: 2px;
+  margin-right: 8px;
+  flex-shrink: 0;
 }
 
-.pattu-input-box {
+.pc-movie-input {
   flex: 1;
-  max-width: 360px;
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.pattu-orig-input {
-  width: 100%;
-  height: 35px;
-  border-radius: 4px;
-  border: 1px solid #475569;
-  background: #27272a;
-  color: #ffffff;
-  padding: 0 38px 0 10px;
-  font-size: 0.84rem;
+  height: 100%;
+  background: transparent;
+  border: none;
   outline: none;
-  box-sizing: border-box;
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  min-width: 0;
 }
 
-.pattu-orig-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+.pc-movie-input::placeholder {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.8px;
 }
 
-.pattu-input-addon {
-  position: absolute;
-  right: 10px;
+.pc-submit-pill-btn {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 19px;
+  background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+  color: #ffffff !important;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
-  color: #71717a;
-  font-size: 0.72rem;
-  pointer-events: none;
+  justify-content: center;
+  gap: 4px;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.pc-submit-pill-btn:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #1d4ed8 100%);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.65);
+  transform: scale(1.02);
 }
 
 .pattu-clear-btn {
-  position: absolute;
-  right: 28px;
   background: none;
   border: none;
-  color: #a1a1aa;
-  font-size: 0.85rem;
+  color: #94a3b8;
+  font-size: 0.88rem;
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 8px;
+  margin-right: 4px;
+}
+.pattu-clear-btn:hover {
+  color: #f1f5f9;
 }
 
-.pattu-orig-dropdown {
+.pc-modern-dropdown {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 6px);
   left: 0;
   right: 0;
-  max-height: 200px;
+  max-height: 220px;
   overflow-y: auto;
-  background: #27272a;
-  border: 1px solid #475569;
-  border-radius: 4px;
+  border-radius: 14px !important;
+  background: rgba(15, 23, 42, 0.98) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85) !important;
   z-index: 10000;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
 }
 
 .pattu-drop-item {
-  padding: 8px 10px;
+  padding: 8px 12px;
   font-size: 0.82rem;
   color: #f4f4f5;
   cursor: pointer;
@@ -1786,28 +1887,8 @@ body[data-theme="itachi"] .poker-card.back {
 }
 
 .pattu-drop-item:hover, .pattu-drop-item.selected {
-  background: #3b82f6;
+  background: #2563eb;
   color: #fff;
-}
-
-.pattu-orig-submit-btn {
-  background: #2563eb !important;
-  color: #ffffff !important;
-  font-weight: 700;
-  font-size: 0.82rem;
-  border-radius: 4px;
-  border: none;
-  padding: 0 14px;
-  height: 35px;
-  cursor: pointer;
-  transition: background 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.pattu-orig-submit-btn:hover {
-  background: #1d4ed8 !important;
 }
 
 /* Guesses Remaining Text */
