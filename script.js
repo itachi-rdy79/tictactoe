@@ -53,28 +53,48 @@ const pokerCallBtn = document.getElementById("pokerCallBtn");
 const pokerRaiseBtn = document.getElementById("pokerRaiseBtn");
 const pokerNextHandBtn = document.getElementById("pokerNextHandBtn");
 
-// Pattu DOM (Tollywood Movie Guesser)
+// Pattu DOM (Tollywood Movie Guesser - Exact Original UI)
 const pattuGameEl = document.getElementById("pattuGame");
-const pattuPuzzleTitleEl = document.getElementById("pattuPuzzleTitle");
-const pattuStreakPillEl = document.getElementById("pattuStreakPill");
-const pattuRandomBtn = document.getElementById("pattuRandomBtn");
+const pattuStatsBtn = document.getElementById("pattuStatsBtn");
+const pattuTimeTravelBtn = document.getElementById("pattuTimeTravelBtn");
+const pattuHelpBtn = document.getElementById("pattuHelpBtn");
 const pattuImgEl = document.getElementById("pattuImg");
 const pattuFallbackCardEl = document.getElementById("pattuFallbackCard");
 const pattuFallbackTagEl = document.getElementById("pattuFallbackTag");
 const pattuFallbackClueEl = document.getElementById("pattuFallbackClue");
 const pattuFallbackSubEl = document.getElementById("pattuFallbackSub");
-const pattuCurrentFrameTagEl = document.getElementById("pattuCurrentFrameTag");
 const pattuFramePillsEl = document.getElementById("pattuFramePills");
+const pattuSkipBtn = document.getElementById("pattuSkipBtn");
+const pattuSearchWrap = document.getElementById("pattuSearchWrap");
 const pattuInputEl = document.getElementById("pattuInput");
 const pattuClearBtn = document.getElementById("pattuClearBtn");
 const pattuDropdownEl = document.getElementById("pattuDropdown");
-const pattuSkipBtn = document.getElementById("pattuSkipBtn");
 const pattuSubmitBtn = document.getElementById("pattuSubmitBtn");
+const pattuRemainingTextEl = document.getElementById("pattuRemainingText");
+const pattuRemainingCountEl = document.getElementById("pattuRemainingCount");
 const pattuHistoryEl = document.getElementById("pattuHistory");
 const pattuResultBannerEl = document.getElementById("pattuResultBanner");
 const pattuResultTitleEl = document.getElementById("pattuResultTitle");
 const pattuResultMovieEl = document.getElementById("pattuResultMovie");
+const pattuResultSubEl = document.getElementById("pattuResultSub");
+const pattuShareBtn = document.getElementById("pattuShareBtn");
 const pattuNextBtn = document.getElementById("pattuNextBtn");
+
+// Pattu Modals
+const pattuInstructionsModal = document.getElementById("pattuInstructionsModal");
+const closePattuHelpBtn = document.getElementById("closePattuHelpBtn");
+const pattuTimeTravelModal = document.getElementById("pattuTimeTravelModal");
+const pattuDayInput = document.getElementById("pattuDayInput");
+const pattuMaxDayText = document.getElementById("pattuMaxDayText");
+const submitPattuTimeTravelBtn = document.getElementById("submitPattuTimeTravelBtn");
+const closePattuTimeTravelBtn = document.getElementById("closePattuTimeTravelBtn");
+const pattuStatsCustomModal = document.getElementById("pattuStatsCustomModal");
+const pattuStatPlayedEl = document.getElementById("pattuStatPlayed");
+const pattuStatWinPctEl = document.getElementById("pattuStatWinPct");
+const pattuStatStreakEl = document.getElementById("pattuStatStreak");
+const pattuStatMaxStreakEl = document.getElementById("pattuStatMaxStreak");
+const pattuDistChartEl = document.getElementById("pattuDistChart");
+const closePattuStatsModalBtn = document.getElementById("closePattuStatsModalBtn");
 
 const capturedLeft = document.getElementById("capturedLeft");
 const capturedRight = document.getElementById("capturedRight");
@@ -349,6 +369,24 @@ function showOnlyActiveGame(gameKey) {
     } else {
       pattuGameEl.classList.add("hidden");
       pattuGameEl.style.setProperty("display", "none", "important");
+    }
+  }
+
+  // Hide TTT HUD turn status pill when playing Pattu
+  const statusWrapEl = document.querySelector(".status-wrap");
+  if (isPattu) {
+    statusWrapEl?.classList.add("hidden");
+    statusWrapEl?.style.setProperty("display", "none", "important");
+    statusPill?.classList.add("hidden");
+    statusPill?.style.setProperty("display", "none", "important");
+    moveCounterPill?.classList.add("hidden");
+    moveCounterPill?.style.setProperty("display", "none", "important");
+  } else {
+    statusWrapEl?.classList.remove("hidden");
+    statusWrapEl?.style.removeProperty("display");
+    if (!isWordle && hubState.timer === "off") {
+      statusPill?.classList.remove("hidden");
+      statusPill?.style.removeProperty("display");
     }
   }
 
@@ -2787,17 +2825,30 @@ let PATTU_MOVIES = [
   "Varsham", "Vedam", "Veta", "Virupaksha", "Waltair Veerayya", "Yamadonga", "Ye Maaya Chesave"
 ];
 
-// Async loader to pull the expanded 1,645+ movies list from data/tollywood-movies.json
+const PATTU_S3_BASE = "https://pattukunte-pattucheera-movies.s3.amazonaws.com";
+
+// Async loader to pull official movies list from S3 & local fallback
 (function loadExtendedTollywoodDatabase() {
-  fetch("data/tollywood-movies.json")
+  fetch(`${PATTU_S3_BASE}/movies.json`)
     .then(r => r.json())
-    .then(data => {
-      if (data && Array.isArray(data.movies) && data.movies.length > 0) {
-        const merged = new Set([...PATTU_MOVIES, ...data.movies]);
+    .then(movies => {
+      if (Array.isArray(movies) && movies.length > 0) {
+        const merged = new Set([...PATTU_MOVIES, ...movies]);
         PATTU_MOVIES = Array.from(merged).sort((a, b) => a.localeCompare(b));
       }
     })
-    .catch(() => {});
+    .catch(() => {
+      // Offline fallback to local data/tollywood-movies.json
+      fetch("data/tollywood-movies.json")
+        .then(r => r.json())
+        .then(data => {
+          if (data && Array.isArray(data.movies) && data.movies.length > 0) {
+            const merged = new Set([...PATTU_MOVIES, ...data.movies]);
+            PATTU_MOVIES = Array.from(merged).sort((a, b) => a.localeCompare(b));
+          }
+        })
+        .catch(() => {});
+    });
 })();
 
 // Pattu Game State
@@ -2808,7 +2859,6 @@ let pattuActiveFrame = 1;
 let pattuGuesses = [];
 let pattuOver = false;
 let pattuWon = false;
-let pattuIsRandom = false;
 let pattuStreak = 0;
 let pattuSelectedDropIndex = -1;
 
@@ -2827,41 +2877,67 @@ function normalizePattuTitle(str) {
 function loadPattuStats() {
   try {
     const saved = JSON.parse(localStorage.getItem("gap_pattu_stats") || "{}");
-    pattuStreak = saved.streak || 0;
-    if (pattuStreakPillEl) pattuStreakPillEl.textContent = `🔥 Streak: ${pattuStreak}`;
+    pattuStreak = saved.currentStreak || saved.streak || 0;
+    return saved;
   } catch {
     pattuStreak = 0;
+    return {};
   }
 }
 
-function savePattuStats(won) {
-  if (won) pattuStreak++;
-  else pattuStreak = 0;
-
+function savePattuStats(won, attemptNumber) {
   try {
     const saved = JSON.parse(localStorage.getItem("gap_pattu_stats") || "{}");
-    saved.streak = pattuStreak;
     saved.gamesPlayed = (saved.gamesPlayed || 0) + 1;
-    if (won) saved.gamesWon = (saved.gamesWon || 0) + 1;
-    saved.maxStreak = Math.max(saved.maxStreak || 0, pattuStreak);
+    if (won) {
+      saved.gamesWon = (saved.gamesWon || 0) + 1;
+      pattuStreak++;
+      saved.currentStreak = pattuStreak;
+      saved.maxStreak = Math.max(saved.maxStreak || 0, pattuStreak);
+      const dist = saved.guessDistribution || { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
+      if (attemptNumber >= 1 && attemptNumber <= 5) {
+        dist[String(attemptNumber)] = (dist[String(attemptNumber)] || 0) + 1;
+      }
+      saved.guessDistribution = dist;
+    } else {
+      pattuStreak = 0;
+      saved.currentStreak = 0;
+    }
     localStorage.setItem("gap_pattu_stats", JSON.stringify(saved));
   } catch {}
-
-  if (pattuStreakPillEl) pattuStreakPillEl.textContent = `🔥 Streak: ${pattuStreak}`;
 }
 
-function initPattu(forceNew = false) {
+function initPattu(targetDay = null) {
   loadPattuStats();
-  pattuCurrentDay = getPattuDayCount();
+  const todayDay = getPattuDayCount();
+  pattuCurrentDay = (typeof targetDay === "number" && targetDay >= 1) ? targetDay : todayDay;
 
-  if (!pattuIsRandom) {
-    // Daily mode: deterministically pick from offline puzzles or upstream index
-    const pIdx = (pattuCurrentDay - 1) % PATTU_OFFLINE_PUZZLES.length;
-    pattuCurrentPuzzle = PATTU_OFFLINE_PUZZLES[pIdx];
-  } else if (forceNew) {
-    // Random mode: pick a fresh puzzle
-    const rndIdx = Math.floor(Math.random() * PATTU_OFFLINE_PUZZLES.length);
-    pattuCurrentPuzzle = PATTU_OFFLINE_PUZZLES[rndIdx];
+  // Set default puzzle from offline list first
+  const pIdx = (pattuCurrentDay - 1) % PATTU_OFFLINE_PUZZLES.length;
+  pattuCurrentPuzzle = Object.assign({}, PATTU_OFFLINE_PUZZLES[pIdx]);
+
+  // If online, fetch the exact upstream metadata from S3
+  if (navigator.onLine) {
+    fetch(`${PATTU_S3_BASE}/${pattuCurrentDay}/meta-data.json`)
+      .then(res => {
+        if (!res.ok) throw new Error("Metadata HTTP error");
+        return res.json();
+      })
+      .then(meta => {
+        if (meta && meta.movie) {
+          pattuCurrentPuzzle.movie = meta.movie;
+          pattuCurrentPuzzle.contributor = meta.contributor || "";
+          pattuCurrentPuzzle.twitterId = meta.twitterId || "";
+          if (!PATTU_MOVIES.includes(meta.movie)) {
+            PATTU_MOVIES.push(meta.movie);
+            PATTU_MOVIES.sort((a, b) => a.localeCompare(b));
+          }
+          renderPattuUI();
+        }
+      })
+      .catch(err => {
+        console.warn("Using offline puzzle data for day", pattuCurrentDay, err);
+      });
   }
 
   pattuAttempt = 1;
@@ -2877,70 +2953,95 @@ function initPattu(forceNew = false) {
   pattuResultBannerEl?.classList.add("hidden");
   pattuSearchWrap?.classList.remove("hidden");
 
-  if (pattuRandomBtn) {
-    pattuRandomBtn.textContent = pattuIsRandom ? "📅 Daily Mode" : "🎲 Random";
-  }
-
   renderPattuUI();
   renderPattuFrame(1);
 }
 
 function renderPattuUI() {
-  if (pattuPuzzleTitleEl) {
-    pattuPuzzleTitleEl.textContent = pattuIsRandom
-      ? `Tollywood Guess (${pattuCurrentPuzzle.year || "Classic"})`
-      : `Pattu Day #${pattuCurrentDay}`;
+  // 1. Frame Tabs: show tabs 1..maxRevealed (matching original app)
+  const maxRevealed = pattuOver ? 5 : pattuAttempt;
+  if (pattuFramePillsEl) {
+    let tabsHtml = "";
+    for (let i = 1; i <= maxRevealed; i++) {
+      const isActive = (i === pattuActiveFrame) ? "active" : "";
+      tabsHtml += `<button class="pattu-frame-tab ${isActive}" data-frame="${i}" type="button">${i}</button>`;
+    }
+    pattuFramePillsEl.innerHTML = tabsHtml;
   }
 
-  // Frame navigator pills
-  const maxRevealed = pattuOver ? 5 : pattuAttempt;
-  pattuFramePillsEl?.querySelectorAll(".pattu-pill").forEach(pill => {
-    const f = Number(pill.dataset.frame);
-    pill.classList.toggle("active", f === pattuActiveFrame);
-    pill.classList.toggle("locked", f > maxRevealed);
-  });
+  // 2. Skip Button
+  const skipWrap = pattuSkipBtn?.closest(".pattu-skip-wrap");
+  if (skipWrap) {
+    if (pattuOver) skipWrap.classList.add("hidden");
+    else skipWrap.classList.remove("hidden");
+  }
 
-  // History rows (1 to 5)
-  pattuHistoryEl?.querySelectorAll(".pattu-guess-row").forEach(row => {
-    const idx = Number(row.dataset.index);
-    const guess = pattuGuesses[idx - 1];
-    const statusSpan = row.querySelector(".pattu-row-status");
-    const textSpan = row.querySelector(".pattu-row-text");
+  // 3. Search Row
+  if (pattuSearchWrap) {
+    if (pattuOver) pattuSearchWrap.classList.add("hidden");
+    else pattuSearchWrap.classList.remove("hidden");
+  }
 
-    row.className = "pattu-guess-row";
-    if (guess) {
-      if (guess.status === "correct") {
-        row.classList.add("correct");
-        if (statusSpan) statusSpan.textContent = "🟩";
-        if (textSpan) textSpan.textContent = guess.text;
-      } else if (guess.status === "wrong") {
-        row.classList.add("wrong");
-        if (statusSpan) statusSpan.textContent = "🟥";
-        if (textSpan) textSpan.textContent = guess.text;
-      } else if (guess.status === "skipped") {
-        row.classList.add("skipped");
-        if (statusSpan) statusSpan.textContent = "⏭️";
-        if (textSpan) textSpan.textContent = "Skipped";
-      }
+  // 4. Guesses Remaining Counter
+  if (pattuRemainingTextEl) {
+    if (!pattuOver) {
+      const remaining = 6 - pattuAttempt;
+      const countColor = remaining >= 4 ? "#22c55e" : (remaining === 3 ? "#f59e0b" : "#ef4444");
+      pattuRemainingTextEl.innerHTML = `You got <span class="rem-count" style="color:${countColor}">${remaining}</span> guesses remaining out of <b style="color:#22c55e">5</b>.`;
+      pattuRemainingTextEl.classList.remove("hidden");
     } else {
-      if (statusSpan) statusSpan.textContent = idx === pattuAttempt && !pattuOver ? "👉" : "⬛";
-      if (textSpan) textSpan.textContent = `Attempt ${idx}`;
+      if (pattuWon) {
+        pattuRemainingTextEl.innerHTML = `You got it - The answer was <span style="color:#22c55e; font-weight:700;">${pattuCurrentPuzzle.movie}</span>`;
+      } else {
+        pattuRemainingTextEl.innerHTML = `The answer was <span style="color:#22c55e; font-weight:700;">${pattuCurrentPuzzle.movie}</span>`;
+      }
+      pattuRemainingTextEl.classList.remove("hidden");
     }
-  });
+  }
 
-  // Result Banner
+  // 5. Guess History Cards
+  if (pattuHistoryEl) {
+    let histHtml = "";
+    pattuGuesses.forEach(g => {
+      if (g.status === "correct") {
+        histHtml += `
+          <div class="pattu-hist-card correct">
+            <span class="pattu-hist-icon">✅</span>
+            <span class="pattu-hist-text">${g.text}</span>
+          </div>`;
+      } else if (g.status === "wrong") {
+        histHtml += `
+          <div class="pattu-hist-card wrong">
+            <span class="pattu-hist-icon">❌</span>
+            <span class="pattu-hist-text">${g.text}</span>
+          </div>`;
+      } else if (g.status === "skipped") {
+        histHtml += `
+          <div class="pattu-hist-card wrong">
+            <span class="pattu-hist-icon">❌</span>
+            <span class="pattu-hist-text">Skipped</span>
+          </div>`;
+      }
+    });
+    pattuHistoryEl.innerHTML = histHtml;
+  }
+
+  // 6. Result Banner / Modal Card
   if (pattuOver) {
-    pattuSearchWrap?.classList.add("hidden");
-    pattuResultBannerEl?.classList.remove("hidden");
-    if (pattuResultTitleEl) {
-      pattuResultTitleEl.textContent = pattuWon ? "🎉 Spectacular! Movie Guessed!" : "💔 Out of Attempts!";
-      pattuResultTitleEl.style.color = pattuWon ? "var(--accent)" : "#ef4444";
-    }
-    if (pattuResultMovieEl) {
-      pattuResultMovieEl.textContent = `${pattuCurrentPuzzle.movie} (${pattuCurrentPuzzle.year || "Tollywood"})`;
+    if (pattuResultBannerEl) {
+      pattuResultBannerEl.classList.remove("hidden");
+      if (pattuResultTitleEl) {
+        pattuResultTitleEl.textContent = pattuWon ? "🎉 Splendid! You Guessed It!" : "💔 The Answer Was:";
+        pattuResultTitleEl.style.color = pattuWon ? "#22c55e" : "#ef4444";
+      }
+      if (pattuResultMovieEl) {
+        pattuResultMovieEl.textContent = pattuCurrentPuzzle.movie;
+      }
+      if (pattuResultSubEl) {
+        pattuResultSubEl.textContent = `Day #${pattuCurrentDay}${pattuCurrentPuzzle.contributor ? " • Contributed by @" + pattuCurrentPuzzle.contributor : ""}`;
+      }
     }
   } else {
-    pattuSearchWrap?.classList.remove("hidden");
     pattuResultBannerEl?.classList.add("hidden");
   }
 }
@@ -2948,48 +3049,46 @@ function renderPattuUI() {
 function renderPattuFrame(frameNum) {
   pattuActiveFrame = frameNum;
 
-  if (pattuCurrentFrameTagEl) {
-    pattuCurrentFrameTagEl.textContent = `Frame ${frameNum} of 5`;
-  }
-
-  // Update pill active highlight
-  pattuFramePillsEl?.querySelectorAll(".pattu-pill").forEach(pill => {
-    pill.classList.toggle("active", Number(pill.dataset.frame) === frameNum);
+  // Highlight active tab
+  pattuFramePillsEl?.querySelectorAll(".pattu-frame-tab").forEach(tab => {
+    tab.classList.toggle("active", Number(tab.dataset.frame) === frameNum);
   });
 
-  // Attempt to load upstream CDN image when online (Netlify S3 mirror)
-  const isOnline = navigator.onLine;
-  const cdnUrl = `https://pattukunte-pattucheera.netlify.app/static/${pattuCurrentDay}/${frameNum}.jpg`;
+  const cdnUrl = `${PATTU_S3_BASE}/${pattuCurrentDay}/${frameNum}.jpg`;
 
-  let showedClue = false;
-  const showClueFallback = () => {
-    if (showedClue) return;
-    showedClue = true;
-    if (pattuImgEl) pattuImgEl.style.display = "none";
-    if (pattuFallbackCardEl) {
-      pattuFallbackCardEl.classList.remove("hidden");
-      if (pattuFallbackTagEl) pattuFallbackTagEl.textContent = `CLUE FRAME ${frameNum} OF 5`;
-      const clues = pattuCurrentPuzzle.clues || [];
-      if (pattuFallbackClueEl) {
-        pattuFallbackClueEl.textContent = clues[frameNum - 1] || `Tollywood Blockbuster Scene Frame #${frameNum}`;
-      }
-      if (pattuFallbackSubEl) {
-        pattuFallbackSubEl.textContent = `Starring: ${pattuCurrentPuzzle.hero || "Tollywood Star"} • Dir: ${pattuCurrentPuzzle.director || "Tollywood"}`;
-      }
-    }
-  };
+  if (pattuImgEl) {
+    pattuImgEl.style.display = "block";
+    pattuFallbackCardEl?.classList.add("hidden");
 
-  if (isOnline && !pattuIsRandom) {
-    if (pattuImgEl) {
-      pattuImgEl.onload = () => {
-        pattuImgEl.style.display = "block";
-        pattuFallbackCardEl?.classList.add("hidden");
-      };
-      pattuImgEl.onerror = showClueFallback;
-      pattuImgEl.src = cdnUrl;
-    }
-  } else {
-    showClueFallback();
+    let isHandled = false;
+    pattuImgEl.onload = () => {
+      if (isHandled) return;
+      isHandled = true;
+      pattuImgEl.style.display = "block";
+      pattuFallbackCardEl?.classList.add("hidden");
+    };
+
+    pattuImgEl.onerror = () => {
+      if (isHandled) return;
+      isHandled = true;
+      // Show fallback clue card if image fails to load
+      pattuImgEl.style.display = "none";
+      if (pattuFallbackCardEl) {
+        pattuFallbackCardEl.classList.remove("hidden");
+        if (pattuFallbackTagEl) pattuFallbackTagEl.textContent = `FRAME ${frameNum} OF 5`;
+        const clues = pattuCurrentPuzzle.clues || [];
+        if (pattuFallbackClueEl) {
+          pattuFallbackClueEl.textContent = clues[frameNum - 1] || `Tollywood Scene Frame #${frameNum}`;
+        }
+        if (pattuFallbackSubEl) {
+          pattuFallbackSubEl.textContent = pattuCurrentPuzzle.hero
+            ? `Starring: ${pattuCurrentPuzzle.hero} • Dir: ${pattuCurrentPuzzle.director || "Tollywood"}`
+            : (pattuCurrentPuzzle.contributor ? `Contributed by @${pattuCurrentPuzzle.contributor}` : `Tollywood Cinema Archives`);
+        }
+      }
+    };
+
+    pattuImgEl.src = cdnUrl;
   }
 }
 
@@ -3032,7 +3131,7 @@ function submitPattuGuess(guessedName) {
     pattuWon = true;
     pattuOver = true;
     pattuGuesses.push({ status: "correct", text: pattuCurrentPuzzle.movie });
-    savePattuStats(true);
+    savePattuStats(true, pattuAttempt);
     triggerConfetti();
     renderPattuUI();
     renderPattuFrame(pattuActiveFrame);
@@ -3043,11 +3142,12 @@ function submitPattuGuess(guessedName) {
     if (pattuAttempt > 5) {
       pattuOver = true;
       pattuWon = false;
-      savePattuStats(false);
+      savePattuStats(false, 5);
       renderPattuUI();
       renderPattuFrame(pattuActiveFrame);
       persistLiveState();
     } else {
+      pattuActiveFrame = pattuAttempt;
       renderPattuUI();
       renderPattuFrame(pattuAttempt);
       persistLiveState();
@@ -3067,11 +3167,12 @@ function skipPattuAttempt() {
   if (pattuAttempt > 5) {
     pattuOver = true;
     pattuWon = false;
-    savePattuStats(false);
+    savePattuStats(false, 5);
     renderPattuUI();
     renderPattuFrame(pattuActiveFrame);
     persistLiveState();
   } else {
+    pattuActiveFrame = pattuAttempt;
     renderPattuUI();
     renderPattuFrame(pattuAttempt);
     persistLiveState();
@@ -3080,6 +3181,44 @@ function skipPattuAttempt() {
   if (pattuInputEl) pattuInputEl.value = "";
   pattuDropdownEl?.classList.add("hidden");
   pattuClearBtn?.classList.add("hidden");
+}
+
+// Modal helper: Stats
+function renderPattuStatsModal() {
+  const saved = loadPattuStats();
+  const played = saved.gamesPlayed || 0;
+  const won = saved.gamesWon || 0;
+  const winPct = played > 0 ? Math.round((won / played) * 100) : 0;
+  const curStreak = saved.currentStreak || 0;
+  const maxStreak = saved.maxStreak || 0;
+  const dist = saved.guessDistribution || { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
+
+  if (pattuStatPlayedEl) pattuStatPlayedEl.textContent = String(played);
+  if (pattuStatWinPctEl) pattuStatWinPctEl.textContent = `${winPct}%`;
+  if (pattuStatStreakEl) pattuStatStreakEl.textContent = String(curStreak);
+  if (pattuStatMaxStreakEl) pattuStatMaxStreakEl.textContent = String(maxStreak);
+
+  if (pattuDistChartEl) {
+    let maxCount = 1;
+    for (let k = 1; k <= 5; k++) {
+      if (dist[k] > maxCount) maxCount = dist[k];
+    }
+    let chartHtml = "";
+    for (let k = 1; k <= 5; k++) {
+      const count = dist[k] || 0;
+      const pct = Math.max(8, Math.round((count / maxCount) * 100));
+      chartHtml += `
+        <div class="pattu-dist-row">
+          <span style="width:14px; text-align:center; font-weight:700;">${k}</span>
+          <div style="flex:1;">
+            <div class="pattu-dist-bar ${count > 0 ? 'highlight' : ''}" style="width:${pct}%;">${count}</div>
+          </div>
+        </div>`;
+    }
+    pattuDistChartEl.innerHTML = chartHtml;
+  }
+
+  pattuStatsCustomModal?.classList.remove("hidden");
 }
 
 // Pattu DOM Event Listeners
@@ -3130,6 +3269,17 @@ pattuDropdownEl?.addEventListener("click", (e) => {
   submitPattuGuess(movie);
 });
 
+// Dropdown chevron click to expand suggestions
+document.querySelector(".pattu-dropdown-chevron")?.parentElement?.addEventListener("click", () => {
+  if (pattuDropdownEl?.classList.contains("hidden")) {
+    const matches = filterPattuSuggestions(pattuInputEl?.value || "");
+    renderPattuDropdown(matches.length ? matches : PATTU_MOVIES.slice(0, 8));
+    pattuInputEl?.focus();
+  } else {
+    pattuDropdownEl?.classList.add("hidden");
+  }
+});
+
 pattuClearBtn?.addEventListener("click", () => {
   if (pattuInputEl) pattuInputEl.value = "";
   pattuClearBtn?.classList.add("hidden");
@@ -3140,30 +3290,86 @@ pattuClearBtn?.addEventListener("click", () => {
 pattuSubmitBtn?.addEventListener("click", () => submitPattuGuess());
 pattuSkipBtn?.addEventListener("click", () => skipPattuAttempt());
 
-pattuRandomBtn?.addEventListener("click", () => {
-  pattuIsRandom = !pattuIsRandom;
-  initPattu(true);
-});
-
-pattuNextBtn?.addEventListener("click", () => {
-  pattuIsRandom = true;
-  initPattu(true);
-});
-
+// Frame navigation buttons delegation
 pattuFramePillsEl?.addEventListener("click", (e) => {
-  const pill = e.target.closest(".pattu-pill");
-  if (!pill) return;
-  const f = Number(pill.dataset.frame);
+  const tab = e.target.closest(".pattu-frame-tab");
+  if (!tab) return;
+  const f = Number(tab.dataset.frame);
   const maxRevealed = pattuOver ? 5 : pattuAttempt;
-  if (f <= maxRevealed) {
+  if (f >= 1 && f <= maxRevealed) {
     renderPattuFrame(f);
   }
 });
 
+// Instructions Modal
+pattuHelpBtn?.addEventListener("click", () => {
+  pattuInstructionsModal?.classList.remove("hidden");
+});
+closePattuHelpBtn?.addEventListener("click", () => {
+  pattuInstructionsModal?.classList.add("hidden");
+});
+
+// Time Travel Modal
+pattuTimeTravelBtn?.addEventListener("click", () => {
+  const maxDay = getPattuDayCount();
+  if (pattuMaxDayText) pattuMaxDayText.textContent = String(maxDay);
+  if (pattuDayInput) {
+    pattuDayInput.max = maxDay;
+    pattuDayInput.value = pattuCurrentDay;
+  }
+  pattuTimeTravelModal?.classList.remove("hidden");
+});
+closePattuTimeTravelBtn?.addEventListener("click", () => {
+  pattuTimeTravelModal?.classList.add("hidden");
+});
+submitPattuTimeTravelBtn?.addEventListener("click", () => {
+  const maxDay = getPattuDayCount();
+  const val = parseInt(pattuDayInput?.value, 10);
+  if (!isNaN(val) && val >= 1 && val <= maxDay) {
+    pattuTimeTravelModal?.classList.add("hidden");
+    initPattu(val);
+  }
+});
+
+// Stats Modal
+pattuStatsBtn?.addEventListener("click", renderPattuStatsModal);
+closePattuStatsModalBtn?.addEventListener("click", () => {
+  pattuStatsCustomModal?.classList.add("hidden");
+});
+
+// Share Button
+pattuShareBtn?.addEventListener("click", () => {
+  let shareResult = `Pattukunte Pattucheera Day #${pattuCurrentDay} ${pattuWon ? pattuGuesses.length : "X"}/5\n`;
+  pattuGuesses.forEach(g => {
+    if (g.status === "correct") shareResult += "🟩";
+    else shareResult += "🟥";
+  });
+  shareResult += "\nPlay on GAP Gaming Hub!";
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareResult).then(() => {
+      const origText = pattuShareBtn.textContent;
+      pattuShareBtn.textContent = "Copied! ✓";
+      setTimeout(() => { pattuShareBtn.textContent = origText; }, 2000);
+    });
+  }
+});
+
+// Next Movie Button (loads another past day puzzle)
+pattuNextBtn?.addEventListener("click", () => {
+  const maxDay = getPattuDayCount();
+  const randomDay = Math.floor(Math.random() * maxDay) + 1;
+  initPattu(randomDay);
+});
+
 document.addEventListener("click", (e) => {
-  if (!pattuInputEl?.contains(e.target) && !pattuDropdownEl?.contains(e.target)) {
+  if (!pattuInputEl?.contains(e.target) && !pattuDropdownEl?.contains(e.target) && !e.target.closest(".pattu-input-addon")) {
     pattuDropdownEl?.classList.add("hidden");
   }
+  // Click outside to close modals
+  if (e.target === pattuInstructionsModal) pattuInstructionsModal.classList.add("hidden");
+  if (e.target === pattuTimeTravelModal) pattuTimeTravelModal.classList.add("hidden");
+  if (e.target === pattuStatsCustomModal) pattuStatsCustomModal.classList.add("hidden");
 });
 
 /* ---------- Live Game Persistence ---------- */
@@ -3190,8 +3396,7 @@ function persistLiveState() {
       activeFrame: pattuActiveFrame,
       guesses: pattuGuesses,
       over: pattuOver,
-      won: pattuWon,
-      isRandom: pattuIsRandom
+      won: pattuWon
     }
   };
   localStorage.setItem(LIVE_STATE_KEY, JSON.stringify(payload));
@@ -3266,7 +3471,19 @@ function restoreLiveStateIfAny() {
     }
 
     if (s.mode === "pattu") {
-      initPattu(false);
+      if (s.pattu) {
+        pattuCurrentDay = s.pattu.day || getPattuDayCount();
+        pattuCurrentPuzzle = s.pattu.puzzle || PATTU_OFFLINE_PUZZLES[0];
+        pattuAttempt = s.pattu.attempt || 1;
+        pattuActiveFrame = s.pattu.activeFrame || 1;
+        pattuGuesses = Array.isArray(s.pattu.guesses) ? s.pattu.guesses : [];
+        pattuOver = !!s.pattu.over;
+        pattuWon = !!s.pattu.won;
+        renderPattuUI();
+        renderPattuFrame(pattuActiveFrame);
+      } else {
+        initPattu();
+      }
       return true;
     }
 

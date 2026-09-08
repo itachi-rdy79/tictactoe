@@ -1401,12 +1401,12 @@ body[data-theme="itachi"] .poker-card.back {
 }
 
 /* ==========================================================================
-   Pattukunte Pattucheera (Tollywood Movie Guesser) Styles
+   Pattukunte Pattucheera (Tollywood Movie Guesser - Exact Original UI)
    ========================================================================== */
 
-.pattu-arena {
+.pattu-original-arena {
   width: 100%;
-  max-width: 440px;
+  max-width: 540px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1416,98 +1416,113 @@ body[data-theme="itachi"] .poker-card.back {
 }
 
 .board-shell.pattu-mode {
-  width: min(92vw, 480px);
-  height: auto;
-  aspect-ratio: auto;
-  padding: 14px;
+  width: min(94vw, 560px) !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  padding: 14px 16px !important;
+  background: #000000 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8) !important;
 }
 
-.pattu-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 0 4px;
-}
-
-.pattu-meta-badge {
+/* Original Title */
+.pattu-orig-title {
+  font-size: 1.6rem;
   font-weight: 700;
-  font-size: 0.88rem;
-  color: var(--fg);
+  color: #ffffff;
+  text-align: center;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.3px;
+}
+
+/* 3 Navigation Boxes: Stats, Time Travel, Instructions */
+.pattu-orig-nav {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 6px;
 }
 
-.pattu-stats-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--accent);
-}
-
-.pattu-mode-toggle {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--fg);
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 3px 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.pattu-mode-toggle:hover {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* Stills Viewport & Filmstrip */
-.pattu-viewport {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: 220px;
-  background: #000;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
+.pattu-orig-nav-btn-wrap {
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  border: 1.5px solid var(--border);
-  user-select: none;
+  align-items: center;
+  gap: 4px;
 }
 
-.pattu-film-border {
-  height: 6px;
-  width: 100%;
-  background: repeating-linear-gradient(90deg, #18181b, #18181b 6px, transparent 6px, transparent 12px);
-  opacity: 0.85;
-}
-
-.pattu-screen {
-  flex: 1;
-  position: relative;
-  width: 100%;
-  height: 100%;
+.pattu-orig-icon-box {
+  width: 44px;
+  height: 40px;
+  border-radius: 6px;
+  border: 2px solid #334155;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  background: #090d16;
+  cursor: pointer;
+  transition: transform 0.15s, filter 0.15s;
 }
 
-.pattu-frame-img {
+.pattu-orig-icon-box.stats-icon {
+  border-color: #f87171;
+  color: #f87171;
+}
+
+.pattu-orig-icon-box.timetravel-icon {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.pattu-orig-icon-box.help-icon {
+  border-color: #60a5fa;
+  color: #60a5fa;
+}
+
+.pattu-orig-icon-box:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.2);
+}
+
+.pattu-orig-nav-label {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+/* Day Banner */
+.pattu-day-banner {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+/* Cinema Viewport (Real Movie Image) */
+.pattu-cinema-viewport {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 270px;
+  background: #000000;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pattu-cinema-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
-  transition: opacity 0.25s ease-in-out;
+  background: #000;
 }
 
+/* Fallback Card */
 .pattu-fallback-card {
   width: 100%;
   height: 100%;
@@ -1525,9 +1540,8 @@ body[data-theme="itachi"] .poker-card.back {
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 2px;
-  color: var(--accent);
+  color: #22c55e;
   margin-bottom: 6px;
-  text-transform: uppercase;
 }
 
 .pattu-fallback-icon {
@@ -1544,240 +1558,357 @@ body[data-theme="itachi"] .poker-card.back {
 
 .pattu-fallback-sub {
   font-size: 0.72rem;
-  color: var(--fg-muted);
+  color: #94a3b8;
 }
 
-.pattu-frame-tag {
-  position: absolute;
-  bottom: 8px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-/* Frame Pills (1 to 5) */
-.pattu-frame-pills {
+/* Frame Tabs [ 1 ] [ 2 ] ... */
+.pattu-frame-tabs {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  width: 100%;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
 }
 
-.pattu-pill {
-  width: 36px;
-  height: 30px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--fg);
+.pattu-frame-tab {
+  min-width: 32px;
+  height: 28px;
+  border-radius: 3px;
+  background: #334155;
+  color: #f8fafc;
   font-weight: 700;
   font-size: 0.85rem;
+  border: 1px solid transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
 
-.pattu-pill.active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-  box-shadow: 0 0 10px var(--accent-glow);
+.pattu-frame-tab.active {
+  background: #475569;
+  border-color: #94a3b8;
+  color: #ffffff;
 }
 
-.pattu-pill.locked {
+.pattu-frame-tab.locked {
   opacity: 0.35;
   cursor: not-allowed;
 }
 
-/* Autocomplete Search & Controls */
-.pattu-search-wrap {
+/* Centered Red Skip Button */
+.pattu-skip-wrap {
   width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 2px 0;
+}
+
+.pattu-orig-skip-btn {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  border: none;
+  padding: 6px 18px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pattu-orig-skip-btn:hover {
+  background: #b91c1c !important;
+}
+
+/* Search Row */
+.pattu-search-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.pattu-input-box {
+  flex: 1;
+  max-width: 380px;
   position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
 }
 
-.pattu-input-group {
-  position: relative;
-  width: 100%;
-}
-
-.pattu-input {
+.pattu-orig-input {
   width: 100%;
   height: 38px;
-  border-radius: 10px;
-  border: 1.5px solid var(--border);
-  background: var(--surface);
-  color: var(--fg);
-  padding: 0 34px 0 12px;
+  border-radius: 4px;
+  border: 1px solid #475569;
+  background: #27272a;
+  color: #ffffff;
+  padding: 0 42px 0 12px;
   font-size: 0.88rem;
-  font-weight: 500;
   outline: none;
   box-sizing: border-box;
 }
 
-.pattu-input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
+.pattu-orig-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+.pattu-input-addon {
+  position: absolute;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #71717a;
+  font-size: 0.75rem;
+  pointer-events: none;
 }
 
 .pattu-clear-btn {
   position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 32px;
   background: none;
   border: none;
-  color: var(--fg-muted);
-  font-size: 0.95rem;
+  color: #a1a1aa;
+  font-size: 0.9rem;
   cursor: pointer;
   padding: 4px;
 }
 
-.pattu-dropdown {
+.pattu-orig-dropdown {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  max-height: 180px;
+  max-height: 220px;
   overflow-y: auto;
-  background: var(--surface);
-  border: 1.5px solid var(--accent);
-  border-radius: 10px;
+  background: #27272a;
+  border: 1px solid #475569;
+  border-radius: 4px;
   z-index: 10000;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(20px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
 }
 
 .pattu-drop-item {
-  padding: 8px 12px;
-  font-size: 0.82rem;
-  color: var(--fg);
+  padding: 9px 12px;
+  font-size: 0.84rem;
+  color: #f4f4f5;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.12s;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .pattu-drop-item:hover, .pattu-drop-item.selected {
-  background: var(--accent);
+  background: #3b82f6;
   color: #fff;
 }
 
-.pattu-action-btns {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
-
-.pattu-btn {
-  height: 36px;
-  border-radius: 10px;
+.pattu-orig-submit-btn {
+  background: #2563eb !important;
+  color: #ffffff !important;
   font-weight: 700;
   font-size: 0.85rem;
+  border-radius: 4px;
   border: none;
+  padding: 0 18px;
+  height: 38px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.pattu-btn.skip-btn {
-  flex: 0.35;
-  background: #ef4444;
-  color: #fff;
+.pattu-orig-submit-btn:hover {
+  background: #1d4ed8 !important;
 }
 
-.pattu-btn.skip-btn:hover {
-  background: #dc2626;
+/* Guesses Remaining Text */
+.pattu-remaining-text {
+  font-size: 0.88rem;
+  color: #ffffff;
+  text-align: center;
+  margin-top: 4px;
 }
 
-.pattu-btn.submit-btn {
-  flex: 0.65;
-  background: var(--accent);
-  color: #fff;
+.pattu-remaining-text .rem-count {
+  color: #22c55e;
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
-.pattu-btn.submit-btn:hover {
-  filter: brightness(1.1);
-}
-
-/* History Rows */
-.pattu-history {
+/* Previous Guesses List */
+.pattu-guess-history {
   width: 100%;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin-top: 4px;
 }
 
-.pattu-guess-row {
-  width: 100%;
-  height: 28px;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid var(--border);
+.pattu-hist-card {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  font-size: 0.78rem;
-  font-weight: 600;
   gap: 8px;
-  box-sizing: border-box;
-  color: var(--fg-muted);
 }
 
-.pattu-guess-row.correct {
-  border-color: #22c55e;
-  background: rgba(34, 197, 94, 0.18);
-  color: #22c55e;
+.pattu-hist-card.wrong {
+  background: rgba(220, 38, 38, 0.2);
+  border: 1px solid #dc2626;
+  color: #fca5a5;
 }
 
-.pattu-guess-row.wrong {
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.18);
-  color: #ef4444;
+.pattu-hist-card.correct {
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid #22c55e;
+  color: #86efac;
 }
 
-.pattu-guess-row.skipped {
-  border-color: #f59e0b;
-  background: rgba(245, 158, 11, 0.18);
-  color: #f59e0b;
+.pattu-hist-card.skipped {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid #f59e0b;
+  color: #fde68a;
 }
 
-/* Result Banner */
-.pattu-result-banner {
+/* Result Card */
+.pattu-result-card {
   width: 100%;
-  padding: 10px;
-  border-radius: 10px;
-  background: var(--surface);
-  border: 1.5px solid var(--accent);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  max-width: 440px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #18181b;
+  border: 1.5px solid #22c55e;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   box-sizing: border-box;
 }
 
 .pattu-result-title {
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   font-weight: 800;
-  color: var(--accent);
+  color: #22c55e;
 }
 
 .pattu-result-movie {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 800;
-  color: var(--fg);
+  color: #ffffff;
+}
+
+.pattu-result-sub {
+  font-size: 0.78rem;
+  color: #a1a1aa;
+}
+
+.pattu-result-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Modals */
+.pattu-modal-box {
+  max-width: 420px;
+  width: 90%;
+  padding: 20px;
+  border-radius: 12px;
+  background: #0f172a !important;
+  border: 1.5px solid #334155 !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85) !important;
+  color: #ffffff;
+}
+
+.pattu-modal-body {
+  margin: 12px 0 16px 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+  text-align: left;
+}
+
+.pattu-modal-body p {
+  margin: 6px 0;
+}
+
+.pattu-tt-input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.pattu-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.pattu-stats-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.pattu-stat-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pattu-stat-col b {
+  font-size: 1.3rem;
+  color: #22c55e;
+}
+
+.pattu-stat-col span {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.pattu-distribution-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.pattu-dist-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.pattu-dist-bar {
+  height: 18px;
+  background: #334155;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6px;
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.75rem;
+  min-width: 20px;
+}
+
+.pattu-dist-bar.highlight {
+  background: #22c55e;
 }
 
 /* ==========================================================================

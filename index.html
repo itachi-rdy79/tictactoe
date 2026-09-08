@@ -268,74 +268,150 @@
           </div>
         </div>
 
-        <!-- Pattukunte Pattucheera (Tollywood Movie Guesser) Container -->
-        <div id="pattuGame" class="pattu-arena hidden">
-          <!-- Game Header / Filmstrip Info -->
-          <div class="pattu-header">
-            <div class="pattu-meta-badge">
-              <span class="pattu-icon">🎬</span>
-              <span id="pattuPuzzleTitle">Tollywood Frame Guesser</span>
+        <!-- Pattukunte Pattucheera (Tollywood Movie Guesser - Exact Original UI) -->
+        <div id="pattuGame" class="pattu-original-arena hidden">
+          <!-- Top Title -->
+          <h1 class="pattu-orig-title">Pattukunte Pattucheera</h1>
+
+          <!-- 3 Icon Navigation Boxes -->
+          <div class="pattu-orig-nav">
+            <!-- Stats -->
+            <div class="pattu-orig-nav-btn-wrap">
+              <button class="pattu-orig-icon-box stats-icon" id="pattuStatsBtn" type="button" title="Stats">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+              </button>
+              <span class="pattu-orig-nav-label">Stats</span>
             </div>
-            <div class="pattu-stats-pill">
-              <span id="pattuStreakPill">🔥 Streak: 0</span>
-              <button class="pattu-mode-toggle" id="pattuRandomBtn" type="button" title="Play Random Movie">🎲 Random</button>
+
+            <!-- Time Travel -->
+            <div class="pattu-orig-nav-btn-wrap">
+              <button class="pattu-orig-icon-box timetravel-icon" id="pattuTimeTravelBtn" type="button" title="Time Travel">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                  <path d="M3 3v5h5"></path>
+                  <polyline points="12 7 12 12 15 15"></polyline>
+                </svg>
+              </button>
+              <span class="pattu-orig-nav-label">Time Travel</span>
+            </div>
+
+            <!-- Instructions -->
+            <div class="pattu-orig-nav-btn-wrap">
+              <button class="pattu-orig-icon-box help-icon" id="pattuHelpBtn" type="button" title="Instructions">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </button>
+              <span class="pattu-orig-nav-label">Instructions</span>
             </div>
           </div>
 
-          <!-- Stills Viewport -->
-          <div class="pattu-viewport" id="pattuViewport">
-            <div class="pattu-film-border top-film"></div>
-            <div class="pattu-screen">
-              <img id="pattuImg" class="pattu-frame-img" alt="Movie Frame" />
-              <div id="pattuFallbackCard" class="pattu-fallback-card hidden">
-                <div class="pattu-fallback-watermark" id="pattuFallbackTag">FRAME 1 OF 5</div>
-                <div class="pattu-fallback-icon">🎥</div>
-                <div class="pattu-fallback-clue" id="pattuFallbackClue">Guess the Tollywood Blockbuster!</div>
-                <div class="pattu-fallback-sub" id="pattuFallbackSub">Clue reveals with each attempt</div>
+          <!-- Cinema Movie Still Viewport -->
+          <div class="pattu-cinema-viewport" id="pattuViewport">
+            <img id="pattuImg" class="pattu-cinema-img" alt="Telugu Movie Still" />
+            <div id="pattuFallbackCard" class="pattu-fallback-card hidden">
+              <div class="pattu-fallback-watermark" id="pattuFallbackTag">FRAME 1 OF 5</div>
+              <div class="pattu-fallback-icon">🎬</div>
+              <div class="pattu-fallback-clue" id="pattuFallbackClue">Loading Movie Frame...</div>
+              <div class="pattu-fallback-sub" id="pattuFallbackSub">Connecting to Tollywood CDN Stills</div>
+            </div>
+          </div>
+
+          <!-- Frame Buttons (1, 2, 3, 4, 5) -->
+          <div class="pattu-frame-tabs" id="pattuFramePills">
+            <button class="pattu-frame-tab active" data-frame="1" type="button">1</button>
+          </div>
+
+          <!-- Centered Red Skip Button -->
+          <div class="pattu-skip-wrap">
+            <button id="pattuSkipBtn" class="pattu-orig-skip-btn" type="button">Skip</button>
+          </div>
+
+          <!-- Movie Search Row -->
+          <div class="pattu-search-row" id="pattuSearchWrap">
+            <div class="pattu-input-box">
+              <input type="text" id="pattuInput" class="pattu-orig-input" placeholder="Enter a movie name" autocomplete="off" />
+              <div class="pattu-input-addon">
+                <span class="pattu-divider">|</span>
+                <span class="pattu-dropdown-chevron">▼</span>
               </div>
-              <div class="pattu-frame-tag" id="pattuCurrentFrameTag">Frame 1 of 5</div>
+              <button id="pattuClearBtn" class="pattu-clear-btn hidden" type="button">✕</button>
+              <div id="pattuDropdown" class="pattu-orig-dropdown hidden"></div>
             </div>
-            <div class="pattu-film-border bottom-film"></div>
+            <button id="pattuSubmitBtn" class="pattu-orig-submit-btn" type="button">submit</button>
           </div>
 
-          <!-- Frame Navigator Pills (1 to 5) -->
-          <div class="pattu-frame-pills" id="pattuFramePills">
-            <button class="pattu-pill active" data-frame="1" type="button">1</button>
-            <button class="pattu-pill locked" data-frame="2" type="button">2</button>
-            <button class="pattu-pill locked" data-frame="3" type="button">3</button>
-            <button class="pattu-pill locked" data-frame="4" type="button">4</button>
-            <button class="pattu-pill locked" data-frame="5" type="button">5</button>
+          <!-- Guesses Remaining Counter -->
+          <div class="pattu-remaining-text" id="pattuRemainingText">
+            You got <span class="rem-count" id="pattuRemainingCount">5</span> guesses remaining out of <b>5</b>.
           </div>
 
-          <!-- Guess Input & Autocomplete Search -->
-          <div class="pattu-search-wrap" id="pattuSearchWrap">
-            <div class="pattu-input-group">
-              <input type="text" id="pattuInput" class="pattu-input" placeholder="Search Telugu Movie (e.g., RRR, Pokiri)..." autocomplete="off" />
-              <button id="pattuClearBtn" class="pattu-clear-btn hidden" type="button" title="Clear">✕</button>
-              <div id="pattuDropdown" class="pattu-dropdown hidden"></div>
-            </div>
-            <div class="pattu-action-btns">
-              <button id="pattuSkipBtn" class="pattu-btn skip-btn" type="button">Skip</button>
-              <button id="pattuSubmitBtn" class="pattu-btn submit-btn" type="button">Submit</button>
-            </div>
-          </div>
+          <!-- Guess History (Previous Guesses list) -->
+          <div class="pattu-guess-history" id="pattuHistory"></div>
 
-          <!-- Guess History (5 Rows / Badges) -->
-          <div class="pattu-history" id="pattuHistory">
-            <div class="pattu-guess-row" data-index="1"><span class="pattu-row-status">⬛</span><span class="pattu-row-text">Guess 1</span></div>
-            <div class="pattu-guess-row" data-index="2"><span class="pattu-row-status">⬛</span><span class="pattu-row-text">Guess 2</span></div>
-            <div class="pattu-guess-row" data-index="3"><span class="pattu-row-status">⬛</span><span class="pattu-row-text">Guess 3</span></div>
-            <div class="pattu-guess-row" data-index="4"><span class="pattu-row-status">⬛</span><span class="pattu-row-text">Guess 4</span></div>
-            <div class="pattu-guess-row" data-index="5"><span class="pattu-row-status">⬛</span><span class="pattu-row-text">Guess 5</span></div>
-          </div>
-
-          <!-- Win / Reveal Banner -->
-          <div id="pattuResultBanner" class="pattu-result-banner hidden">
-            <div class="pattu-result-title" id="pattuResultTitle">🎉 Movie Guessed!</div>
-            <div class="pattu-result-movie" id="pattuResultMovie">Khushi</div>
+          <!-- Win / Loss Result Modal Overlay -->
+          <div id="pattuResultBanner" class="pattu-result-card hidden">
+            <div class="pattu-result-title" id="pattuResultTitle">🎉 Splendid!</div>
+            <div class="pattu-result-movie" id="pattuResultMovie">Movie Name</div>
+            <div class="pattu-result-sub" id="pattuResultSub">Day #1569</div>
             <div class="pattu-result-actions">
-              <button id="pattuNextBtn" class="pattu-btn submit-btn" type="button">Next Movie ➔</button>
+              <button id="pattuShareBtn" class="pattu-orig-submit-btn" type="button">Share Results 📋</button>
+              <button id="pattuNextBtn" class="pattu-orig-skip-btn" type="button">Next Movie ➔</button>
             </div>
+          </div>
+        </div>
+
+        <!-- Pattu Instructions Modal -->
+        <div id="pattuInstructionsModal" class="win-overlay hidden">
+          <div class="win-modal glass-island pattu-modal-box">
+            <h2>📜 How to Play</h2>
+            <div class="pattu-modal-body">
+              <p>• Guess the <b>Tollywood (Telugu)</b> movie from the 5 movie stills.</p>
+              <p>• Each incorrect guess or skip reveals the next frame from the movie.</p>
+              <p>• Use the numbered buttons below the image to toggle between unlocked frames.</p>
+              <p>• Guess in as few tries as possible and maintain your streak!</p>
+            </div>
+            <button id="closePattuHelpBtn" class="pattu-orig-submit-btn" type="button">Got it!</button>
+          </div>
+        </div>
+
+        <!-- Pattu Time Travel Modal -->
+        <div id="pattuTimeTravelModal" class="win-overlay hidden">
+          <div class="win-modal glass-island pattu-modal-box">
+            <h2>⏳ Time Travel</h2>
+            <div class="pattu-modal-body">
+              <p>Jump to any past day's puzzle from the Tollywood archives!</p>
+              <div class="pattu-tt-input-row">
+                <label for="pattuDayInput">Day Number (1 to <span id="pattuMaxDayText">1569</span>):</label>
+                <input type="number" id="pattuDayInput" class="pattu-orig-input" min="1" max="2000" value="1" />
+              </div>
+            </div>
+            <div class="pattu-modal-actions">
+              <button id="submitPattuTimeTravelBtn" class="pattu-orig-submit-btn" type="button">Travel ➔</button>
+              <button id="closePattuTimeTravelBtn" class="pattu-orig-skip-btn" type="button">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pattu Stats Modal -->
+        <div id="pattuStatsCustomModal" class="win-overlay hidden">
+          <div class="win-modal glass-island pattu-modal-box">
+            <h2>📊 Pattukunte Pattucheera Stats</h2>
+            <div class="pattu-stats-summary-grid">
+              <div class="pattu-stat-col"><b id="pattuStatPlayed">0</b><span>Played</span></div>
+              <div class="pattu-stat-col"><b id="pattuStatWinPct">0%</b><span>Win %</span></div>
+              <div class="pattu-stat-col"><b id="pattuStatStreak">0</b><span>Streak</span></div>
+              <div class="pattu-stat-col"><b id="pattuStatMaxStreak">0</b><span>Max Streak</span></div>
+            </div>
+            <h3 style="margin-top:12px; font-size:0.95rem;">GUESS DISTRIBUTION</h3>
+            <div class="pattu-distribution-chart" id="pattuDistChart"></div>
+            <button id="closePattuStatsModalBtn" class="pattu-orig-submit-btn" style="margin-top:14px;" type="button">Close</button>
           </div>
         </div>
 

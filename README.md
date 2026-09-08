@@ -134,21 +134,107 @@ A high-performance, completely offline, zero-dependency browser arcade gaming hu
 
 ---
 
+## 🛠️ DevOps & Cloud Architecture
+
+This repository is equipped with a complete, enterprise-grade 5-phase DevOps pipeline:
+
+### 1. Docker Containerization (Non-Root & Hardened)
+The container uses `nginx:1.27-alpine-slim` running as an unprivileged non-root user (`nginx`, UID 101) with embedded health checks:
+```bash
+# Build the local Docker image
+docker build -t gap-arcade:latest .
+
+# Run with Docker
+docker run -d -p 8080:8080 --name gap-arcade gap-arcade:latest
+
+# Or spin up with Docker Compose
+docker compose up -d
+
+# Verify health status
+curl -i http://localhost:8080/healthz
+```
+
+### 2. CI/CD & Security Scanning (`.github/workflows/ci.yml`)
+- **Syntax & Asset Gate**: Validates JavaScript syntax (`node --check`) and required static assets.
+- **Trivy Vulnerability Scanner**: Aqua Security Trivy audits image layers for `CRITICAL` and `HIGH` CVEs.
+- **Automated GHCR Publish**: Automatically builds and publishes multi-architecture images (`linux/amd64`, `linux/arm64`) to **GitHub Container Registry** (`ghcr.io/your-username/tictactoe:latest`) on every push to `main`.
+
+### 3. Infrastructure as Code (Terraform on AWS Free Tier)
+Deploy the gaming hub to an AWS `t2.micro` EC2 instance inside the default VPC:
+```bash
+cd infra/terraform
+
+# Initialize Terraform providers
+terraform init
+
+# Review execution plan
+terraform plan
+
+# Deploy to AWS Free Tier
+terraform apply -auto-approve
+
+# View public application URL
+terraform output application_url
+
+# Teardown when done ($0 cost)
+terraform destroy -auto-approve
+```
+
+### 4. Kubernetes Orchestration (`k8s/`)
+Deploy 3 self-healing pods with rolling updates and resource limits:
+```bash
+# Deploy to Minikube, Kind, or EKS
+kubectl apply -k k8s/
+
+# Verify rollout status
+kubectl rollout status deployment/gap-arcade-deployment
+
+# Check running pods
+kubectl get pods -l app.kubernetes.io/name=gap-arcade
+```
+
+### 5. Performance & Observability (`monitoring/`)
+- **Prometheus**: Scrapes `/healthz` metrics defined in `monitoring/prometheus.yml`.
+- **k6 Load Testing**: Stress-test the application with 50 concurrent virtual users:
+  ```bash
+  k6 run monitoring/k6-load-test.js
+  ```
+
+---
+
 ## 📁 File Structure
 
 ```text
 ├── .github/
 │   └── workflows/
-│       └── daily-sync.yml   # Daily 6 AM automated GitHub Action
+│       ├── ci.yml                 # CI/CD: Quality gates, Trivy scan, GHCR publish
+│       └── daily-sync.yml         # Daily 6 AM automated GitHub Action
+├── Dockerfile                     # Hardened non-root Nginx Alpine container (< 25MB)
+├── docker-compose.yml             # Local single-command orchestration
+├── nginx.conf                     # Custom Nginx with security headers, gzip, caching
+├── infra/
+│   └── terraform/                 # AWS Free Tier Infrastructure as Code
+│       ├── provider.tf            # AWS provider configuration
+│       ├── variables.tf           # Region, instance type (t2.micro), GHCR image
+│       ├── network.tf             # VPC, security groups (HTTP/HTTPS)
+│       ├── compute.tf             # EC2 Free Tier with cloud-init Docker install
+│       └── outputs.tf             # Public IP and accessible URL outputs
+├── k8s/                           # Declarative Kubernetes Manifests
+│   ├── deployment.yaml            # 3 replicas, rolling updates, securityContext
+│   ├── service.yaml               # Service load balancer
+│   └── kustomization.yaml         # Kustomize resource bundle
+├── monitoring/                    # Observability & Stress Testing
+│   ├── prometheus.yml             # Prometheus scraper config
+│   └── k6-load-test.js            # k6 automated load & stress test script
 ├── data/
-│   └── tollywood-movies.json # Auto-synced 1,645+ Telugu movies database
+│   └── tollywood-movies.json      # Auto-synced 1,645+ Telugu movies database
 ├── scripts/
-│   ├── sync-tollywood.js    # Node.js sync script for GitHub runner
-│   └── sync-tollywood.ps1   # PowerShell sync script for Windows
-├── index.html               # Semantic HTML5 layout & command docks
-├── style.css                # Responsive CSS styling, CSS variables & themes
-├── script.js                # Game engines, AI logic, offline dictionaries & state
-└── README.md                # Comprehensive documentation
+│   ├── sync-tollywood.js          # Node.js sync script for GitHub runner
+│   └── sync-tollywood.ps1         # PowerShell sync script for Windows
+├── index.html                     # Semantic HTML5 layout & command docks
+├── style.css                      # Responsive CSS styling, CSS variables & themes
+├── script.js                      # Game engines, AI logic, offline dictionaries & state
+└── README.md                      # Comprehensive documentation
 ```
 
 ---
