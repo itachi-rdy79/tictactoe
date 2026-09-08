@@ -270,64 +270,46 @@
 
         <!-- PC (Tollywood Movie Cinema Guesser Arena) -->
         <div id="pattuGame" class="pattu-original-arena hidden">
-          <!-- Top Title matching pic 2 & 3 -->
-          <h1 class="pattu-orig-title">Pattukunte Pattucheera</h1>
-          <div class="pattu-mode-badge-wrap">
-            <span class="pattu-mode-badge" id="pattuConnectionBadge">
-              <span class="pattu-badge-dot online" id="pattuBadgeDot"></span>
-              <span id="pattuBadgeText">Cloud Stills (Live)</span>
-            </span>
-          </div>
-
-          <!-- 3 Icon Navigation Boxes (Stats, Time Travel, Instructions) - No collision with name -->
-          <div class="pattu-orig-nav">
-            <!-- Stats -->
-            <div class="pattu-orig-nav-btn-wrap">
-              <button class="pattu-orig-icon-box stats-icon" id="pattuStatsBtn" type="button" title="Stats">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Top Header Row: Full Name in small font on left, Time Travel on top right -->
+          <div class="pattu-top-row">
+            <div class="pattu-title-group">
+              <h1 class="pattu-orig-title">Pattukunte Pattucheera</h1>
+              <span class="pattu-mode-badge" id="pattuConnectionBadge">
+                <span class="pattu-badge-dot online" id="pattuBadgeDot"></span>
+                <span id="pattuBadgeText">Cloud Stills (Live)</span>
+              </span>
+            </div>
+            <div class="pattu-top-nav-actions">
+              <button class="pattu-mini-nav-btn stats-icon" id="pattuStatsBtn" type="button" title="Stats">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="20" x2="18" y2="10"></line>
                   <line x1="12" y1="20" x2="12" y2="4"></line>
                   <line x1="6" y1="20" x2="6" y2="14"></line>
                 </svg>
+                <span>Stats</span>
               </button>
-              <span class="pattu-orig-nav-label">Stats</span>
-            </div>
-
-            <!-- Time Travel -->
-            <div class="pattu-orig-nav-btn-wrap">
-              <button class="pattu-orig-icon-box timetravel-icon" id="pattuTimeTravelBtn" type="button" title="Time Travel">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <button class="pattu-mini-nav-btn timetravel-icon" id="pattuTimeTravelBtn" type="button" title="Time Travel (Play Past Dates)">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
                   <path d="M3 3v5h5"></path>
                   <polyline points="12 7 12 12 15 15"></polyline>
                 </svg>
+                <span>Time Travel</span>
               </button>
-              <span class="pattu-orig-nav-label">Time Travel</span>
-            </div>
-
-            <!-- Instructions -->
-            <div class="pattu-orig-nav-btn-wrap">
-              <button class="pattu-orig-icon-box help-icon" id="pattuHelpBtn" type="button" title="Instructions">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <button class="pattu-mini-nav-btn help-icon" id="pattuHelpBtn" type="button" title="Instructions">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="10"></circle>
                   <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                   <line x1="12" y1="17" x2="12.01" y2="17"></line>
                 </svg>
               </button>
-              <span class="pattu-orig-nav-label">Instructions</span>
             </div>
           </div>
 
-          <!-- Cinema Movie Still Viewport -->
+          <!-- Cinema Movie Still Viewport (No attempt overlay or buffer circle) -->
           <div class="pattu-cinema-viewport pc-viewport" id="pattuViewport">
             <img id="pattuImg" class="pattu-cinema-img" alt="Telugu Movie Still" />
             
-            <!-- Attempt Indicator Overlay in center of viewport -->
-            <div class="pc-attempt-overlay" id="pcAttemptOverlay">
-              <div class="pc-spinner-ring"></div>
-              <div class="pc-attempt-label">Attempt <span id="pcAttemptNum">1/5</span></div>
-            </div>
-
             <!-- Fallback Card -->
             <div id="pattuFallbackCard" class="pattu-fallback-card hidden">
               <div class="pattu-fallback-watermark" id="pattuFallbackTag">FRAME 1 OF 5</div>
@@ -337,13 +319,43 @@
             </div>
           </div>
 
-          <!-- Frame Buttons [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] (No lock of steps!) -->
-          <div class="pattu-frame-tabs" id="pattuFramePills">
-            <button class="pattu-frame-tab active" data-frame="1" type="button">1</button>
-            <button class="pattu-frame-tab" data-frame="2" type="button">2</button>
-            <button class="pattu-frame-tab" data-frame="3" type="button">3</button>
-            <button class="pattu-frame-tab" data-frame="4" type="button">4</button>
-            <button class="pattu-frame-tab" data-frame="5" type="button">5</button>
+          <!-- Step Cards Grid (Look like second pic: Step 1 Active, Step 2..5, all clickable!) -->
+          <div class="pc-step-cards-grid" id="pattuFramePills">
+            <button class="pc-step-card active" data-frame="1" type="button">
+              <div class="pc-step-left"><span class="pc-radio-icon"><span class="pc-radio-dot"></span></span></div>
+              <div class="pc-step-info">
+                <span class="pc-step-num">Step 1</span>
+                <span class="pc-step-status">Active</span>
+              </div>
+            </button>
+            <button class="pc-step-card" data-frame="2" type="button">
+              <div class="pc-step-left"><span class="pc-step-idle-dot"></span></div>
+              <div class="pc-step-info">
+                <span class="pc-step-num">Step 2</span>
+                <span class="pc-step-status">Ready</span>
+              </div>
+            </button>
+            <button class="pc-step-card" data-frame="3" type="button">
+              <div class="pc-step-left"><span class="pc-step-idle-dot"></span></div>
+              <div class="pc-step-info">
+                <span class="pc-step-num">Step 3</span>
+                <span class="pc-step-status">Ready</span>
+              </div>
+            </button>
+            <button class="pc-step-card" data-frame="4" type="button">
+              <div class="pc-step-left"><span class="pc-step-idle-dot"></span></div>
+              <div class="pc-step-info">
+                <span class="pc-step-num">Step 4</span>
+                <span class="pc-step-status">Ready</span>
+              </div>
+            </button>
+            <button class="pc-step-card" data-frame="5" type="button">
+              <div class="pc-step-left"><span class="pc-step-idle-dot"></span></div>
+              <div class="pc-step-info">
+                <span class="pc-step-num">Step 5</span>
+                <span class="pc-step-status">Ready</span>
+              </div>
+            </button>
           </div>
 
           <!-- Centered Red Skip Button (exact pic 2 & 3 style) -->
@@ -360,7 +372,7 @@
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
               </span>
-              <input type="text" id="pattuInput" class="pc-movie-input" placeholder="Enter a movie name" autocomplete="off" />
+              <input type="text" id="pattuInput" class="pc-movie-input" placeholder="GUESS THE MOVIE TITLE..." autocomplete="off" />
               <button id="pattuClearBtn" class="pattu-clear-btn hidden" type="button" aria-label="Clear">✕</button>
               <button id="pattuSubmitBtn" class="pc-submit-pill-btn" type="button">SUBMIT ❯</button>
             </div>
@@ -552,6 +564,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=20.0"></script>
+  <script src="script.js?v=21.0"></script>
 </body>
 </html>

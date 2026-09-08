@@ -3018,47 +3018,50 @@ function initPattu(targetDay = null) {
 }
 
 function renderPattuUI() {
-  // 1. Frame Tabs: 5 step tabs showing ❌ for skipped/wrong, ✅ for correct, clean numbers without locks
-  const maxRevealed = pattuOver ? 5 : pattuAttempt;
-  const pcAttemptNumEl = document.getElementById("pcAttemptNum");
-  if (pcAttemptNumEl) {
-    pcAttemptNumEl.textContent = `${pattuActiveFrame || pattuAttempt}/5`;
-  }
-
+  // 1. Step Cards (Step 1 Active, Step 2..5, all freely navigable matching second pic)
   if (pattuFramePillsEl) {
-    let tabsHtml = "";
+    let cardsHtml = "";
     for (let i = 1; i <= 5; i++) {
-      const isRevealed = i <= maxRevealed;
       const isActive = (i === pattuActiveFrame);
       const guess = pattuGuesses[i - 1];
-      let tabClass = "pattu-frame-tab";
-      let tabContent = `${i}`;
-      let tabTitle = `Frame ${i}`;
+      let cardClass = "pc-step-card";
+      let statusText = "Ready";
+      let iconHtml = `<span class="pc-step-idle-dot"></span>`;
 
       if (guess) {
         if (guess.status === "skipped") {
-          tabClass += " wrong";
-          tabContent = "❌";
-          tabTitle = `Step ${i}: Skipped`;
+          cardClass += " wrong";
+          statusText = "Skipped";
+          iconHtml = `<span class="pc-step-icon">❌</span>`;
         } else if (guess.status === "wrong") {
-          tabClass += " wrong";
-          tabContent = "❌";
-          tabTitle = `Step ${i}: Guessed "${guess.text}"`;
+          cardClass += " wrong";
+          statusText = "Wrong";
+          iconHtml = `<span class="pc-step-icon">❌</span>`;
         } else if (guess.status === "correct") {
-          tabClass += " correct";
-          tabContent = "✅";
-          tabTitle = `Step ${i}: Correct! ("${guess.text}")`;
+          cardClass += " correct";
+          statusText = "Correct";
+          iconHtml = `<span class="pc-step-icon">✅</span>`;
         }
-      } else if (!isRevealed) {
-        tabClass += " unrevealed";
-        tabContent = `${i}`;
-        tabTitle = `Frame ${i}`;
+      } else if (isActive) {
+        statusText = "Active";
+        iconHtml = `<span class="pc-radio-icon"><span class="pc-radio-dot"></span></span>`;
       }
 
-      if (isActive) tabClass += " active";
-      tabsHtml += `<button class="${tabClass}" data-frame="${i}" type="button" title="${tabTitle}">${tabContent}</button>`;
+      if (isActive) {
+        cardClass += " active";
+        if (!guess) statusText = "Active";
+      }
+
+      cardsHtml += `
+        <button class="${cardClass}" data-frame="${i}" type="button" title="View Frame ${i}">
+          <div class="pc-step-left">${iconHtml}</div>
+          <div class="pc-step-info">
+            <span class="pc-step-num">Step ${i}</span>
+            <span class="pc-step-status">${statusText}</span>
+          </div>
+        </button>`;
     }
-    pattuFramePillsEl.innerHTML = tabsHtml;
+    pattuFramePillsEl.innerHTML = cardsHtml;
   }
 
   // 2. Skip Button
@@ -3170,14 +3173,24 @@ window.addEventListener("offline", () => {
 function renderPattuFrame(frameNum) {
   pattuActiveFrame = frameNum;
 
-  // Highlight active tab/step card and attempt counter
-  const pcAttemptNumEl = document.getElementById("pcAttemptNum");
-  if (pcAttemptNumEl) {
-    pcAttemptNumEl.textContent = `${frameNum}/5`;
-  }
+  // Highlight active step card and update label
   pattuFramePillsEl?.querySelectorAll(".pc-step-card, .pattu-frame-tab").forEach(tab => {
-    tab.classList.toggle("viewing-active", Number(tab.dataset.frame) === frameNum);
-    tab.classList.toggle("active", Number(tab.dataset.frame) === frameNum);
+    const f = Number(tab.dataset.frame);
+    const isThis = (f === frameNum);
+    tab.classList.toggle("active", isThis);
+    tab.classList.toggle("viewing-active", isThis);
+
+    const guess = pattuGuesses[f - 1];
+    const statusEl = tab.querySelector(".pc-step-status");
+    const leftEl = tab.querySelector(".pc-step-left");
+    if (statusEl && !guess) {
+      statusEl.textContent = isThis ? "Active" : "Ready";
+      if (leftEl) {
+        leftEl.innerHTML = isThis
+          ? `<span class="pc-radio-icon"><span class="pc-radio-dot"></span></span>`
+          : `<span class="pc-step-idle-dot"></span>`;
+      }
+    }
   });
 
   const todayDay = getPattuDayCount();
@@ -3454,13 +3467,12 @@ pattuClearBtn?.addEventListener("click", () => {
 pattuSubmitBtn?.addEventListener("click", () => submitPattuGuess());
 pattuSkipBtn?.addEventListener("click", () => skipPattuAttempt());
 
-// Frame navigation buttons delegation (Step cards)
+// Frame navigation buttons delegation (Step cards: all steps 1..5 freely navigable)
 pattuFramePillsEl?.addEventListener("click", (e) => {
   const tab = e.target.closest(".pc-step-card, .pattu-frame-tab");
   if (!tab) return;
   const f = Number(tab.dataset.frame);
-  const maxRevealed = pattuOver ? 5 : pattuAttempt;
-  if (f >= 1 && f <= maxRevealed) {
+  if (f >= 1 && f <= 5) {
     renderPattuFrame(f);
   }
 });

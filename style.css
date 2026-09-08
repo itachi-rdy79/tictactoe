@@ -1405,22 +1405,23 @@ body[data-theme="itachi"] .poker-card.back {
    ========================================================================== */
 
 .arena.pattu-arena-mode {
-  height: auto !important;
-  min-height: calc(100vh - 100px) !important;
-  max-height: calc(100vh - 75px) !important;
-  justify-content: flex-start !important;
+  height: calc(100vh - 110px) !important;
+  max-height: calc(100vh - 90px) !important;
+  min-height: auto !important;
+  justify-content: center !important;
+  align-items: center !important;
   overflow-y: auto !important;
-  padding: 24px 0 32px 0 !important;
+  padding: 4px 0 !important;
   scrollbar-width: thin;
 }
 
 .pattu-original-arena {
   width: 100%;
-  max-width: 450px;
+  max-width: 460px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -1432,22 +1433,22 @@ body[data-theme="itachi"] .poker-card.back {
 
 .board-shell.pattu-mode {
   position: relative !important;
-  width: min(94vw, 520px) !important;
-  max-width: 520px !important;
+  width: min(95vw, 470px) !important;
+  max-width: 470px !important;
   height: auto !important;
   aspect-ratio: auto !important;
-  padding: 20px 22px 24px 22px !important;
-  background: rgba(14, 20, 35, 0.92) !important;
+  padding: 10px 14px 12px 14px !important;
+  background: rgba(14, 20, 35, 0.94) !important;
   backdrop-filter: blur(28px) !important;
   -webkit-backdrop-filter: blur(28px) !important;
-  border-radius: 24px !important;
+  border-radius: 18px !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   /* Dual Neon Rim Glow: Red left edge, Blue right edge */
   box-shadow:
-    -26px 0 65px -8px rgba(239, 68, 68, 0.44),
-    26px 0 65px -8px rgba(14, 165, 233, 0.48),
-    0 24px 60px rgba(0, 0, 0, 0.85) !important;
-  margin: 10px auto 20px auto !important;
+    -18px 0 45px -6px rgba(239, 68, 68, 0.38),
+    18px 0 45px -6px rgba(14, 165, 233, 0.42),
+    0 18px 45px rgba(0, 0, 0, 0.85) !important;
+  margin: 0 auto !important;
   overflow: visible !important;
 }
 
@@ -1456,9 +1457,9 @@ body[data-theme="itachi"] .poker-card.back {
   content: "";
   position: absolute;
   inset: -1.5px;
-  border-radius: 25px;
+  border-radius: 19px;
   padding: 1.5px;
-  background: linear-gradient(90deg, rgba(239, 68, 68, 0.95) 0%, rgba(239, 68, 68, 0.12) 28%, rgba(14, 165, 233, 0.12) 72%, rgba(14, 165, 233, 0.95) 100%);
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.95) 0%, rgba(239, 68, 68, 0.1) 28%, rgba(14, 165, 233, 0.1) 72%, rgba(14, 165, 233, 0.95) 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -1474,40 +1475,53 @@ body[data-theme="itachi"] .poker-card.back {
   z-index: 2;
 }
 
-/* Title & Subtitle Badge matching pic 2 & 3 */
-.pattu-orig-title {
-  font-size: clamp(1.4rem, 4vmin, 1.75rem);
-  font-weight: 800;
-  color: #ffffff;
-  text-align: center;
-  margin: 0 0 6px 0;
-  letter-spacing: -0.3px;
-  font-family: inherit;
+/* Top Header Row: Full Name in small font on left, Time Travel on top right */
+.pattu-top-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: nowrap;
 }
 
-.pattu-mode-badge-wrap {
+.pattu-title-group {
   display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.pattu-orig-title {
+  font-size: 0.95rem !important; /* full name in small font as requested */
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  margin: 0 !important;
+  letter-spacing: -0.1px;
+  font-family: inherit;
+  white-space: nowrap;
 }
 
 .pattu-mode-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
+  gap: 4px;
+  padding: 1px 6px;
   border-radius: 9999px;
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 600;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #94a3b8;
   letter-spacing: 0.3px;
+  flex-shrink: 0;
 }
 
 .pattu-badge-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -1517,82 +1531,81 @@ body[data-theme="itachi"] .poker-card.back {
   box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
 }
 
-/* 3 Navigation Boxes: Stats, Time Travel, Instructions (No collision with name) */
-.pattu-orig-nav {
+/* Top Nav Actions (Stats, Time Travel, Instructions) */
+.pattu-top-nav-actions {
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 14px;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
-.pattu-orig-nav-btn-wrap {
-  display: flex;
-  flex-direction: column;
+.pattu-mini-nav-btn {
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-}
-
-.pattu-orig-icon-box {
-  width: 44px;
-  height: 38px;
-  border-radius: 8px;
-  border: 2px solid #334155;
-  background: rgba(255, 255, 255, 0.04);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 3px 6px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #334155;
+  color: #cbd5e1;
   cursor: pointer;
-  transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
+  transition: all 0.15s ease;
+  user-select: none;
 }
 
-.pattu-orig-icon-box.stats-icon {
-  border-color: #f87171;
+.pattu-mini-nav-btn.stats-icon {
+  border-color: rgba(248, 113, 113, 0.5);
   color: #f87171;
 }
-.pattu-orig-icon-box.stats-icon:hover {
-  box-shadow: 0 0 12px rgba(248, 113, 113, 0.5);
-  transform: translateY(-2px);
+.pattu-mini-nav-btn.stats-icon:hover {
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
+  transform: translateY(-1px);
 }
 
-.pattu-orig-icon-box.timetravel-icon {
-  border-color: #22c55e;
-  color: #22c55e;
+.pattu-mini-nav-btn.timetravel-icon {
+  border-radius: 9999px;
+  border: 1.5px solid #0ea5e9;
+  color: #38bdf8;
+  background: rgba(14, 165, 233, 0.12);
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.35);
+  padding: 3px 10px;
+  font-weight: 700;
+  font-size: 0.74rem;
+  white-space: nowrap;
 }
-.pattu-orig-icon-box.timetravel-icon:hover {
-  box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
-  transform: translateY(-2px);
+.pattu-mini-nav-btn.timetravel-icon:hover {
+  background: rgba(14, 165, 233, 0.22);
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.65);
+  transform: translateY(-1px);
 }
 
-.pattu-orig-icon-box.help-icon {
-  border-color: #60a5fa;
+.pattu-mini-nav-btn.help-icon {
+  border-color: rgba(96, 165, 250, 0.5);
   color: #60a5fa;
 }
-.pattu-orig-icon-box.help-icon:hover {
-  box-shadow: 0 0 12px rgba(96, 165, 250, 0.5);
-  transform: translateY(-2px);
+.pattu-mini-nav-btn.help-icon:hover {
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+  transform: translateY(-1px);
 }
 
-.pattu-orig-nav-label {
-  font-size: 0.72rem;
-  color: #cbd5e1;
-  font-weight: 500;
-}
-
-/* Cinema Viewport (Real Movie Image Stage) */
+/* Cinema Viewport (Real Movie Image Stage - No Overlays) */
 .pattu-cinema-viewport.pc-viewport {
   width: 100%;
   max-width: 100%;
   aspect-ratio: 16 / 9;
-  height: clamp(180px, 30vh, 240px);
+  height: clamp(130px, 22vh, 175px);
   background: #000000;
-  border-radius: 14px;
+  border-radius: 12px;
   overflow: hidden;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -1607,41 +1620,6 @@ body[data-theme="itachi"] .poker-card.back {
   margin: 0 auto;
 }
 
-/* Attempt Overlay in Center of Viewport */
-.pc-attempt-overlay {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  pointer-events: none;
-  z-index: 2;
-  opacity: 0.85;
-  transition: opacity 0.3s ease;
-}
-
-.pc-spinner-ring {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 3.5px solid rgba(255, 255, 255, 0.15);
-  border-top-color: #cbd5e1;
-  animation: pcRingSpin 1.8s linear infinite;
-}
-
-@keyframes pcRingSpin {
-  to { transform: rotate(360deg); }
-}
-
-.pc-attempt-label {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #f8fafc;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
-  letter-spacing: 0.5px;
-}
-
 /* Fallback Card */
 .pattu-fallback-card {
   width: 100%;
@@ -1650,7 +1628,7 @@ body[data-theme="itachi"] .poker-card.back {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 10px;
   box-sizing: border-box;
   text-align: center;
   background: radial-gradient(circle at center, rgba(14, 165, 233, 0.12) 0%, #090d16 80%);
@@ -1661,19 +1639,19 @@ body[data-theme="itachi"] .poker-card.back {
   font-weight: 800;
   letter-spacing: 2px;
   color: #38bdf8;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .pattu-fallback-icon {
-  font-size: 1.8rem;
-  margin-bottom: 4px;
+  font-size: 1.6rem;
+  margin-bottom: 2px;
 }
 
 .pattu-fallback-clue {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .pattu-fallback-sub {
@@ -1681,29 +1659,154 @@ body[data-theme="itachi"] .poker-card.back {
   color: #94a3b8;
 }
 
-/* Frame Tabs [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] (No lock of steps!) */
+/* Step Cards Grid (Exact second pic style media_1788900783988.png) */
+.pc-step-cards-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  margin: 6px 0 4px 0;
+}
+
+.pc-step-card {
+  height: 38px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.pc-step-card:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.pc-step-card.active {
+  background: rgba(239, 68, 68, 0.14) !important;
+  border: 1.5px solid #ef4444 !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.35) !important;
+}
+
+.pc-step-card.wrong {
+  background: rgba(220, 38, 38, 0.18) !important;
+  border: 1px solid #ef4444 !important;
+}
+
+.pc-step-card.correct {
+  background: rgba(34, 197, 94, 0.18) !important;
+  border: 1.5px solid #22c55e !important;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.35) !important;
+}
+
+.pc-step-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pc-radio-icon {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pc-radio-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 4px #ef4444;
+}
+
+.pc-step-idle-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #475569;
+}
+
+.pc-step-icon {
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.pc-step-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  line-height: 1.1;
+  overflow: hidden;
+}
+
+.pc-step-num {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+}
+
+.pc-step-card.active .pc-step-num {
+  color: #ffffff;
+}
+
+.pc-step-status {
+  font-size: 0.58rem;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.pc-step-card.active .pc-step-status {
+  color: #fca5a5;
+}
+
+.pc-step-card.wrong .pc-step-status {
+  color: #ef4444;
+}
+
+.pc-step-card.correct .pc-step-status {
+  color: #4ade80;
+}
+
+/* Fallback / original tabs support */
 .pattu-frame-tabs {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-  margin: 12px 0 6px 0;
+  gap: 6px;
+  margin: 6px 0 4px 0;
 }
 
 .pattu-frame-tab {
-  min-width: 38px;
-  height: 34px;
-  border-radius: 6px;
+  min-width: 34px;
+  height: 30px;
+  border-radius: 5px;
   background: #1e293b;
   color: #cbd5e1;
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   border: 1.5px solid rgba(255, 255, 255, 0.12);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.18s ease;
+  transition: all 0.15s ease;
   user-select: none;
 }
 
@@ -1716,29 +1819,29 @@ body[data-theme="itachi"] .poker-card.back {
   background: #334155;
   border-color: #38bdf8;
   color: #ffffff;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
 }
 
 .pattu-frame-tab.wrong {
-  background: rgba(220, 38, 38, 0.28);
+  background: rgba(220, 38, 38, 0.3);
   border-color: #ef4444;
   color: #fca5a5;
 }
 .pattu-frame-tab.wrong.active {
-  background: rgba(220, 38, 38, 0.55);
+  background: rgba(220, 38, 38, 0.6);
   border-color: #f87171;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
 }
 
 .pattu-frame-tab.correct {
-  background: rgba(34, 197, 94, 0.28);
+  background: rgba(34, 197, 94, 0.3);
   border-color: #22c55e;
   color: #86efac;
 }
 .pattu-frame-tab.correct.active {
-  background: rgba(34, 197, 94, 0.55);
+  background: rgba(34, 197, 94, 0.6);
   border-color: #4ade80;
-  box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
 }
 
 .pattu-frame-tab.unrevealed {
@@ -1747,56 +1850,60 @@ body[data-theme="itachi"] .poker-card.back {
   color: #4b5563;
 }
 
-/* Centered Red Skip Button (Exact pic 2 & 3 style) */
+/* Centered Red Skip Button */
 .pattu-skip-wrap {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin: 4px 0 10px 0;
+  margin: 2px 0 5px 0;
 }
 
 .pattu-orig-skip-btn {
   background: #dc2626 !important;
   color: #ffffff !important;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   border-radius: 6px;
-  border: 1.5px solid #ef4444;
-  padding: 5px 22px;
+  border: 1px solid #ef4444;
+  padding: 3px 18px;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
   transition: all 0.15s ease;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pattu-orig-skip-btn:hover {
   background: #b91c1c !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.65);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.6);
 }
 
 /* Search Pill Wrap & Inner */
 .pc-search-pill-wrap {
   width: 100%;
   position: relative;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .pc-search-pill-inner {
   width: 100%;
-  height: 46px;
+  height: 40px;
   background: rgba(22, 30, 49, 0.78);
   border: 1.5px solid rgba(255, 255, 255, 0.12);
-  border-radius: 23px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
-  padding: 3px 5px 3px 14px;
+  padding: 2px 4px 2px 12px;
   box-sizing: border-box;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .pc-search-pill-inner:focus-within {
   border-color: #38bdf8;
-  box-shadow: 0 0 18px rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
   background: rgba(22, 30, 49, 0.95);
 }
 
@@ -1816,42 +1923,42 @@ body[data-theme="itachi"] .poker-card.back {
   border: none;
   outline: none;
   color: #ffffff;
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   font-weight: 500;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   min-width: 0;
 }
 
 .pc-movie-input::placeholder {
   color: #64748b;
   font-weight: 600;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   letter-spacing: 0.8px;
 }
 
 .pc-submit-pill-btn {
-  height: 38px;
-  padding: 0 18px;
-  border-radius: 19px;
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 16px;
   background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
   color: #ffffff !important;
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 800;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+  gap: 3px;
+  box-shadow: 0 3px 12px rgba(37, 99, 235, 0.45);
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .pc-submit-pill-btn:hover {
   background: linear-gradient(135deg, #0369a1 0%, #1d4ed8 100%);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.65);
+  box-shadow: 0 5px 16px rgba(37, 99, 235, 0.65);
   transform: scale(1.02);
 }
 
