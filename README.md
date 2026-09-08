@@ -74,63 +74,58 @@ A high-performance, completely offline, zero-dependency browser arcade gaming hu
   - Game of Thrones: Iron Bank dragon coins and Stark/Targaryen card backs.
   - Itachi: Sharingan betting coins and Tsukuyomi crimson card backs.
 
-### 5. The Imposter (Single-Device Pass & Play Mystery Game)
-- **Social Deduction for 3 to 8 Players**:
-  - Pass-and-play party game inspired by *Spyfall* and *The Chameleon*.
-- **Four Offline Word Packs**:
-  - *World Locations*: Airport, Casino, Hospital, Pirate Ship, Space Station, Submarine, Circus Tent...
-  - *Naruto Shinobi World*: Hidden Leaf Village, Valley of the End, Akatsuki Hideout, Chunin Exams Arena...
-  - *Game of Thrones*: Winterfell, King's Landing, The Wall, Dragonstone, Braavos, Sunspear...
-  - *Everyday Objects*: Smartphone, Bicycle, Umbrella, Acoustic Guitar, Wristwatch, Laptop...
-- **Privacy Curtain Mechanism**:
-  - Touch-and-hold interactive curtain reveals the secret word to Innocents or displays *"YOU ARE THE IMPOSTER"*. Releasing hides the screen immediately before handing to the next player.
-- **Investigation & Accusation Phases**:
-  - 3-minute visual countdown timer with rotating conversational prompt suggestions.
-  - Voting round to accuse the suspected Imposter.
-  - **Last Chance Guess**: If caught, the Imposter gets one shot to guess the secret word from a 8-item grid to steal the victory!
+### 5. Pattukunte Pattucheera (Tollywood Movie Guesser)
+- **100% Offline Tollywood Movie Framed / Wordle Experience**:
+  - Guess the secret Telugu movie in 5 attempts based on sequential movie frame stills and cinematic clues.
+  - **350+ Embedded Telugu Movie Catalog + 1,645+ Extended Database**:
+    - Includes blockbusters (*RRR*, *Pushpa*, *Kalki 2898 AD*, *Baahubali*, *Ala Vaikunthapurramuloo*, *Magadheera*, *Pokiri*, *Athadu*, *Khushi*, *Jersey*, *DJ Tillu*, *Hi Nanna*, *Mathu Vadalara*, etc.).
+    - Fast, responsive fuzzy autocomplete dropdown with keyboard navigation (`ArrowUp`, `ArrowDown`, `Enter`, `Escape`).
+  - **Dynamic Stills & Stylized Offline Clues**:
+    - When online: connects directly to upstream stills CDN mirrors.
+    - When offline: automatically falls back to rich cinematic clue cards (opening scenes, character dynamics, iconic dialogues, directors, and songs) so you can play anywhere without Wi-Fi.
+  - **Game Modes**:
+    - *Daily Puzzle*: Deterministic daily puzzle synchronized with UTC day count.
+    - *Random Mode (`🎲 Random`)*: Instant infinite play across any movie in the library.
+  - **Stats & Streaks**: Win celebration with confetti, current streak, max streak, and detailed guess histories (🟩 Correct, 🟥 Incorrect, ⏭️ Skipped).
+
+---
+
+## 🤖 Automated Daily GitHub Action (6:00 AM)
+
+- **Workflow**: [`.github/workflows/daily-sync.yml`](file:///.github/workflows/daily-sync.yml)
+- **Scheduled Cron**: `0 6 * * *` (Every day at 06:00 UTC / 11:30 AM IST) + `workflow_dispatch` for instant manual runs.
+- **Automated Sync**:
+  - Automatically fetches the latest additions, corrections, and missing movies from `santoshimz/pattukunte-pattucheera`.
+  - Cleans, deduplicates, and sorts the database into `data/tollywood-movies.json`.
+  - Commits with `github-actions[bot]` and pushes directly to `main` with zero manual intervention required.
 
 ---
 
 ## 🎨 Design, Theming & Vector Branding
 
-- **Konohagakure Flame Vector Branding**:
-  - Glowing Leaf Village spiral flame emblem integrated into the top command island and inline SVG page favicon.
 - **Themes**:
   - **Light**: Crisp glass panels paired with soft pastel background tint matching the active reload color.
   - **Dark**: Deep true black (`#000000`) canvas with glowing neon buttons and borders.
   - **Itachi Theme**: Blood-red SVG moon with rotating Sharingan blades, silhouette crows, crimson markers, and Tsukuyomi victory screens.
-  - **Naruto Theme ("Will of Fire")**:
-    - Radiant fiery orange (`#ea580c`) & electric cyan Rasengan styling.
-    - Custom Kurama flame backdrop with central Konoha spiral leaf vector art.
-    - **Chess Pieces**: Sky-blue chakra white pieces with cyan auras (`#0284c7`) and crimson cloak rogue black pieces (`#e11d48`).
-    - **Captured Piece Trays**: Dynamic headers for **"Konoha Shinobi"** and **"Akatsuki Rogue"** with glowing 3D chips.
-    - **Tic-Tac-Toe**: Thematic inline SVG marks — **Konoha Leaf** (`X`) vs **Akatsuki Cloud** (`O`).
-  - **Game of Thrones Theme ("Ice & Fire")**:
-    - Glacial permafrost blue (`#38bdf8`) & Valyrian dragonfire gold-crimson styling.
-    - Northern blizzard backdrop with Stark Direwolf and Targaryen 3-headed dragon crests.
-    - **Chess Pieces**: Stark winter frost white pieces (`#f0f9ff`) and Targaryen dragonfire crimson black pieces (`#dc2626`).
-    - **Captured Piece Trays**: Dynamic headers for **"Winterfell (Stark)"** and **"Dragonstone (Targaryen)"**.
-    - **Tic-Tac-Toe**: Thematic inline SVG marks — **Direwolf Sigil** (`X`) vs **Dragon Fire** (`O`).
-- **Dynamic Reload Palettes**:
-  - Randomly assigns one of 5 vibrant neon accent palettes on reload: **Emerald**, **Amber**, **Violet**, **Teal**, or **Lime**.
+  - **Naruto Theme ("Will of Fire")**: Radiant fiery orange (`#ea580c`) & electric cyan Rasengan styling.
+  - **Game of Thrones Theme ("Ice & Fire")**: Glacial permafrost blue (`#38bdf8`) & Valyrian dragonfire gold-crimson styling.
 - **Browser Mini-Window Mode (Pop-Out Floating App)**:
-  - Click the **Mini Window** button in the top right (next to the theme picker) to pop out the entire hub into a compact `430×720px` floating desktop window without browser toolbars or tab strips.
-  - All 6 games (TTT 3x3, TTT 5x5, Chess, Wordle, Poker, Imposter) adapt responsively with zero vertical scrolling.
-  - Live game progress seamlessly syncs between full tabs and the mini window via `localStorage`.
-  - Click "Expand to Full Tab" inside the mini window to return to full-screen view.
+  - Click the **Mini Window** button in the top right to pop out the entire hub into a compact `430×720px` floating desktop window without browser toolbars or tab strips.
+  - All games (TTT 3x3, TTT 5x5, Chess, Wordle, Poker, Pattu) adapt responsively with zero vertical scrolling.
+  - Full support for all 5 themes with floating dropdown overlays.
 
 ---
 
 ## ⌨️ Keyboard Shortcuts
 
-| Key | Action (In TTT / Chess / Poker / Imposter) | Action (In Wordle) |
+| Key | Action (In TTT / Chess / Poker / Pattu) | Action (In Wordle) |
 |---|---|---|
 | `1` | Switch to 3×3 Tic-Tac-Toe | Switch to 3×3 Tic-Tac-Toe |
 | `2` | Switch to 5×5 Tic-Tac-Toe | Switch to 5×5 Tic-Tac-Toe |
 | `3` | Switch to Chess | Switch to Chess |
 | `4` | Switch to Wordle | — |
 | `5` | Switch to Texas Hold'em Poker | Switch to Texas Hold'em Poker |
-| `6` | Switch to The Imposter | Switch to The Imposter |
+| `6` | Switch to Pattu (Tollywood) | Switch to Pattu (Tollywood) |
 | `R` | Trigger New Game / New Hand | Types letter 'R' |
 | `Z` | Undo last move (TTT / Chess) | Types letter 'Z' |
 | `A-Z` | — | Inputs letter into current tile |
@@ -142,10 +137,18 @@ A high-performance, completely offline, zero-dependency browser arcade gaming hu
 ## 📁 File Structure
 
 ```text
-├── index.html       # Semantic HTML5 layout, inline SVG flame assets & command docks
-├── style.css        # Responsive CSS styling, CSS variables, themes & 3D animations
-├── script.js        # Minimax/tactical AI, chess rules & PST, Wordle dictionary & logic
-└── README.md        # Comprehensive documentation
+├── .github/
+│   └── workflows/
+│       └── daily-sync.yml   # Daily 6 AM automated GitHub Action
+├── data/
+│   └── tollywood-movies.json # Auto-synced 1,645+ Telugu movies database
+├── scripts/
+│   ├── sync-tollywood.js    # Node.js sync script for GitHub runner
+│   └── sync-tollywood.ps1   # PowerShell sync script for Windows
+├── index.html               # Semantic HTML5 layout & command docks
+├── style.css                # Responsive CSS styling, CSS variables & themes
+├── script.js                # Game engines, AI logic, offline dictionaries & state
+└── README.md                # Comprehensive documentation
 ```
 
 ---

@@ -104,6 +104,7 @@
         <button class="seg-btn" data-game="chess" type="button" title="Shortcut: 3">Chess</button>
         <button class="seg-btn" data-game="wordle" type="button" title="Shortcut: 4">Wordle</button>
         <button class="seg-btn" data-game="poker" type="button" title="Shortcut: 5">Poker</button>
+        <button class="seg-btn" data-game="pattu" type="button" title="Shortcut: 6">Pattu</button>
       </div>
     </div>
 
@@ -267,6 +268,77 @@
           </div>
         </div>
 
+        <!-- Pattukunte Pattucheera (Tollywood Movie Guesser) Container -->
+        <div id="pattuGame" class="pattu-arena hidden">
+          <!-- Game Header / Filmstrip Info -->
+          <div class="pattu-header">
+            <div class="pattu-meta-badge">
+              <span class="pattu-icon">🎬</span>
+              <span id="pattuPuzzleTitle">Tollywood Frame Guesser</span>
+            </div>
+            <div class="pattu-stats-pill">
+              <span id="pattuStreakPill">🔥 Streak: 0</span>
+              <button class="pattu-mode-toggle" id="pattuRandomBtn" type="button" title="Play Random Movie">🎲 Random</button>
+            </div>
+          </div>
+
+          <!-- Stills Viewport -->
+          <div class="pattu-viewport" id="pattuViewport">
+            <div class="pattu-film-border top-film"></div>
+            <div class="pattu-screen">
+              <img id="pattuImg" class="pattu-frame-img" alt="Movie Frame" />
+              <div id="pattuFallbackCard" class="pattu-fallback-card hidden">
+                <div class="pattu-fallback-watermark" id="pattuFallbackTag">FRAME 1 OF 5</div>
+                <div class="pattu-fallback-icon">🎥</div>
+                <div class="pattu-fallback-clue" id="pattuFallbackClue">Guess the Tollywood Blockbuster!</div>
+                <div class="pattu-fallback-sub" id="pattuFallbackSub">Clue reveals with each attempt</div>
+              </div>
+              <div class="pattu-frame-tag" id="pattuCurrentFrameTag">Frame 1 of 5</div>
+            </div>
+            <div class="pattu-film-border bottom-film"></div>
+          </div>
+
+          <!-- Frame Navigator Pills (1 to 5) -->
+          <div class="pattu-frame-pills" id="pattuFramePills">
+            <button class="pattu-pill active" data-frame="1" type="button">1</button>
+            <button class="pattu-pill locked" data-frame="2" type="button">2</button>
+            <button class="pattu-pill locked" data-frame="3" type="button">3</button>
+            <button class="pattu-pill locked" data-frame="4" type="button">4</button>
+            <button class="pattu-pill locked" data-frame="5" type="button">5</button>
+          </div>
+
+          <!-- Guess Input & Autocomplete Search -->
+          <div class="pattu-search-wrap" id="pattuSearchWrap">
+            <div class="pattu-input-group">
+              <input type="text" id="pattuInput" class="pattu-input" placeholder="Search Telugu Movie (e.g., RRR, Pokiri)..." autocomplete="off" />
+              <button id="pattuClearBtn" class="pattu-clear-btn hidden" type="button" title="Clear">✕</button>
+              <div id="pattuDropdown" class="pattu-dropdown hidden"></div>
+            </div>
+            <div class="pattu-action-btns">
+              <button id="pattuSkipBtn" class="pattu-btn skip-btn" type="button">Skip</button>
+              <button id="pattuSubmitBtn" class="pattu-btn submit-btn" type="button">Submit</button>
+            </div>
+          </div>
+
+          <!-- Guess History (5 Rows / Badges) -->
+          <div class="pattu-history" id="pattuHistory">
+            <div class="pattu-guess-row" data-index="1"><span class="pattu-row-status">⬛</span><span class="pattu-row-text">Guess 1</span></div>
+            <div class="pattu-guess-row" data-index="2"><span class="pattu-row-status">⬛</span><span class="pattu-row-text">Guess 2</span></div>
+            <div class="pattu-guess-row" data-index="3"><span class="pattu-row-status">⬛</span><span class="pattu-row-text">Guess 3</span></div>
+            <div class="pattu-guess-row" data-index="4"><span class="pattu-row-status">⬛</span><span class="pattu-row-text">Guess 4</span></div>
+            <div class="pattu-guess-row" data-index="5"><span class="pattu-row-status">⬛</span><span class="pattu-row-text">Guess 5</span></div>
+          </div>
+
+          <!-- Win / Reveal Banner -->
+          <div id="pattuResultBanner" class="pattu-result-banner hidden">
+            <div class="pattu-result-title" id="pattuResultTitle">🎉 Movie Guessed!</div>
+            <div class="pattu-result-movie" id="pattuResultMovie">Khushi</div>
+            <div class="pattu-result-actions">
+              <button id="pattuNextBtn" class="pattu-btn submit-btn" type="button">Next Movie ➔</button>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <!-- Right Side: Black Captured -->
@@ -327,6 +399,7 @@
     <option value="wordle">Wordle</option>
     <option value="poker-ai">Poker AI</option>
     <option value="poker-2p">Poker Local</option>
+    <option value="pattu">Pattu (Tollywood)</option>
   </select>
   <select id="difficultySelect" hidden>
     <option value="easy">Easy</option>

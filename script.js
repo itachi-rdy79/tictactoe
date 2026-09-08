@@ -53,6 +53,29 @@ const pokerCallBtn = document.getElementById("pokerCallBtn");
 const pokerRaiseBtn = document.getElementById("pokerRaiseBtn");
 const pokerNextHandBtn = document.getElementById("pokerNextHandBtn");
 
+// Pattu DOM (Tollywood Movie Guesser)
+const pattuGameEl = document.getElementById("pattuGame");
+const pattuPuzzleTitleEl = document.getElementById("pattuPuzzleTitle");
+const pattuStreakPillEl = document.getElementById("pattuStreakPill");
+const pattuRandomBtn = document.getElementById("pattuRandomBtn");
+const pattuImgEl = document.getElementById("pattuImg");
+const pattuFallbackCardEl = document.getElementById("pattuFallbackCard");
+const pattuFallbackTagEl = document.getElementById("pattuFallbackTag");
+const pattuFallbackClueEl = document.getElementById("pattuFallbackClue");
+const pattuFallbackSubEl = document.getElementById("pattuFallbackSub");
+const pattuCurrentFrameTagEl = document.getElementById("pattuCurrentFrameTag");
+const pattuFramePillsEl = document.getElementById("pattuFramePills");
+const pattuInputEl = document.getElementById("pattuInput");
+const pattuClearBtn = document.getElementById("pattuClearBtn");
+const pattuDropdownEl = document.getElementById("pattuDropdown");
+const pattuSkipBtn = document.getElementById("pattuSkipBtn");
+const pattuSubmitBtn = document.getElementById("pattuSubmitBtn");
+const pattuHistoryEl = document.getElementById("pattuHistory");
+const pattuResultBannerEl = document.getElementById("pattuResultBanner");
+const pattuResultTitleEl = document.getElementById("pattuResultTitle");
+const pattuResultMovieEl = document.getElementById("pattuResultMovie");
+const pattuNextBtn = document.getElementById("pattuNextBtn");
+
 const capturedLeft = document.getElementById("capturedLeft");
 const capturedRight = document.getElementById("capturedRight");
 const whiteCapturedEl = document.getElementById("whiteCaptured");
@@ -166,6 +189,7 @@ function startIdleWatchdog() {
 /* ---------- State Management ---------- */
 function modeFromHub() {
   if (hubState.game === "wordle") return "wordle";
+  if (hubState.game === "pattu") return "pattu";
   if (hubState.game === "poker") return hubState.opponent === "ai" ? "poker-ai" : "poker-2p";
   if (hubState.game === "ttt3") return hubState.opponent === "ai" ? "ttt3-ai" : "ttt3-2p";
   if (hubState.game === "ttt5") return hubState.opponent === "ai" ? "ttt5-ai" : "ttt5-2p";
@@ -175,6 +199,11 @@ function modeFromHub() {
 function hubFromMode(mode) {
   if (mode === "wordle") {
     hubState.game = "wordle";
+    hubState.opponent = "local";
+    return;
+  }
+  if (mode === "pattu") {
+    hubState.game = "pattu";
     hubState.opponent = "local";
     return;
   }
@@ -210,7 +239,7 @@ function loadHub() {
   const raw = location.hash || "";
   if (raw.startsWith("#/")) {
     const [path, query = ""] = raw.slice(2).split("?");
-    if (["ttt3", "ttt5", "chess", "wordle", "poker"].includes(path)) hubState.game = path;
+    if (["ttt3", "ttt5", "chess", "wordle", "poker", "pattu"].includes(path)) hubState.game = path;
 
     const q = new URLSearchParams(query);
     const vs = q.get("vs");
@@ -229,14 +258,16 @@ function loadHub() {
   if (!["dark", "light", "itachi", "naruto", "got"].includes(hubState.theme)) hubState.theme = "light";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
-  if (!["ttt3", "ttt5", "chess", "wordle", "poker"].includes(hubState.game)) hubState.game = "ttt3";
+  if (!["ttt3", "ttt5", "chess", "wordle", "poker", "pattu"].includes(hubState.game)) hubState.game = "ttt3";
 
-  if (hubState.game === "wordle") hubState.opponent = "local";
+  if (hubState.game === "wordle" || hubState.game === "pattu") hubState.opponent = "local";
 }
 
 function syncHud() {
   const isWordle = hubState.game === "wordle";
-  if (isWordle) hubState.opponent = "local";
+  const isPattu = hubState.game === "pattu";
+  const isSolo = isWordle || isPattu;
+  if (isSolo) hubState.opponent = "local";
 
   setActive(gameTypePills, "game", hubState.game);
   setActive(opponentPills, "opponent", hubState.opponent);
@@ -244,13 +275,17 @@ function syncHud() {
   setActive(timerPills, "timer", hubState.timer);
 
   if (opponentGroup) {
-    if (isWordle) opponentGroup.style.setProperty("display", "none", "important");
+    if (isSolo) opponentGroup.style.setProperty("display", "none", "important");
     else opponentGroup.style.display = "flex";
   }
 
   if (difficultyGroup) {
-    difficultyGroup.style.display = "flex";
-    difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
+    if (isPattu) {
+      difficultyGroup.style.setProperty("display", "none", "important");
+    } else {
+      difficultyGroup.style.display = "flex";
+      difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
+    }
   }
 }
 
@@ -260,6 +295,7 @@ function showOnlyActiveGame(gameKey) {
   const isChess = (gameKey === "chess");
   const isWordle = (gameKey === "wordle");
   const isPoker = (gameKey === "poker");
+  const isPattu = (gameKey === "pattu");
 
   // 1. TTT Board
   if (tttBoardEl) {
@@ -305,11 +341,23 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
+  // 5. Pattu Arena
+  if (pattuGameEl) {
+    if (isPattu) {
+      pattuGameEl.classList.remove("hidden");
+      pattuGameEl.style.removeProperty("display");
+    } else {
+      pattuGameEl.classList.add("hidden");
+      pattuGameEl.style.setProperty("display", "none", "important");
+    }
+  }
+
   // Board wrap shell classes
-  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode");
+  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode", "pattu-mode");
   if (isChess) boardWrap?.classList.add("chess-mode");
   else if (isWordle) boardWrap?.classList.add("wordle-mode");
   else if (isPoker) boardWrap?.classList.add("poker-mode");
+  else if (isPattu) boardWrap?.classList.add("pattu-mode");
 
   // Sidebars (Chess only, and hidden on small / mini-window)
   const isMini = isMiniWindow();
@@ -486,7 +534,8 @@ scoreTickerBtn?.addEventListener("click", () => {
     { label: "5x5 TTT (AI)", key: "scores_ttt5-ai_medium" },
     { label: "Chess (AI)", key: "scores_chess-ai_medium" },
     { label: "Wordle", key: "scores_wordle_medium" },
-    { label: "Poker (AI)", key: "scores_poker-ai_medium" }
+    { label: "Poker (AI)", key: "scores_poker-ai_medium" },
+    { label: "Pattu (Tollywood)", key: "gap_pattu_stats" }
   ];
 
   if (!statsGridContent || !statsModal) return;
@@ -2441,6 +2490,682 @@ pokerNextHandBtn?.addEventListener("click", () => {
   startNewPokerHand();
 });
 
+/* ==========================================================================
+   Pattukunte Pattucheera (Tollywood Movie Guesser) Engine
+   ========================================================================== */
+
+// Curated offline puzzle library for classic & blockbuster Tollywood films
+const PATTU_OFFLINE_PUZZLES = [
+  {
+    movie: "Khushi",
+    year: 2001,
+    director: "S. J. Suryah",
+    hero: "Pawan Kalyan",
+    heroine: "Bhumika Chawla",
+    clues: [
+      "Opening: Two children born on the exact same day in different parts of India, connected by destiny.",
+      "College in Calcutta: Ego clashes, youthful pride, and the legendary umbrella moment.",
+      "Iconic scene: The famous midriff look altercation on temple steps with Mani Sharma BGM.",
+      "Chartbusters: 'Ammaye Sannaga', 'Cheliya Cheliya', and Pawan Kalyan's martial arts stunts.",
+      "Climax: Siddu and Madhumati reunite at their friends' wedding after a heartfelt airport chase."
+    ]
+  },
+  {
+    movie: "RRR",
+    year: 2022,
+    director: "S. S. Rajamouli",
+    hero: "NTR Jr & Ram Charan",
+    heroine: "Alia Bhatt",
+    clues: [
+      "Epic opening: A fearless warrior fighting a tiger in the deep forests of Adilabad.",
+      "Pre-interval: Animal stampede truck crash with blazing torches at the Governor's palace.",
+      "Oscar Winning Song: The earth-shattering 'Naatu Naatu' dance-off against British officers.",
+      "Dosti: Fire & Water brotherhood forged under a railway bridge rescuing a trapped boy.",
+      "Climax: Alluri Sitarama Raju wielding bow and fiery arrows atop Komaram Bheem's shoulders."
+    ]
+  },
+  {
+    movie: "Pokiri",
+    year: 2006,
+    director: "Puri Jagannadh",
+    hero: "Mahesh Babu",
+    heroine: "Ileana D'Cruz",
+    clues: [
+      "Dialogue: 'Evadu kodithe dimma thirigi mind block aypothadho, aade Pandu gaadu!'",
+      "Setting: Hyderabad underworld gang wars between Ali Bhai and Narayana.",
+      "Heroine meets hero in an elevator scene; aerobics instructor love track.",
+      "Chartbuster Songs: 'Gala Gala Paruthunna', 'Dole Dole', and 'Devuda'.",
+      "Massive Twist: Pandu is revealed to be IPS Officer Krishna Manohar undercover!"
+    ]
+  },
+  {
+    movie: "Athadu",
+    year: 2005,
+    director: "Trivikram Srinivas",
+    hero: "Mahesh Babu",
+    heroine: "Trisha",
+    clues: [
+      "Plot: A professional sniper hired for a mock assassination gets framed when the politician is actually shot.",
+      "Village backdrop: Pardhu enters an eccentric joint family in Basarlapudi claiming to be their grandson.",
+      "Subtle Romance: Puri (Trisha) constantly annoying the silent and disciplined Nandu.",
+      "Iconic dialogues and KV Guhan's bullet-time rain fight sequence at the old church.",
+      "Climax: Sadhu (Sonu Sood) faces Nandu in the snowy glass factory; 'Nijam cheppakapovadam abaddham'."
+    ]
+  },
+  {
+    movie: "Magadheera",
+    year: 2009,
+    director: "S. S. Rajamouli",
+    hero: "Ram Charan",
+    heroine: "Kajal Aggarwal",
+    clues: [
+      "Theme: 400-year-old reincarnation love story connecting 1609 AD to modern day Hyderabad.",
+      "Setting: The kingdom of Udaigarh protected by royal warriors.",
+      "Legendary Battle: 1 vs 100 soldiers fight at the Bhairavakona cliff edge.",
+      "Memorable track: 'Bangaru Kodipetta' remix and 'Panchadara Bomma'.",
+      "Climax: Harsha remembers his past life as Kala Bhairava and defeats Ranadev Billa atop the cliff."
+    ]
+  },
+  {
+    movie: "Baahubali: The Beginning",
+    year: 2015,
+    director: "S. S. Rajamouli",
+    hero: "Prabhas",
+    heroine: "Anushka Shetty & Tamannaah",
+    clues: [
+      "Opening: Queen Sivagami drowning in the river holding a baby above water with one arm.",
+      "Shivudu lifting a gigantic Shivalinga and placing it under the roaring waterfall.",
+      "Kattappa's fierce loyalty to the royal throne of Mahishmati.",
+      "War against Kalakeya: Trishula vyuhas, burning cloths launched with catapults, and Kilikili language.",
+      "The Ultimate Cliffhanger: Kattappa kneels and admits he killed Amarendra Baahubali."
+    ]
+  },
+  {
+    movie: "Ala Vaikunthapurramuloo",
+    year: 2020,
+    director: "Trivikram Srinivas",
+    hero: "Allu Arjun",
+    heroine: "Pooja Hegde",
+    clues: [
+      "Baby swap at birth by a jealous clerk Valmiki in a hospital ward.",
+      "Boardroom dance sequence featuring evergreen South Indian hits.",
+      "Global musical sensation songs composed by Thaman S: 'Butta Bomma' and 'Samajavaragamana'.",
+      "Hero's stylish yellow blazer, rolling up pants, and cigarette tucking signature mannerisms.",
+      "Climax: Bantu confronts Appala Naidu at port container yard without his real parents ever knowing the swap."
+    ]
+  },
+  {
+    movie: "Jersey",
+    year: 2019,
+    director: "Gowtam Tinnanuri",
+    hero: "Nani",
+    heroine: "Shraddha Srinath",
+    clues: [
+      "Emotional core: A former Ranji cricketer in his late 30s strives to buy an Indian team jersey for his son.",
+      "Setting: Hyderabad 1996; financial hardships, domestic tension, and raw love.",
+      "Railway station scream: Arjun vents tears of joy when selected for the state team.",
+      "Soul-stirring score by Anirudh Ravichander; 'Padhe Padhe' and 'Spirit of Jersey'.",
+      "Heartbreaking reveal: Arjun had an underlying cardiac condition but chose pride over fear."
+    ]
+  },
+  {
+    movie: "Pushpa: The Rise",
+    year: 2021,
+    director: "Sukumar",
+    hero: "Allu Arjun",
+    heroine: "Rashmika Mandanna",
+    clues: [
+      "Setting: Red Sanders smuggling in the dense Seshachalam forests of Rayalaseema.",
+      "Signature gesture: Rubbing hand under chin and saying 'Thaggedhe Le!'",
+      "Songs: 'Oo Antava Mava', 'Srivalli' tilted walk, and 'Saami Saami'.",
+      "Rise of a coolie into the supreme kingpin outsmarting the Konda Reddy brothers.",
+      "Climax: Pushparaj burns his shirt in front of SP Bhanwar Singh Shekhawat (Fahadh Faasil)."
+    ]
+  },
+  {
+    movie: "DJ Tillu",
+    year: 2022,
+    director: "Vimal Krishna",
+    hero: "Siddu Jonnalagadda",
+    heroine: "Neha Shetty",
+    clues: [
+      "Hero: A flamboyant local DJ from Hyderabad in loud floral shirts and golden rings.",
+      "Catchphrase: 'Radhikaaa!' and quirky dialogues that became instant social media pop culture.",
+      "Plot: Entangled in an accidental murder mystery on his first night with his dream girl.",
+      "Songs: The infectious wedding anthem 'Tillu Anna DJ Pedithe'.",
+      "Hospital and police interrogation scenes packed with non-stop Hyderabadi comedy."
+    ]
+  },
+  {
+    movie: "Eega",
+    year: 2012,
+    director: "S. S. Rajamouli",
+    hero: "Nani & Sudeep",
+    heroine: "Samantha",
+    clues: [
+      "Unique premise: A murdered lover reincarnates as a housefly seeking revenge on the villain.",
+      "Villain: Wealthy playboy Sudeep driven to pure madness by a persistent, buzzing insect.",
+      "Micro-workout scenes: The fly lifting toothpicks and training to be a lethal weapon.",
+      "Creative attacks: Tampering with brakes, writing in tea dust, and short-circuiting heavy machinery.",
+      "Climax: Fly sacrifices itself through needle-and-matchstick fire explosion to incinerate Sudeep."
+    ]
+  },
+  {
+    movie: "Kalki 2898 AD",
+    year: 2024,
+    director: "Nag Ashwin",
+    hero: "Prabhas, Amitabh Bachchan, Kamal Haasan",
+    heroine: "Deepika Padukone",
+    clues: [
+      "Setting: Dystopian Kasi in year 2898 AD and the mysterious floating city 'The Complex'.",
+      "Immortal guardian: Ashwatthama guarding the womb of the prophesied tenth avatar.",
+      "Bounty hunter Bhairava and his AI companion vehicle Bujji.",
+      "Mythological Mahabharata prologue during the Kurukshetra war with Sanjaya and Lord Krishna.",
+      "Climax: Bhairava picks up the divine bow Vijaya and unleashes the spirit of Karna!"
+    ]
+  },
+  {
+    movie: "Hi Nanna",
+    year: 2023,
+    director: "Shauryuv",
+    hero: "Nani",
+    heroine: "Mrunal Thakur",
+    clues: [
+      "Story: A fashion photographer father Viraj raising his six-year-old daughter Mahi with cystic fibrosis.",
+      "Plot device: Father narrates the mother's story as a fairytale without revealing the real truth.",
+      "Yashna forms an instant maternal bond with Mahi in Mumbai and Coonoor.",
+      "Emotional music by Hesham Abdul Wahab: 'Samayama' and 'Ammaadi'.",
+      "Twist: Yashna is actually Mahi's biological mother Varsha who lost her memory in an accident."
+    ]
+  },
+  {
+    movie: "Arjun Reddy",
+    year: 2017,
+    director: "Sandeep Reddy Vanga",
+    hero: "Vijay Deverakonda",
+    heroine: "Shalini Pandey",
+    clues: [
+      "Character: A brilliant house surgeon with extreme anger management issues and boundless passion.",
+      "College in Mangalore: St. Mary's medical college and football field confrontations.",
+      "Iconic pet dog 'Preethi', sunglasses, unkempt beard, and Enfield Royal ride.",
+      "Music by Radhan: 'Emitemitemo' and 'Madhuram'.",
+      "Climax: Years later in a park, Arjun meets Preethi again and learns the truth about her child."
+    ]
+  },
+  {
+    movie: "Geetha Govindam",
+    year: 2018,
+    director: "Parasuram",
+    hero: "Vijay Deverakonda",
+    heroine: "Rashmika Mandanna",
+    clues: [
+      "Inciting incident: An innocent misunderstanding and accidental selfie on an overnight RTC bus.",
+      "Hero: Vijay Govind, a traditional and polite college lecturer who dreams of an ideal family.",
+      "Complication: Geetha happens to be the bride's sister at his cousin's upcoming wedding.",
+      "Mega Chartbuster: 'Inkem Inkem Inkem Kaavaale' sung by Sid Sriram.",
+      "Climax: Geetha realizes Vijay's pure golden character when he defends her honor before relatives."
+    ]
+  },
+  {
+    movie: "Bommarillu",
+    year: 2006,
+    director: "Bhaskar",
+    hero: "Siddharth",
+    heroine: "Genelia D'Souza",
+    clues: [
+      "Theme: Overbearing paternal love and hyper-controlling father-son relationship.",
+      "Prakash Raj as Aravind: 'Nee manchike chepthunnanu Siddu'.",
+      "Genelia's bubbly character Hasini: 'Haaa... Siiiii... Niiii!'.",
+      "Classic track: 'Apudo Ipudo Epudo' and 'Oye Oye'.",
+      "Climax monologue: Siddu breaks down in the rain asking his father for freedom to make his own mistakes."
+    ]
+  },
+  {
+    movie: "Manam",
+    year: 2014,
+    director: "Vikram Kumar",
+    hero: "ANR, Nagarjuna, Naga Chaitanya",
+    heroine: "Samantha & Shriya Saran",
+    clues: [
+      "Legendary landmark: Three generations of the Akkineni family acting together.",
+      "Concept: Reincarnation where parents are reborn as younger people and meet their child as an older man.",
+      "Nageswara Rao played by ANR in his glorious final screen appearance.",
+      "Anoop Rubens' melodious title song 'Manam' and 'Kani Penchina'.",
+      "Climax: Preventing the clock tower car accident at 10:20 AM and bringing both couples together."
+    ]
+  },
+  {
+    movie: "Sita Ramam",
+    year: 2022,
+    director: "Hanu Raghavapudi",
+    hero: "Dulquer Salmaan",
+    heroine: "Mrunal Thakur & Rashmika Mandanna",
+    clues: [
+      "Setting: 1965 Kashmir border; Lieutenant Ram, an orphaned army officer receiving letters from across India.",
+      "Mystery woman: Sita Mahalakshmi who secretly happens to be Princess Noor Jahan of Hyderabad.",
+      "Afreen travels across Pakistan and India in 1985 to deliver a 20-year-old undelivered letter.",
+      "Vishal Chandrashekhar's timeless soundtrack: 'Inthandham' and 'Kaanunna Kalyanam'.",
+      "Tragic & beautiful climax: Ram's final letter is delivered, clearing his name of treason."
+    ]
+  },
+  {
+    movie: "Devara: Part 1",
+    year: 2024,
+    director: "Koratala Siva",
+    hero: "NTR Jr",
+    heroine: "Janhvi Kapoor",
+    clues: [
+      "Coastal setting: The Red Sea shores and four clans involved in dangerous high-seas smuggling.",
+      "Fear theme: 'Bhayam ane daaniki roopam untundhi, adhe Devara!'",
+      "Music by Anirudh: The thunderous 'Fear Song', 'Chuttamalle', and 'Daavudi'.",
+      "Double role: Father Devara and his seemingly timid son Vara.",
+      "Interval & Climax: Blood-soaked sea battle on boats and the shocking revelation on the cliff."
+    ]
+  }
+];
+
+// Fallback embedded Tollywood movies list (over 120 popular movies bundled offline)
+let PATTU_MOVIES = [
+  "1 - Nenokkadine", "100% Love", "13 B", "35 Chinna Katha Kaadu", "7/g Brundhavan Colony", "7th sense",
+  "A Aa", "Aa Naluguru", "Aa Okkati Adakku", "Aadavari Matalaku Ardhalu Verule", "Aadi", "Aagadu", "Aalasyam Amrutam",
+  "Agent Sai Srinivasa Athreya", "Akhanda", "Ala Vaikunthapurramuloo", "Amma Nanna O Tamila Ammayi", "Anand", "Ante Sundaraniki",
+  "Anukokunda Oka Roju", "Aparichithudu", "Arjun Reddy", "Arya", "Arya 2", "Ashta Chamma", "Athadu", "Atharintiki Daaredi",
+  "Awaara", "Baahubali: The Beginning", "Baahubali 2: The Conclusion", "Badri", "Balagam", "Balu", "Bangarraju", "Bendu Theesta",
+  "Bhagavanth Kesari", "Bharat Ane Nenu", "Bheeshma", "Bheemla Nayak", "Bimbisara", "Businessman", "Bommarillu", "Brochevarevarura",
+  "C/o Kancharapalem", "Chakram", "Chandramukhi", "Chatrapathi", "Cheli", "Chirutha", "Cinema Bandi", "Colour Photo", "Dasara",
+  "Devara: Part 1", "Dhamaka", "Dhruva", "DJ Tillu", "Dookudu", "Drushyam", "Drushyam 2", "Eagle", "Eega", "Evaru", "F2: Fun and Frustration",
+  "F3: Fun and Frustration", "Gaami", "Gabbar Singh", "Gamyam", "Geetha Govindam", "Ghajini", "Githanjali", "Godavari", "Goodachari",
+  "Gopala Gopala", "Guntur Kaaram", "Hanu-Man", "Happy Days", "Hi Nanna", "Hit: The First Case", "Hit: The Second Case", "Ishq", "Jagadam",
+  "Janatha Garage", "Jersey", "Julayi", "Kalki 2898 AD", "Kantara", "Karthikeya", "Karthikeya 2", "Keedaa Cola", "Khaleja", "Khushi",
+  "Konda Polam", "Krack", "Kshanam", "Leader", "Love Story", "MAD", "Magadheera", "Mahanati", "Major", "Manam", "Mangalavaaram",
+  "Maryada Ramanna", "Maska", "Mathu Vadalara", "Mathu Vadalara 2", "Middle Class Melodies", "Mirchi", "Mr. Perfect", "Naa Autograph",
+  "Nani", "Nenunnanu", "Ninne Pelladata", "Nuvve Kavali", "Nuvve Nuvve", "Nuvvostanante Nenoddantana", "Okkadu", "Oopiri",
+  "Panjaa", "Pelli Choopulu", "Pokiri", "Prasthanam", "Pushpa: The Rise", "Pushpa 2: The Rule", "Race Gurram", "Radhe Shyam",
+  "Rangasthalam", "Ready", "Robo", "RRR", "Salaar: Part 1 – Ceasefire", "Samajavaragamana", "Sarileru Neekevvaru", "Sarkaru Vaari Paata",
+  "Sathamanam Bhavati", "Seethamma Vakitlo Sirimalle Chettu", "Shiva", "Shyam Singha Roy", "Simhadri", "Sir", "Sita Ramam", "Srimanthudu",
+  "Subhash Chandra Bose", "Surya s/o Krishnan", "Tagore", "Temper", "Thammudu", "Tholi Prema", "Tillu Square", "Uppena", "Vakeel Saab",
+  "Varsham", "Vedam", "Veta", "Virupaksha", "Waltair Veerayya", "Yamadonga", "Ye Maaya Chesave"
+];
+
+// Async loader to pull the expanded 1,645+ movies list from data/tollywood-movies.json
+(function loadExtendedTollywoodDatabase() {
+  fetch("data/tollywood-movies.json")
+    .then(r => r.json())
+    .then(data => {
+      if (data && Array.isArray(data.movies) && data.movies.length > 0) {
+        const merged = new Set([...PATTU_MOVIES, ...data.movies]);
+        PATTU_MOVIES = Array.from(merged).sort((a, b) => a.localeCompare(b));
+      }
+    })
+    .catch(() => {});
+})();
+
+// Pattu Game State
+let pattuCurrentPuzzle = PATTU_OFFLINE_PUZZLES[0];
+let pattuCurrentDay = 1;
+let pattuAttempt = 1;
+let pattuActiveFrame = 1;
+let pattuGuesses = [];
+let pattuOver = false;
+let pattuWon = false;
+let pattuIsRandom = false;
+let pattuStreak = 0;
+let pattuSelectedDropIndex = -1;
+
+function getPattuDayCount() {
+  const origin = new Date("2022-05-22T18:30:00.000Z");
+  const now = new Date();
+  const diffSec = (now.getTime() - origin.getTime()) / 1000;
+  return Math.max(1, Math.floor(diffSec / 86400));
+}
+
+function normalizePattuTitle(str) {
+  if (!str) return "";
+  return str.toLowerCase().replace(/[^a-z0-9]/g, "").trim();
+}
+
+function loadPattuStats() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("gap_pattu_stats") || "{}");
+    pattuStreak = saved.streak || 0;
+    if (pattuStreakPillEl) pattuStreakPillEl.textContent = `🔥 Streak: ${pattuStreak}`;
+  } catch {
+    pattuStreak = 0;
+  }
+}
+
+function savePattuStats(won) {
+  if (won) pattuStreak++;
+  else pattuStreak = 0;
+
+  try {
+    const saved = JSON.parse(localStorage.getItem("gap_pattu_stats") || "{}");
+    saved.streak = pattuStreak;
+    saved.gamesPlayed = (saved.gamesPlayed || 0) + 1;
+    if (won) saved.gamesWon = (saved.gamesWon || 0) + 1;
+    saved.maxStreak = Math.max(saved.maxStreak || 0, pattuStreak);
+    localStorage.setItem("gap_pattu_stats", JSON.stringify(saved));
+  } catch {}
+
+  if (pattuStreakPillEl) pattuStreakPillEl.textContent = `🔥 Streak: ${pattuStreak}`;
+}
+
+function initPattu(forceNew = false) {
+  loadPattuStats();
+  pattuCurrentDay = getPattuDayCount();
+
+  if (!pattuIsRandom) {
+    // Daily mode: deterministically pick from offline puzzles or upstream index
+    const pIdx = (pattuCurrentDay - 1) % PATTU_OFFLINE_PUZZLES.length;
+    pattuCurrentPuzzle = PATTU_OFFLINE_PUZZLES[pIdx];
+  } else if (forceNew) {
+    // Random mode: pick a fresh puzzle
+    const rndIdx = Math.floor(Math.random() * PATTU_OFFLINE_PUZZLES.length);
+    pattuCurrentPuzzle = PATTU_OFFLINE_PUZZLES[rndIdx];
+  }
+
+  pattuAttempt = 1;
+  pattuActiveFrame = 1;
+  pattuGuesses = [];
+  pattuOver = false;
+  pattuWon = false;
+  pattuSelectedDropIndex = -1;
+
+  if (pattuInputEl) pattuInputEl.value = "";
+  pattuDropdownEl?.classList.add("hidden");
+  pattuClearBtn?.classList.add("hidden");
+  pattuResultBannerEl?.classList.add("hidden");
+  pattuSearchWrap?.classList.remove("hidden");
+
+  if (pattuRandomBtn) {
+    pattuRandomBtn.textContent = pattuIsRandom ? "📅 Daily Mode" : "🎲 Random";
+  }
+
+  renderPattuUI();
+  renderPattuFrame(1);
+}
+
+function renderPattuUI() {
+  if (pattuPuzzleTitleEl) {
+    pattuPuzzleTitleEl.textContent = pattuIsRandom
+      ? `Tollywood Guess (${pattuCurrentPuzzle.year || "Classic"})`
+      : `Pattu Day #${pattuCurrentDay}`;
+  }
+
+  // Frame navigator pills
+  const maxRevealed = pattuOver ? 5 : pattuAttempt;
+  pattuFramePillsEl?.querySelectorAll(".pattu-pill").forEach(pill => {
+    const f = Number(pill.dataset.frame);
+    pill.classList.toggle("active", f === pattuActiveFrame);
+    pill.classList.toggle("locked", f > maxRevealed);
+  });
+
+  // History rows (1 to 5)
+  pattuHistoryEl?.querySelectorAll(".pattu-guess-row").forEach(row => {
+    const idx = Number(row.dataset.index);
+    const guess = pattuGuesses[idx - 1];
+    const statusSpan = row.querySelector(".pattu-row-status");
+    const textSpan = row.querySelector(".pattu-row-text");
+
+    row.className = "pattu-guess-row";
+    if (guess) {
+      if (guess.status === "correct") {
+        row.classList.add("correct");
+        if (statusSpan) statusSpan.textContent = "🟩";
+        if (textSpan) textSpan.textContent = guess.text;
+      } else if (guess.status === "wrong") {
+        row.classList.add("wrong");
+        if (statusSpan) statusSpan.textContent = "🟥";
+        if (textSpan) textSpan.textContent = guess.text;
+      } else if (guess.status === "skipped") {
+        row.classList.add("skipped");
+        if (statusSpan) statusSpan.textContent = "⏭️";
+        if (textSpan) textSpan.textContent = "Skipped";
+      }
+    } else {
+      if (statusSpan) statusSpan.textContent = idx === pattuAttempt && !pattuOver ? "👉" : "⬛";
+      if (textSpan) textSpan.textContent = `Attempt ${idx}`;
+    }
+  });
+
+  // Result Banner
+  if (pattuOver) {
+    pattuSearchWrap?.classList.add("hidden");
+    pattuResultBannerEl?.classList.remove("hidden");
+    if (pattuResultTitleEl) {
+      pattuResultTitleEl.textContent = pattuWon ? "🎉 Spectacular! Movie Guessed!" : "💔 Out of Attempts!";
+      pattuResultTitleEl.style.color = pattuWon ? "var(--accent)" : "#ef4444";
+    }
+    if (pattuResultMovieEl) {
+      pattuResultMovieEl.textContent = `${pattuCurrentPuzzle.movie} (${pattuCurrentPuzzle.year || "Tollywood"})`;
+    }
+  } else {
+    pattuSearchWrap?.classList.remove("hidden");
+    pattuResultBannerEl?.classList.add("hidden");
+  }
+}
+
+function renderPattuFrame(frameNum) {
+  pattuActiveFrame = frameNum;
+
+  if (pattuCurrentFrameTagEl) {
+    pattuCurrentFrameTagEl.textContent = `Frame ${frameNum} of 5`;
+  }
+
+  // Update pill active highlight
+  pattuFramePillsEl?.querySelectorAll(".pattu-pill").forEach(pill => {
+    pill.classList.toggle("active", Number(pill.dataset.frame) === frameNum);
+  });
+
+  // Attempt to load upstream CDN image when online (Netlify S3 mirror)
+  const isOnline = navigator.onLine;
+  const cdnUrl = `https://pattukunte-pattucheera.netlify.app/static/${pattuCurrentDay}/${frameNum}.jpg`;
+
+  let showedClue = false;
+  const showClueFallback = () => {
+    if (showedClue) return;
+    showedClue = true;
+    if (pattuImgEl) pattuImgEl.style.display = "none";
+    if (pattuFallbackCardEl) {
+      pattuFallbackCardEl.classList.remove("hidden");
+      if (pattuFallbackTagEl) pattuFallbackTagEl.textContent = `CLUE FRAME ${frameNum} OF 5`;
+      const clues = pattuCurrentPuzzle.clues || [];
+      if (pattuFallbackClueEl) {
+        pattuFallbackClueEl.textContent = clues[frameNum - 1] || `Tollywood Blockbuster Scene Frame #${frameNum}`;
+      }
+      if (pattuFallbackSubEl) {
+        pattuFallbackSubEl.textContent = `Starring: ${pattuCurrentPuzzle.hero || "Tollywood Star"} • Dir: ${pattuCurrentPuzzle.director || "Tollywood"}`;
+      }
+    }
+  };
+
+  if (isOnline && !pattuIsRandom) {
+    if (pattuImgEl) {
+      pattuImgEl.onload = () => {
+        pattuImgEl.style.display = "block";
+        pattuFallbackCardEl?.classList.add("hidden");
+      };
+      pattuImgEl.onerror = showClueFallback;
+      pattuImgEl.src = cdnUrl;
+    }
+  } else {
+    showClueFallback();
+  }
+}
+
+// Autocomplete filter
+function filterPattuSuggestions(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  return PATTU_MOVIES
+    .filter(m => m.toLowerCase().includes(q))
+    .slice(0, 8);
+}
+
+function renderPattuDropdown(matches) {
+  if (!pattuDropdownEl) return;
+  if (!matches.length) {
+    pattuDropdownEl.innerHTML = `<div class="pattu-drop-item" style="opacity:0.6; cursor:default;">No Telugu movie found matching "${pattuInputEl?.value || ""}"</div>`;
+    pattuDropdownEl.classList.remove("hidden");
+    pattuSelectedDropIndex = -1;
+    return;
+  }
+
+  pattuDropdownEl.innerHTML = matches.map((m, idx) => `
+    <div class="pattu-drop-item" data-index="${idx}" data-movie="${m}">${m}</div>
+  `).join("");
+  pattuDropdownEl.classList.remove("hidden");
+  pattuSelectedDropIndex = -1;
+}
+
+function submitPattuGuess(guessedName) {
+  if (pattuOver) return;
+  const name = guessedName ? guessedName.trim() : (pattuInputEl?.value || "").trim();
+  if (!name) return;
+
+  const normGuess = normalizePattuTitle(name);
+  const normTarget = normalizePattuTitle(pattuCurrentPuzzle.movie);
+
+  const isCorrect = (normGuess === normTarget);
+
+  if (isCorrect) {
+    pattuWon = true;
+    pattuOver = true;
+    pattuGuesses.push({ status: "correct", text: pattuCurrentPuzzle.movie });
+    savePattuStats(true);
+    triggerConfetti();
+    renderPattuUI();
+    renderPattuFrame(pattuActiveFrame);
+    persistLiveState();
+  } else {
+    pattuGuesses.push({ status: "wrong", text: name });
+    pattuAttempt++;
+    if (pattuAttempt > 5) {
+      pattuOver = true;
+      pattuWon = false;
+      savePattuStats(false);
+      renderPattuUI();
+      renderPattuFrame(pattuActiveFrame);
+      persistLiveState();
+    } else {
+      renderPattuUI();
+      renderPattuFrame(pattuAttempt);
+      persistLiveState();
+    }
+  }
+
+  if (pattuInputEl) pattuInputEl.value = "";
+  pattuDropdownEl?.classList.add("hidden");
+  pattuClearBtn?.classList.add("hidden");
+}
+
+function skipPattuAttempt() {
+  if (pattuOver) return;
+  pattuGuesses.push({ status: "skipped", text: "Skipped" });
+  pattuAttempt++;
+
+  if (pattuAttempt > 5) {
+    pattuOver = true;
+    pattuWon = false;
+    savePattuStats(false);
+    renderPattuUI();
+    renderPattuFrame(pattuActiveFrame);
+    persistLiveState();
+  } else {
+    renderPattuUI();
+    renderPattuFrame(pattuAttempt);
+    persistLiveState();
+  }
+
+  if (pattuInputEl) pattuInputEl.value = "";
+  pattuDropdownEl?.classList.add("hidden");
+  pattuClearBtn?.classList.add("hidden");
+}
+
+// Pattu DOM Event Listeners
+pattuInputEl?.addEventListener("input", (e) => {
+  const val = e.target.value;
+  pattuClearBtn?.classList.toggle("hidden", !val);
+  if (!val.trim()) {
+    pattuDropdownEl?.classList.add("hidden");
+    return;
+  }
+  const matches = filterPattuSuggestions(val);
+  renderPattuDropdown(matches);
+});
+
+pattuInputEl?.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    const items = pattuDropdownEl?.querySelectorAll(".pattu-drop-item[data-movie]");
+    if (!items || !items.length) return;
+    pattuSelectedDropIndex = (pattuSelectedDropIndex + 1) % items.length;
+    items.forEach((it, idx) => it.classList.toggle("selected", idx === pattuSelectedDropIndex));
+    items[pattuSelectedDropIndex]?.scrollIntoView({ block: "nearest" });
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    const items = pattuDropdownEl?.querySelectorAll(".pattu-drop-item[data-movie]");
+    if (!items || !items.length) return;
+    pattuSelectedDropIndex = (pattuSelectedDropIndex - 1 + items.length) % items.length;
+    items.forEach((it, idx) => it.classList.toggle("selected", idx === pattuSelectedDropIndex));
+    items[pattuSelectedDropIndex]?.scrollIntoView({ block: "nearest" });
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    const items = pattuDropdownEl?.querySelectorAll(".pattu-drop-item[data-movie]");
+    if (items && pattuSelectedDropIndex >= 0 && items[pattuSelectedDropIndex]) {
+      const selectedMovie = items[pattuSelectedDropIndex].dataset.movie;
+      submitPattuGuess(selectedMovie);
+    } else {
+      submitPattuGuess();
+    }
+  } else if (e.key === "Escape") {
+    pattuDropdownEl?.classList.add("hidden");
+  }
+});
+
+pattuDropdownEl?.addEventListener("click", (e) => {
+  const item = e.target.closest(".pattu-drop-item[data-movie]");
+  if (!item) return;
+  const movie = item.dataset.movie;
+  submitPattuGuess(movie);
+});
+
+pattuClearBtn?.addEventListener("click", () => {
+  if (pattuInputEl) pattuInputEl.value = "";
+  pattuClearBtn?.classList.add("hidden");
+  pattuDropdownEl?.classList.add("hidden");
+  pattuInputEl?.focus();
+});
+
+pattuSubmitBtn?.addEventListener("click", () => submitPattuGuess());
+pattuSkipBtn?.addEventListener("click", () => skipPattuAttempt());
+
+pattuRandomBtn?.addEventListener("click", () => {
+  pattuIsRandom = !pattuIsRandom;
+  initPattu(true);
+});
+
+pattuNextBtn?.addEventListener("click", () => {
+  pattuIsRandom = true;
+  initPattu(true);
+});
+
+pattuFramePillsEl?.addEventListener("click", (e) => {
+  const pill = e.target.closest(".pattu-pill");
+  if (!pill) return;
+  const f = Number(pill.dataset.frame);
+  const maxRevealed = pattuOver ? 5 : pattuAttempt;
+  if (f <= maxRevealed) {
+    renderPattuFrame(f);
+  }
+});
+
+document.addEventListener("click", (e) => {
+  if (!pattuInputEl?.contains(e.target) && !pattuDropdownEl?.contains(e.target)) {
+    pattuDropdownEl?.classList.add("hidden");
+  }
+});
+
 /* ---------- Live Game Persistence ---------- */
 function persistLiveState() {
   const payload = {
@@ -2457,6 +3182,16 @@ function persistLiveState() {
     },
     wordle: {
       target: wordleTarget, row: wordleRow, col: wordleCol, grid: wordleGrid, over: wordleOver
+    },
+    pattu: {
+      puzzle: pattuCurrentPuzzle,
+      day: pattuCurrentDay,
+      attempt: pattuAttempt,
+      activeFrame: pattuActiveFrame,
+      guesses: pattuGuesses,
+      over: pattuOver,
+      won: pattuWon,
+      isRandom: pattuIsRandom
     }
   };
   localStorage.setItem(LIVE_STATE_KEY, JSON.stringify(payload));
@@ -2530,6 +3265,11 @@ function restoreLiveStateIfAny() {
       return true;
     }
 
+    if (s.mode === "pattu") {
+      initPattu(false);
+      return true;
+    }
+
     return false;
   } catch {
     return false;
@@ -2554,15 +3294,17 @@ window.addEventListener("keydown", (e) => {
     if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     if (k === "5") { hubState.game = "poker"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+    if (k === "6") { hubState.game = "pattu"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     return;
   }
 
-  // Global shortcuts for TTT, Chess, Wordle, Poker
+  // Global shortcuts for TTT, Chess, Wordle, Poker, Pattu
   if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "4") { hubState.game = "wordle"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "5") { hubState.game = "poker"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+  if (k === "6") { hubState.game = "pattu"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
 
   if (k === "R") { newGameBtn?.click(); return; }
   if (k === "Z") { undoBtn?.click(); return; }
@@ -2610,7 +3352,7 @@ undoBtn?.addEventListener("click", () => {
     handleWordleKey("DEL");
     return;
   }
-  if (hubState.game === "poker") {
+  if (hubState.game === "poker" || hubState.game === "pattu") {
     return;
   }
   const mode = modeSelect.value;
@@ -2707,6 +3449,7 @@ function initBoard(forceFresh = false) {
   if (modeSelect) modeSelect.value = modeFromHub();
   if (hubState.game === "wordle") initWordle();
   else if (hubState.game === "poker") initPoker();
+  else if (hubState.game === "pattu") initPattu();
   else if (hubState.game === "ttt3") initTTT(3);
   else if (hubState.game === "ttt5") initTTT(5);
   else initChess();

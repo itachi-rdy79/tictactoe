@@ -1401,6 +1401,386 @@ body[data-theme="itachi"] .poker-card.back {
 }
 
 /* ==========================================================================
+   Pattukunte Pattucheera (Tollywood Movie Guesser) Styles
+   ========================================================================== */
+
+.pattu-arena {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.board-shell.pattu-mode {
+  width: min(92vw, 480px);
+  height: auto;
+  aspect-ratio: auto;
+  padding: 14px;
+}
+
+.pattu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.pattu-meta-badge {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pattu-stats-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.pattu-mode-toggle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pattu-mode-toggle:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Stills Viewport & Filmstrip */
+.pattu-viewport {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 220px;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  border: 1.5px solid var(--border);
+  user-select: none;
+}
+
+.pattu-film-border {
+  height: 6px;
+  width: 100%;
+  background: repeating-linear-gradient(90deg, #18181b, #18181b 6px, transparent 6px, transparent 12px);
+  opacity: 0.85;
+}
+
+.pattu-screen {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #090d16;
+}
+
+.pattu-frame-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.25s ease-in-out;
+}
+
+.pattu-fallback-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  text-align: center;
+  background: radial-gradient(circle at center, rgba(34, 197, 94, 0.12) 0%, #090d16 80%);
+}
+
+.pattu-fallback-watermark {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.pattu-fallback-icon {
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+}
+
+.pattu-fallback-clue {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.pattu-fallback-sub {
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+}
+
+.pattu-frame-tag {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Frame Pills (1 to 5) */
+.pattu-frame-pills {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.pattu-pill {
+  width: 36px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.pattu-pill.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.pattu-pill.locked {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Autocomplete Search & Controls */
+.pattu-search-wrap {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pattu-input-group {
+  position: relative;
+  width: 100%;
+}
+
+.pattu-input {
+  width: 100%;
+  height: 38px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--fg);
+  padding: 0 34px 0 12px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.pattu-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.pattu-clear-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--fg-muted);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.pattu-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1.5px solid var(--accent);
+  border-radius: 10px;
+  z-index: 10000;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(20px);
+}
+
+.pattu-drop-item {
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  color: var(--fg);
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pattu-drop-item:hover, .pattu-drop-item.selected {
+  background: var(--accent);
+  color: #fff;
+}
+
+.pattu-action-btns {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.pattu-btn {
+  height: 36px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pattu-btn.skip-btn {
+  flex: 0.35;
+  background: #ef4444;
+  color: #fff;
+}
+
+.pattu-btn.skip-btn:hover {
+  background: #dc2626;
+}
+
+.pattu-btn.submit-btn {
+  flex: 0.65;
+  background: var(--accent);
+  color: #fff;
+}
+
+.pattu-btn.submit-btn:hover {
+  filter: brightness(1.1);
+}
+
+/* History Rows */
+.pattu-history {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pattu-guess-row {
+  width: 100%;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  gap: 8px;
+  box-sizing: border-box;
+  color: var(--fg-muted);
+}
+
+.pattu-guess-row.correct {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.18);
+  color: #22c55e;
+}
+
+.pattu-guess-row.wrong {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.18);
+  color: #ef4444;
+}
+
+.pattu-guess-row.skipped {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.18);
+  color: #f59e0b;
+}
+
+/* Result Banner */
+.pattu-result-banner {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1.5px solid var(--accent);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.pattu-result-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.pattu-result-movie {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--fg);
+}
+
+/* ==========================================================================
    Mini-Window & Ultra-Compact Layout (body.mini-window & @media max-width 520px)
    ========================================================================== */
 
@@ -1623,7 +2003,7 @@ body.mini-window .radial-wrap {
 }
 
 /* Constant Size Boards in Mini-Window (Identical for 5x5, 3x3, and Chess) */
-body.mini-window .board-shell:not(.wordle-mode):not(.poker-mode),
+body.mini-window .board-shell:not(.wordle-mode):not(.poker-mode):not(.pattu-mode),
 body.mini-window .board-shell.chess-mode {
   width: min(78vmin, 310px) !important;
   height: min(78vmin, 310px) !important;
@@ -1728,6 +2108,44 @@ body.mini-window .poker-btn {
   height: 28px !important;
   font-size: 0.72rem !important;
   padding: 0 6px !important;
+}
+
+/* Pattu Mini-Window */
+body.mini-window .board-shell.pattu-mode {
+  width: min(96vw, 380px) !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  padding: 4px !important;
+  box-sizing: border-box !important;
+}
+
+body.mini-window .pattu-arena {
+  gap: 4px !important;
+}
+
+body.mini-window .pattu-viewport {
+  max-height: 140px !important;
+}
+
+body.mini-window .pattu-pill {
+  width: 28px !important;
+  height: 24px !important;
+  font-size: 0.75rem !important;
+}
+
+body.mini-window .pattu-input {
+  height: 30px !important;
+  font-size: 0.78rem !important;
+}
+
+body.mini-window .pattu-btn {
+  height: 28px !important;
+  font-size: 0.75rem !important;
+}
+
+body.mini-window .pattu-guess-row {
+  height: 22px !important;
+  font-size: 0.72rem !important;
 }
 
 /* Bottom Dock */
@@ -1870,10 +2288,11 @@ body.mini-window #scoreStatsBar {
   .hud-center .seg-btn { height: 24px !important; padding: 0 6px !important; font-size: 0.68rem !important; }
   .arena { height: calc(100vh - 145px) !important; padding: 2px 4px 60px 4px !important; overflow: hidden !important; }
   .captured-sidebar { display: none !important; }
-  .board-shell:not(.wordle-mode):not(.poker-mode),
+  .board-shell:not(.wordle-mode):not(.poker-mode):not(.pattu-mode),
   .board-shell.chess-mode { width: min(78vmin, 310px) !important; height: min(78vmin, 310px) !important; aspect-ratio: 1 / 1 !important; padding: 8px !important; box-sizing: border-box !important; }
   .board-shell.wordle-mode { width: min(94vw, 330px) !important; height: auto !important; aspect-ratio: auto !important; padding: 4px !important; box-sizing: border-box !important; }
   .board-shell.poker-mode { width: min(96vw, 380px) !important; height: auto !important; aspect-ratio: auto !important; padding: 4px !important; box-sizing: border-box !important; }
+  .board-shell.pattu-mode { width: min(96vw, 380px) !important; height: auto !important; aspect-ratio: auto !important; padding: 4px !important; box-sizing: border-box !important; }
   .ttt-grid { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; gap: 4px !important; box-sizing: border-box !important; }
   .ttt-cell { width: 100% !important; height: 100% !important; min-width: 0 !important; min-height: 0 !important; box-sizing: border-box !important; aspect-ratio: 1 / 1 !important; }
   .chess-board:not(.hidden) { width: 100% !important; height: 100% !important; display: grid !important; grid-template-columns: repeat(8, 1fr) !important; grid-template-rows: repeat(8, 1fr) !important; box-sizing: border-box !important; border-radius: 8px !important; overflow: hidden !important; }
