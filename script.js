@@ -577,7 +577,7 @@ scoreTickerBtn?.addEventListener("click", () => {
     { label: "Chess (AI)", key: "scores_chess-ai_medium" },
     { label: "Wordle", key: "scores_wordle_medium" },
     { label: "Poker (AI)", key: "scores_poker-ai_medium" },
-    { label: "Pattu (Tollywood)", key: "gap_pattu_stats" }
+    { label: "PC (Tollywood)", key: "gap_pattu_stats" }
   ];
 
   if (!statsGridContent || !statsModal) return;
@@ -2912,6 +2912,7 @@ function savePattuStats(won, attemptNumber) {
 }
 
 function initPattu(targetDay = null) {
+  showOnlyActiveGame("pattu");
   loadPattuStats();
   const todayDay = getPattuDayCount();
   pattuCurrentDay = (typeof targetDay === "number" && targetDay >= 1) ? targetDay : todayDay;
@@ -3549,14 +3550,16 @@ function restoreLiveStateIfAny() {
     }
 
     if (s.mode === "pattu") {
-      if (s.pattu) {
-        pattuCurrentDay = s.pattu.day || getPattuDayCount();
+      const todayDay = getPattuDayCount();
+      if (s.pattu && s.pattu.day === todayDay && !s.pattu.over) {
+        pattuCurrentDay = s.pattu.day;
         pattuCurrentPuzzle = s.pattu.puzzle || PATTU_OFFLINE_PUZZLES[0];
         pattuAttempt = s.pattu.attempt || 1;
         pattuActiveFrame = s.pattu.activeFrame || 1;
         pattuGuesses = Array.isArray(s.pattu.guesses) ? s.pattu.guesses : [];
         pattuOver = !!s.pattu.over;
         pattuWon = !!s.pattu.won;
+        showOnlyActiveGame("pattu");
         renderPattuUI();
         renderPattuFrame(pattuActiveFrame);
       } else {
@@ -3749,6 +3752,7 @@ function initBoard(forceFresh = false) {
   else if (hubState.game === "ttt5") initTTT(5);
   else initChess();
 
+  showOnlyActiveGame(hubState.game);
   startTurnTimer();
   persistHub();
   persistLiveState();
