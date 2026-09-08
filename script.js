@@ -3018,13 +3018,39 @@ function initPattu(targetDay = null) {
 }
 
 function renderPattuUI() {
-  // 1. Frame Tabs: show tabs 1..maxRevealed (matching original app)
+  // 1. Frame Tabs: 5 step tabs showing ❌ for skipped/wrong, ✅ for correct
   const maxRevealed = pattuOver ? 5 : pattuAttempt;
   if (pattuFramePillsEl) {
     let tabsHtml = "";
-    for (let i = 1; i <= maxRevealed; i++) {
+    for (let i = 1; i <= 5; i++) {
+      const isRevealed = i <= maxRevealed;
       const isActive = (i === pattuActiveFrame) ? "active" : "";
-      tabsHtml += `<button class="pattu-frame-tab ${isActive}" data-frame="${i}" type="button">${i}</button>`;
+      const guess = pattuGuesses[i - 1];
+      let tabClass = "pattu-frame-tab";
+      let tabContent = `${i}`;
+      let tabTitle = `Frame ${i}`;
+
+      if (guess) {
+        if (guess.status === "skipped") {
+          tabClass += " wrong";
+          tabContent = "❌";
+          tabTitle = `Step ${i}: Skipped`;
+        } else if (guess.status === "wrong") {
+          tabClass += " wrong";
+          tabContent = "❌";
+          tabTitle = `Step ${i}: Guessed "${guess.text}"`;
+        } else if (guess.status === "correct") {
+          tabClass += " correct";
+          tabContent = "✅";
+          tabTitle = `Step ${i}: Correct! ("${guess.text}")`;
+        }
+      } else if (!isRevealed) {
+        tabClass += " locked";
+        tabTitle = `Frame ${i}: Locked`;
+      }
+
+      if (isActive) tabClass += " active";
+      tabsHtml += `<button class="${tabClass}" data-frame="${i}" type="button" title="${tabTitle}">${tabContent}</button>`;
     }
     pattuFramePillsEl.innerHTML = tabsHtml;
   }
@@ -3042,7 +3068,7 @@ function renderPattuUI() {
     else pattuSearchWrap.classList.remove("hidden");
   }
 
-  // 4. Guesses Remaining Counter
+  // 4. Guesses Remaining Counter (hidden on game over so result banner fits without scrolling)
   if (pattuRemainingTextEl) {
     if (!pattuOver) {
       const remaining = 6 - pattuAttempt;
@@ -3050,49 +3076,57 @@ function renderPattuUI() {
       pattuRemainingTextEl.innerHTML = `You got <span class="rem-count" style="color:${countColor}">${remaining}</span> guesses remaining out of <b style="color:#22c55e">5</b>.`;
       pattuRemainingTextEl.classList.remove("hidden");
     } else {
-      if (pattuWon) {
-        pattuRemainingTextEl.innerHTML = `You got it - The answer was <span style="color:#22c55e; font-weight:700;">${pattuCurrentPuzzle.movie}</span>`;
-      } else {
-        pattuRemainingTextEl.innerHTML = `The answer was <span style="color:#22c55e; font-weight:700;">${pattuCurrentPuzzle.movie}</span>`;
-      }
-      pattuRemainingTextEl.classList.remove("hidden");
+      pattuRemainingTextEl.classList.add("hidden");
     }
   }
 
-  // 5. Guess History Cards
+  // 5. Guess History: Skipped steps are indicated directly by ❌ on the frame tabs;
+  // only show named movie guesses during gameplay if any, and hide completely on game over
   if (pattuHistoryEl) {
-    let histHtml = "";
-    pattuGuesses.forEach(g => {
-      if (g.status === "correct") {
-        histHtml += `
-          <div class="pattu-hist-card correct">
-            <span class="pattu-hist-icon">✅</span>
-            <span class="pattu-hist-text">${g.text}</span>
-          </div>`;
-      } else if (g.status === "wrong") {
-        histHtml += `
-          <div class="pattu-hist-card wrong">
-            <span class="pattu-hist-icon">❌</span>
-            <span class="pattu-hist-text">${g.text}</span>
-          </div>`;
-      } else if (g.status === "skipped") {
-        histHtml += `
-          <div class="pattu-hist-card wrong">
-            <span class="pattu-hist-icon">❌</span>
-            <span class="pattu-hist-text">Skipped</span>
-          </div>`;
-      }
-    });
-    pattuHistoryEl.innerHTML = histHtml;
+    const namedGuesses = pattuGuesses.filter(g => g.status !== "skipped");
+    if (!pattuOver && namedGuesses.length > 0) {
+      let histHtml = "";
+      namedGuesses.forEach(g => {
+        if (g.status === "correct") {
+          histHtml += `
+            <div class="pattu-hist-card correct">
+              <span class="pattu-hist-icon">✅</span>
+              <span class="pattu-hist-text">${g.text}</span>
+            </div>`;
+        } else if (g.status === "wrong") {
+          histHtml += `
+            <div class="pattu-hist-card wrong">
+              <span class="pattu-hist-icon">❌</span>
+              <span class="pattu-hist-text">${g.text}</span>
+            </div>`;
+        }
+      });
+      pattuHistoryEl.innerHTML = histHtml;
+      pattuHistoryEl.classList.remove("hidden");
+    } else {
+      pattuHistoryEl.innerHTML = "";
+      pattuHistoryEl.classList.add("hidden");
+    }
   }
 
-  // 6. Result Banner / Modal Card
+  // 6. Result Banner / Modal Card (positioned directly below frame tabs)
   if (pattuOver) {
     if (pattuResultBannerEl) {
       pattuResultBannerEl.classList.remove("hidden");
-      if (pattuResultTitleEl) {
-        pattuResultTitleEl.textContent = pattuWon ? "🎉 Splendid! You Guessed It!" : "💔 The Answer Was:";
-        pattuResultTitleEl.style.color = pattuWon ? "#22c55e" : "#ef4444";
+      if (pattuWon) {
+        pattuResultBannerEl.classList.remove("lost");
+        pattuResultBannerEl.classList.add("won");
+        if (pattuResultTitleEl) {
+          pattuResultTitleEl.textContent = "🎉 Splendid! You Guessed It!";
+          pattuResultTitleEl.style.color = "#22c55e";
+        }
+      } else {
+        pattuResultBannerEl.classList.remove("won");
+        pattuResultBannerEl.classList.add("lost");
+        if (pattuResultTitleEl) {
+          pattuResultTitleEl.textContent = "💔 The Answer Was:";
+          pattuResultTitleEl.style.color = "#ef4444";
+        }
       }
       if (pattuResultMovieEl) {
         pattuResultMovieEl.textContent = pattuCurrentPuzzle.movie;
