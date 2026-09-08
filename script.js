@@ -382,6 +382,7 @@ themeTrigger?.addEventListener("click", (e) => {
 });
 
 themeMenu?.addEventListener("click", (e) => {
+  e.stopPropagation();
   const b = e.target.closest(".theme-item");
   if (!b) return;
   setTheme(b.dataset.theme);
