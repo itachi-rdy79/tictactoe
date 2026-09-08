@@ -2920,7 +2920,26 @@ function initPattu(targetDay = null) {
   const pIdx = (pattuCurrentDay - 1) % PATTU_OFFLINE_PUZZLES.length;
   pattuCurrentPuzzle = Object.assign({}, PATTU_OFFLINE_PUZZLES[pIdx]);
 
-  // If online, fetch the exact upstream metadata from S3
+  // Check local data/daily/meta-data.json if playing today's puzzle
+  if (pattuCurrentDay === todayDay) {
+    fetch("data/daily/meta-data.json")
+      .then(res => res.json())
+      .then(meta => {
+        if (meta && meta.movie) {
+          pattuCurrentPuzzle.movie = meta.movie;
+          pattuCurrentPuzzle.contributor = meta.contributor || "";
+          pattuCurrentPuzzle.twitterId = meta.twitterId || "";
+          if (!PATTU_MOVIES.includes(meta.movie)) {
+            PATTU_MOVIES.push(meta.movie);
+            PATTU_MOVIES.sort((a, b) => a.localeCompare(b));
+          }
+          renderPattuUI();
+        }
+      })
+      .catch(() => {});
+  }
+
+  // If online, fetch the latest upstream metadata from S3
   if (navigator.onLine) {
     fetch(`${PATTU_S3_BASE}/${pattuCurrentDay}/meta-data.json`)
       .then(res => {
@@ -3079,6 +3098,8 @@ function renderPattuFrame(frameNum) {
     tab.classList.toggle("active", Number(tab.dataset.frame) === frameNum);
   });
 
+  const todayDay = getPattuDayCount();
+  const localStillsUrl = (pattuCurrentDay === todayDay) ? `data/daily/${frameNum}.jpg` : null;
   const cdnUrl = `${PATTU_S3_BASE}/${pattuCurrentDay}/${frameNum}.jpg`;
 
   const showClueFallback = () => {
@@ -3099,33 +3120,37 @@ function renderPattuFrame(frameNum) {
   };
 
   if (pattuImgEl) {
-    if (navigator.onLine) {
+    pattuImgEl.style.display = "block";
+    pattuFallbackCardEl?.classList.add("hidden");
+
+    let isHandled = false;
+    pattuImgEl.onload = () => {
+      if (isHandled) return;
+      isHandled = true;
       pattuImgEl.style.display = "block";
       pattuFallbackCardEl?.classList.add("hidden");
+      if ("caches" in window && navigator.onLine) {
+        caches.open("gap-pattu-stills-v1").then(cache => {
+          cache.add(cdnUrl).catch(() => {});
+        });
+      }
+    };
 
-      let isHandled = false;
-      pattuImgEl.onload = () => {
-        if (isHandled) return;
-        isHandled = true;
-        pattuImgEl.style.display = "block";
-        pattuFallbackCardEl?.classList.add("hidden");
-        // Cache in browser Cache Storage for offline play
-        if ("caches" in window) {
-          caches.open("gap-pattu-stills-v1").then(cache => {
-            cache.add(cdnUrl).catch(() => {});
-          });
-        }
-      };
+    pattuImgEl.onerror = () => {
+      if (pattuImgEl.src.includes("data/daily") && navigator.onLine) {
+        pattuImgEl.src = cdnUrl;
+        return;
+      }
+      if (isHandled) return;
+      isHandled = true;
+      showClueFallback();
+    };
 
-      pattuImgEl.onerror = () => {
-        if (isHandled) return;
-        isHandled = true;
-        showClueFallback();
-      };
-
+    if (localStillsUrl) {
+      pattuImgEl.src = localStillsUrl;
+    } else if (navigator.onLine) {
       pattuImgEl.src = cdnUrl;
     } else {
-      // Offline mode: check Cache Storage first
       if ("caches" in window) {
         caches.match(cdnUrl).then(cachedResponse => {
           if (cachedResponse) {

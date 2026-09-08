@@ -19,6 +19,19 @@ function fetchUrl(url) {
   });
 }
 
+function fetchBuffer(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, { headers: { 'User-Agent': 'Node-GAP-Sync' } }, (res) => {
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        return reject(new Error(`Failed to fetch buffer ${url}: Status ${res.statusCode}`));
+      }
+      const chunks = [];
+      res.on('data', chunk => chunks.push(chunk));
+      res.on('end', () => resolve(Buffer.concat(chunks)));
+    }).on('error', reject);
+  });
+}
+
 async function syncTollywoodData() {
   console.log('🔄 Fetching latest Tollywood movie data from upstream repository...');
 
@@ -75,24 +88,52 @@ async function syncTollywoodData() {
   const sortedList = Array.from(cleanSet).sort((a, b) => a.localeCompare(b));
   console.log(`🎬 Total unique Tollywood movies compiled: ${sortedList.length}`);
 
-  // Fetch today's metadata if available
+  // Ensure data and daily directories exist
+  const dataDir = path.join(__dirname, '..', 'data');
+  const dailyDir = path.join(dataDir, 'daily');
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+  if (!fs.existsSync(dailyDir)) fs.mkdirSync(dailyDir, { recursive: true });
+
+  // Calculate today's exact Tollywood day count
+  const origin = new Date("2022-05-22T18:30:00.000Z");
+  const diffSec = (Date.now() - origin.getTime()) / 1000;
+  const currentDay = Math.max(1, Math.floor(diffSec / 86400));
+  console.log(`📅 Current Tollywood Day Count: #${currentDay}`);
+
+  const S3_BASE = 'https://pattukunte-pattucheera-movies.s3.amazonaws.com';
   let todayMeta = null;
+
+  // 1. Fetch metadata from official S3 storage
   try {
-    const rawMeta = await fetchUrl(METADATA_URL);
-    todayMeta = JSON.parse(rawMeta);
-    console.log(`✅ Current upstream daily movie: "${todayMeta.movie}" (contributor: ${todayMeta.contributor || 'anonymous'})`);
+    const s3MetaRaw = await fetchUrl(`${S3_BASE}/${currentDay}/meta-data.json`);
+    todayMeta = JSON.parse(s3MetaRaw);
+    todayMeta.day = currentDay;
+    fs.writeFileSync(path.join(dailyDir, 'meta-data.json'), JSON.stringify(todayMeta, null, 2), 'utf-8');
+    console.log(`✅ Saved today's (#${currentDay}) movie metadata: "${todayMeta.movie}"`);
+    if (todayMeta.movie && !cleanSet.has(todayMeta.movie)) {
+      sortedList.push(todayMeta.movie);
+      sortedList.sort((a, b) => a.localeCompare(b));
+    }
   } catch (err) {
-    console.warn(`⚠️ Could not fetch meta-data.json:`, err.message);
+    console.warn(`⚠️ Could not fetch S3 metadata for day ${currentDay}:`, err.message);
   }
 
-  // Ensure data directory exists
-  const dataDir = path.join(__dirname, '..', 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+  // 2. Download all 5 movie scene stills for 100% offline play
+  console.log(`🖼️ Downloading 5 daily movie still frames from S3 for offline storage...`);
+  for (let f = 1; f <= 5; f++) {
+    try {
+      const imgUrl = `${S3_BASE}/${currentDay}/${f}.jpg`;
+      const imgBuf = await fetchBuffer(imgUrl);
+      fs.writeFileSync(path.join(dailyDir, `${f}.jpg`), imgBuf);
+      console.log(`  ✓ Frame ${f}/5 saved: ${imgBuf.length} bytes`);
+    } catch (err) {
+      console.warn(`  ⚠️ Could not download frame ${f}:`, err.message);
+    }
   }
 
   const outData = {
     updatedAt: new Date().toISOString(),
+    day: currentDay,
     count: sortedList.length,
     todayMeta: todayMeta || null,
     movies: sortedList
