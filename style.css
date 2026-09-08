@@ -1413,7 +1413,7 @@ body[data-theme="itachi"] .poker-card.back {
   align-items: center !important;
   overflow-y: visible !important;
   overflow-x: hidden !important;
-  padding: 8px 0 16px 0 !important;
+  padding: 22px 0 20px 0 !important;
   margin: 0 auto !important;
   gap: 0 !important;
 }
@@ -1436,8 +1436,8 @@ body[data-theme="itachi"] .poker-card.back {
 
 .board-shell.pattu-mode {
   position: relative !important;
-  width: min(92vw, calc(100vh - 240px), 415px) !important;
-  height: min(92vw, calc(100vh - 240px), 415px) !important;
+  width: min(92vw, calc(100vh - 250px), 415px) !important;
+  height: min(92vw, calc(100vh - 250px), 415px) !important;
   max-width: 415px !important;
   max-height: 415px !important;
   aspect-ratio: 1 / 1 !important;
@@ -1452,7 +1452,7 @@ body[data-theme="itachi"] .poker-card.back {
     -18px 0 45px -6px rgba(239, 68, 68, 0.38),
     18px 0 45px -6px rgba(14, 165, 233, 0.42),
     0 18px 45px rgba(0, 0, 0, 0.85) !important;
-  margin: 2px auto 0 auto !important;
+  margin: 4px auto 0 auto !important;
   overflow: visible !important;
   display: flex !important;
   flex-direction: column !important;

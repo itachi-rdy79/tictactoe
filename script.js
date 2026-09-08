@@ -3266,8 +3266,7 @@ function submitPattuGuess(guessedName) {
   if (pattuOver) return;
   const name = guessedName ? guessedName.trim() : (pattuInputEl?.value || "").trim();
   if (!name) {
-    // Empty submission acts as a fast Skip in the modernized UI
-    skipPattuAttempt();
+    pattuInputEl?.focus();
     return;
   }
 
@@ -3453,13 +3452,22 @@ pattuClearBtn?.addEventListener("click", () => {
 
 pattuSubmitBtn?.addEventListener("click", () => submitPattuGuess());
 pattuSkipBtn?.addEventListener("click", () => skipPattuAttempt());
-
-// Frame navigation buttons delegation (Number buttons 1..5 freely clickable)
+// Frame navigation buttons delegation
 pattuFramePillsEl?.addEventListener("click", (e) => {
   const tab = e.target.closest(".pattu-num-tab, .pc-step-card, .pattu-frame-tab");
   if (!tab) return;
   const f = Number(tab.dataset.frame);
-  if (f >= 1 && f <= 5) {
+  if (f < 1 || f > 5) return;
+
+  if (pattuOver || f <= pattuAttempt) {
+    // Review previously revealed/skipped frame or browsing after game end
+    renderPattuFrame(f);
+  } else {
+    // Jumping forward to a future unreached frame (e.g. from 1 to 2):
+    // Automatically count prior frame(s) as skipped!
+    while (pattuAttempt < f && !pattuOver) {
+      skipPattuAttempt();
+    }
     renderPattuFrame(f);
   }
 });
