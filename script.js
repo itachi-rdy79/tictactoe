@@ -372,16 +372,20 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
-  // Hide TTT HUD turn status pill when playing Pattu
+  // Hide TTT HUD turn status pill & adjust arena when playing Pattu
   const statusWrapEl = document.querySelector(".status-wrap");
+  const arenaEl = document.querySelector(".arena");
   if (isPattu) {
+    arenaEl?.classList.add("pattu-arena-mode");
     statusWrapEl?.classList.add("hidden");
     statusWrapEl?.style.setProperty("display", "none", "important");
     statusPill?.classList.add("hidden");
     statusPill?.style.setProperty("display", "none", "important");
     moveCounterPill?.classList.add("hidden");
     moveCounterPill?.style.setProperty("display", "none", "important");
+    updatePattuConnectionBadge();
   } else {
+    arenaEl?.classList.remove("pattu-arena-mode");
     statusWrapEl?.classList.remove("hidden");
     statusWrapEl?.style.removeProperty("display");
     if (!isWordle && hubState.timer === "off") {
@@ -3046,6 +3050,27 @@ function renderPattuUI() {
   }
 }
 
+function updatePattuConnectionBadge() {
+  const dot = document.getElementById("pattuBadgeDot");
+  const text = document.getElementById("pattuBadgeText");
+  if (!dot || !text) return;
+  if (navigator.onLine) {
+    dot.className = "pattu-badge-dot online";
+    text.textContent = "Cloud Stills (Live)";
+  } else {
+    dot.className = "pattu-badge-dot offline";
+    text.textContent = "Offline Mode (Local)";
+  }
+}
+
+window.addEventListener("online", () => {
+  updatePattuConnectionBadge();
+  if (hubState.game === "pattu") renderPattuFrame(pattuActiveFrame);
+});
+window.addEventListener("offline", () => {
+  updatePattuConnectionBadge();
+});
+
 function renderPattuFrame(frameNum) {
   pattuActiveFrame = frameNum;
 
@@ -3056,39 +3081,67 @@ function renderPattuFrame(frameNum) {
 
   const cdnUrl = `${PATTU_S3_BASE}/${pattuCurrentDay}/${frameNum}.jpg`;
 
-  if (pattuImgEl) {
-    pattuImgEl.style.display = "block";
-    pattuFallbackCardEl?.classList.add("hidden");
+  const showClueFallback = () => {
+    if (pattuImgEl) pattuImgEl.style.display = "none";
+    if (pattuFallbackCardEl) {
+      pattuFallbackCardEl.classList.remove("hidden");
+      if (pattuFallbackTagEl) pattuFallbackTagEl.textContent = `FRAME ${frameNum} OF 5`;
+      const clues = pattuCurrentPuzzle.clues || [];
+      if (pattuFallbackClueEl) {
+        pattuFallbackClueEl.textContent = clues[frameNum - 1] || `Tollywood Scene Frame #${frameNum}`;
+      }
+      if (pattuFallbackSubEl) {
+        pattuFallbackSubEl.textContent = pattuCurrentPuzzle.hero
+          ? `Starring: ${pattuCurrentPuzzle.hero} • Dir: ${pattuCurrentPuzzle.director || "Tollywood"}`
+          : (pattuCurrentPuzzle.contributor ? `Contributed by @${pattuCurrentPuzzle.contributor}` : `Tollywood Cinema Archives`);
+      }
+    }
+  };
 
-    let isHandled = false;
-    pattuImgEl.onload = () => {
-      if (isHandled) return;
-      isHandled = true;
+  if (pattuImgEl) {
+    if (navigator.onLine) {
       pattuImgEl.style.display = "block";
       pattuFallbackCardEl?.classList.add("hidden");
-    };
 
-    pattuImgEl.onerror = () => {
-      if (isHandled) return;
-      isHandled = true;
-      // Show fallback clue card if image fails to load
-      pattuImgEl.style.display = "none";
-      if (pattuFallbackCardEl) {
-        pattuFallbackCardEl.classList.remove("hidden");
-        if (pattuFallbackTagEl) pattuFallbackTagEl.textContent = `FRAME ${frameNum} OF 5`;
-        const clues = pattuCurrentPuzzle.clues || [];
-        if (pattuFallbackClueEl) {
-          pattuFallbackClueEl.textContent = clues[frameNum - 1] || `Tollywood Scene Frame #${frameNum}`;
+      let isHandled = false;
+      pattuImgEl.onload = () => {
+        if (isHandled) return;
+        isHandled = true;
+        pattuImgEl.style.display = "block";
+        pattuFallbackCardEl?.classList.add("hidden");
+        // Cache in browser Cache Storage for offline play
+        if ("caches" in window) {
+          caches.open("gap-pattu-stills-v1").then(cache => {
+            cache.add(cdnUrl).catch(() => {});
+          });
         }
-        if (pattuFallbackSubEl) {
-          pattuFallbackSubEl.textContent = pattuCurrentPuzzle.hero
-            ? `Starring: ${pattuCurrentPuzzle.hero} • Dir: ${pattuCurrentPuzzle.director || "Tollywood"}`
-            : (pattuCurrentPuzzle.contributor ? `Contributed by @${pattuCurrentPuzzle.contributor}` : `Tollywood Cinema Archives`);
-        }
+      };
+
+      pattuImgEl.onerror = () => {
+        if (isHandled) return;
+        isHandled = true;
+        showClueFallback();
+      };
+
+      pattuImgEl.src = cdnUrl;
+    } else {
+      // Offline mode: check Cache Storage first
+      if ("caches" in window) {
+        caches.match(cdnUrl).then(cachedResponse => {
+          if (cachedResponse) {
+            return cachedResponse.blob().then(blob => {
+              pattuImgEl.src = URL.createObjectURL(blob);
+              pattuImgEl.style.display = "block";
+              pattuFallbackCardEl?.classList.add("hidden");
+            });
+          } else {
+            showClueFallback();
+          }
+        }).catch(() => showClueFallback());
+      } else {
+        showClueFallback();
       }
-    };
-
-    pattuImgEl.src = cdnUrl;
+    }
   }
 }
 

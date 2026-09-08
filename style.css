@@ -1404,35 +1404,89 @@ body[data-theme="itachi"] .poker-card.back {
    Pattukunte Pattucheera (Tollywood Movie Guesser - Exact Original UI)
    ========================================================================== */
 
+.arena.pattu-arena-mode {
+  height: auto !important;
+  min-height: calc(100vh - 90px) !important;
+  max-height: calc(100vh - 75px) !important;
+  justify-content: flex-start !important;
+  overflow-y: auto !important;
+  padding: 4px 0 16px 0 !important;
+  scrollbar-width: thin;
+}
+
 .pattu-original-arena {
   width: 100%;
-  max-width: 540px;
+  max-width: 450px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   margin: 0 auto;
   box-sizing: border-box;
 }
 
 .board-shell.pattu-mode {
-  width: min(94vw, 560px) !important;
+  width: min(94vw, 470px) !important;
+  max-width: 470px !important;
   height: auto !important;
   aspect-ratio: auto !important;
-  padding: 14px 16px !important;
-  background: #000000 !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  padding: 10px 14px 12px 14px !important;
+  background: rgba(12, 16, 28, 0.92) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 16px !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8) !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
 }
 
 /* Original Title */
 .pattu-orig-title {
-  font-size: 1.6rem;
+  font-size: clamp(1.2rem, 3.5vmin, 1.45rem);
   font-weight: 700;
   color: #ffffff;
   text-align: center;
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0;
   letter-spacing: -0.3px;
+}
+
+/* Connection Status Badge */
+.pattu-mode-badge-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3px;
+}
+
+.pattu-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  letter-spacing: 0.3px;
+}
+
+.pattu-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.pattu-badge-dot.online {
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
+}
+
+.pattu-badge-dot.offline {
+  background: #f59e0b;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.8);
 }
 
 /* 3 Navigation Boxes: Stats, Time Travel, Instructions */
@@ -1440,20 +1494,20 @@ body[data-theme="itachi"] .poker-card.back {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 6px;
+  gap: 14px;
+  margin-bottom: 4px;
 }
 
 .pattu-orig-nav-btn-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .pattu-orig-icon-box {
-  width: 44px;
-  height: 40px;
+  width: 38px;
+  height: 34px;
   border-radius: 6px;
   border: 2px solid #334155;
   background: transparent;
@@ -1485,7 +1539,7 @@ body[data-theme="itachi"] .poker-card.back {
 }
 
 .pattu-orig-nav-label {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: #cbd5e1;
   font-weight: 500;
 }
@@ -1501,25 +1555,28 @@ body[data-theme="itachi"] .poker-card.back {
 /* Cinema Viewport (Real Movie Image) */
 .pattu-cinema-viewport {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: 270px;
+  max-width: 440px;
+  height: clamp(150px, 26vh, 210px);
   background: #000000;
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .pattu-cinema-img {
-  width: 100%;
-  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
   object-fit: contain;
   display: block;
   background: #000;
+  margin: 0 auto;
 }
 
 /* Fallback Card */
@@ -1530,7 +1587,7 @@ body[data-theme="itachi"] .poker-card.back {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 12px;
   box-sizing: border-box;
   text-align: center;
   background: radial-gradient(circle at center, rgba(34, 197, 94, 0.12) 0%, #090d16 80%);
@@ -1541,23 +1598,23 @@ body[data-theme="itachi"] .poker-card.back {
   font-weight: 800;
   letter-spacing: 2px;
   color: #22c55e;
-  margin-bottom: 6px;
-}
-
-.pattu-fallback-icon {
-  font-size: 2.2rem;
-  margin-bottom: 6px;
-}
-
-.pattu-fallback-clue {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #fff;
   margin-bottom: 4px;
 }
 
+.pattu-fallback-icon {
+  font-size: 1.8rem;
+  margin-bottom: 4px;
+}
+
+.pattu-fallback-clue {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 3px;
+}
+
 .pattu-fallback-sub {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: #94a3b8;
 }
 
@@ -1566,18 +1623,18 @@ body[data-theme="itachi"] .poker-card.back {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 6px;
-  margin-top: 4px;
+  gap: 5px;
+  margin-top: 3px;
 }
 
 .pattu-frame-tab {
-  min-width: 32px;
-  height: 28px;
+  min-width: 28px;
+  height: 26px;
   border-radius: 3px;
   background: #334155;
   color: #f8fafc;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   border: 1px solid transparent;
   cursor: pointer;
   display: flex;
@@ -1609,10 +1666,10 @@ body[data-theme="itachi"] .poker-card.back {
   background: #dc2626 !important;
   color: #ffffff !important;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   border-radius: 4px;
   border: none;
-  padding: 6px 18px;
+  padding: 5px 16px;
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -1627,13 +1684,13 @@ body[data-theme="itachi"] .poker-card.back {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   margin-top: 2px;
 }
 
 .pattu-input-box {
   flex: 1;
-  max-width: 380px;
+  max-width: 360px;
   position: relative;
   display: flex;
   align-items: center;
@@ -1641,13 +1698,13 @@ body[data-theme="itachi"] .poker-card.back {
 
 .pattu-orig-input {
   width: 100%;
-  height: 38px;
+  height: 35px;
   border-radius: 4px;
   border: 1px solid #475569;
   background: #27272a;
   color: #ffffff;
-  padding: 0 42px 0 12px;
-  font-size: 0.88rem;
+  padding: 0 38px 0 10px;
+  font-size: 0.84rem;
   outline: none;
   box-sizing: border-box;
 }
@@ -1659,22 +1716,22 @@ body[data-theme="itachi"] .poker-card.back {
 
 .pattu-input-addon {
   position: absolute;
-  right: 12px;
+  right: 10px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   color: #71717a;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   pointer-events: none;
 }
 
 .pattu-clear-btn {
   position: absolute;
-  right: 32px;
+  right: 28px;
   background: none;
   border: none;
   color: #a1a1aa;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   padding: 4px;
 }
@@ -1684,7 +1741,7 @@ body[data-theme="itachi"] .poker-card.back {
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  max-height: 220px;
+  max-height: 200px;
   overflow-y: auto;
   background: #27272a;
   border: 1px solid #475569;
@@ -1694,8 +1751,8 @@ body[data-theme="itachi"] .poker-card.back {
 }
 
 .pattu-drop-item {
-  padding: 9px 12px;
-  font-size: 0.84rem;
+  padding: 8px 10px;
+  font-size: 0.82rem;
   color: #f4f4f5;
   cursor: pointer;
   transition: background 0.12s;
@@ -1711,11 +1768,11 @@ body[data-theme="itachi"] .poker-card.back {
   background: #2563eb !important;
   color: #ffffff !important;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   border-radius: 4px;
   border: none;
-  padding: 0 18px;
-  height: 38px;
+  padding: 0 14px;
+  height: 35px;
   cursor: pointer;
   transition: background 0.15s;
   display: flex;
@@ -1729,16 +1786,16 @@ body[data-theme="itachi"] .poker-card.back {
 
 /* Guesses Remaining Text */
 .pattu-remaining-text {
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   color: #ffffff;
   text-align: center;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .pattu-remaining-text .rem-count {
   color: #22c55e;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 /* Previous Guesses List */
@@ -1747,18 +1804,21 @@ body[data-theme="itachi"] .poker-card.back {
   max-width: 440px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 4px;
+  gap: 3px;
+  margin-top: 3px;
+  max-height: 120px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .pattu-hist-card {
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 4px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .pattu-hist-card.wrong {
