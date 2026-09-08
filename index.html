@@ -387,15 +387,36 @@
           </div>
         </div>
 
-        <!-- Pattu Time Travel Modal -->
+        <!-- PC Time Travel Modal (Interactive Calendar Picker) -->
         <div id="pattuTimeTravelModal" class="win-overlay hidden">
-          <div class="win-modal glass-island pattu-modal-box">
+          <div class="win-modal glass-island pattu-modal-box pattu-tt-modal-box">
             <h2>⏳ Time Travel</h2>
             <div class="pattu-modal-body">
-              <p>Jump to any past day's puzzle from the Tollywood archives!</p>
+              <div class="pattu-tt-playing-badge">
+                You are playing day <b id="pattuTtCurrentDayText">#1570</b> game
+              </div>
               <div class="pattu-tt-input-row">
-                <label for="pattuDayInput">Day Number (1 to <span id="pattuMaxDayText">1569</span>):</label>
-                <input type="number" id="pattuDayInput" class="pattu-orig-input" min="1" max="2000" value="1" />
+                <label for="pattuDateInput">Select the date you want to travel to :</label>
+                <div class="pattu-date-input-wrap">
+                  <input
+                    type="date"
+                    id="pattuDateInput"
+                    class="pattu-orig-input pattu-date-input"
+                    min="2022-05-23"
+                  />
+                  <span class="pattu-date-cal-icon">📅</span>
+                </div>
+              </div>
+              <div class="pattu-tt-target-preview">
+                Targeting: <b id="pattuTtTargetDay">Day #1569</b> (<span id="pattuTtFormattedDate">Sep 7, 2026</span>)
+                <button type="button" id="pattuToggleDayNumBtn" class="pattu-tt-link">or enter Day #</button>
+              </div>
+              <div id="pattuTtManualWrap" class="pattu-tt-manual-wrap hidden">
+                <label for="pattuDayInput">Day Number (1 to <span id="pattuMaxDayText">1570</span>):</label>
+                <input type="number" id="pattuDayInput" class="pattu-orig-input" min="1" max="2500" value="1" />
+              </div>
+              <div class="pattu-tt-disclaimer">
+                Time travel games won't be counted in streak or any other daily game stats
               </div>
             </div>
             <div class="pattu-modal-actions">

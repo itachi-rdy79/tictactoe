@@ -84,6 +84,12 @@ const pattuNextBtn = document.getElementById("pattuNextBtn");
 const pattuInstructionsModal = document.getElementById("pattuInstructionsModal");
 const closePattuHelpBtn = document.getElementById("closePattuHelpBtn");
 const pattuTimeTravelModal = document.getElementById("pattuTimeTravelModal");
+const pattuDateInput = document.getElementById("pattuDateInput");
+const pattuTtCurrentDayText = document.getElementById("pattuTtCurrentDayText");
+const pattuTtTargetDay = document.getElementById("pattuTtTargetDay");
+const pattuTtFormattedDate = document.getElementById("pattuTtFormattedDate");
+const pattuToggleDayNumBtn = document.getElementById("pattuToggleDayNumBtn");
+const pattuTtManualWrap = document.getElementById("pattuTtManualWrap");
 const pattuDayInput = document.getElementById("pattuDayInput");
 const pattuMaxDayText = document.getElementById("pattuMaxDayText");
 const submitPattuTimeTravelBtn = document.getElementById("submitPattuTimeTravelBtn");
@@ -2873,6 +2879,36 @@ function getPattuDayCount() {
   return Math.max(1, Math.floor(diffSec / 86400));
 }
 
+const PATTU_ORIGIN_MS = new Date("2022-05-22T18:30:00.000Z").getTime();
+
+function pattuDayToDateStr(dayNum) {
+  const targetMs = PATTU_ORIGIN_MS + (dayNum - 1) * 86400000;
+  const istDate = new Date(targetMs + (5.5 * 3600 * 1000));
+  const y = istDate.getUTCFullYear();
+  const m = String(istDate.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(istDate.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function pattuDateStrToDay(dateStr) {
+  if (!dateStr) return 1;
+  const parts = dateStr.split("-").map(Number);
+  if (parts.length !== 3 || isNaN(parts[0])) return 1;
+  const [y, m, d] = parts;
+  const targetUtcMs = Date.UTC(y, m - 1, d) - (5.5 * 3600 * 1000);
+  const diffMs = targetUtcMs - PATTU_ORIGIN_MS;
+  const dayNum = Math.floor(diffMs / 86400000) + 1;
+  return Math.max(1, dayNum);
+}
+
+function formatPattuDisplayDate(dateStr) {
+  if (!dateStr) return "";
+  const parts = dateStr.split("-").map(Number);
+  if (parts.length !== 3) return dateStr;
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${months[parts[1] - 1]} ${parts[2]}, ${parts[0]}`;
+}
+
 function normalizePattuTitle(str) {
   if (!str) return "";
   return str.toLowerCase().replace(/[^a-z0-9]/g, "").trim();
@@ -3388,22 +3424,78 @@ closePattuHelpBtn?.addEventListener("click", () => {
   pattuInstructionsModal?.classList.add("hidden");
 });
 
-// Time Travel Modal
+// Time Travel Modal (Interactive Calendar Date Picker)
 pattuTimeTravelBtn?.addEventListener("click", () => {
-  const maxDay = getPattuDayCount();
-  if (pattuMaxDayText) pattuMaxDayText.textContent = String(maxDay);
-  if (pattuDayInput) {
-    pattuDayInput.max = maxDay;
-    pattuDayInput.value = pattuCurrentDay;
+  const todayDay = getPattuDayCount();
+  const minDate = "2022-05-23";
+  const maxDate = pattuDayToDateStr(todayDay);
+
+  if (pattuTtCurrentDayText) pattuTtCurrentDayText.textContent = `#${pattuCurrentDay}`;
+  if (pattuMaxDayText) pattuMaxDayText.textContent = String(todayDay);
+
+  // Default to yesterday's puzzle or currently viewed historical day
+  const defaultSelectedDay = (pattuCurrentDay < todayDay) ? pattuCurrentDay : Math.max(1, todayDay - 1);
+  const defaultDateStr = pattuDayToDateStr(defaultSelectedDay);
+
+  if (pattuDateInput) {
+    pattuDateInput.min = minDate;
+    pattuDateInput.max = maxDate;
+    pattuDateInput.value = defaultDateStr;
   }
+  if (pattuDayInput) {
+    pattuDayInput.min = "1";
+    pattuDayInput.max = String(todayDay);
+    pattuDayInput.value = String(defaultSelectedDay);
+  }
+
+  if (pattuTtTargetDay) pattuTtTargetDay.textContent = `Day #${defaultSelectedDay}`;
+  if (pattuTtFormattedDate) pattuTtFormattedDate.textContent = formatPattuDisplayDate(defaultDateStr);
+  pattuTtManualWrap?.classList.add("hidden");
+
   pattuTimeTravelModal?.classList.remove("hidden");
 });
+
+pattuDateInput?.addEventListener("click", () => {
+  try { pattuDateInput.showPicker(); } catch {}
+});
+
+pattuDateInput?.addEventListener("input", () => {
+  const maxDay = getPattuDayCount();
+  const day = pattuDateStrToDay(pattuDateInput.value);
+  const clampedDay = Math.min(maxDay, Math.max(1, day));
+  if (pattuDayInput) pattuDayInput.value = String(clampedDay);
+  if (pattuTtTargetDay) pattuTtTargetDay.textContent = `Day #${clampedDay}`;
+  if (pattuTtFormattedDate) pattuTtFormattedDate.textContent = formatPattuDisplayDate(pattuDateInput.value);
+});
+
+pattuDayInput?.addEventListener("input", () => {
+  const maxDay = getPattuDayCount();
+  let day = parseInt(pattuDayInput.value, 10);
+  if (isNaN(day) || day < 1) day = 1;
+  if (day > maxDay) day = maxDay;
+  const dateStr = pattuDayToDateStr(day);
+  if (pattuDateInput) pattuDateInput.value = dateStr;
+  if (pattuTtTargetDay) pattuTtTargetDay.textContent = `Day #${day}`;
+  if (pattuTtFormattedDate) pattuTtFormattedDate.textContent = formatPattuDisplayDate(dateStr);
+});
+
+pattuToggleDayNumBtn?.addEventListener("click", () => {
+  pattuTtManualWrap?.classList.toggle("hidden");
+  if (!pattuTtManualWrap?.classList.contains("hidden")) {
+    pattuDayInput?.focus();
+  }
+});
+
 closePattuTimeTravelBtn?.addEventListener("click", () => {
   pattuTimeTravelModal?.classList.add("hidden");
 });
+
 submitPattuTimeTravelBtn?.addEventListener("click", () => {
   const maxDay = getPattuDayCount();
-  const val = parseInt(pattuDayInput?.value, 10);
+  let val = pattuDateStrToDay(pattuDateInput?.value);
+  if (isNaN(val) || val < 1) {
+    val = parseInt(pattuDayInput?.value, 10);
+  }
   if (!isNaN(val) && val >= 1 && val <= maxDay) {
     pattuTimeTravelModal?.classList.add("hidden");
     initPattu(val);

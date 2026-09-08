@@ -1406,11 +1406,11 @@ body[data-theme="itachi"] .poker-card.back {
 
 .arena.pattu-arena-mode {
   height: auto !important;
-  min-height: calc(100vh - 90px) !important;
+  min-height: calc(100vh - 100px) !important;
   max-height: calc(100vh - 75px) !important;
   justify-content: flex-start !important;
   overflow-y: auto !important;
-  padding: 4px 0 16px 0 !important;
+  padding: 24px 0 32px 0 !important;
   scrollbar-width: thin;
 }
 
@@ -1430,14 +1430,14 @@ body[data-theme="itachi"] .poker-card.back {
   max-width: 470px !important;
   height: auto !important;
   aspect-ratio: auto !important;
-  padding: 10px 14px 12px 14px !important;
+  padding: 12px 14px 14px 14px !important;
   background: rgba(12, 16, 28, 0.92) !important;
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(24px) !important;
   border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
   border-radius: 16px !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8) !important;
-  margin: 0 auto !important;
+  margin: 10px auto 20px auto !important;
   overflow: visible !important;
 }
 
@@ -1902,17 +1902,141 @@ body[data-theme="itachi"] .poker-card.back {
   margin: 6px 0;
 }
 
+.pattu-tt-modal-box {
+  max-width: 440px !important;
+  width: min(92vw, 440px) !important;
+  padding: 22px 24px !important;
+}
+
+.pattu-tt-playing-badge {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.pattu-tt-playing-badge b {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
 .pattu-tt-input-row {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin-top: 10px;
 }
+.pattu-tt-input-row label {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.pattu-date-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.pattu-date-input {
+  width: 100% !important;
+  color-scheme: dark !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  padding: 10px 40px 10px 14px !important;
+  border-radius: 8px !important;
+  background: #1e293b !important;
+  border: 1.5px solid #38bdf8 !important;
+  color: #ffffff !important;
+  letter-spacing: 0.5px !important;
+  box-sizing: border-box !important;
+}
+
+.pattu-date-input:focus {
+  outline: none !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.4) !important;
+}
+
+.pattu-date-cal-icon {
+  position: absolute;
+  right: 12px;
+  font-size: 1.15rem;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.pattu-date-input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 6px;
+  width: 32px;
+  height: 32px;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.pattu-tt-target-preview {
+  margin-top: 8px;
+  font-size: 0.88rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pattu-tt-target-preview b {
+  color: #22c55e;
+}
+
+.pattu-tt-manual-wrap {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pattu-tt-manual-wrap label {
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.pattu-tt-disclaimer {
+  margin-top: 12px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+  border-left: 3px solid #38bdf8;
+  padding: 8px 10px;
+  border-radius: 0 6px 6px 0;
+}
+
+.pattu-tt-link {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 0.78rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+.pattu-tt-link:hover {
+  color: #38bdf8;
+}
 
 .pattu-modal-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  margin-top: 14px;
 }
 
 .pattu-stats-summary-grid {
