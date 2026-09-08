@@ -552,9 +552,10 @@ body[data-theme="itachi"] .brand { text-shadow: 0 0 20px rgba(255, 0, 51, 0.75);
   width: 100%;
 }
 
-/* Perfectly Balanced Board Shells */
+/* Constant Size Board Shells (Identical constant size for TTT & Chess) */
 .board-shell {
-  width: min(64vmin, 460px);
+  width: min(70vmin, 460px);
+  height: min(70vmin, 460px);
   aspect-ratio: 1 / 1;
   border-radius: 20px !important;
   padding: 10px !important;
@@ -563,14 +564,17 @@ body[data-theme="itachi"] .brand { text-shadow: 0 0 20px rgba(255, 0, 51, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: width 0.25s ease, max-width 0.25s ease;
+  box-sizing: border-box;
   flex-shrink: 0;
+  overflow: hidden;
+  transition: width 0.25s ease, max-width 0.25s ease;
 }
 
 .board-shell.chess-mode {
-  width: min(70vmin, 500px) !important;
+  width: min(70vmin, 460px) !important;
+  height: min(70vmin, 460px) !important;
   aspect-ratio: 1 / 1 !important;
-  padding: 12px !important;
+  padding: 10px !important;
 }
 
 .board-shell.wordle-mode,
@@ -727,15 +731,28 @@ body[data-theme="got"] .chip-icon.black-piece {
   }
 }
 
-.ttt-board { width: 100%; height: 100%; display: grid; gap: 8px; }
+.ttt-board,
+.ttt-grid {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  gap: 6px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
 
 .ttt-cell {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
   aspect-ratio: 1 / 1;
   border: 2px solid var(--tile-border);
-  border-radius: 12px;
+  border-radius: 10px;
   background-color: var(--tile-bg);
   color: var(--text);
-  font-size: clamp(26px, 6vmin, 40px);
+  font-size: clamp(18px, 4.5vmin, 34px);
   font-weight: 900;
   cursor: pointer;
   display: flex;
@@ -1889,52 +1906,50 @@ body.mini-window .radial-wrap {
   height: 26px !important;
 }
 
-/* 5x5 & 3x3 Tic-Tac-Toe */
-body.mini-window .board-shell:not(.chess-mode):not(.wordle-mode):not(.poker-mode):not(.imposter-mode) {
-  width: min(68vmin, 260px) !important;
-  height: min(68vmin, 260px) !important;
-  padding: 3px !important;
+/* Constant Size Boards in Mini-Window (Identical for 5x5, 3x3, and Chess) */
+body.mini-window .board-shell,
+body.mini-window .board-shell.chess-mode,
+body.mini-window .board-shell:not(.wordle-mode):not(.poker-mode):not(.imposter-mode) {
+  width: min(78vmin, 310px) !important;
+  height: min(78vmin, 310px) !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: 8px !important;
   box-sizing: border-box !important;
+}
+
+body.mini-window .captured-sidebar {
+  display: none !important;
 }
 
 body.mini-window .ttt-grid {
   width: 100% !important;
   height: 100% !important;
-  max-width: min(68vmin, 260px) !important;
-  max-height: min(68vmin, 260px) !important;
-  gap: 3px !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  gap: 4px !important;
+  box-sizing: border-box !important;
 }
 
 body.mini-window .ttt-cell {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+  aspect-ratio: 1 / 1 !important;
   border-radius: 8px !important;
-  font-size: 1.5rem !important;
+  font-size: clamp(14px, 3.5vmin, 22px) !important;
 }
 
-/* Chess */
-body.mini-window .board-shell.chess-mode {
-  width: min(72vmin, 280px) !important;
-  height: min(72vmin, 280px) !important;
-  padding: 3px !important;
-}
-
-body.mini-window .captured-sidebar {
-  width: 26px !important;
-  height: min(72vmin, 280px) !important;
-  padding: 2px 1px !important;
-}
-
-body.mini-window .captured-header {
-  font-size: 0.4rem !important;
-}
-
-body.mini-window .captured-piece-chip {
-  width: 22px !important;
-  height: 22px !important;
-  font-size: 0.85rem !important;
-}
-
-body.mini-window .chip-badge {
-  font-size: 0.45rem !important;
+body.mini-window .chess-board {
+  width: 100% !important;
+  height: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(8, 1fr) !important;
+  grid-template-rows: repeat(8, 1fr) !important;
+  box-sizing: border-box !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
 }
 
 /* Wordle */
@@ -2071,7 +2086,7 @@ body.mini-window #scoreStatsBar {
     overflow: hidden !important;
   }
   .brand { font-size: 1.12rem !important; flex-shrink: 0 !important; }
-  .brand-flame-svg { width: 20px !important; height: 20px !important; }
+  .brand-flame-svg { display: none !important; }
   #gameTypePills {
     display: flex !important;
     flex: 1 !important;
@@ -2097,9 +2112,13 @@ body.mini-window #scoreStatsBar {
   .group-label { display: none !important; }
   .hud-center .seg-btn { height: 24px !important; padding: 0 6px !important; font-size: 0.68rem !important; }
   .arena { height: calc(100vh - 145px) !important; padding: 2px 4px 60px 4px !important; overflow: hidden !important; }
-  .board-shell:not(.chess-mode):not(.wordle-mode):not(.poker-mode):not(.imposter-mode) { width: min(68vmin, 260px) !important; height: min(68vmin, 260px) !important; }
-  .ttt-grid { max-width: min(68vmin, 260px) !important; max-height: min(68vmin, 260px) !important; gap: 3px !important; }
-  .board-shell.chess-mode { width: min(72vmin, 280px) !important; height: min(72vmin, 280px) !important; }
+  .captured-sidebar { display: none !important; }
+  .board-shell,
+  .board-shell.chess-mode,
+  .board-shell:not(.wordle-mode):not(.poker-mode):not(.imposter-mode) { width: min(78vmin, 310px) !important; height: min(78vmin, 310px) !important; aspect-ratio: 1 / 1 !important; padding: 8px !important; box-sizing: border-box !important; }
+  .ttt-grid { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; gap: 4px !important; box-sizing: border-box !important; }
+  .ttt-cell { width: 100% !important; height: 100% !important; min-width: 0 !important; min-height: 0 !important; box-sizing: border-box !important; aspect-ratio: 1 / 1 !important; }
+  .chess-board { width: 100% !important; height: 100% !important; display: grid !important; grid-template-columns: repeat(8, 1fr) !important; grid-template-rows: repeat(8, 1fr) !important; box-sizing: border-box !important; border-radius: 8px !important; overflow: hidden !important; }
   .quick-dock { position: fixed !important; bottom: 2px !important; left: 50% !important; transform: translateX(-50%) !important; width: calc(100% - 10px) !important; }
   .quick-dock .seg-btn { height: 23px !important; padding: 0 6px !important; font-size: 0.67rem !important; }
 }

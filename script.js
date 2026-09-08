@@ -694,7 +694,8 @@ function renderTTT() {
 
   if (!tttBoardEl) return;
   tttBoardEl.innerHTML = "";
-  tttBoardEl.style.gridTemplateColumns = `repeat(${tttSize}, minmax(48px, 1fr))`;
+  tttBoardEl.style.gridTemplateColumns = `repeat(${tttSize}, 1fr)`;
+  tttBoardEl.style.gridTemplateRows = `repeat(${tttSize}, 1fr)`;
 
   const theme = hubState.theme;
   function getIcon(mark) {
