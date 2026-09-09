@@ -3,6 +3,8 @@ const difficultySelect = document.getElementById("difficultySelect");
 const themeSelect = document.getElementById("themeSelect");
 
 const gameTypePills = document.getElementById("gameTypePills");
+const tttModeGroup = document.getElementById("tttModeGroup");
+const tttModePills = document.getElementById("tttModePills");
 const opponentPills = document.getElementById("opponentPills");
 const difficultyPills = document.getElementById("difficultyPills");
 const difficultyGroup = document.getElementById("difficultyGroup");
@@ -130,25 +132,97 @@ const closeStatsBtn = document.getElementById("closeStatsBtn");
 const statsGridContent = document.getElementById("statsGridContent");
 const confettiCanvas = document.getElementById("confettiCanvas");
 
-/* ---------- 5 Vibrant Neon Accent Palettes on Reload ---------- */
+/* ---------- 8 Rich Luxury Liquid Glass Background & Brand Palettes ---------- */
 const DYNAMIC_PALETTES = [
-  { name: "Emerald", accent: "#10b981", border: "#34d399", shadow: "#059669", tint: "rgba(16, 185, 129, 0.2)", lightBg: "#ecfdf5" },
-  { name: "Amber",   accent: "#f59e0b", border: "#fbbf24", shadow: "#d97706", tint: "rgba(245, 158, 11, 0.2)", lightBg: "#fffbeb" },
-  { name: "Violet",  accent: "#8b5cf6", border: "#a78bfa", shadow: "#7c3aed", tint: "rgba(139, 92, 246, 0.2)", lightBg: "#f5f3ff" },
-  { name: "Teal",    accent: "#14b8a6", border: "#2dd4bf", shadow: "#0d9488", tint: "rgba(20, 184, 166, 0.2)", lightBg: "#f0fdfa" },
-  { name: "Lime",    accent: "#84cc16", border: "#a3e635", shadow: "#65a30d", tint: "rgba(132, 204, 22, 0.2)", lightBg: "#f7fee7" }
+  {
+    name: "Electric Sapphire",
+    brand: "#38bdf8",
+    flame: "#0284c7",
+    darkBg: "radial-gradient(circle at 18% 22%, rgba(2, 132, 199, 0.45) 0%, transparent 45%), radial-gradient(circle at 82% 78%, rgba(99, 102, 241, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.22) 0%, transparent 60%), #060913",
+    lightBg: "radial-gradient(circle at 18% 22%, #bae6fd 0%, transparent 50%), radial-gradient(circle at 82% 78%, #c7d2fe 0%, transparent 50%), #f0f9ff",
+    glow: "rgba(56, 189, 248, 0.45)"
+  },
+  {
+    name: "Velvet Emerald",
+    brand: "#10b981",
+    flame: "#059669",
+    darkBg: "radial-gradient(circle at 20% 24%, rgba(5, 150, 105, 0.45) 0%, transparent 45%), radial-gradient(circle at 80% 76%, rgba(20, 184, 166, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.2) 0%, transparent 60%), #030d0a",
+    lightBg: "radial-gradient(circle at 20% 24%, #a7f3d0 0%, transparent 50%), radial-gradient(circle at 80% 76%, #99f6e4 0%, transparent 50%), #ecfdf5",
+    glow: "rgba(16, 185, 129, 0.45)"
+  },
+  {
+    name: "Royal Amethyst",
+    brand: "#c084fc",
+    flame: "#9333ea",
+    darkBg: "radial-gradient(circle at 25% 20%, rgba(147, 51, 234, 0.45) 0%, transparent 45%), radial-gradient(circle at 75% 80%, rgba(192, 38, 211, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.22) 0%, transparent 60%), #090314",
+    lightBg: "radial-gradient(circle at 25% 20%, #e9d5ff 0%, transparent 50%), radial-gradient(circle at 75% 80%, #f5d0fe 0%, transparent 50%), #faf5ff",
+    glow: "rgba(192, 132, 252, 0.45)"
+  },
+  {
+    name: "Sunset Ruby",
+    brand: "#fb7185",
+    flame: "#e11d48",
+    darkBg: "radial-gradient(circle at 18% 28%, rgba(225, 29, 72, 0.45) 0%, transparent 45%), radial-gradient(circle at 82% 72%, rgba(244, 63, 94, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(190, 18, 60, 0.22) 0%, transparent 60%), #120207",
+    lightBg: "radial-gradient(circle at 18% 28%, #fecdd3 0%, transparent 50%), radial-gradient(circle at 82% 72%, #fbcfe8 0%, transparent 50%), #fff1f2",
+    glow: "rgba(251, 113, 133, 0.45)"
+  },
+  {
+    name: "Molten Amber",
+    brand: "#fbbf24",
+    flame: "#d97706",
+    darkBg: "radial-gradient(circle at 24% 22%, rgba(217, 119, 6, 0.45) 0%, transparent 45%), radial-gradient(circle at 76% 78%, rgba(234, 88, 12, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.22) 0%, transparent 60%), #120902",
+    lightBg: "radial-gradient(circle at 24% 22%, #fde68a 0%, transparent 50%), radial-gradient(circle at 76% 78%, #fed7aa 0%, transparent 50%), #fffbeb",
+    glow: "rgba(251, 191, 36, 0.45)"
+  },
+  {
+    name: "Oceanic Cyan",
+    brand: "#22d3ee",
+    flame: "#0891b2",
+    darkBg: "radial-gradient(circle at 20% 20%, rgba(8, 145, 178, 0.48) 0%, transparent 45%), radial-gradient(circle at 80% 80%, rgba(14, 116, 144, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.25) 0%, transparent 60%), #020c13",
+    lightBg: "radial-gradient(circle at 20% 20%, #a5f3fc 0%, transparent 50%), radial-gradient(circle at 80% 80%, #bae6fd 0%, transparent 50%), #ecfeff",
+    glow: "rgba(34, 211, 238, 0.45)"
+  },
+  {
+    name: "Prism Orchid",
+    brand: "#f472b6",
+    flame: "#db2777",
+    darkBg: "radial-gradient(circle at 22% 26%, rgba(219, 39, 119, 0.45) 0%, transparent 45%), radial-gradient(circle at 78% 74%, rgba(162, 28, 175, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.22) 0%, transparent 60%), #12020f",
+    lightBg: "radial-gradient(circle at 22% 26%, #fbcfe8 0%, transparent 50%), radial-gradient(circle at 78% 74%, #e9d5ff 0%, transparent 50%), #fdf2f8",
+    glow: "rgba(244, 114, 182, 0.45)"
+  },
+  {
+    name: "Deep Teal Glacier",
+    brand: "#2dd4bf",
+    flame: "#0d9488",
+    darkBg: "radial-gradient(circle at 20% 25%, rgba(13, 148, 136, 0.45) 0%, transparent 45%), radial-gradient(circle at 80% 75%, rgba(15, 118, 110, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.22) 0%, transparent 60%), #010d0b",
+    lightBg: "radial-gradient(circle at 20% 25%, #99f6e4 0%, transparent 50%), radial-gradient(circle at 80% 75%, #bbf7d0 0%, transparent 50%), #f0fdfa",
+    glow: "rgba(45, 212, 191, 0.45)"
+  }
 ];
 
-function applyRandomPalette() {
-  const chosen = DYNAMIC_PALETTES[Math.floor(Math.random() * DYNAMIC_PALETTES.length)];
+let currentPaletteIdx = Math.floor(Math.random() * DYNAMIC_PALETTES.length);
+
+function applyRandomPalette(idx = null) {
+  if (idx !== null) currentPaletteIdx = idx;
+  else currentPaletteIdx = (currentPaletteIdx + 1) % DYNAMIC_PALETTES.length;
+  const chosen = DYNAMIC_PALETTES[currentPaletteIdx];
   const root = document.documentElement;
-  root.style.setProperty("--dyn-accent", chosen.accent);
-  root.style.setProperty("--dyn-border", chosen.border);
-  root.style.setProperty("--dyn-shadow", chosen.shadow);
-  root.style.setProperty("--dyn-tint", chosen.tint);
-  root.style.setProperty("--dyn-light-bg", chosen.lightBg);
+  root.style.setProperty("--dyn-brand", chosen.brand);
+  root.style.setProperty("--dyn-flame", chosen.flame);
+  root.style.setProperty("--dyn-glow", chosen.glow);
+  root.style.setProperty("--dyn-bg-dark", chosen.darkBg);
+  root.style.setProperty("--dyn-bg-light", chosen.lightBg);
 }
-applyRandomPalette();
+applyRandomPalette(currentPaletteIdx);
+
+document.addEventListener("DOMContentLoaded", () => {
+  const brandEl = document.querySelector(".brand");
+  if (brandEl) {
+    brandEl.style.cursor = "pointer";
+    brandEl.title = "Click to cycle theme background & brand colors";
+    brandEl.addEventListener("click", () => applyRandomPalette());
+  }
+});
 
 /* ---------- Custom SVGs for Thematic Markers & Crests ---------- */
 const SHARINGAN_SVG = `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ff0033"/><circle cx="50" cy="50" r="38" fill="none" stroke="#000" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="#000"/><circle cx="50" cy="24" r="7" fill="#000"/><path d="M50 24 Q57 32 50 37" stroke="#000" stroke-width="3" fill="none"/><circle cx="27" cy="63" r="7" fill="#000"/><path d="M27 63 Q23 72 30 75" stroke="#000" stroke-width="3" fill="none"/><circle cx="73" cy="63" r="7" fill="#000"/><path d="M73 63 Q77 72 70 75" stroke="#000" stroke-width="3" fill="none"/></svg>`;
@@ -165,7 +239,7 @@ const hubState = {
   opponent: "ai",
   difficulty: "medium",
   timer: "off",
-  theme: "light"
+  theme: "dark"
 };
 
 let scoreA = 0, scoreB = 0, scoreD = 0, streak = 0;
@@ -281,7 +355,7 @@ function loadHub() {
 
   // normalize
   if (!["off", "15", "30", "45", "60", "90"].includes(hubState.timer)) hubState.timer = "off";
-  if (!["dark", "light", "itachi", "naruto", "got"].includes(hubState.theme)) hubState.theme = "light";
+  if (!["dark", "light", "itachi", "naruto", "got"].includes(hubState.theme)) hubState.theme = "dark";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
   if (!["ttt3", "ttt5", "chess", "wordle", "poker", "pattu"].includes(hubState.game)) hubState.game = "ttt3";
@@ -290,15 +364,26 @@ function loadHub() {
 }
 
 function syncHud() {
+  const isTTT = hubState.game.startsWith("ttt");
   const isWordle = hubState.game === "wordle";
   const isPattu = hubState.game === "pattu";
   const isSolo = isWordle || isPattu;
   if (isSolo) hubState.opponent = "local";
 
-  setActive(gameTypePills, "game", hubState.game);
+  const activeGamePill = isTTT ? "ttt" : hubState.game;
+  setActive(gameTypePills, "game", activeGamePill);
   setActive(opponentPills, "opponent", hubState.opponent);
   setActive(difficultyPills, "difficulty", hubState.difficulty);
   setActive(timerPills, "timer", hubState.timer);
+
+  if (tttModeGroup) {
+    if (isTTT) {
+      tttModeGroup.style.display = "flex";
+      setActive(tttModePills, "grid", hubState.game === "ttt5" ? "5" : "3");
+    } else {
+      tttModeGroup.style.setProperty("display", "none", "important");
+    }
+  }
 
   if (opponentGroup) {
     if (isSolo) opponentGroup.style.setProperty("display", "none", "important");
@@ -1172,6 +1257,24 @@ function initChess() {
   startTurnTimer();
 }
 
+/* ---------- Liquid Glass Vector Chess Pieces ---------- */
+function getPieceSvgHtml(color, type) {
+  const isWhite = color === "w";
+  const pieceClass = isWhite ? "glass-piece-white" : "glass-piece-black";
+  
+  const paths = {
+    p: `<path d="M22.5 9c-2.2 0-4 1.8-4 4 0 .9.3 1.7.8 2.4-1.9 1.1-3.3 3.2-3.3 5.6 0 2 1 3.8 2.4 5-3.4 1.1-7.4 5.6-7.4 13.5h24c0-7.9-4-12.4-7.4-13.5 1.5-1.2 2.4-3 2.4-5 0-2.4-1.3-4.5-3.3-5.6.5-.7.8-1.5.8-2.4 0-2.2-1.8-4-4-4z"/>`,
+    r: `<path d="M9 39h27v-3.5H9V39zm3-5.5h21l-1.8-6.5H13.8L12 33.5zM14 25h17v-8H14v8zM11 15h23V9h-3.5v2.5h-4V9h-3v2.5h-4V9H11v6z"/>`,
+    n: `<path d="M 22,10 C 32.5,11 38.5,18 38,39 L 14,39 C 14,31 19,29 20,24 C 20,24 18,24 16,25.5 C 13.5,27 12.5,29.5 10.5,29 C 9.5,28 11.5,26.5 10,26.5 C 9,26.5 8,27.5 7,26 C 6,24.5 10,17 11.5,14 C 11.5,14 13.5,12 14,10 C 13,7.5 16.5,5.5 20,6 C 20,6 20.8,7.2 21,8.5 C 21.2,9.8 22,10 22,10 Z" fill="currentColor"/><circle cx="13.5" cy="16" r="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M 24,14 C 23.2,16 23.2,18 24.5,20" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M 28,18 C 27.2,20.5 28,23 30,24.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M 9.5,25 C 9.5,25 10.5,23.5 12,24" fill="none" stroke="currentColor" stroke-width="1.2"/>`,
+    b: `<path d="M22.5 7.5c-1.1 0-2 .9-2 2 0 .4.1.8.3 1.1-2.2 1.4-4.8 4.9-4.8 9.4 0 3.8 2 6.5 4 8.5v7.5h5V28.5c2-2 4-4.7 4-8.5 0-4.5-2.6-8-4.8-9.4.2-.3.3-.7.3-1.1 0-1.1-.9-2-2-2zM11 39.5h23v-3.5H11v3.5z"/><path d="M22.5 14v7m-3.5-3.5h7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>`,
+    q: `<path d="M9 39.5h27v-3.5H9v3.5zm3-5.5h21l-2.2-12.5-5 8-3.3-14.5-3.3 14.5-5-8L12 34z"/><circle cx="9" cy="16" r="2"/><circle cx="15.5" cy="12.5" r="2"/><circle cx="22.5" cy="10.5" r="2"/><circle cx="29.5" cy="12.5" r="2"/><circle cx="36" cy="16" r="2"/>`,
+    k: `<path d="M 22.5,4 L 22.5,11.5 M 19,7.5 L 26,7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M 9,39 L 36,39 L 36,35.5 C 36,35.5 35.5,31.5 32.5,28 C 29.5,24.5 28,21.5 28,16 C 28,12.5 25.5,12 22.5,12 C 19.5,12 17,12.5 17,16 C 17,21.5 15.5,24.5 12.5,28 C 9.5,31.5 9,35.5 9,35.5 Z" fill="currentColor"/><path d="M 11.5,33 C 17,31 28,31 33.5,33" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="22.5" cy="18.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M 17,24 C 20,26 25,26 28,24" fill="none" stroke="currentColor" stroke-width="1.4"/>`
+  };
+
+  const path = paths[type] || paths.p;
+  return `<svg viewBox="0 0 45 45" class="glass-piece-svg ${pieceClass}" aria-label="${isWhite ? 'White' : 'Black'} ${type}">${path}</svg>`;
+}
+
 /* ---------- 3D Embossed Tactile Chess Captured Counters ---------- */
 function renderCaptured() {
   const pieceOrder = ["q", "r", "b", "n", "p"];
@@ -1186,12 +1289,12 @@ function renderCaptured() {
     return pieceOrder
       .filter(type => counts[type])
       .map(type => {
-        const glyph = CHESS_U[pieceColor + type];
+        const pieceSvg = getPieceSvgHtml(pieceColor, type);
         const pieceClass = pieceColor === "w" ? "white-piece" : "black-piece";
         const count = counts[type];
         return `
           <div class="captured-piece-chip" title="${count} piece(s) captured">
-            <span class="chip-icon ${pieceClass}">${glyph}</span>
+            <span class="chip-icon ${pieceClass}">${pieceSvg}</span>
             <span class="chip-badge">×${count}</span>
           </div>
         `;
@@ -1273,7 +1376,7 @@ function renderChess() {
 
     const p = chessBoard[r][c];
     if (p) {
-      cell.textContent = CHESS_U[p.color + p.type];
+      cell.innerHTML = getPieceSvgHtml(p.color, p.type);
       cell.classList.add(p.color === "w" ? "white-piece" : "black-piece");
     }
 
@@ -3840,7 +3943,27 @@ undoBtn?.addEventListener("click", () => {
 gameTypePills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-game]");
   if (!btn) return;
-  hubState.game = btn.dataset.game;
+  const targetGame = btn.dataset.game;
+  if (targetGame === "ttt") {
+    if (!hubState.game.startsWith("ttt")) {
+      hubState.game = hubState.lastTttMode || "ttt3";
+    }
+  } else {
+    hubState.game = targetGame;
+  }
+  modeSelect.value = modeFromHub();
+  syncHud();
+  persistHub();
+  initBoard(true);
+});
+
+tttModePills?.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-grid]");
+  if (!btn) return;
+  const grid = btn.dataset.grid;
+  const targetGame = grid === "5" ? "ttt5" : "ttt3";
+  hubState.game = targetGame;
+  hubState.lastTttMode = targetGame;
   modeSelect.value = modeFromHub();
   syncHud();
   persistHub();
