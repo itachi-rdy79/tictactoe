@@ -1,0 +1,33 @@
+# ==============================================================================
+# Git Ignore Configuration for GAP Arcade & Cloud Infrastructure
+# ==============================================================================
+
+# Terraform runtime & state files
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# System & OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# IDE & Editor caches
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs & temp files
+*.log
+/tmp/

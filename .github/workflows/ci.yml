@@ -1,0 +1,141 @@
+name: CI/CD Pipeline & Container Registry
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*.*.*" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ==============================================================================
+  # Job 1: Code Validation & Quality Gates
+  # ==============================================================================
+  validate:
+    name: Code Validation & Syntax Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate JavaScript Syntax
+        run: |
+          echo "Checking JavaScript syntax..."
+          node --check script.js
+          echo "JavaScript syntax valid."
+
+      - name: Validate HTML & Asset Structure
+        run: |
+          echo "Checking for essential game assets..."
+          test -f index.html || (echo "index.html missing!" && exit 1)
+          test -f style.css || (echo "style.css missing!" && exit 1)
+          test -f script.js || (echo "script.js missing!" && exit 1)
+          test -f nginx.conf || (echo "nginx.conf missing!" && exit 1)
+          test -f Dockerfile || (echo "Dockerfile missing!" && exit 1)
+          echo "Asset verification passed."
+
+  # ==============================================================================
+  # Job 2: Build & Security Vulnerability Scan (Trivy)
+  # ==============================================================================
+  security-scan:
+    name: Docker Build & Vulnerability Scan
+    runs-on: ubuntu-latest
+    needs: [validate]
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Local Test Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: gap-arcade:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'gap-arcade:test'
+          format: 'table'
+          exit-code: '0' # Alert on findings without blocking initial pipeline run
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Container Health Check Smoke Test
+        run: |
+          docker run -d --name test-container -p 8080:8080 gap-arcade:test
+          sleep 3
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/healthz)
+          echo "Healthcheck returned HTTP $HTTP_STATUS"
+          docker stop test-container && docker rm test-container
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "Healthcheck failed!"
+            exit 1
+          fi
+
+  # ==============================================================================
+  # Job 3: Publish to GitHub Container Registry (GHCR)
+  # ==============================================================================
+  publish:
+    name: Publish to GHCR
+    runs-on: ubuntu-latest
+    needs: [validate, security-scan]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (Multi-platform emulation)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker Metadata (Tags & Labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+            type=ref,event=branch
+
+      - name: Build and Push Multi-Arch Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
