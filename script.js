@@ -134,79 +134,254 @@ const closeStatsBtn = document.getElementById("closeStatsBtn");
 const statsGridContent = document.getElementById("statsGridContent");
 const confettiCanvas = document.getElementById("confettiCanvas");
 
-/* ---------- 8 Rich Luxury Liquid Glass Background & Brand Palettes ---------- */
+/* ---------- Wide Range of W3Schools Hex Color Palettes (Light & Dark Theme) ---------- */
 const DYNAMIC_PALETTES = [
   {
-    name: "Electric Sapphire",
-    brand: "#38bdf8",
-    flame: "#0284c7",
-    darkBg: "radial-gradient(circle at 18% 22%, rgba(2, 132, 199, 0.45) 0%, transparent 45%), radial-gradient(circle at 82% 78%, rgba(99, 102, 241, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.22) 0%, transparent 60%), #060913",
-    lightBg: "radial-gradient(circle at 18% 22%, #bae6fd 0%, transparent 50%), radial-gradient(circle at 82% 78%, #c7d2fe 0%, transparent 50%), #f0f9ff",
-    glow: "rgba(56, 189, 248, 0.45)"
+    id: "crimson",
+    name: "Crimson (#DC143C)",
+    brand: "#DC143C",
+    flame: "#B22222",
+    glow: "rgba(220, 20, 60, 0.5)",
+    darkBg: "radial-gradient(circle at 18% 22%, rgba(220, 20, 60, 0.45) 0%, transparent 45%), radial-gradient(circle at 82% 78%, rgba(178, 34, 34, 0.4) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.18) 0%, transparent 60%), #140205",
+    lightBg: "radial-gradient(circle at 18% 22%, #fecdd3 0%, transparent 50%), radial-gradient(circle at 82% 78%, #ffe4e6 0%, transparent 50%), #fff1f2"
   },
   {
-    name: "Velvet Emerald",
-    brand: "#10b981",
+    id: "coral",
+    name: "Coral (#FF7F50)",
+    brand: "#FF7F50",
+    flame: "#FF4500",
+    glow: "rgba(255, 127, 80, 0.5)",
+    darkBg: "radial-gradient(circle at 20% 25%, rgba(255, 127, 80, 0.45) 0%, transparent 45%), radial-gradient(circle at 80% 75%, rgba(255, 69, 0, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(255, 99, 71, 0.2) 0%, transparent 60%), #140702",
+    lightBg: "radial-gradient(circle at 20% 25%, #fed7aa 0%, transparent 50%), radial-gradient(circle at 80% 75%, #ffedd5 0%, transparent 50%), #fff7ed"
+  },
+  {
+    id: "darkorange",
+    name: "Dark Orange (#FF8C00)",
+    brand: "#FF8C00",
+    flame: "#EA580C",
+    glow: "rgba(255, 140, 0, 0.5)",
+    darkBg: "radial-gradient(circle at 18% 26%, rgba(255, 140, 0, 0.45) 0%, transparent 45%), radial-gradient(circle at 82% 74%, rgba(234, 88, 12, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.22) 0%, transparent 60%), #140801",
+    lightBg: "radial-gradient(circle at 18% 26%, #fed7aa 0%, transparent 50%), radial-gradient(circle at 82% 74%, #ffedd5 0%, transparent 50%), #fff7ed"
+  },
+  {
+    id: "gold",
+    name: "Gold (#FFD700)",
+    brand: "#FFD700",
+    flame: "#DAA520",
+    glow: "rgba(255, 215, 0, 0.5)",
+    darkBg: "radial-gradient(circle at 22% 20%, rgba(255, 215, 0, 0.42) 0%, transparent 45%), radial-gradient(circle at 78% 80%, rgba(218, 165, 32, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.22) 0%, transparent 60%), #140f02",
+    lightBg: "radial-gradient(circle at 22% 20%, #fef08a 0%, transparent 50%), radial-gradient(circle at 78% 80%, #fde68a 0%, transparent 50%), #fefce8"
+  },
+  {
+    id: "yellow",
+    name: "Yellow (#FFFF00)",
+    brand: "#FACC15",
+    flame: "#EAB308",
+    glow: "rgba(250, 204, 21, 0.5)",
+    darkBg: "radial-gradient(circle at 20% 22%, rgba(250, 204, 21, 0.42) 0%, transparent 45%), radial-gradient(circle at 80% 78%, rgba(234, 179, 8, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(253, 224, 71, 0.2) 0%, transparent 60%), #141102",
+    lightBg: "radial-gradient(circle at 20% 22%, #fef08a 0%, transparent 50%), radial-gradient(circle at 80% 78%, #fef9c3 0%, transparent 50%), #fefce8"
+  },
+  {
+    id: "chartreuse",
+    name: "Chartreuse (#7FFF00)",
+    brand: "#84CC16",
+    flame: "#65A30D",
+    glow: "rgba(132, 204, 22, 0.5)",
+    darkBg: "radial-gradient(circle at 20% 20%, rgba(132, 204, 22, 0.42) 0%, transparent 45%), radial-gradient(circle at 80% 80%, rgba(101, 163, 13, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(163, 230, 53, 0.2) 0%, transparent 60%), #0c1402",
+    lightBg: "radial-gradient(circle at 20% 20%, #d9f99d 0%, transparent 50%), radial-gradient(circle at 80% 80%, #ecfccb 0%, transparent 50%), #f7fee7"
+  },
+  {
+    id: "lime",
+    name: "Lime Green (#32CD32)",
+    brand: "#32CD32",
+    flame: "#22C55E",
+    glow: "rgba(50, 205, 50, 0.5)",
+    darkBg: "radial-gradient(circle at 20% 20%, rgba(50, 205, 50, 0.42) 0%, transparent 45%), radial-gradient(circle at 80% 80%, rgba(34, 197, 94, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(74, 222, 128, 0.2) 0%, transparent 60%), #021406",
+    lightBg: "radial-gradient(circle at 20% 20%, #bbf7d0 0%, transparent 50%), radial-gradient(circle at 80% 80%, #dcfce7 0%, transparent 50%), #f0fdf4"
+  },
+  {
+    id: "emerald",
+    name: "Forest Emerald (#228B22)",
+    brand: "#10B981",
     flame: "#059669",
-    darkBg: "radial-gradient(circle at 20% 24%, rgba(5, 150, 105, 0.45) 0%, transparent 45%), radial-gradient(circle at 80% 76%, rgba(20, 184, 166, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.2) 0%, transparent 60%), #030d0a",
-    lightBg: "radial-gradient(circle at 20% 24%, #a7f3d0 0%, transparent 50%), radial-gradient(circle at 80% 76%, #99f6e4 0%, transparent 50%), #ecfdf5",
-    glow: "rgba(16, 185, 129, 0.45)"
+    glow: "rgba(16, 185, 129, 0.5)",
+    darkBg: "radial-gradient(circle at 20% 24%, rgba(5, 150, 105, 0.45) 0%, transparent 45%), radial-gradient(circle at 80% 76%, rgba(34, 139, 34, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(46, 139, 87, 0.22) 0%, transparent 60%), #02120b",
+    lightBg: "radial-gradient(circle at 20% 24%, #a7f3d0 0%, transparent 50%), radial-gradient(circle at 80% 76%, #6ee7b7 0%, transparent 50%), #ecfdf5"
   },
   {
-    name: "Royal Amethyst",
-    brand: "#c084fc",
-    flame: "#9333ea",
-    darkBg: "radial-gradient(circle at 25% 20%, rgba(147, 51, 234, 0.45) 0%, transparent 45%), radial-gradient(circle at 75% 80%, rgba(192, 38, 211, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.22) 0%, transparent 60%), #090314",
-    lightBg: "radial-gradient(circle at 25% 20%, #e9d5ff 0%, transparent 50%), radial-gradient(circle at 75% 80%, #f5d0fe 0%, transparent 50%), #faf5ff",
-    glow: "rgba(192, 132, 252, 0.45)"
+    id: "springgreen",
+    name: "Spring Green (#00FF7F)",
+    brand: "#00FF7F",
+    flame: "#00FA9A",
+    glow: "rgba(0, 255, 127, 0.5)",
+    darkBg: "radial-gradient(circle at 22% 22%, rgba(0, 255, 127, 0.4) 0%, transparent 45%), radial-gradient(circle at 78% 78%, rgba(0, 250, 154, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(52, 211, 153, 0.2) 0%, transparent 60%), #02140e",
+    lightBg: "radial-gradient(circle at 22% 22%, #a7f3d0 0%, transparent 50%), radial-gradient(circle at 78% 78%, #bbf7d0 0%, transparent 50%), #ecfdf5"
   },
   {
-    name: "Sunset Ruby",
-    brand: "#fb7185",
-    flame: "#e11d48",
-    darkBg: "radial-gradient(circle at 18% 28%, rgba(225, 29, 72, 0.45) 0%, transparent 45%), radial-gradient(circle at 82% 72%, rgba(244, 63, 94, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(190, 18, 60, 0.22) 0%, transparent 60%), #120207",
-    lightBg: "radial-gradient(circle at 18% 28%, #fecdd3 0%, transparent 50%), radial-gradient(circle at 82% 72%, #fbcfe8 0%, transparent 50%), #fff1f2",
-    glow: "rgba(251, 113, 133, 0.45)"
+    id: "seagreen",
+    name: "Sea Green (#2E8B57)",
+    brand: "#20B2AA",
+    flame: "#2E8B57",
+    glow: "rgba(32, 178, 170, 0.5)",
+    darkBg: "radial-gradient(circle at 20% 24%, rgba(46, 139, 87, 0.45) 0%, transparent 45%), radial-gradient(circle at 80% 76%, rgba(32, 178, 170, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(13, 148, 136, 0.22) 0%, transparent 60%), #01140e",
+    lightBg: "radial-gradient(circle at 20% 24%, #99f6e4 0%, transparent 50%), radial-gradient(circle at 80% 76%, #a7f3d0 0%, transparent 50%), #f0fdfa"
   },
   {
-    name: "Molten Amber",
-    brand: "#fbbf24",
-    flame: "#d97706",
-    darkBg: "radial-gradient(circle at 24% 22%, rgba(217, 119, 6, 0.45) 0%, transparent 45%), radial-gradient(circle at 76% 78%, rgba(234, 88, 12, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.22) 0%, transparent 60%), #120902",
-    lightBg: "radial-gradient(circle at 24% 22%, #fde68a 0%, transparent 50%), radial-gradient(circle at 76% 78%, #fed7aa 0%, transparent 50%), #fffbeb",
-    glow: "rgba(251, 191, 36, 0.45)"
+    id: "teal",
+    name: "Teal (#008080)",
+    brand: "#14B8A6",
+    flame: "#0D9488",
+    glow: "rgba(20, 184, 166, 0.5)",
+    darkBg: "radial-gradient(circle at 18% 22%, rgba(13, 148, 136, 0.45) 0%, transparent 45%), radial-gradient(circle at 82% 78%, rgba(0, 128, 128, 0.4) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(0, 139, 139, 0.22) 0%, transparent 60%), #011413",
+    lightBg: "radial-gradient(circle at 18% 22%, #99f6e4 0%, transparent 50%), radial-gradient(circle at 82% 78%, #ccfbf1 0%, transparent 50%), #f0fdfa"
   },
   {
-    name: "Oceanic Cyan",
-    brand: "#22d3ee",
-    flame: "#0891b2",
-    darkBg: "radial-gradient(circle at 20% 20%, rgba(8, 145, 178, 0.48) 0%, transparent 45%), radial-gradient(circle at 80% 80%, rgba(14, 116, 144, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.25) 0%, transparent 60%), #020c13",
-    lightBg: "radial-gradient(circle at 20% 20%, #a5f3fc 0%, transparent 50%), radial-gradient(circle at 80% 80%, #bae6fd 0%, transparent 50%), #ecfeff",
-    glow: "rgba(34, 211, 238, 0.45)"
+    id: "cyan",
+    name: "Cyan Aqua (#00FFFF)",
+    brand: "#00FFFF",
+    flame: "#00CED1",
+    glow: "rgba(0, 255, 255, 0.55)",
+    darkBg: "radial-gradient(circle at 20% 20%, rgba(0, 206, 209, 0.48) 0%, transparent 45%), radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.4) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.25) 0%, transparent 60%), #011417",
+    lightBg: "radial-gradient(circle at 20% 20%, #a5f3fc 0%, transparent 50%), radial-gradient(circle at 80% 80%, #cffafe 0%, transparent 50%), #ecfeff"
   },
   {
-    name: "Prism Orchid",
-    brand: "#f472b6",
-    flame: "#db2777",
-    darkBg: "radial-gradient(circle at 22% 26%, rgba(219, 39, 119, 0.45) 0%, transparent 45%), radial-gradient(circle at 78% 74%, rgba(162, 28, 175, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.22) 0%, transparent 60%), #12020f",
-    lightBg: "radial-gradient(circle at 22% 26%, #fbcfe8 0%, transparent 50%), radial-gradient(circle at 78% 74%, #e9d5ff 0%, transparent 50%), #fdf2f8",
-    glow: "rgba(244, 114, 182, 0.45)"
+    id: "turquoise",
+    name: "Turquoise (#40E0D0)",
+    brand: "#40E0D0",
+    flame: "#20B2AA",
+    glow: "rgba(64, 224, 208, 0.5)",
+    darkBg: "radial-gradient(circle at 22% 24%, rgba(64, 224, 208, 0.45) 0%, transparent 45%), radial-gradient(circle at 78% 76%, rgba(32, 178, 170, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(45, 212, 191, 0.22) 0%, transparent 60%), #021414",
+    lightBg: "radial-gradient(circle at 22% 24%, #99f6e4 0%, transparent 50%), radial-gradient(circle at 78% 76%, #a5f3fc 0%, transparent 50%), #f0fdfa"
   },
   {
-    name: "Deep Teal Glacier",
-    brand: "#2dd4bf",
-    flame: "#0d9488",
-    darkBg: "radial-gradient(circle at 20% 25%, rgba(13, 148, 136, 0.45) 0%, transparent 45%), radial-gradient(circle at 80% 75%, rgba(15, 118, 110, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.22) 0%, transparent 60%), #010d0b",
-    lightBg: "radial-gradient(circle at 20% 25%, #99f6e4 0%, transparent 50%), radial-gradient(circle at 80% 75%, #bbf7d0 0%, transparent 50%), #f0fdfa",
-    glow: "rgba(45, 212, 191, 0.45)"
+    id: "deepskyblue",
+    name: "Deep Sky Blue (#00BFFF)",
+    brand: "#00BFFF",
+    flame: "#0284C7",
+    glow: "rgba(0, 191, 255, 0.5)",
+    darkBg: "radial-gradient(circle at 18% 22%, rgba(2, 132, 199, 0.48) 0%, transparent 45%), radial-gradient(circle at 82% 78%, rgba(0, 191, 255, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.24) 0%, transparent 60%), #030f1a",
+    lightBg: "radial-gradient(circle at 18% 22%, #bae6fd 0%, transparent 50%), radial-gradient(circle at 82% 78%, #e0f2fe 0%, transparent 50%), #f0f9ff"
+  },
+  {
+    id: "dodgerblue",
+    name: "Dodger Blue (#1E90FF)",
+    brand: "#1E90FF",
+    flame: "#2563EB",
+    glow: "rgba(30, 144, 255, 0.5)",
+    darkBg: "radial-gradient(circle at 20% 20%, rgba(30, 144, 255, 0.46) 0%, transparent 45%), radial-gradient(circle at 80% 80%, rgba(70, 130, 180, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.24) 0%, transparent 60%), #040e1e",
+    lightBg: "radial-gradient(circle at 20% 20%, #bfdbfe 0%, transparent 50%), radial-gradient(circle at 80% 80%, #dbeafe 0%, transparent 50%), #eff6ff"
+  },
+  {
+    id: "royalblue",
+    name: "Royal Blue (#4169E1)",
+    brand: "#4169E1",
+    flame: "#1D4ED8",
+    glow: "rgba(65, 105, 225, 0.5)",
+    darkBg: "radial-gradient(circle at 20% 25%, rgba(65, 105, 225, 0.46) 0%, transparent 45%), radial-gradient(circle at 80% 75%, rgba(0, 0, 205, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(29, 78, 216, 0.24) 0%, transparent 60%), #050a20",
+    lightBg: "radial-gradient(circle at 20% 25%, #c7d2fe 0%, transparent 50%), radial-gradient(circle at 80% 75%, #e0e7ff 0%, transparent 50%), #eef2ff"
+  },
+  {
+    id: "navy",
+    name: "Midnight Navy (#000080)",
+    brand: "#60A5FA",
+    flame: "#1E40AF",
+    glow: "rgba(96, 165, 250, 0.45)",
+    darkBg: "radial-gradient(circle at 18% 22%, rgba(25, 25, 112, 0.55) 0%, transparent 45%), radial-gradient(circle at 82% 78%, rgba(0, 0, 128, 0.45) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(30, 58, 138, 0.28) 0%, transparent 60%), #020617",
+    lightBg: "radial-gradient(circle at 18% 22%, #cbd5e1 0%, transparent 50%), radial-gradient(circle at 82% 78%, #e2e8f0 0%, transparent 50%), #f8fafc"
+  },
+  {
+    id: "slateblue",
+    name: "Slate Blue (#6A5ACD)",
+    brand: "#7B68EE",
+    flame: "#6A5ACD",
+    glow: "rgba(123, 104, 238, 0.5)",
+    darkBg: "radial-gradient(circle at 22% 22%, rgba(123, 104, 238, 0.45) 0%, transparent 45%), radial-gradient(circle at 78% 78%, rgba(106, 90, 205, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.22) 0%, transparent 60%), #0d0920",
+    lightBg: "radial-gradient(circle at 22% 22%, #ddd6fe 0%, transparent 50%), radial-gradient(circle at 78% 78%, #ede9fe 0%, transparent 50%), #f5f3ff"
+  },
+  {
+    id: "indigo",
+    name: "Electric Indigo (#4B0082)",
+    brand: "#818CF8",
+    flame: "#4F46E5",
+    glow: "rgba(129, 140, 248, 0.5)",
+    darkBg: "radial-gradient(circle at 20% 24%, rgba(75, 0, 130, 0.55) 0%, transparent 45%), radial-gradient(circle at 80% 76%, rgba(72, 61, 139, 0.45) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.25) 0%, transparent 60%), #09031d",
+    lightBg: "radial-gradient(circle at 20% 24%, #c7d2fe 0%, transparent 50%), radial-gradient(circle at 80% 76%, #e0e7ff 0%, transparent 50%), #eef2ff"
+  },
+  {
+    id: "purple",
+    name: "Purple Amethyst (#800080)",
+    brand: "#C084FC",
+    flame: "#9333EA",
+    glow: "rgba(192, 132, 252, 0.5)",
+    darkBg: "radial-gradient(circle at 22% 20%, rgba(147, 51, 234, 0.46) 0%, transparent 45%), radial-gradient(circle at 78% 80%, rgba(128, 0, 128, 0.42) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(139, 0, 139, 0.24) 0%, transparent 60%), #12031c",
+    lightBg: "radial-gradient(circle at 22% 20%, #e9d5ff 0%, transparent 50%), radial-gradient(circle at 78% 80%, #f3e8ff 0%, transparent 50%), #faf5ff"
+  },
+  {
+    id: "orchid",
+    name: "Medium Orchid (#BA55D3)",
+    brand: "#BA55D3",
+    flame: "#9932CC",
+    glow: "rgba(186, 85, 211, 0.5)",
+    darkBg: "radial-gradient(circle at 20% 24%, rgba(186, 85, 211, 0.45) 0%, transparent 45%), radial-gradient(circle at 80% 76%, rgba(153, 50, 204, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.22) 0%, transparent 60%), #14041d",
+    lightBg: "radial-gradient(circle at 20% 24%, #f5d0fe 0%, transparent 50%), radial-gradient(circle at 80% 76%, #fae8ff 0%, transparent 50%), #fdf4ff"
+  },
+  {
+    id: "magenta",
+    name: "Magenta Fuchsia (#FF00FF)",
+    brand: "#FF00FF",
+    flame: "#D946EF",
+    glow: "rgba(255, 0, 255, 0.55)",
+    darkBg: "radial-gradient(circle at 20% 22%, rgba(255, 0, 255, 0.45) 0%, transparent 45%), radial-gradient(circle at 80% 78%, rgba(217, 70, 239, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(192, 38, 211, 0.24) 0%, transparent 60%), #190119",
+    lightBg: "radial-gradient(circle at 20% 22%, #f5d0fe 0%, transparent 50%), radial-gradient(circle at 80% 78%, #fae8ff 0%, transparent 50%), #fdf4ff"
+  },
+  {
+    id: "deeppink",
+    name: "Deep Pink (#FF1493)",
+    brand: "#FF1493",
+    flame: "#BE185D",
+    glow: "rgba(255, 20, 147, 0.5)",
+    darkBg: "radial-gradient(circle at 18% 24%, rgba(255, 20, 147, 0.45) 0%, transparent 45%), radial-gradient(circle at 82% 76%, rgba(219, 112, 147, 0.38) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(190, 24, 93, 0.22) 0%, transparent 60%), #1a0210",
+    lightBg: "radial-gradient(circle at 18% 24%, #fbcfe8 0%, transparent 50%), radial-gradient(circle at 82% 76%, #fecdd3 0%, transparent 50%), #fff1f2"
+  },
+  {
+    id: "silver",
+    name: "Silver Slate (#C0C0C0)",
+    brand: "#94A3B8",
+    flame: "#475569",
+    glow: "rgba(148, 163, 184, 0.45)",
+    darkBg: "radial-gradient(circle at 20% 20%, rgba(148, 163, 184, 0.35) 0%, transparent 45%), radial-gradient(circle at 80% 80%, rgba(112, 128, 144, 0.32) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(71, 85, 105, 0.22) 0%, transparent 60%), #090d16",
+    lightBg: "radial-gradient(circle at 20% 20%, #e2e8f0 0%, transparent 50%), radial-gradient(circle at 80% 80%, #cbd5e1 0%, transparent 50%), #f8fafc"
   }
 ];
 
-let currentPaletteIdx = Math.floor(Math.random() * DYNAMIC_PALETTES.length);
+let currentPaletteIdx = 0;
+try {
+  const urlParams = new URLSearchParams(window.location.search);
+  const colorParam = urlParams.get("color");
+  if (colorParam) {
+    const pIdx = DYNAMIC_PALETTES.findIndex(p => p.id === colorParam.toLowerCase() || p.brand.toLowerCase() === colorParam.toLowerCase());
+    if (pIdx !== -1) currentPaletteIdx = pIdx;
+    else currentPaletteIdx = Math.floor(Math.random() * DYNAMIC_PALETTES.length);
+  } else {
+    const local = localStorage.getItem("gap_palette_idx");
+    if (local !== null && !isNaN(Number(local))) currentPaletteIdx = Number(local) % DYNAMIC_PALETTES.length;
+    else currentPaletteIdx = Math.floor(Math.random() * DYNAMIC_PALETTES.length);
+  }
+} catch {
+  currentPaletteIdx = Math.floor(Math.random() * DYNAMIC_PALETTES.length);
+}
 
-function applyRandomPalette(idx = null) {
-  if (idx !== null) currentPaletteIdx = idx;
-  else currentPaletteIdx = (currentPaletteIdx + 1) % DYNAMIC_PALETTES.length;
+function applyRandomPalette(target = null) {
+  if (typeof target === "number") {
+    currentPaletteIdx = ((target % DYNAMIC_PALETTES.length) + DYNAMIC_PALETTES.length) % DYNAMIC_PALETTES.length;
+  } else if (typeof target === "string") {
+    const foundIdx = DYNAMIC_PALETTES.findIndex(p => p.id === target.toLowerCase() || p.brand.toLowerCase() === target.toLowerCase());
+    if (foundIdx !== -1) currentPaletteIdx = foundIdx;
+    else currentPaletteIdx = (currentPaletteIdx + 1) % DYNAMIC_PALETTES.length;
+  } else {
+    currentPaletteIdx = (currentPaletteIdx + 1) % DYNAMIC_PALETTES.length;
+  }
+
   const chosen = DYNAMIC_PALETTES[currentPaletteIdx];
   const root = document.documentElement;
   root.style.setProperty("--dyn-brand", chosen.brand);
@@ -214,6 +389,15 @@ function applyRandomPalette(idx = null) {
   root.style.setProperty("--dyn-glow", chosen.glow);
   root.style.setProperty("--dyn-bg-dark", chosen.darkBg);
   root.style.setProperty("--dyn-bg-light", chosen.lightBg);
+
+  const brandEl = document.querySelector(".brand");
+  if (brandEl) {
+    brandEl.title = `GAP • Hex: ${chosen.name} (Click to cycle colors)`;
+  }
+
+  try {
+    localStorage.setItem("gap_palette_idx", currentPaletteIdx);
+  } catch {}
 }
 applyRandomPalette(currentPaletteIdx);
 
@@ -221,10 +405,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const brandEl = document.querySelector(".brand");
   if (brandEl) {
     brandEl.style.cursor = "pointer";
-    brandEl.title = "Click to cycle theme background & brand colors";
-    brandEl.addEventListener("click", () => applyRandomPalette());
+    const chosen = DYNAMIC_PALETTES[currentPaletteIdx];
+    brandEl.title = `GAP • Hex: ${chosen.name} (Click to cycle colors)`;
+    brandEl.addEventListener("click", () => {
+      applyRandomPalette();
+    });
   }
 });
+
 
 /* ---------- Custom SVGs for Thematic Markers & Crests ---------- */
 const SHARINGAN_SVG = `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ff0033"/><circle cx="50" cy="50" r="38" fill="none" stroke="#000" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="#000"/><circle cx="50" cy="24" r="7" fill="#000"/><path d="M50 24 Q57 32 50 37" stroke="#000" stroke-width="3" fill="none"/><circle cx="27" cy="63" r="7" fill="#000"/><path d="M27 63 Q23 72 30 75" stroke="#000" stroke-width="3" fill="none"/><circle cx="73" cy="63" r="7" fill="#000"/><path d="M73 63 Q77 72 70 75" stroke="#000" stroke-width="3" fill="none"/></svg>`;
@@ -353,6 +541,8 @@ function loadHub() {
     if (["easy", "medium", "hard"].includes(diff)) hubState.difficulty = diff;
     if (["off", "15", "30", "45", "60", "90"].includes(timer)) hubState.timer = timer;
     if (["dark", "light", "itachi", "naruto", "got"].includes(theme)) hubState.theme = theme;
+    const color = q.get("color");
+    if (color) applyRandomPalette(color);
   }
 
   // normalize
