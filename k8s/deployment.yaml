@@ -27,7 +27,7 @@ spec:
         fsGroup: 101
       containers:
         - name: arcade
-          image: gap-arcade:v1.0.5
+          image: gap-arcade:v1.0.7
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
