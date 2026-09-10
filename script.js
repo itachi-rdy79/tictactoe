@@ -116,6 +116,8 @@ const streakBadge = document.getElementById("streakBadge");
 
 const winOverlay = document.getElementById("winOverlay");
 const winMessage = document.getElementById("winMessage");
+const winIcon = document.getElementById("winIcon");
+const winSubtitle = document.getElementById("winSubtitle");
 const winRestartBtn = document.getElementById("winRestartBtn");
 const winLineSvg = document.getElementById("tttWinLine");
 
@@ -692,9 +694,24 @@ scoreTickerBtn?.addEventListener("click", () => {
 closeStatsBtn?.addEventListener("click", () => statsModal?.classList.add("hidden"));
 statsModal?.addEventListener("click", (e) => { if (e.target === statsModal) statsModal.classList.add("hidden"); });
 
-/* ---------- Confetti (Zero Audio, Pure Visual) ---------- */
+/* ---------- Endgame Visual Effects (Zero Audio, Pure Visual) ---------- */
+let activeEndgameAnim = null;
+
+function stopActiveEndgameAnim() {
+  if (activeEndgameAnim) {
+    cancelAnimationFrame(activeEndgameAnim);
+    activeEndgameAnim = null;
+  }
+  if (confettiCanvas) {
+    const ctx = confettiCanvas.getContext("2d");
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  }
+}
+
+/* 1. Victory Celebration: Bursting Confetti */
 function triggerConfetti() {
   if (!confettiCanvas) return;
+  stopActiveEndgameAnim();
   const ctx = confettiCanvas.getContext("2d");
   confettiCanvas.width = window.innerWidth;
   confettiCanvas.height = window.innerHeight;
@@ -714,7 +731,6 @@ function triggerConfetti() {
     });
   }
 
-  let animationFrame;
   function loop() {
     ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     particles.forEach(p => {
@@ -726,10 +742,170 @@ function triggerConfetti() {
       ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
       ctx.restore();
     });
-    animationFrame = requestAnimationFrame(loop);
+    activeEndgameAnim = requestAnimationFrame(loop);
   }
-  loop();
-  setTimeout(() => cancelAnimationFrame(animationFrame), 3500);
+  activeEndgameAnim = requestAnimationFrame(loop);
+  setTimeout(() => stopActiveEndgameAnim(), 3500);
+}
+
+/* 2. Draw & Stalemate Experience: Equilibrium Shockwaves & Floating Crystal Frost */
+function triggerDrawAnimation() {
+  if (!confettiCanvas) return;
+  stopActiveEndgameAnim();
+
+  const ctx = confettiCanvas.getContext("2d");
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+
+  const cx = confettiCanvas.width / 2;
+  const cy = confettiCanvas.height / 2;
+
+  // Concentric frosted glass shockwave rings
+  const maxRadius = Math.min(cx, cy) * 1.35;
+  const rings = [
+    { r: 8, maxR: maxRadius, speed: 4.2, color: "34, 211, 238", width: 4.5 },
+    { r: 4, maxR: maxRadius * 0.9, speed: 3.4, color: "251, 191, 36", width: 4.0 },
+    { r: 1, maxR: maxRadius * 1.15, speed: 5.0, color: "255, 255, 255", width: 2.5 }
+  ];
+
+  // Dual clashing streams meeting in equilibrium (Force A: Cyan, Force B: Amber)
+  const isLight = document.body.dataset.theme === "light";
+  const colA = isLight ? "2, 132, 199" : "34, 211, 238";
+  const colB = isLight ? "217, 119, 6" : "251, 191, 36";
+
+  const clashingParticles = [];
+  // Left stream (Force A)
+  for (let i = 0; i < 48; i++) {
+    const angle = (Math.random() - 0.5) * 1.1;
+    const speed = Math.random() * 8 + 6;
+    clashingParticles.push({
+      x: cx - Math.random() * (cx * 0.9),
+      y: cy + (Math.random() - 0.5) * 160,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * (Math.random() - 0.5) * 3.5,
+      size: Math.random() * 4 + 2.5,
+      color: colA,
+      mode: "converge",
+      life: 1
+    });
+  }
+
+  // Right stream (Force B)
+  for (let i = 0; i < 48; i++) {
+    const angle = Math.PI + (Math.random() - 0.5) * 1.1;
+    const speed = Math.random() * 8 + 6;
+    clashingParticles.push({
+      x: cx + Math.random() * (cx * 0.9),
+      y: cy + (Math.random() - 0.5) * 160,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * (Math.random() - 0.5) * 3.5,
+      size: Math.random() * 4 + 2.5,
+      color: colB,
+      mode: "converge",
+      life: 1
+    });
+  }
+
+  // Floating ambient crystalline frost spores
+  const frostSparks = [];
+  for (let i = 0; i < 55; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const dist = Math.random() * 100 + 20;
+    frostSparks.push({
+      x: cx + Math.cos(ang) * dist,
+      y: cy + Math.sin(ang) * dist,
+      vx: (Math.random() - 0.5) * 2.2,
+      vy: -(Math.random() * 2.2 + 0.8),
+      rot: Math.random() * 360,
+      vRot: (Math.random() - 0.5) * 5,
+      size: Math.random() * 5 + 2.2,
+      alpha: Math.random() * 0.85 + 0.25,
+      color: Math.random() > 0.5 ? colA : colB
+    });
+  }
+
+  let startTime = performance.now();
+
+  function loop(now) {
+    const elapsed = now - startTime;
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+    // 1. Draw expanding shockwave rings
+    rings.forEach(ring => {
+      ring.r += ring.speed;
+      const progress = ring.r / ring.maxR;
+      const alpha = Math.max(0, 1 - progress);
+      if (alpha > 0.01) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, ring.r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${ring.color}, ${alpha * 0.85})`;
+        ctx.lineWidth = ring.width * (1 - progress * 0.4);
+        ctx.shadowColor = `rgba(${ring.color}, 0.85)`;
+        ctx.shadowBlur = 18;
+        ctx.stroke();
+        ctx.restore();
+      }
+    });
+
+    // 2. Draw converging & clashing standoff particles
+    clashingParticles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      const dist = Math.hypot(p.x - cx, p.y - cy);
+
+      if (dist < 42 && p.mode === "converge") {
+        p.mode = "orbit";
+        p.vx = (Math.random() - 0.5) * 4.5;
+        p.vy = -(Math.random() * 3.5 + 2.0);
+      }
+
+      if (p.mode === "orbit") {
+        p.vy -= 0.04;
+        p.life -= 0.011;
+      }
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.color}, ${Math.max(0, p.life)})`;
+      ctx.shadowColor = `rgba(${p.color}, 0.9)`;
+      ctx.shadowBlur = 12;
+      ctx.fill();
+      ctx.restore();
+    });
+
+    // 3. Draw shimmering diamond frost crystals
+    frostSparks.forEach(s => {
+      s.x += s.vx;
+      s.y += s.vy;
+      s.rot += s.vRot;
+      s.alpha = Math.max(0, s.alpha - 0.0035);
+
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate((s.rot * Math.PI) / 180);
+      ctx.fillStyle = `rgba(${s.color}, ${s.alpha})`;
+      ctx.shadowColor = `rgba(${s.color}, 0.75)`;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(0, -s.size);
+      ctx.lineTo(s.size * 0.65, 0);
+      ctx.lineTo(0, s.size);
+      ctx.lineTo(-s.size * 0.65, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    });
+
+    if (elapsed < 4200) {
+      activeEndgameAnim = requestAnimationFrame(loop);
+    } else {
+      stopActiveEndgameAnim();
+    }
+  }
+
+  activeEndgameAnim = requestAnimationFrame(loop);
 }
 
 /* ---------- Timer Logic ---------- */
@@ -790,15 +966,78 @@ function startTurnTimer() {
   }, 100);
 }
 
-/* ---------- Win Modal ---------- */
-function showWinScreen(msg) {
+/* ---------- Win & Draw Modals ---------- */
+function showWinScreen(msg, subtitle = "Outstanding Victory!") {
   resetIdleWatchdog();
-  if (winMessage) winMessage.textContent = msg.toUpperCase();
+  stopActiveEndgameAnim();
+  winOverlay?.classList.remove("draw-mode");
   winOverlay?.classList.remove("hidden");
+  if (winMessage) winMessage.textContent = msg.toUpperCase();
+  if (winIcon) {
+    winIcon.textContent = "🏆";
+    winIcon.classList.remove("hidden");
+  }
+  if (winSubtitle) {
+    winSubtitle.textContent = subtitle.toUpperCase();
+    winSubtitle.classList.remove("hidden");
+  }
+  if (winRestartBtn) winRestartBtn.textContent = "Play Again";
   triggerConfetti();
 }
+
+function showDrawScreen(msg, subtitle = "Equilibrium • Perfect Standoff") {
+  resetIdleWatchdog();
+  stopActiveEndgameAnim();
+  winOverlay?.classList.add("draw-mode");
+  winOverlay?.classList.remove("hidden");
+  if (winMessage) winMessage.textContent = msg.toUpperCase();
+
+  const theme = hubState.theme;
+  let icon = "⚖️";
+  if (theme === "got") {
+    icon = "❄️";
+    subtitle = "The Long Night • Frost Standoff";
+  } else if (theme === "naruto") {
+    icon = "⚡";
+    subtitle = "Shinobi Armistice • Equal Will";
+  } else if (theme === "itachi") {
+    icon = "👁️";
+    subtitle = "Tsukuyomi in Harmony • Tied Fate";
+  }
+
+  if (winIcon) {
+    winIcon.textContent = icon;
+    winIcon.classList.remove("hidden");
+  }
+  if (winSubtitle) {
+    winSubtitle.textContent = subtitle.toUpperCase();
+    winSubtitle.classList.remove("hidden");
+  }
+  if (winRestartBtn) winRestartBtn.textContent = "Rematch";
+  triggerDrawAnimation();
+}
+
+function showDefeatScreen(msg, subtitle = "Game Over") {
+  resetIdleWatchdog();
+  stopActiveEndgameAnim();
+  winOverlay?.classList.remove("draw-mode");
+  winOverlay?.classList.remove("hidden");
+  if (winMessage) winMessage.textContent = msg.toUpperCase();
+  if (winIcon) {
+    winIcon.textContent = "💀";
+    winIcon.classList.remove("hidden");
+  }
+  if (winSubtitle) {
+    winSubtitle.textContent = subtitle.toUpperCase();
+    winSubtitle.classList.remove("hidden");
+  }
+  if (winRestartBtn) winRestartBtn.textContent = "Try Again";
+}
+
 function hideWinScreen() {
+  stopActiveEndgameAnim();
   winOverlay?.classList.add("hidden");
+  winOverlay?.classList.remove("draw-mode");
 }
 winRestartBtn?.addEventListener("click", () => { hideWinScreen(); initBoard(true); });
 winOverlay?.addEventListener("click", (e) => { if (e.target === winOverlay) hideWinScreen(); });
@@ -1191,7 +1430,11 @@ function finishTTT(winner, line) {
     showWinScreen(msg);
   } else {
     scoreD++;
-    showWinScreen(theme === "got" ? "The Long Night (Draw)" : "Draw");
+    let drawMsg = "Draw";
+    if (theme === "got") drawMsg = "The Long Night (Draw)";
+    else if (theme === "naruto") drawMsg = "Shinobi Standoff (Draw)";
+    else if (theme === "itachi") drawMsg = "Tsukuyomi in Harmony (Draw)";
+    showDrawScreen(drawMsg);
   }
 
   persistScores();
@@ -1580,6 +1823,43 @@ function minimaxChess(board, depth, alpha, beta, maxing) {
   }
 }
 
+function checkChessDrawCondition(board, nextColor) {
+  let whitePieces = 0, blackPieces = 0, nonKings = 0;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = board[r][c];
+      if (p) {
+        if (p.color === "w") whitePieces++;
+        else blackPieces++;
+        if (p.type !== "k") nonKings++;
+      }
+    }
+  }
+  if (whitePieces === 1 && blackPieces === 1 && nonKings === 0) {
+    return "Insufficient Material";
+  }
+  const nextMoves = allMovesForColor(board, nextColor);
+  if (nextMoves.length === 0) {
+    return "Stalemate";
+  }
+  return null;
+}
+
+function handleChessDraw(reason) {
+  chessOver = true;
+  scoreD++;
+  stopTurnTimer();
+  persistScores();
+  renderScores();
+  renderChess();
+  persistLiveState();
+  let drawTxt = `${reason} (Draw)`;
+  if (hubState.theme === "got") drawTxt = "Truce of Westeros (Draw)";
+  else if (hubState.theme === "naruto") drawTxt = "Shinobi Armistice (Draw)";
+  else if (hubState.theme === "itachi") drawTxt = "Tsukuyomi in Harmony (Draw)";
+  showDrawScreen(drawTxt);
+}
+
 function onChessClick(r, c) {
   const aiMode = modeSelect.value === "chess-ai";
   if (chessOver) return;
@@ -1607,8 +1887,15 @@ function onChessClick(r, c) {
 
   if (chessOver) { renderChess(); stopTurnTimer(); persistLiveState(); return; }
 
+  const nextColor = chessTurn === "w" ? "b" : "w";
+  const humanDraw = checkChessDrawCondition(chessBoard, nextColor);
+  if (humanDraw) {
+    handleChessDraw(humanDraw);
+    return;
+  }
+
   chessSelected = null;
-  chessTurn = chessTurn === "w" ? "b" : "w";
+  chessTurn = nextColor;
   renderChess();
   startTurnTimer();
   persistLiveState();
@@ -1641,7 +1928,14 @@ function onChessClick(r, c) {
         moveChess(chessBoard, mv, true);
         moveCount++;
         updateMoveCounter(true);
-        if (!chessOver) chessTurn = "w";
+        if (!chessOver) {
+          const aiDraw = checkChessDrawCondition(chessBoard, "w");
+          if (aiDraw) {
+            handleChessDraw(aiDraw);
+            return;
+          }
+          chessTurn = "w";
+        }
       }
       renderChess();
       startTurnTimer();
@@ -2046,7 +2340,7 @@ function checkWordleRow() {
       streak = 0;
       persistScores();
       renderScores();
-      showWinScreen("The Word was: " + wordleTarget);
+      showDefeatScreen("The Word was: " + wordleTarget, "Guesses Exhausted");
       persistLiveState();
       return;
     }
@@ -2339,7 +2633,7 @@ function initPoker(resetBankroll = true) {
 
 function startNewPokerHand() {
   if (pokerPlayerChips <= 0) {
-    showWinScreen("Busted! AI Took All Chips.");
+    showDefeatScreen("Busted! AI Took All Chips.", "Tournament Over");
     pokerPlayerChips = 1000; pokerAiChips = 1000;
   } else if (pokerAiChips <= 0) {
     showWinScreen("Tournament Victory! You Broke The Bank!");
@@ -2443,8 +2737,10 @@ function pokerShowdown() {
     const half = Math.floor(pokerPot / 2);
     pokerPlayerChips += half;
     pokerAiChips += half;
+    scoreD++;
     winMsg = `Split Pot ($${half} each)! (${playerEval.name})`;
     winningCards = playerEval.cards.map(c => c.id);
+    triggerDrawAnimation();
   }
 
   persistScores();
