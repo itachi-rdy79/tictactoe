@@ -759,6 +759,91 @@ body[data-theme="got"] .seg-btn.active {
   padding: 4px 0;
   position: relative;
   z-index: 5;
+  overflow: visible !important;
+}
+
+.arena-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+
+/* Horizontal Dragging Cursor & Affordances for Side-by-Side Play */
+.board-shell,
+.captured-sidebar,
+.status-wrap {
+  cursor: grab;
+}
+
+body.stage-dragging,
+body.stage-dragging * {
+  cursor: grabbing !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.stage-drag-handle {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 25;
+  cursor: grab;
+  opacity: 0.55;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: auto;
+}
+
+.stage-drag-handle:hover {
+  opacity: 1;
+  transform: translateX(-50%) scale(1.1);
+}
+
+.stage-drag-bar {
+  width: 32px;
+  height: 3.5px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+body[data-theme="light"] .stage-drag-bar {
+  background: rgba(15, 23, 42, 0.35);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure interactive controls maintain pointer / text cursors */
+.board-shell button,
+.board-shell select,
+.board-shell .seg-btn,
+.board-shell .pattu-mini-nav-btn,
+.board-shell .pattu-pill {
+  cursor: pointer !important;
+}
+
+.board-shell input[type="text"],
+.board-shell input[type="number"],
+.board-shell textarea {
+  cursor: text !important;
+}
+
+.chess-sq,
+.ttt-cell {
+  cursor: pointer !important;
 }
 
 .status-wrap { display: flex; align-items: center; justify-content: center; min-height: 38px; gap: 10px; }

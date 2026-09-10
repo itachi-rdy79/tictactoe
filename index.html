@@ -6,7 +6,7 @@
   <title>GAP</title>
   <!-- Konoha Leaf Glow Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffb703'/%3E%3Cstop offset='50%25' stop-color='%23fb8500'/%3E%3Cstop offset='100%25' stop-color='%23d00000'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='%23050002'/%3E%3Cpath d='M 86 26 L 76 33 C 65 26 44 26 31 43 L 18 68 L 62 68 C 76 68 83 55 80 43 C 77 31 63 25 49 28 C 35 32 30 46 34 58 C 39 68 53 71 64 67 C 72 62 74 51 68 44 C 62 37 51 40 47 48 C 45 54 49 60 55 58 C 59 56 60 52 58 49' fill='none' stroke='url(%23g)' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="style.css?v=26.0" />
+  <link rel="stylesheet" href="style.css?v=27.0" />
 </head>
 <body data-theme="dark">
   <!-- Thematic Background Vector Art -->
@@ -176,29 +176,31 @@
 
   <!-- Arena Stage -->
   <main class="arena">
-    <section class="status-wrap">
-      <div class="turn-pill glass-panel" id="statusPill">X's Turn</div>
-      <div class="move-pill glass-panel hidden" id="moveCounterPill">Move: <b id="moveCount">0</b></div>
+    <div class="arena-stage" id="arenaStage">
+      <section class="status-wrap">
+        <div class="turn-pill glass-panel" id="statusPill">X's Turn</div>
+        <div class="move-pill glass-panel hidden" id="moveCounterPill">Move: <b id="moveCount">0</b></div>
 
-      <div class="radial-wrap glass-panel hidden" id="radialWrap">
-        <svg class="radial" viewBox="0 0 120 120">
-          <circle class="ring-bg" cx="60" cy="60" r="50"></circle>
-          <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="50"></circle>
-        </svg>
-        <div class="radial-text" id="radialText">30</div>
-      </div>
-    </section>
+        <div class="radial-wrap glass-panel hidden" id="radialWrap">
+          <svg class="radial" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="50"></circle>
+            <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="50"></circle>
+          </svg>
+          <div class="radial-text" id="radialText">30</div>
+        </div>
+      </section>
 
-    <section class="board-area">
-      <!-- Left Side: White Captured -->
-      <div class="captured-sidebar glass-panel hidden" id="capturedLeft">
-        <div class="captured-header" id="whiteCapturedHeader">White Captured</div>
-        <div class="captured-tray" id="whiteCaptured"></div>
-      </div>
+      <section class="board-area">
+        <!-- Left Side: White Captured -->
+        <div class="captured-sidebar glass-panel hidden" id="capturedLeft">
+          <div class="captured-header" id="whiteCapturedHeader">White Captured</div>
+          <div class="captured-tray" id="whiteCaptured"></div>
+        </div>
 
-      <!-- Main Board Shell -->
-      <section class="board-shell glass-island" id="boardWrap">
-        <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+        <!-- Main Board Shell -->
+        <section class="board-shell glass-island" id="boardWrap">
+          <div class="stage-drag-handle" title="Drag board left or right with mouse" aria-label="Drag board left or right"><span class="stage-drag-bar"></span></div>
+          <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
         <div id="tttBoard" class="ttt-board"></div>
         <div id="chessBoard" class="chess-board hidden"></div>
         
@@ -452,6 +454,7 @@
         <div class="captured-tray" id="blackCaptured"></div>
       </div>
     </section>
+  </div>
   </main>
 
   <!-- Bottom Floating Quick-Dock -->
@@ -541,6 +544,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=26.0"></script>
+  <script src="script.js?v=27.0"></script>
 </body>
 </html>
