@@ -1802,18 +1802,58 @@ function renderChess() {
   if (!chessBoardEl || !Array.isArray(chessBoard) || !chessBoard.length) return;
   chessBoardEl.innerHTML = "";
 
+  // Precompute legal moves for selected piece if any
+  const legalMoveSet = new Set();
+  const captureMoveSet = new Set();
+  if (chessSelected && inBounds(chessSelected.r, chessSelected.c)) {
+    const legalMoves = getPseudoMoves(chessBoard, chessSelected.r, chessSelected.c);
+    legalMoves.forEach(m => {
+      const key = `${m.r},${m.c}`;
+      legalMoveSet.add(key);
+      const targetPiece = chessBoard[m.r][m.c];
+      if (targetPiece && targetPiece.color !== chessTurn) {
+        captureMoveSet.add(key);
+      }
+    });
+  }
+
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
-    const cell = document.createElement("div");
+    const cell = document.createElement("button");
+    cell.type = "button";
     cell.className = "chess-cell " + (((r + c) % 2 === 0) ? "light" : "dark");
-    if (chessSelected && chessSelected.r === r && chessSelected.c === c) cell.classList.add("selected");
+    cell.dataset.row = r;
+    cell.dataset.col = c;
+    const colName = String.fromCharCode(97 + c);
+    const rowName = (8 - r).toString();
+    const squareName = `${colName}${rowName}`;
+
+    const isSelected = !!(chessSelected && chessSelected.r === r && chessSelected.c === c);
+    if (isSelected) cell.classList.add("selected");
+
+    const cellKey = `${r},${c}`;
+    if (legalMoveSet.has(cellKey)) {
+      if (captureMoveSet.has(cellKey)) {
+        cell.classList.add("capture-target");
+      } else {
+        cell.classList.add("valid-target");
+      }
+    }
 
     const p = chessBoard[r][c];
     if (p) {
       cell.innerHTML = getPieceSvgHtml(p.color, p.type);
       cell.classList.add(p.color === "w" ? "white-piece" : "black-piece");
+      cell.setAttribute("aria-label", `${p.color === 'w' ? 'White' : 'Black'} ${p.type.toUpperCase()} at ${squareName}`);
+    } else {
+      cell.setAttribute("aria-label", `Square ${squareName}`);
     }
 
-    cell.addEventListener("click", () => onChessClick(r, c));
+    // Stop pointerdown propagation so parent drag capture never intercepts chess clicks
+    cell.addEventListener("pointerdown", (e) => e.stopPropagation());
+    cell.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onChessClick(r, c);
+    });
     chessBoardEl.appendChild(cell);
   }
 
@@ -2051,12 +2091,20 @@ function handleChessDraw(reason) {
 }
 
 function onChessClick(r, c) {
-  const aiMode = modeSelect.value === "chess-ai";
+  const aiMode = (hubState.opponent === "ai") || (modeSelect && modeSelect.value === "chess-ai");
   if (chessOver) return;
   if (aiMode && chessTurn === "b") return;
 
   resetIdleWatchdog();
   const p = chessBoard[r][c];
+
+  // Deselect if player clicks the currently selected piece again
+  if (chessSelected && chessSelected.r === r && chessSelected.c === c) {
+    chessSelected = null;
+    renderChess();
+    return;
+  }
+
   if (!chessSelected) {
     if (p && p.color === chessTurn) chessSelected = { r, c };
     renderChess();
@@ -2094,7 +2142,7 @@ function onChessClick(r, c) {
     if (hubState.timer === "off" && statusPill) statusPill.textContent = "AI Thinking...";
     setTimeout(() => {
       saveChessSnapshot();
-      const diff = difficultySelect.value;
+      const diff = hubState.difficulty || difficultySelect?.value || "medium";
       const allMoves = allMovesForColor(chessBoard, "b");
       let mv = null;
 
@@ -3465,7 +3513,7 @@ function getPattuDayCount() {
   const origin = new Date("2022-05-22T18:30:00.000Z");
   const now = new Date();
   const diffSec = (now.getTime() - origin.getTime()) / 1000;
-  return Math.max(1, Math.floor(diffSec / 86400));
+  return Math.max(1, Math.floor(diffSec / 86400) + 1);
 }
 
 const PATTU_ORIGIN_MS = new Date("2022-05-22T18:30:00.000Z").getTime();
@@ -3545,9 +3593,13 @@ function initPattu(targetDay = null) {
   // Set default puzzle from offline list first
   const pIdx = (pattuCurrentDay - 1) % PATTU_OFFLINE_PUZZLES.length;
   pattuCurrentPuzzle = Object.assign({}, PATTU_OFFLINE_PUZZLES[pIdx]);
+  pattuCurrentPuzzle.movieFromS3 = false;
 
-  // Check local data/daily/meta-data.json if playing today's puzzle
-  if (pattuCurrentDay === todayDay) {
+  // Preload all 5 movie stills for this day right away
+  preloadPattuPuzzle(pattuCurrentDay);
+
+  // Check local data/daily/meta-data.json if playing Day 1571
+  if (pattuCurrentDay === 1571) {
     fetch("data/daily/meta-data.json")
       .then(res => res.json())
       .then(meta => {
@@ -3565,29 +3617,28 @@ function initPattu(targetDay = null) {
       .catch(() => {});
   }
 
-  // If online, fetch the latest upstream metadata from S3
-  if (navigator.onLine) {
-    fetch(`${PATTU_S3_BASE}/${pattuCurrentDay}/meta-data.json`)
-      .then(res => {
-        if (!res.ok) throw new Error("Metadata HTTP error");
-        return res.json();
-      })
-      .then(meta => {
-        if (meta && meta.movie) {
-          pattuCurrentPuzzle.movie = meta.movie;
-          pattuCurrentPuzzle.contributor = meta.contributor || "";
-          pattuCurrentPuzzle.twitterId = meta.twitterId || "";
-          if (!PATTU_MOVIES.includes(meta.movie)) {
-            PATTU_MOVIES.push(meta.movie);
-            PATTU_MOVIES.sort((a, b) => a.localeCompare(b));
-          }
-          renderPattuUI();
+  // Fetch the latest upstream metadata from S3
+  fetch(`${PATTU_S3_BASE}/${pattuCurrentDay}/meta-data.json`)
+    .then(res => {
+      if (!res.ok) throw new Error("Metadata HTTP error");
+      return res.json();
+    })
+    .then(meta => {
+      if (meta && meta.movie) {
+        pattuCurrentPuzzle.movie = meta.movie;
+        pattuCurrentPuzzle.contributor = meta.contributor || "";
+        pattuCurrentPuzzle.twitterId = meta.twitterId || "";
+        pattuCurrentPuzzle.movieFromS3 = true;
+        if (!PATTU_MOVIES.includes(meta.movie)) {
+          PATTU_MOVIES.push(meta.movie);
+          PATTU_MOVIES.sort((a, b) => a.localeCompare(b));
         }
-      })
-      .catch(err => {
-        console.warn("Using offline puzzle data for day", pattuCurrentDay, err);
-      });
-  }
+        renderPattuUI();
+      }
+    })
+    .catch(err => {
+      console.warn("Using offline puzzle data for day", pattuCurrentDay, err);
+    });
 
   pattuAttempt = 1;
   pattuActiveFrame = 1;
@@ -3743,6 +3794,45 @@ window.addEventListener("offline", () => {
   updatePattuConnectionBadge();
 });
 
+const PATTU_PRELOAD_CACHE = new Map();
+
+function getPattuCandidateUrls(day, frameNum) {
+  const urls = [];
+  // 1. If local files match this day (day 1571 is bundled in data/daily)
+  if (day === 1571) {
+    urls.push(`data/daily/${frameNum}.jpg`);
+  }
+  // 2. High-speed Cloudflare image mirror (proper image/jpeg Content-Type and CORS *)
+  urls.push(`https://wsrv.nl/?url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
+  // 3. Direct AWS S3 bucket
+  urls.push(`${PATTU_S3_BASE}/${day}/${frameNum}.jpg`);
+  // 4. Backup weserv mirror
+  urls.push(`https://images.weserv.nl/?url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
+  return urls;
+}
+
+function preloadPattuPuzzle(day) {
+  for (let f = 1; f <= 5; f++) {
+    const key = `${day}_${f}`;
+    if (PATTU_PRELOAD_CACHE.has(key)) continue;
+    const candidates = getPattuCandidateUrls(day, f);
+    let idx = 0;
+    const preImg = new Image();
+    const tryNext = () => {
+      if (idx < candidates.length) {
+        preImg.src = candidates[idx++];
+      }
+    };
+    preImg.onload = () => {
+      PATTU_PRELOAD_CACHE.set(key, preImg.src);
+    };
+    preImg.onerror = () => {
+      tryNext();
+    };
+    tryNext();
+  }
+}
+
 function renderPattuFrame(frameNum) {
   pattuActiveFrame = frameNum;
 
@@ -3754,76 +3844,74 @@ function renderPattuFrame(frameNum) {
     tab.classList.toggle("viewing-active", isThis);
   });
 
-  const todayDay = getPattuDayCount();
-  const localStillsUrl = (pattuCurrentDay === todayDay) ? `data/daily/${frameNum}.jpg` : null;
-  const cdnUrl = `${PATTU_S3_BASE}/${pattuCurrentDay}/${frameNum}.jpg`;
+  if (!pattuImgEl) return;
 
   const showClueFallback = () => {
     if (pattuImgEl) pattuImgEl.style.display = "none";
     if (pattuFallbackCardEl) {
       pattuFallbackCardEl.classList.remove("hidden");
       if (pattuFallbackTagEl) pattuFallbackTagEl.textContent = `FRAME ${frameNum} OF 5`;
-      const clues = pattuCurrentPuzzle.clues || [];
+      const clues = (pattuCurrentPuzzle && pattuCurrentPuzzle.clues) || [];
+      const hasMatchingClues = pattuCurrentPuzzle && clues.length > 0 && !pattuCurrentPuzzle.movieFromS3;
       if (pattuFallbackClueEl) {
-        pattuFallbackClueEl.textContent = clues[frameNum - 1] || `Tollywood Scene Frame #${frameNum}`;
+        pattuFallbackClueEl.textContent = (hasMatchingClues && clues[frameNum - 1])
+          ? clues[frameNum - 1]
+          : `Tollywood Scene Frame #${frameNum}`;
       }
       if (pattuFallbackSubEl) {
-        pattuFallbackSubEl.textContent = pattuCurrentPuzzle.hero
+        pattuFallbackSubEl.textContent = (hasMatchingClues && pattuCurrentPuzzle.hero)
           ? `Starring: ${pattuCurrentPuzzle.hero} • Dir: ${pattuCurrentPuzzle.director || "Tollywood"}`
-          : (pattuCurrentPuzzle.contributor ? `Contributed by @${pattuCurrentPuzzle.contributor}` : `Tollywood Cinema Archives`);
+          : (pattuCurrentPuzzle.contributor
+              ? `Contributed by @${pattuCurrentPuzzle.contributor}`
+              : `Tollywood Cinema Archives (Day #${pattuCurrentDay})`);
       }
     }
   };
 
-  if (pattuImgEl) {
-    pattuImgEl.style.display = "block";
-    pattuFallbackCardEl?.classList.add("hidden");
+  pattuImgEl.style.display = "block";
+  pattuFallbackCardEl?.classList.add("hidden");
 
-    let isHandled = false;
+  const key = `${pattuCurrentDay}_${frameNum}`;
+  const candidateUrls = getPattuCandidateUrls(pattuCurrentDay, frameNum);
+
+  // If already in preload cache, display immediately
+  if (PATTU_PRELOAD_CACHE.has(key)) {
+    const cachedUrl = PATTU_PRELOAD_CACHE.get(key);
     pattuImgEl.onload = () => {
-      if (isHandled) return;
-      isHandled = true;
       pattuImgEl.style.display = "block";
       pattuFallbackCardEl?.classList.add("hidden");
-      if ("caches" in window && navigator.onLine) {
-        caches.open("gap-pattu-stills-v1").then(cache => {
-          cache.add(cdnUrl).catch(() => {});
-        });
-      }
     };
-
     pattuImgEl.onerror = () => {
-      if (pattuImgEl.src.includes("data/daily") && navigator.onLine) {
-        pattuImgEl.src = cdnUrl;
-        return;
-      }
-      if (isHandled) return;
-      isHandled = true;
-      showClueFallback();
+      PATTU_PRELOAD_CACHE.delete(key);
+      tryCandidates(0);
     };
-
-    if (localStillsUrl) {
-      pattuImgEl.src = localStillsUrl;
-    } else if (navigator.onLine) {
-      pattuImgEl.src = cdnUrl;
-    } else {
-      if ("caches" in window) {
-        caches.match(cdnUrl).then(cachedResponse => {
-          if (cachedResponse) {
-            return cachedResponse.blob().then(blob => {
-              pattuImgEl.src = URL.createObjectURL(blob);
-              pattuImgEl.style.display = "block";
-              pattuFallbackCardEl?.classList.add("hidden");
-            });
-          } else {
-            showClueFallback();
-          }
-        }).catch(() => showClueFallback());
-      } else {
-        showClueFallback();
-      }
-    }
+    pattuImgEl.src = cachedUrl;
+    return;
   }
+
+  function tryCandidates(idx) {
+    if (idx >= candidateUrls.length) {
+      showClueFallback();
+      return;
+    }
+    const currentUrl = candidateUrls[idx];
+    let resolved = false;
+    pattuImgEl.onload = () => {
+      if (resolved) return;
+      resolved = true;
+      pattuImgEl.style.display = "block";
+      pattuFallbackCardEl?.classList.add("hidden");
+      PATTU_PRELOAD_CACHE.set(key, currentUrl);
+    };
+    pattuImgEl.onerror = () => {
+      if (resolved) return;
+      resolved = true;
+      tryCandidates(idx + 1);
+    };
+    pattuImgEl.src = currentUrl;
+  }
+
+  tryCandidates(0);
 }
 
 // Autocomplete filter
@@ -4142,14 +4230,19 @@ closePattuTimeTravelBtn?.addEventListener("click", () => {
 
 submitPattuTimeTravelBtn?.addEventListener("click", () => {
   const maxDay = getPattuDayCount();
-  let val = pattuDateStrToDay(pattuDateInput?.value);
+  const isManual = pattuTtManualWrap && !pattuTtManualWrap.classList.contains("hidden");
+  let val = isManual ? parseInt(pattuDayInput?.value, 10) : pattuDateStrToDay(pattuDateInput?.value);
   if (isNaN(val) || val < 1) {
     val = parseInt(pattuDayInput?.value, 10);
   }
-  if (!isNaN(val) && val >= 1 && val <= maxDay) {
-    pattuTimeTravelModal?.classList.add("hidden");
-    initPattu(val);
+  if (isNaN(val) || val < 1) {
+    val = pattuDateStrToDay(pattuDateInput?.value);
   }
+  if (isNaN(val) || val < 1) val = 1;
+  if (val > maxDay) val = maxDay;
+
+  pattuTimeTravelModal?.classList.add("hidden");
+  initPattu(val);
 });
 
 // Stats Modal
@@ -4278,7 +4371,7 @@ function restoreLiveStateIfAny() {
       blackCaptured = Array.isArray(s.chess.blackCaptured) ? s.chess.blackCaptured : [];
 
       const looksValid = chessBoard.length === 8 && Array.isArray(chessBoard[0]) && chessBoard[0].length === 8;
-      if (!looksValid) return false;
+      if (!looksValid || chessOver) return false;
 
       updateMoveCounter(true);
       renderCaptured();
@@ -4550,8 +4643,8 @@ function initStageDragger() {
   }
 
   stage.addEventListener("pointerdown", (e) => {
-    // Ignore drag start on buttons, links, inputs, or interactive modals
-    if (e.target.closest("button, input, textarea, select, a, .win-overlay, #pattuResultBanner, .poker-action-btn")) {
+    // Ignore drag start on buttons, links, inputs, game board cells, or interactive modals
+    if (e.target.closest("button, input, textarea, select, a, .chess-cell, .chess-board, .ttt-cell, .ttt-board, .win-overlay, #pattuResultBanner, .poker-action-btn")) {
       return;
     }
 
