@@ -480,6 +480,17 @@
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
           <span>Undo</span>
         </button>
+        <button id="chessHintsBtn" class="seg-btn icon-btn hidden" type="button" title="Toggle Move Possibilities (OFF by default)" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="3"></circle>
+            <line x1="12" y1="2" x2="12" y2="5"></line>
+            <line x1="12" y1="19" x2="12" y2="22"></line>
+            <line x1="2" y1="12" x2="5" y2="12"></line>
+            <line x1="19" y1="12" x2="22" y2="12"></line>
+          </svg>
+          <span>Hints</span>
+        </button>
         <button id="newGameBtn" class="seg-btn icon-btn" type="button" title="New Game (R)">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
           <span>New Game</span>
@@ -544,6 +555,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=30.0"></script>
+  <script src="script.js?v=31.0"></script>
 </body>
 </html>

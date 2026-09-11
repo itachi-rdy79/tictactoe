@@ -14,6 +14,7 @@ const opponentGroup = document.getElementById("opponentGroup");
 const newGameBtn = document.getElementById("newGameBtn");
 const resetScoreBtn = document.getElementById("resetScoreBtn");
 const undoBtn = document.getElementById("undoBtn");
+const chessHintsBtn = document.getElementById("chessHintsBtn");
 
 const statusPill = document.getElementById("statusPill");
 const moveCounterPill = document.getElementById("moveCounterPill");
@@ -674,6 +675,17 @@ function showOnlyActiveGame(gameKey) {
     if (!isWordle && hubState.timer === "off") {
       statusPill?.classList.remove("hidden");
       statusPill?.style.removeProperty("display");
+    }
+  }
+
+  // Chess Move Hints Button in bottom dashboard
+  if (chessHintsBtn) {
+    if (isChess) {
+      chessHintsBtn.classList.remove("hidden");
+      chessHintsBtn.classList.toggle("active", chessShowMoveHints);
+      chessHintsBtn.setAttribute("aria-pressed", chessShowMoveHints ? "true" : "false");
+    } else {
+      chessHintsBtn.classList.add("hidden");
     }
   }
 
@@ -1661,6 +1673,7 @@ function onTTTClick(i) {
 const CHESS_U = { wp: "♟", wr: "♜", wn: "♞", wb: "♝", wq: "♛", wk: "♚", bp: "♟", br: "♜", bn: "♞", bb: "♝", bq: "♛", bk: "♚" };
 const PIECE_VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 let chessBoard = [], chessTurn = "w", chessSelected = null, chessOver = false, whiteCaptured = [], blackCaptured = [], chessSnapshots = [];
+let chessShowMoveHints = false;
 
 function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
 function cloneBoard(b) { return b.map(row => row.map(cell => cell ? { ...cell } : null)); }
@@ -1802,10 +1815,10 @@ function renderChess() {
   if (!chessBoardEl || !Array.isArray(chessBoard) || !chessBoard.length) return;
   chessBoardEl.innerHTML = "";
 
-  // Precompute legal moves for selected piece if any
+  // Precompute legal moves for selected piece only if move hints option is explicitly toggled ON
   const legalMoveSet = new Set();
   const captureMoveSet = new Set();
-  if (chessSelected && inBounds(chessSelected.r, chessSelected.c)) {
+  if (chessShowMoveHints && chessSelected && inBounds(chessSelected.r, chessSelected.c)) {
     const legalMoves = getPseudoMoves(chessBoard, chessSelected.r, chessSelected.c);
     legalMoves.forEach(m => {
       const key = `${m.r},${m.c}`;
@@ -1831,7 +1844,7 @@ function renderChess() {
     if (isSelected) cell.classList.add("selected");
 
     const cellKey = `${r},${c}`;
-    if (legalMoveSet.has(cellKey)) {
+    if (chessShowMoveHints && legalMoveSet.has(cellKey)) {
       if (captureMoveSet.has(cellKey)) {
         cell.classList.add("capture-target");
       } else {
@@ -4516,6 +4529,14 @@ undoBtn?.addEventListener("click", () => {
   renderChess();
   startTurnTimer();
   persistLiveState();
+});
+
+chessHintsBtn?.addEventListener("click", () => {
+  resetIdleWatchdog();
+  chessShowMoveHints = !chessShowMoveHints;
+  chessHintsBtn.classList.toggle("active", chessShowMoveHints);
+  chessHintsBtn.setAttribute("aria-pressed", chessShowMoveHints ? "true" : "false");
+  renderChess();
 });
 
 /* ---------- HUD Bar Events ---------- */
