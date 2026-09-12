@@ -1393,6 +1393,42 @@ body[data-theme="light"] .glass-piece-svg.glass-piece-black {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35)) !important;
 }
 
+/* Inner piece details (Knight eye & mane, Bishop cross) */
+.piece-detail {
+  fill: none !important;
+}
+.glass-piece-white .piece-detail {
+  stroke: rgba(15, 23, 42, 0.65) !important;
+  stroke-width: 1.3px !important;
+}
+.glass-piece-black .piece-detail {
+  stroke: rgba(226, 232, 240, 0.75) !important;
+  stroke-width: 1.3px !important;
+}
+
+.piece-detail-fill {
+  stroke: none !important;
+}
+.glass-piece-white .piece-detail-fill {
+  fill: rgba(15, 23, 42, 0.65) !important;
+}
+.glass-piece-black .piece-detail-fill {
+  fill: rgba(226, 232, 240, 0.75) !important;
+}
+
+body[data-theme="light"] .glass-piece-white .piece-detail {
+  stroke: rgba(15, 23, 42, 0.85) !important;
+}
+body[data-theme="light"] .glass-piece-black .piece-detail {
+  stroke: rgba(248, 250, 252, 0.85) !important;
+}
+body[data-theme="light"] .glass-piece-white .piece-detail-fill {
+  fill: rgba(15, 23, 42, 0.85) !important;
+}
+body[data-theme="light"] .glass-piece-black .piece-detail-fill {
+  fill: rgba(248, 250, 252, 0.85) !important;
+}
+
 .chess-cell:hover .glass-piece-svg {
   transform: translateY(-2px) scale(1.06);
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 12px rgba(56, 189, 248, 0.7));
