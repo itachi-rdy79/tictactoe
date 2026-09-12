@@ -24,6 +24,7 @@ COPY script.js /usr/share/nginx/html/script.js
 COPY winner-screen.html /usr/share/nginx/html/winner-screen.html
 COPY README.md /usr/share/nginx/html/README.md
 COPY data/ /usr/share/nginx/html/data/
+COPY assets/ /usr/share/nginx/html/assets/
 
 # Prepare filesystem permissions for non-root (nginx user, UID 101)
 RUN mkdir -p /tmp/client_temp /tmp/proxy_temp_path /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp \
