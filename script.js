@@ -421,10 +421,6 @@ const CROW_SVG = `<svg viewBox="0 0 100 100"><path d="M15 50 C25 25, 60 20, 85 4
 
 const KONOHA_LEAF_SVG = `<svg viewBox="0 0 100 100"><path d="M 86 26 L 76 33 C 65 26 44 26 31 43 L 18 68 L 62 68 C 76 68 83 55 80 43 C 77 31 63 25 49 28 C 35 32 30 46 34 58 C 39 68 53 71 64 67 C 72 62 74 51 68 44 C 62 37 51 40 47 48 C 45 54 49 60 55 58 C 59 56 60 52 58 49" fill="none" stroke="#f97316" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const AKATSUKI_CLOUD_SVG = `<svg viewBox="0 0 100 100"><path d="M30 65 A18 18 0 0 1 25 35 A22 22 0 0 1 65 26 A26 26 0 0 1 85 52 A20 20 0 0 1 70 70 Z" fill="#e11d48" stroke="#ffffff" stroke-width="4"/><path d="M40 50 A10 10 0 0 1 60 48" stroke="#ffffff" stroke-width="3" fill="none"/></svg>`;
-
-const DIREWOLF_SVG = `<svg viewBox="0 0 100 100"><polygon points="50,15 65,35 85,38 70,55 75,78 50,65 25,78 30,55 15,38 35,35" fill="none" stroke="#38bdf8" stroke-width="6" stroke-linejoin="round"/><circle cx="42" cy="42" r="4" fill="#38bdf8"/><circle cx="58" cy="42" r="4" fill="#38bdf8"/></svg>`;
-const DRAGON_SVG = `<svg viewBox="0 0 100 100"><path d="M20 70 Q35 25 50 45 Q65 25 80 70 Q50 60 20 70 Z" fill="#ef4444" stroke="#f59e0b" stroke-width="5"/><circle cx="38" cy="48" r="4" fill="#f59e0b"/><circle cx="62" cy="48" r="4" fill="#f59e0b"/><path d="M45 62 Q50 72 55 62" stroke="#f59e0b" stroke-width="4" fill="none"/></svg>`;
-
 const hubState = {
   game: "ttt3",
   opponent: "ai",
@@ -541,14 +537,14 @@ function loadHub() {
     if (["ai", "local"].includes(vs)) hubState.opponent = vs;
     if (["easy", "medium", "hard"].includes(diff)) hubState.difficulty = diff;
     if (["off", "15", "30", "45", "60", "90"].includes(timer)) hubState.timer = timer;
-    if (["dark", "light", "itachi", "naruto", "got"].includes(theme)) hubState.theme = theme;
+    if (["dark", "light", "itachi", "naruto"].includes(theme)) hubState.theme = theme;
     const color = q.get("color");
     if (color) applyRandomPalette(color);
   }
 
   // normalize
   if (!["off", "15", "30", "45", "60", "90"].includes(hubState.timer)) hubState.timer = "off";
-  if (!["dark", "light", "itachi", "naruto", "got"].includes(hubState.theme)) hubState.theme = "dark";
+  if (!["dark", "light", "itachi", "naruto"].includes(hubState.theme)) hubState.theme = "dark";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
   if (!["ttt3", "ttt5", "chess", "wordle", "poker", "pattu"].includes(hubState.game)) hubState.game = "ttt3";
@@ -732,10 +728,6 @@ function themeMeta(theme) {
   if (theme === "naruto") return {
     icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/><circle cx="12" cy="13" r="2.5" fill="currentColor"/></svg>`,
     text: "Naruto"
-  };
-  if (theme === "got") return {
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2v4a2.5 2.5 0 0 0 5 0V2"/><path d="M9.5 2v4a2.5 2.5 0 0 1-5 0V2"/><path d="M12 12v10"/><path d="m8 18 4 4 4-4"/><path d="M7 6h10a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg>`,
-    text: "Game of Thrones"
   };
   return {
     icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
@@ -1196,10 +1188,7 @@ function showDrawScreen(msg, subtitle = "Equilibrium • Perfect Standoff") {
 
   const theme = hubState.theme;
   let icon = "⚖️";
-  if (theme === "got") {
-    icon = "❄️";
-    subtitle = "The Long Night • Frost Standoff";
-  } else if (theme === "naruto") {
+  if (theme === "naruto") {
     icon = "⚡";
     subtitle = "Shinobi Armistice • Equal Will";
   } else if (theme === "itachi") {
@@ -1364,13 +1353,11 @@ function renderTTT() {
     if (mark === "X") {
       if (theme === "itachi") return SHARINGAN_SVG;
       if (theme === "naruto") return KONOHA_LEAF_SVG;
-      if (theme === "got") return DIREWOLF_SVG;
       return "X";
     }
     if (mark === "O") {
       if (theme === "itachi") return CROW_SVG;
       if (theme === "naruto") return AKATSUKI_CLOUD_SVG;
-      if (theme === "got") return DRAGON_SVG;
       return "O";
     }
     return "";
@@ -1389,9 +1376,7 @@ function renderTTT() {
 
   const r = getTTTResult(tttBoard);
   if (hubState.timer === "off" && statusPill) {
-    if (theme === "got") {
-      statusPill.textContent = r.winner === "draw" ? "The Long Night (Draw)" : r.winner ? (r.winner === "X" ? "House Stark Victorious" : "House Targaryen Ascends") : (tttTurn === "X" ? "Direwolf's Turn (Stark)" : "Dragon's Turn (Targaryen)");
-    } else if (theme === "naruto") {
+    if (theme === "naruto") {
       statusPill.textContent = r.winner === "draw" ? "Shinobi Draw" : r.winner ? (r.winner === "X" ? "Konoha Leaf Prevails" : "Akatsuki Strikes") : (tttTurn === "X" ? "Leaf Ninja's Turn" : "Akatsuki's Turn");
     } else if (theme === "itachi") {
       statusPill.innerHTML = r.winner === "draw" ? "Draw" : r.winner ? (r.winner === "X" ? "Sharingan Wins" : "Crow Wins") : (tttTurn === "X" ? "Sharingan's Turn" : "Crow's Turn");
@@ -1619,22 +1604,19 @@ function finishTTT(winner, line) {
   if (winner === "X") {
     scoreA++; updateStreak(aiMode);
     let msg = aiMode ? "You Win!" : "X Wins!";
-    if (theme === "got") msg = "House Stark Victorious!";
-    else if (theme === "naruto") msg = "Will of Fire Prevails!";
+    if (theme === "naruto") msg = "Will of Fire Prevails!";
     else if (theme === "itachi") msg = "Sharingan Triumphs!";
     showWinScreen(msg);
   } else if (winner === "O") {
     scoreB++; updateStreak(false);
     let msg = aiMode ? "Computer Wins!" : "O Wins!";
-    if (theme === "got") msg = "Dragon Flame Prevails!";
-    else if (theme === "naruto") msg = "Akatsuki Triumphs!";
+    if (theme === "naruto") msg = "Akatsuki Triumphs!";
     else if (theme === "itachi") msg = "Crow Triumphs!";
     showWinScreen(msg);
   } else {
     scoreD++;
     let drawMsg = "Draw";
-    if (theme === "got") drawMsg = "The Long Night (Draw)";
-    else if (theme === "naruto") drawMsg = "Shinobi Standoff (Draw)";
+    if (theme === "naruto") drawMsg = "Shinobi Standoff (Draw)";
     else if (theme === "itachi") drawMsg = "Tsukuyomi in Harmony (Draw)";
     showDrawScreen(drawMsg);
   }
@@ -1752,10 +1734,7 @@ function renderCaptured() {
   const whiteH = document.getElementById("whiteCapturedHeader");
   const blackH = document.getElementById("blackCapturedHeader");
   if (whiteH && blackH) {
-    if (hubState.theme === "got") {
-      whiteH.textContent = "Winterfell (Stark)";
-      blackH.textContent = "Dragonstone (Targaryen)";
-    } else if (hubState.theme === "naruto") {
+    if (hubState.theme === "naruto") {
       whiteH.textContent = "Konoha Shinobi";
       blackH.textContent = "Akatsuki Rogue";
     } else if (hubState.theme === "itachi") {
@@ -1871,9 +1850,7 @@ function renderChess() {
   }
 
   if (hubState.timer === "off" && statusPill) {
-    if (hubState.theme === "got") {
-      statusPill.textContent = chessOver ? "The Iron Throne is Decided" : `${chessTurn === "w" ? "Stark" : "Targaryen"}'s Move`;
-    } else if (hubState.theme === "naruto") {
+    if (hubState.theme === "naruto") {
       statusPill.textContent = chessOver ? "Shinobi War Concluded" : `${chessTurn === "w" ? "Leaf Shinobi" : "Akatsuki"}'s Turn`;
     } else if (hubState.theme === "itachi") {
       statusPill.textContent = chessOver ? "Tsukuyomi Shattered" : `${chessTurn === "w" ? "White" : "Black"}'s Turn`;
@@ -1893,16 +1870,14 @@ function moveChess(board, mv, real = false) {
         scoreA++;
         updateStreak(modeSelect.value === "chess-ai");
         let winTxt = "White Wins";
-        if (hubState.theme === "got") winTxt = "House Stark Conquers the Realm!";
-        else if (hubState.theme === "naruto") winTxt = "Will of Fire Prevails!";
+        if (hubState.theme === "naruto") winTxt = "Will of Fire Prevails!";
         else if (hubState.theme === "itachi") winTxt = "Tsukuyomi Ascendant!";
         showWinScreen(winTxt);
       } else {
         scoreB++;
         updateStreak(false);
         let winTxt = "Black Wins";
-        if (hubState.theme === "got") winTxt = "Fire and Blood Reigns Supreme!";
-        else if (hubState.theme === "naruto") winTxt = "Akatsuki Rules the World!";
+        if (hubState.theme === "naruto") winTxt = "Akatsuki Rules the World!";
         else if (hubState.theme === "itachi") winTxt = "Crow Flight Victorious!";
         showWinScreen(winTxt);
       }
@@ -2097,8 +2072,7 @@ function handleChessDraw(reason) {
   renderChess();
   persistLiveState();
   let drawTxt = `${reason} (Draw)`;
-  if (hubState.theme === "got") drawTxt = "Truce of Westeros (Draw)";
-  else if (hubState.theme === "naruto") drawTxt = "Shinobi Armistice (Draw)";
+  if (hubState.theme === "naruto") drawTxt = "Shinobi Armistice (Draw)";
   else if (hubState.theme === "itachi") drawTxt = "Tsukuyomi in Harmony (Draw)";
   showDrawScreen(drawTxt);
 }
@@ -2858,7 +2832,6 @@ function renderPokerUI(winningCardIds = []) {
 
   if (pokerAiNameEl) {
     if (hubState.theme === "naruto") pokerAiNameEl.textContent = "Shinobi Opponent";
-    else if (hubState.theme === "got") pokerAiNameEl.textContent = "Iron Bank Rival";
     else if (hubState.theme === "itachi") pokerAiNameEl.textContent = "Tsukuyomi Shadow";
     else pokerAiNameEl.textContent = "AI Opponent";
   }

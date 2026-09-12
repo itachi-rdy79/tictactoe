@@ -71,7 +71,6 @@ A high-performance, completely offline, zero-dependency browser arcade gaming hu
   - Stratified by difficulty: *Easy* (passive caller, folds to pressure), *Medium* (pot odds aware, values pairs and draws), *Hard* (aggressive value betting, bluffing, and pot leverage).
 - **Thematic Visuals**:
   - Naruto: Shinobi bounty Ryo chips and Leaf Village card backs.
-  - Game of Thrones: Iron Bank dragon coins and Stark/Targaryen card backs.
   - Itachi: Sharingan betting coins and Tsukuyomi crimson card backs.
 
 ### 5. PC / Pattukunte Pattucheera (Tollywood Movie Guesser)
@@ -108,11 +107,10 @@ A high-performance, completely offline, zero-dependency browser arcade gaming hu
   - **Dark**: Deep true black (`#000000`) canvas with glowing neon buttons and borders.
   - **Itachi Theme**: Blood-red SVG moon with rotating Sharingan blades, silhouette crows, crimson markers, and Tsukuyomi victory screens.
   - **Naruto Theme ("Will of Fire")**: Radiant fiery orange (`#ea580c`) & electric cyan Rasengan styling.
-  - **Game of Thrones Theme ("Ice & Fire")**: Glacial permafrost blue (`#38bdf8`) & Valyrian dragonfire gold-crimson styling.
 - **Browser Mini-Window Mode (Pop-Out Floating App)**:
   - Click the **Mini Window** button in the top right to pop out the entire hub into a compact `430×720px` floating desktop window without browser toolbars or tab strips.
   - All games (TTT 3x3, TTT 5x5, Chess, Wordle, Poker, PC) adapt responsively with zero vertical scrolling.
-  - Full support for all 5 themes with floating dropdown overlays.
+  - Full support for all 4 themes with floating dropdown overlays.
 
 ---
 

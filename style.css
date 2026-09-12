@@ -183,40 +183,6 @@ body[data-theme="naruto"] {
   --chess-piece-black: #e11d48;
 }
 
-body[data-theme="got"] {
-  --bg: #050811;
-  --surface: rgba(10, 16, 28, 0.94);
-  --surface-border: #38bdf8;
-  --text: #f0f9ff;
-  --muted: #7dd3fc;
-  --brand: #38bdf8;
-
-  --btn-bg: rgba(15, 23, 42, 0.92);
-  --btn-border: #0369a1;
-  --btn-text: #e0f2fe;
-
-  --btn-active-bg: #0284c7;
-  --btn-active-border: #38bdf8;
-  --btn-active-text: #ffffff;
-  --btn-active-shadow: 0 4px 0 #075985, 0 0 26px rgba(56, 189, 248, 0.7);
-
-  --accent: #38bdf8;
-  --x: #38bdf8;
-  --o: #ef4444;
-  --tile-bg: rgba(10, 16, 28, 0.95);
-  --tile-border: #0c4a6e;
-  --shadow: 0 16px 45px rgba(56, 189, 248, 0.25), 0 22px 55px rgba(0, 0, 0, 0.98);
-
-  --turn-bg: rgba(10, 16, 28, 0.96);
-  --turn-border: #38bdf8;
-  --turn-text: #7dd3fc;
-
-  --chess-light: #e0f2fe;
-  --chess-dark: #0f172a;
-  --chess-piece-white: #f0f9ff;
-  --chess-piece-black: #dc2626;
-}
-
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
 
@@ -249,11 +215,6 @@ body[data-theme="naruto"] {
   background-attachment: fixed !important;
 }
 
-body[data-theme="got"] {
-  background: radial-gradient(circle at 35% 35%, rgba(56, 189, 248, 0.32) 0%, transparent 50%), radial-gradient(circle at 75% 65%, rgba(239, 68, 68, 0.3) 0%, transparent 50%), #040711 !important;
-  background-attachment: fixed !important;
-}
-
 .itachi-bg-art {
   position: fixed;
   inset: 0;
@@ -268,8 +229,7 @@ body[data-theme="got"] {
 
 body[data-theme="itachi"] .itachi-bg-art { display: flex !important; }
 
-.naruto-bg-art,
-.got-bg-art {
+.naruto-bg-art {
   position: fixed;
   inset: 0;
   z-index: 0;
@@ -283,11 +243,6 @@ body[data-theme="itachi"] .itachi-bg-art { display: flex !important; }
 body[data-theme="naruto"] .naruto-bg-art {
   display: flex !important;
   background: radial-gradient(circle at 50% 45%, rgba(31, 13, 1, 0.85) 0%, rgba(12, 5, 0, 0.95) 55%, #060c18 100%);
-}
-
-body[data-theme="got"] .got-bg-art {
-  display: flex !important;
-  background: radial-gradient(circle at 50% 50%, #15161b 0%, #0d0e13 55%, #06070a 100%) !important;
 }
 
 /* Shared Thematic Background Imagery */
@@ -316,43 +271,10 @@ body[data-theme="got"] .got-bg-art {
   }
 }
 
-.got-bg-img {
-  width: min(105vmin, 840px);
-  max-height: min(96vmin, 900px);
-  object-fit: contain;
-  mask-image: radial-gradient(ellipse 75% 82% at 50% 50%, black 50%, transparent 96%);
-  -webkit-mask-image: radial-gradient(ellipse 75% 82% at 50% 50%, black 50%, transparent 96%);
-  opacity: 0.92;
-  animation: gotDragonGlow 9s ease-in-out infinite alternate;
-}
-
-@keyframes gotDragonGlow {
-  0% {
-    transform: scale(0.985);
-    opacity: 0.88;
-  }
-  100% {
-    transform: scale(1.015);
-    opacity: 0.96;
-  }
-}
-
-.itachi-moon-svg {
-  width: min(92vmin, 740px);
-  height: min(92vmin, 740px);
-  filter: drop-shadow(0 0 80px rgba(255, 0, 51, 0.55));
-}
-
 .naruto-crest-svg {
   width: min(92vmin, 740px);
   height: min(92vmin, 740px);
   filter: drop-shadow(0 0 70px rgba(249, 115, 22, 0.4));
-}
-
-.got-crest-svg {
-  width: min(92vmin, 740px);
-  height: min(92vmin, 740px);
-  filter: drop-shadow(0 0 70px rgba(56, 189, 248, 0.45));
 }
 
 .glass-island {
@@ -496,15 +418,6 @@ body[data-theme="naruto"] .brand {
 body[data-theme="naruto"] .brand-flame-svg {
   fill: #f97316 !important;
   filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.8)) !important;
-}
-
-body[data-theme="got"] .brand {
-  color: #38bdf8 !important;
-  text-shadow: 0 0 20px rgba(56, 189, 248, 0.8) !important;
-}
-body[data-theme="got"] .brand-flame-svg {
-  fill: #38bdf8 !important;
-  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.8)) !important;
 }
 
 .group {
@@ -701,31 +614,6 @@ body[data-theme="naruto"] .seg-btn.active {
   border: 1.5px solid rgba(249, 115, 22, 0.75) !important;
   border-top: 2px solid rgba(254, 215, 170, 0.9) !important;
   box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.6), 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 16px rgba(249, 115, 22, 0.4) !important;
-  color: #ffffff !important;
-  font-weight: 800 !important;
-}
-
-body[data-theme="got"] .seg-btn {
-  background: rgba(10, 16, 28, 0.65) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  border: 1px solid rgba(56, 189, 248, 0.3) !important;
-  border-top: 1.5px solid rgba(186, 230, 253, 0.5) !important;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 3px 10px rgba(0, 0, 0, 0.4) !important;
-  color: #e0f2fe !important;
-  font-weight: 700 !important;
-}
-body[data-theme="got"] .seg-btn:hover {
-  background: rgba(15, 23, 42, 0.8) !important;
-  border-color: rgba(56, 189, 248, 0.6) !important;
-  border-top-color: rgba(224, 242, 254, 0.8) !important;
-  color: #ffffff !important;
-  transform: translateY(-1px);
-}
-body[data-theme="got"] .seg-btn.active {
-  background: rgba(2, 132, 199, 0.35) !important;
-  border: 1.5px solid rgba(56, 189, 248, 0.75) !important;
-  border-top: 2px solid rgba(224, 242, 254, 0.9) !important;
-  box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.6), 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.4) !important;
   color: #ffffff !important;
   font-weight: 800 !important;
 }
@@ -1506,17 +1394,6 @@ body[data-theme="naruto"] .glass-piece-svg.glass-piece-black {
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 10px rgba(244, 63, 94, 0.7));
 }
 
-body[data-theme="got"] .glass-piece-svg.glass-piece-white {
-  fill: #f0f9ff;
-  stroke: #38bdf8;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 12px rgba(56, 189, 248, 0.8));
-}
-body[data-theme="got"] .glass-piece-svg.glass-piece-black {
-  fill: #450a0a;
-  stroke: #dc2626;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 12px rgba(220, 38, 38, 0.8));
-}
-
 /* Selected Cell (subtle border highlight, NO DOTS) */
 .chess-cell.selected {
   background: rgba(56, 189, 248, 0.32) !important;
@@ -1997,10 +1874,6 @@ body[data-theme="naruto"] .poker-felt-center {
   background: radial-gradient(circle, rgba(249, 115, 22, 0.14) 0%, transparent 80%), var(--tile-bg);
 }
 
-body[data-theme="got"] .poker-felt-center {
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 80%), var(--tile-bg);
-}
-
 body[data-theme="itachi"] .poker-felt-center {
   background: radial-gradient(circle, rgba(255, 0, 51, 0.16) 0%, transparent 80%), var(--tile-bg);
 }
@@ -2117,10 +1990,6 @@ body[data-theme="itachi"] .poker-felt-center {
 
 body[data-theme="naruto"] .poker-card.back {
   background: radial-gradient(circle, #ea580c 0%, #7c2d12 100%);
-}
-
-body[data-theme="got"] .poker-card.back {
-  background: radial-gradient(circle, #0284c7 0%, #082f49 100%);
 }
 
 body[data-theme="itachi"] .poker-card.back {
