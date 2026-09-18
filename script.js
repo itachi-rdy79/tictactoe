@@ -4059,9 +4059,15 @@ pattuInputEl?.addEventListener("keydown", (e) => {
     pattuSelectedDropIndex = (pattuSelectedDropIndex + 1) % items.length;
     items.forEach((it, idx) => it.classList.toggle("selected", idx === pattuSelectedDropIndex));
     const targetItem = items[pattuSelectedDropIndex];
-    if (targetItem && pattuDropdownEl) {
-      targetItem.scrollIntoView?.({ block: "nearest", inline: "nearest" });
-      window.scrollTo(0, 0);
+    if (targetItem) {
+      if (targetItem.dataset.movie && pattuInputEl) {
+        pattuInputEl.value = targetItem.dataset.movie;
+        pattuClearBtn?.classList.remove("hidden");
+      }
+      if (pattuDropdownEl) {
+        targetItem.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+        window.scrollTo(0, 0);
+      }
     }
   } else if (e.key === "ArrowUp") {
     e.preventDefault();
@@ -4070,17 +4076,27 @@ pattuInputEl?.addEventListener("keydown", (e) => {
     pattuSelectedDropIndex = (pattuSelectedDropIndex - 1 + items.length) % items.length;
     items.forEach((it, idx) => it.classList.toggle("selected", idx === pattuSelectedDropIndex));
     const targetItem = items[pattuSelectedDropIndex];
-    if (targetItem && pattuDropdownEl) {
-      targetItem.scrollIntoView?.({ block: "nearest", inline: "nearest" });
-      window.scrollTo(0, 0);
+    if (targetItem) {
+      if (targetItem.dataset.movie && pattuInputEl) {
+        pattuInputEl.value = targetItem.dataset.movie;
+        pattuClearBtn?.classList.remove("hidden");
+      }
+      if (pattuDropdownEl) {
+        targetItem.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+        window.scrollTo(0, 0);
+      }
     }
   } else if (e.key === "Enter") {
     e.preventDefault();
     const items = pattuDropdownEl?.querySelectorAll(".pattu-drop-item[data-movie]");
     if (items && pattuSelectedDropIndex >= 0 && items[pattuSelectedDropIndex]) {
       const selectedMovie = items[pattuSelectedDropIndex].dataset.movie;
+      if (pattuInputEl) pattuInputEl.value = selectedMovie;
+      pattuDropdownEl?.classList.add("hidden");
+      pattuSelectedDropIndex = -1;
       submitPattuGuess(selectedMovie);
     } else {
+      pattuDropdownEl?.classList.add("hidden");
       submitPattuGuess();
     }
   } else if (e.key === "Escape") {
@@ -4088,11 +4104,30 @@ pattuInputEl?.addEventListener("keydown", (e) => {
   }
 });
 
+function selectPattuSuggestion(movie) {
+  if (!movie) return;
+  if (pattuInputEl) {
+    pattuInputEl.value = movie;
+  }
+  pattuClearBtn?.classList.remove("hidden");
+  pattuDropdownEl?.classList.add("hidden");
+  pattuSelectedDropIndex = -1;
+  pattuInputEl?.focus();
+}
+
+pattuDropdownEl?.addEventListener("pointerdown", (e) => {
+  e.stopPropagation();
+});
+
+pattuDropdownEl?.addEventListener("mousedown", (e) => {
+  e.stopPropagation();
+});
+
 pattuDropdownEl?.addEventListener("click", (e) => {
   const item = e.target.closest(".pattu-drop-item[data-movie]");
   if (!item) return;
   const movie = item.dataset.movie;
-  submitPattuGuess(movie);
+  selectPattuSuggestion(movie);
 });
 
 // Dropdown chevron click to expand suggestions
@@ -4637,8 +4672,8 @@ function initStageDragger() {
   }
 
   stage.addEventListener("pointerdown", (e) => {
-    // Ignore drag start on buttons, links, inputs, game board cells, or interactive modals
-    if (e.target.closest("button, input, textarea, select, a, .chess-cell, .chess-board, .ttt-cell, .ttt-board, .win-overlay, #pattuResultBanner, .poker-action-btn")) {
+    // Ignore drag start on buttons, links, inputs, game board cells, or interactive modals / dropdowns
+    if (e.target.closest("button, input, textarea, select, a, .chess-cell, .chess-board, .ttt-cell, .ttt-board, .win-overlay, #pattuResultBanner, .poker-action-btn, #pattuDropdown, .pattu-drop-item, .pc-search-pill-wrap, .pc-modern-dropdown, .pattu-orig-dropdown")) {
       return;
     }
 

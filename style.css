@@ -2587,6 +2587,7 @@ body[data-theme="light"] .pattu-badge-dot.offline {
   width: 100%;
   position: relative;
   margin-top: 2px;
+  z-index: 100;
 }
 
 .pc-search-pill-inner {
@@ -2688,6 +2689,8 @@ body[data-theme="light"] .pattu-badge-dot.offline {
   border: 1.5px solid #38bdf8 !important;
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95), 0 0 16px rgba(56, 189, 248, 0.25) !important;
   z-index: 99999 !important;
+  pointer-events: auto !important;
+  touch-action: pan-y;
 }
 
 .pattu-drop-item {
@@ -2697,6 +2700,8 @@ body[data-theme="light"] .pattu-badge-dot.offline {
   cursor: pointer;
   transition: background 0.12s;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  pointer-events: auto !important;
+  user-select: none;
 }
 
 .pattu-drop-item:hover, .pattu-drop-item.selected {
