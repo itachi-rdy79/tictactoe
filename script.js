@@ -565,6 +565,9 @@ function syncHud() {
   setActive(difficultyPills, "difficulty", hubState.difficulty);
   setActive(timerPills, "timer", hubState.timer);
 
+  if (difficultySelect && hubState.difficulty) difficultySelect.value = hubState.difficulty;
+  if (modeSelect) modeSelect.value = modeFromHub();
+
   if (tttModeGroup) {
     if (isTTT) {
       tttModeGroup.style.display = "flex";
@@ -1386,32 +1389,110 @@ function renderTTT() {
   }
 }
 
-/* ---------- 3x3 Tic-Tac-Toe Minimax (Mathematically Unbeatable on Hard) ---------- */
-function minimaxTTT3(board, depth, alpha, beta, maxing) {
-  const r = getTTTResult(board, 3, 3);
-  if (r.winner === "O") return { score: 1000 + depth, move: null };
-  if (r.winner === "X") return { score: -1000 - depth, move: null };
-  if (r.winner === "draw" || depth === 0) return { score: 0, move: null };
+/* ---------- 3x3 Tic-Tac-Toe Minimax & Advanced Tactical Engine ---------- */
+const TTT3_POS_WEIGHTS = [
+  35, 10, 35,
+  10, 55, 10,
+  35, 10, 35
+];
 
-  const empties = getEmptyCells(board);
-  let best = { score: maxing ? -Infinity : Infinity, move: empties[0] };
-
-  for (let i = 0; i < empties.length; i++) {
-    const idx = empties[i];
-    board[idx] = maxing ? "O" : "X";
-    const out = minimaxTTT3(board, depth - 1, alpha, beta, !maxing);
-    board[idx] = null;
-    if (maxing) {
-      if (out.score > best.score) { best.score = out.score; best.move = idx; }
-      alpha = Math.max(alpha, best.score);
-      if (beta <= alpha) break;
-    } else {
-      if (out.score < best.score) { best.score = out.score; best.move = idx; }
-      beta = Math.min(beta, best.score);
-      if (beta <= alpha) break;
+function countThreats(board, size, winLen, piece) {
+  const lines = getTTTLines(size, winLen);
+  let threats = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    let pCount = 0, emptyCount = 0;
+    for (let k = 0; k < line.length; k++) {
+      const v = board[line[k]];
+      if (v === piece) pCount++;
+      else if (!v) emptyCount++;
+    }
+    if (pCount === winLen - 1 && emptyCount === 1) {
+      threats++;
     }
   }
-  return best;
+  return threats;
+}
+
+function minimaxTTT3(board, depth, alpha, beta, maxing) {
+  const r = getTTTResult(board, 3, 3);
+  if (r.winner === "O") return 1000 + depth;
+  if (r.winner === "X") return -1000 - depth;
+  if (r.winner === "draw" || depth === 0) return 0;
+
+  const empties = getEmptyCells(board);
+  if (maxing) {
+    let maxEval = -Infinity;
+    for (let i = 0; i < empties.length; i++) {
+      const idx = empties[i];
+      board[idx] = "O";
+      const ev = minimaxTTT3(board, depth - 1, alpha, beta, false);
+      board[idx] = null;
+      if (ev > maxEval) maxEval = ev;
+      alpha = Math.max(alpha, ev);
+      if (beta <= alpha) break;
+    }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (let i = 0; i < empties.length; i++) {
+      const idx = empties[i];
+      board[idx] = "X";
+      const ev = minimaxTTT3(board, depth - 1, alpha, beta, true);
+      board[idx] = null;
+      if (ev < minEval) minEval = ev;
+      beta = Math.min(beta, ev);
+      if (beta <= alpha) break;
+    }
+    return minEval;
+  }
+}
+
+function getBestTTT3Moves(board, depth = 9) {
+  const empties = getEmptyCells(board);
+  if (!empties.length) return [];
+
+  // 1. Immediate Win for O
+  const winMove = findTTTImmediateThreat(board, 3, 3, "O");
+  if (winMove != null) return [winMove];
+
+  // 2. Immediate Block for X
+  const blockMove = findTTTImmediateThreat(board, 3, 3, "X");
+  if (blockMove != null) return [blockMove];
+
+  // 3. Minimax + Tactical Scoring for every legal move
+  const scoredMoves = [];
+  for (let i = 0; i < empties.length; i++) {
+    const idx = empties[i];
+    board[idx] = "O";
+    const score = minimaxTTT3(board, depth - 1, -Infinity, Infinity, false);
+
+    // Positional weight: Center (55), Corners (35), Edges (10)
+    let tactical = TTT3_POS_WEIGHTS[idx] || 0;
+
+    // Fork creation bonus (creating >= 2 winning threats)
+    const oThreats = countThreats(board, 3, 3, "O");
+    if (oThreats >= 2) tactical += 100;
+    else if (oThreats === 1) tactical += 25;
+
+    // Fork block bonus (if X played here, would X have created a fork?)
+    board[idx] = "X";
+    const xThreats = countThreats(board, 3, 3, "X");
+    if (xThreats >= 2) tactical += 80;
+    board[idx] = null;
+
+    scoredMoves.push({ move: idx, score, tactical });
+  }
+
+  // Filter moves with the absolute maximum minimax score (never play a losing move)
+  const maxScore = Math.max(...scoredMoves.map(m => m.score));
+  const optimalMoves = scoredMoves.filter(m => m.score === maxScore);
+
+  // Among optimal moves, select highest tactical tier
+  const maxTactical = Math.max(...optimalMoves.map(m => m.tactical));
+  const bestCandidates = optimalMoves.filter(m => m.tactical >= maxTactical - 5);
+
+  return bestCandidates.map(c => c.move);
 }
 
 /* ---------- 5x5 Tic-Tac-Toe Tactical Heuristic & AI ---------- */
@@ -1422,6 +1503,34 @@ const TTT5_CENTER_WEIGHTS = [
   2, 4, 6, 4, 2,
   1, 2, 3, 2, 1
 ];
+
+// Precompute 12 full 5-cell lines across 5x5 grid for open-3 detection
+const TTT5_FULL_LINES = (function() {
+  const lines = [];
+  // 5 Rows
+  for (let r = 0; r < 5; r++) {
+    lines.push([r * 5, r * 5 + 1, r * 5 + 2, r * 5 + 3, r * 5 + 4]);
+  }
+  // 5 Columns
+  for (let c = 0; c < 5; c++) {
+    lines.push([c, 5 + c, 10 + c, 15 + c, 20 + c]);
+  }
+  // 2 Main Diagonals
+  lines.push([0, 6, 12, 18, 24]);
+  lines.push([4, 8, 12, 16, 20]);
+  return lines;
+})();
+
+function findTTT5OpenThree(board, piece) {
+  for (let i = 0; i < TTT5_FULL_LINES.length; i++) {
+    const l = TTT5_FULL_LINES[i];
+    // Pattern: . P P P .
+    if (!board[l[0]] && board[l[1]] === piece && board[l[2]] === piece && board[l[3]] === piece && !board[l[4]]) {
+      return [l[0], l[4]];
+    }
+  }
+  return null;
+}
 
 function evalTTT5(board) {
   let score = 0;
@@ -1437,13 +1546,24 @@ function evalTTT5(board) {
     if (o > 0 && x > 0) continue;
     if (o === 4) return 100000;
     if (x === 4) return -100000;
-    if (o === 3) score += 950;
-    else if (o === 2) score += 75;
-    else if (o === 1) score += 6;
-    if (x === 3) score -= 1300;
-    else if (x === 2) score -= 90;
-    else if (x === 1) score -= 7;
+    if (o === 3) score += 2500;
+    else if (o === 2) score += 180;
+    else if (o === 1) score += 15;
+    if (x === 3) score -= 3500;
+    else if (x === 2) score -= 240;
+    else if (x === 1) score -= 20;
   }
+
+  // Open-ended 3-in-a-row detection in full 5 lines
+  for (let i = 0; i < TTT5_FULL_LINES.length; i++) {
+    const l = TTT5_FULL_LINES[i];
+    if (!board[l[0]] && !board[l[4]]) {
+      const mid = [board[l[1]], board[l[2]], board[l[3]]];
+      if (mid.every(v => v === "O")) score += 25000;
+      else if (mid.every(v => v === "X")) score -= 30000;
+    }
+  }
+
   for (let i = 0; i < 25; i++) {
     const v = board[i];
     if (v === "O") score += TTT5_CENTER_WEIGHTS[i];
@@ -1495,29 +1615,68 @@ function findTTTImmediateThreat(board, size, winLen, piece) {
 
 function minimaxTTT5(board, depth, alpha, beta, maxing) {
   const res = getTTTResult(board, 5, 4);
-  if (res.winner === "O") return { score: 100000 + depth, move: null };
-  if (res.winner === "X") return { score: -100000 - depth, move: null };
-  if (res.winner === "draw" || depth === 0) return { score: evalTTT5(board), move: null };
+  if (res.winner === "O") return 100000 + depth;
+  if (res.winner === "X") return -100000 - depth;
+  if (res.winner === "draw" || depth === 0) return evalTTT5(board);
 
   const candidates = getTTT5Candidates(board);
-  let best = { score: maxing ? -Infinity : Infinity, move: candidates[0] };
-
-  for (let i = 0; i < candidates.length; i++) {
-    const idx = candidates[i];
-    board[idx] = maxing ? "O" : "X";
-    const out = minimaxTTT5(board, depth - 1, alpha, beta, !maxing);
-    board[idx] = null;
-    if (maxing) {
-      if (out.score > best.score) { best.score = out.score; best.move = idx; }
-      alpha = Math.max(alpha, best.score);
-      if (beta <= alpha) break;
-    } else {
-      if (out.score < best.score) { best.score = out.score; best.move = idx; }
-      beta = Math.min(beta, best.score);
+  if (maxing) {
+    let maxEval = -Infinity;
+    for (let i = 0; i < candidates.length; i++) {
+      const idx = candidates[i];
+      board[idx] = "O";
+      const ev = minimaxTTT5(board, depth - 1, alpha, beta, false);
+      board[idx] = null;
+      if (ev > maxEval) maxEval = ev;
+      alpha = Math.max(alpha, ev);
       if (beta <= alpha) break;
     }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (let i = 0; i < candidates.length; i++) {
+      const idx = candidates[i];
+      board[idx] = "X";
+      const ev = minimaxTTT5(board, depth - 1, alpha, beta, true);
+      board[idx] = null;
+      if (ev < minEval) minEval = ev;
+      beta = Math.min(beta, ev);
+      if (beta <= alpha) break;
+    }
+    return minEval;
   }
-  return best;
+}
+
+function getBestTTT5Moves(board, depth = 3) {
+  // 1. Immediate Win for O
+  const winMove = findTTTImmediateThreat(board, 5, 4, "O");
+  if (winMove != null) return [winMove];
+
+  // 2. Immediate Block for X
+  const blockMove = findTTTImmediateThreat(board, 5, 4, "X");
+  if (blockMove != null) return [blockMove];
+
+  // 3. Block Open 3 for X (. X X X .)
+  const open3Block = findTTT5OpenThree(board, "X");
+  if (open3Block) return open3Block;
+
+  // 4. Create Open 3 for O (. O O O .)
+  const open3Win = findTTT5OpenThree(board, "O");
+  if (open3Win) return open3Win;
+
+  const candidates = getTTT5Candidates(board);
+  const scored = [];
+  for (let i = 0; i < candidates.length; i++) {
+    const idx = candidates[i];
+    board[idx] = "O";
+    const score = minimaxTTT5(board, depth - 1, -Infinity, Infinity, false);
+    board[idx] = null;
+    scored.push({ move: idx, score: score + (TTT5_CENTER_WEIGHTS[idx] || 0) * 5 });
+  }
+
+  const maxScore = Math.max(...scored.map(s => s.score));
+  const topCandidates = scored.filter(s => s.score >= maxScore - 40);
+  return topCandidates.map(c => c.move);
 }
 
 function aiTTTMove() {
@@ -1526,57 +1685,50 @@ function aiTTTMove() {
   if (!empties.length) return;
 
   saveTTTSnapshot();
-  const diff = difficultySelect.value;
+  const diff = hubState.difficulty || difficultySelect?.value || "medium";
   let move = empties[Math.floor(Math.random() * empties.length)];
 
   if (tttSize === 3) {
     if (diff === "easy") {
-      if (Math.random() > 0.5) {
-        const best = minimaxTTT3(tttBoard, 1, -Infinity, Infinity, true);
-        if (best.move != null) move = best.move;
+      const winMove = findTTTImmediateThreat(tttBoard, 3, 3, "O");
+      const blockMove = findTTTImmediateThreat(tttBoard, 3, 3, "X");
+      if (winMove != null && Math.random() < 0.7) {
+        move = winMove;
+      } else if (blockMove != null && Math.random() < 0.5) {
+        move = blockMove;
+      } else {
+        const moves = getBestTTT3Moves(tttBoard, 2);
+        if (moves.length) move = moves[Math.floor(Math.random() * moves.length)];
       }
     } else if (diff === "medium") {
-      const winMove = findTTTImmediateThreat(tttBoard, 3, 3, "O");
-      if (winMove != null) {
-        move = winMove;
-      } else {
-        const blockMove = findTTTImmediateThreat(tttBoard, 3, 3, "X");
-        if (blockMove != null) {
-          move = blockMove;
-        } else if (!tttBoard[4] && Math.random() < 0.7) {
-          move = 4;
-        } else {
-          const best = minimaxTTT3(tttBoard, 4, -Infinity, Infinity, true);
-          if (best.move != null) move = best.move;
-        }
-      }
+      // Medium: Always wins, always blocks, depth 5 tactical search with strategic weights
+      const moves = getBestTTT3Moves(tttBoard, 5);
+      if (moves.length) move = moves[Math.floor(Math.random() * moves.length)];
     } else {
-      // Hard: Mathematically unbeatable full depth-first alpha-beta minimax algorithm
-      const best = minimaxTTT3(tttBoard, 9, -Infinity, Infinity, true);
-      if (best.move != null) move = best.move;
+      // Hard: Mathematically unbeatable depth 9 minimax with fork defense/creation & dynamic variety
+      const moves = getBestTTT3Moves(tttBoard, 9);
+      if (moves.length) move = moves[Math.floor(Math.random() * moves.length)];
     }
   } else {
-    // 5x5 Tic-Tac-Toe: sub-50ms latency tactical heuristic
-    const winMove = findTTTImmediateThreat(tttBoard, 5, 4, "O");
-    if (winMove != null) {
-      move = winMove;
-    } else {
+    // 5x5 Tic-Tac-Toe
+    if (diff === "easy") {
+      const winMove = findTTTImmediateThreat(tttBoard, 5, 4, "O");
       const blockMove = findTTTImmediateThreat(tttBoard, 5, 4, "X");
-      if (blockMove != null) {
+      if (winMove != null && Math.random() < 0.7) {
+        move = winMove;
+      } else if (blockMove != null && Math.random() < 0.5) {
         move = blockMove;
-      } else if (diff === "easy") {
-        if (Math.random() > 0.4) {
-          const best = minimaxTTT5(tttBoard, 1, -Infinity, Infinity, true);
-          if (best.move != null) move = best.move;
-        }
-      } else if (diff === "medium") {
-        const best = minimaxTTT5(tttBoard, 2, -Infinity, Infinity, true);
-        if (best.move != null) move = best.move;
       } else {
-        // Hard: Depth 3 search with candidate pruning and heuristic
-        const best = minimaxTTT5(tttBoard, 3, -Infinity, Infinity, true);
-        if (best.move != null) move = best.move;
+        const moves = getBestTTT5Moves(tttBoard, 1);
+        if (moves.length) move = moves[Math.floor(Math.random() * moves.length)];
       }
+    } else if (diff === "medium") {
+      const moves = getBestTTT5Moves(tttBoard, 2);
+      if (moves.length) move = moves[Math.floor(Math.random() * moves.length)];
+    } else {
+      // Hard: Depth 3-4 tactical minimax with open-3, fork awareness, center control & dynamic tie-breaking
+      const moves = getBestTTT5Moves(tttBoard, 3);
+      if (moves.length) move = moves[Math.floor(Math.random() * moves.length)];
     }
   }
 
@@ -1647,7 +1799,8 @@ function onTTTClick(i) {
 
   if (aiMode && tttTurn === "O") {
     if (hubState.timer === "off" && statusPill) statusPill.textContent = "AI Thinking...";
-    setTimeout(aiTTTMove, difficultySelect.value === "easy" ? 220 : difficultySelect.value === "medium" ? 420 : 640);
+    const curDiff = hubState.difficulty || difficultySelect?.value || "medium";
+    setTimeout(aiTTTMove, curDiff === "easy" ? 220 : curDiff === "medium" ? 380 : 520);
   }
 }
 
