@@ -3652,13 +3652,13 @@ function getPattuDayCount() {
   const origin = new Date("2022-05-22T18:30:00.000Z");
   const now = new Date();
   const diffSec = (now.getTime() - origin.getTime()) / 1000;
-  return Math.max(1, Math.floor(diffSec / 86400) + 1);
+  return Math.max(0, Math.floor(diffSec / 86400));
 }
 
 const PATTU_ORIGIN_MS = new Date("2022-05-22T18:30:00.000Z").getTime();
 
 function pattuDayToDateStr(dayNum) {
-  const targetMs = PATTU_ORIGIN_MS + (dayNum - 1) * 86400000;
+  const targetMs = PATTU_ORIGIN_MS + dayNum * 86400000;
   const istDate = new Date(targetMs + (5.5 * 3600 * 1000));
   const y = istDate.getUTCFullYear();
   const m = String(istDate.getUTCMonth() + 1).padStart(2, "0");
@@ -3667,14 +3667,14 @@ function pattuDayToDateStr(dayNum) {
 }
 
 function pattuDateStrToDay(dateStr) {
-  if (!dateStr) return 1;
+  if (!dateStr) return 0;
   const parts = dateStr.split("-").map(Number);
-  if (parts.length !== 3 || isNaN(parts[0])) return 1;
+  if (parts.length !== 3 || isNaN(parts[0]) || isNaN(parts[1]) || isNaN(parts[2])) return 0;
   const [y, m, d] = parts;
   const targetUtcMs = Date.UTC(y, m - 1, d) - (5.5 * 3600 * 1000);
   const diffMs = targetUtcMs - PATTU_ORIGIN_MS;
-  const dayNum = Math.floor(diffMs / 86400000) + 1;
-  return Math.max(1, dayNum);
+  const dayNum = Math.round(diffMs / 86400000);
+  return Math.max(0, dayNum);
 }
 
 function formatPattuDisplayDate(dateStr) {
@@ -3727,34 +3727,32 @@ function initPattu(targetDay = null) {
   showOnlyActiveGame("pattu");
   loadPattuStats();
   const todayDay = getPattuDayCount();
-  pattuCurrentDay = (typeof targetDay === "number" && targetDay >= 1) ? targetDay : todayDay;
+  pattuCurrentDay = (typeof targetDay === "number" && targetDay >= 0) ? targetDay : todayDay;
 
   // Set default puzzle from offline list first
-  const pIdx = (pattuCurrentDay - 1) % PATTU_OFFLINE_PUZZLES.length;
+  const pIdx = Math.abs(pattuCurrentDay) % PATTU_OFFLINE_PUZZLES.length;
   pattuCurrentPuzzle = Object.assign({}, PATTU_OFFLINE_PUZZLES[pIdx]);
   pattuCurrentPuzzle.movieFromS3 = false;
 
   // Preload all 5 movie stills for this day right away
   preloadPattuPuzzle(pattuCurrentDay);
 
-  // Check local data/daily/meta-data.json if playing Day 1571
-  if (pattuCurrentDay === 1571) {
-    fetch("data/daily/meta-data.json")
-      .then(res => res.json())
-      .then(meta => {
-        if (meta && meta.movie) {
-          pattuCurrentPuzzle.movie = meta.movie;
-          pattuCurrentPuzzle.contributor = meta.contributor || "";
-          pattuCurrentPuzzle.twitterId = meta.twitterId || "";
-          if (!PATTU_MOVIES.includes(meta.movie)) {
-            PATTU_MOVIES.push(meta.movie);
-            PATTU_MOVIES.sort((a, b) => a.localeCompare(b));
-          }
-          renderPattuUI();
+  // Check local data/daily/meta-data.json if matching current day or offline
+  fetch("data/daily/meta-data.json")
+    .then(res => res.json())
+    .then(meta => {
+      if (meta && meta.day === pattuCurrentDay && meta.movie) {
+        pattuCurrentPuzzle.movie = meta.movie;
+        pattuCurrentPuzzle.contributor = meta.contributor || "";
+        pattuCurrentPuzzle.twitterId = meta.twitterId || "";
+        if (!PATTU_MOVIES.includes(meta.movie)) {
+          PATTU_MOVIES.push(meta.movie);
+          PATTU_MOVIES.sort((a, b) => a.localeCompare(b));
         }
-      })
-      .catch(() => {});
-  }
+        renderPattuUI();
+      }
+    })
+    .catch(() => {});
 
   // Fetch the latest upstream metadata from S3
   fetch(`${PATTU_S3_BASE}/${pattuCurrentDay}/meta-data.json`)
@@ -3937,8 +3935,8 @@ const PATTU_PRELOAD_CACHE = new Map();
 
 function getPattuCandidateUrls(day, frameNum) {
   const urls = [];
-  // 1. If local files match this day (day 1571 is bundled in data/daily)
-  if (day === 1571) {
+  // 1. If local files match this day (day 1579 is bundled in data/daily)
+  if (day === 1579 || day === 1571) {
     urls.push(`data/daily/${frameNum}.jpg`);
   }
   // 2. High-speed Cloudflare image mirror (proper image/jpeg Content-Type and CORS *)
@@ -4025,6 +4023,10 @@ function renderPattuFrame(frameNum) {
       tryCandidates(0);
     };
     pattuImgEl.src = cachedUrl;
+    if (pattuImgEl.complete && pattuImgEl.naturalWidth > 0) {
+      pattuImgEl.style.display = "block";
+      pattuFallbackCardEl?.classList.add("hidden");
+    }
     return;
   }
 
@@ -4345,8 +4347,8 @@ pattuTimeTravelBtn?.addEventListener("click", () => {
   if (pattuTtCurrentDayText) pattuTtCurrentDayText.textContent = `#${pattuCurrentDay}`;
   if (pattuMaxDayText) pattuMaxDayText.textContent = String(todayDay);
 
-  // Default to yesterday's puzzle or currently viewed historical day
-  const defaultSelectedDay = (pattuCurrentDay < todayDay) ? pattuCurrentDay : Math.max(1, todayDay - 1);
+  // Default to currently viewed day (clamped between 0 and today)
+  const defaultSelectedDay = Math.min(todayDay, Math.max(0, pattuCurrentDay));
   const defaultDateStr = pattuDayToDateStr(defaultSelectedDay);
 
   if (pattuDateInput) {
@@ -4355,7 +4357,7 @@ pattuTimeTravelBtn?.addEventListener("click", () => {
     pattuDateInput.value = defaultDateStr;
   }
   if (pattuDayInput) {
-    pattuDayInput.min = "1";
+    pattuDayInput.min = "0";
     pattuDayInput.max = String(todayDay);
     pattuDayInput.value = String(defaultSelectedDay);
   }
@@ -4367,29 +4369,34 @@ pattuTimeTravelBtn?.addEventListener("click", () => {
   pattuTimeTravelModal?.classList.remove("hidden");
 });
 
-pattuDateInput?.addEventListener("click", () => {
-  try { pattuDateInput.showPicker(); } catch {}
-});
-
-pattuDateInput?.addEventListener("input", () => {
+function handlePattuDateSelection() {
   const maxDay = getPattuDayCount();
   const day = pattuDateStrToDay(pattuDateInput.value);
-  const clampedDay = Math.min(maxDay, Math.max(1, day));
+  const clampedDay = Math.min(maxDay, Math.max(0, day));
   if (pattuDayInput) pattuDayInput.value = String(clampedDay);
   if (pattuTtTargetDay) pattuTtTargetDay.textContent = `Day #${clampedDay}`;
   if (pattuTtFormattedDate) pattuTtFormattedDate.textContent = formatPattuDisplayDate(pattuDateInput.value);
-});
+}
 
-pattuDayInput?.addEventListener("input", () => {
+pattuDateInput?.addEventListener("click", () => {
+  try { pattuDateInput.showPicker(); } catch {}
+});
+pattuDateInput?.addEventListener("input", handlePattuDateSelection);
+pattuDateInput?.addEventListener("change", handlePattuDateSelection);
+
+function handlePattuDayNumberInput() {
   const maxDay = getPattuDayCount();
   let day = parseInt(pattuDayInput.value, 10);
-  if (isNaN(day) || day < 1) day = 1;
+  if (isNaN(day) || day < 0) day = 0;
   if (day > maxDay) day = maxDay;
   const dateStr = pattuDayToDateStr(day);
   if (pattuDateInput) pattuDateInput.value = dateStr;
   if (pattuTtTargetDay) pattuTtTargetDay.textContent = `Day #${day}`;
   if (pattuTtFormattedDate) pattuTtFormattedDate.textContent = formatPattuDisplayDate(dateStr);
-});
+}
+
+pattuDayInput?.addEventListener("input", handlePattuDayNumberInput);
+pattuDayInput?.addEventListener("change", handlePattuDayNumberInput);
 
 pattuToggleDayNumBtn?.addEventListener("click", () => {
   pattuTtManualWrap?.classList.toggle("hidden");
@@ -4406,13 +4413,13 @@ submitPattuTimeTravelBtn?.addEventListener("click", () => {
   const maxDay = getPattuDayCount();
   const isManual = pattuTtManualWrap && !pattuTtManualWrap.classList.contains("hidden");
   let val = isManual ? parseInt(pattuDayInput?.value, 10) : pattuDateStrToDay(pattuDateInput?.value);
-  if (isNaN(val) || val < 1) {
+  if (isNaN(val) || val < 0) {
     val = parseInt(pattuDayInput?.value, 10);
   }
-  if (isNaN(val) || val < 1) {
+  if (isNaN(val) || val < 0) {
     val = pattuDateStrToDay(pattuDateInput?.value);
   }
-  if (isNaN(val) || val < 1) val = 1;
+  if (isNaN(val) || val < 0) val = 0;
   if (val > maxDay) val = maxDay;
 
   pattuTimeTravelModal?.classList.add("hidden");
@@ -4446,7 +4453,7 @@ pattuShareBtn?.addEventListener("click", () => {
 // Next Movie Button (loads another past day puzzle)
 pattuNextBtn?.addEventListener("click", () => {
   const maxDay = getPattuDayCount();
-  const randomDay = Math.floor(Math.random() * maxDay) + 1;
+  const randomDay = Math.floor(Math.random() * (maxDay + 1));
   initPattu(randomDay);
 });
 
@@ -4568,6 +4575,7 @@ function restoreLiveStateIfAny() {
         pattuGuesses = Array.isArray(s.pattu.guesses) ? s.pattu.guesses : [];
         pattuOver = !!s.pattu.over;
         pattuWon = !!s.pattu.won;
+        preloadPattuPuzzle(pattuCurrentDay);
         showOnlyActiveGame("pattu");
         renderPattuUI();
         renderPattuFrame(pattuActiveFrame);
