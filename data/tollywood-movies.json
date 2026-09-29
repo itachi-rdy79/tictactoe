@@ -1,8 +1,13 @@
 {
-  "updatedAt": "2026-09-28T13:32:13.156Z",
-  "day": 1589,
+  "updatedAt": "2026-09-29T12:33:50.444Z",
+  "day": 1590,
   "count": 1645,
-  "todayMeta": null,
+  "todayMeta": {
+    "movie": "Urvasivo Rakshasivo",
+    "contributor": "",
+    "twitterId": "",
+    "day": 1590
+  },
   "movies": [
     "1 - Nenokkadine",
     "100% Love",
