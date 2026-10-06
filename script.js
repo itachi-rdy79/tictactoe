@@ -4159,7 +4159,6 @@ function executeSequenceMove(cardIdx, r, c) {
   persistLiveState();
 
   // AI Turn Trigger
-  const isAiMode = modeSelect.value === "sequence-ai";
   if (!seqOver && isAiMode && seqTurn === "p2") {
     seqAiThinking = true;
     renderSequenceHUD();
