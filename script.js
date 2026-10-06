@@ -68,10 +68,32 @@ const seqDeckCount = document.getElementById("seqDeckCount");
 const seqLastDiscard = document.getElementById("seqLastDiscard");
 const seqPromptBanner = document.getElementById("seqPromptBanner");
 const sequenceBoardEl = document.getElementById("sequenceBoard");
-const sequenceHandShelf = document.getElementById("sequenceHandShelf");
-const seqShelfTitle = document.getElementById("seqShelfTitle");
-const seqShelfTip = document.getElementById("seqShelfTip");
-const sequenceHandCardsEl = document.getElementById("sequenceHandCards");
+const seqPrivacyModeBtn = document.getElementById("seqPrivacyModeBtn");
+const seqPrivacyModeText = document.getElementById("seqPrivacyModeText");
+
+// Left Shelf (Player 1)
+const seqP1HandShelf = document.getElementById("seqP1HandShelf");
+const seqP1ShelfTitle = document.getElementById("seqP1ShelfTitle");
+const seqP1ShelfTip = document.getElementById("seqP1ShelfTip");
+const seqP1PrivacyBtn = document.getElementById("seqP1PrivacyBtn");
+const seqP1Curtain = document.getElementById("seqP1Curtain");
+const seqP1RevealBtn = document.getElementById("seqP1RevealBtn");
+const seqP1HandCardsEl = document.getElementById("seqP1HandCards");
+
+// Right Shelf (Player 2 / AI)
+const seqP2HandShelf = document.getElementById("seqP2HandShelf");
+const seqP2ShelfTitle = document.getElementById("seqP2ShelfTitle");
+const seqP2ShelfTip = document.getElementById("seqP2ShelfTip");
+const seqP2PrivacyBtn = document.getElementById("seqP2PrivacyBtn");
+const seqP2Curtain = document.getElementById("seqP2Curtain");
+const seqP2RevealBtn = document.getElementById("seqP2RevealBtn");
+const seqP2HandCardsEl = document.getElementById("seqP2HandCards");
+
+// Legacy aliases for backward compatibility
+const sequenceHandShelf = seqP1HandShelf;
+const seqShelfTitle = seqP1ShelfTitle;
+const seqShelfTip = seqP1ShelfTip;
+const sequenceHandCardsEl = seqP1HandCardsEl;
 
 // Pattu DOM (Tollywood Movie Guesser - Exact Original UI)
 const pattuGameEl = document.getElementById("pattuGame");
@@ -690,7 +712,7 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
-  // Hide TTT HUD turn status pill & adjust arena when playing Pattu
+  // Hide TTT HUD turn status pill & adjust arena when playing Pattu or Sequence
   const statusWrapEl = document.querySelector(".status-wrap");
   const arenaEl = document.querySelector(".arena");
   if (isPattu) {
@@ -702,13 +724,24 @@ function showOnlyActiveGame(gameKey) {
     moveCounterPill?.classList.add("hidden");
     moveCounterPill?.style.setProperty("display", "none", "important");
     updatePattuConnectionBadge();
+  } else if (isSequence) {
+    arenaEl?.classList.remove("pattu-arena-mode");
+    statusWrapEl?.classList.add("hidden");
+    statusWrapEl?.style.setProperty("display", "none", "important");
+    statusPill?.classList.add("hidden");
+    statusPill?.style.setProperty("display", "none", "important");
+    moveCounterPill?.classList.add("hidden");
+    moveCounterPill?.style.setProperty("display", "none", "important");
   } else {
     arenaEl?.classList.remove("pattu-arena-mode");
     statusWrapEl?.classList.remove("hidden");
     statusWrapEl?.style.removeProperty("display");
-    if (!isWordle && hubState.timer === "off") {
+    if (!isWordle && !isPoker && hubState.timer === "off") {
       statusPill?.classList.remove("hidden");
       statusPill?.style.removeProperty("display");
+    } else {
+      statusPill?.classList.add("hidden");
+      statusPill?.style.setProperty("display", "none", "important");
     }
   }
 
@@ -3382,6 +3415,9 @@ let seqOver = false;
 let seqWinner = null;
 let seqSnapshots = [];
 let seqAiThinking = false;
+let seqPrivacyMode = true; // Anti-peeking privacy shield enabled for local 2P
+let seqP1HandRevealed = true; // Whether Player 1's hand is revealed
+let seqP2HandRevealed = false; // Whether Player 2's hand is revealed
 
 // Helper: Corners
 function isSeqCorner(r, c) {
@@ -3489,6 +3525,9 @@ function saveSequenceSnapshot() {
     p2Sequences: seqP2Sequences,
     over: seqOver,
     winner: seqWinner,
+    p1HandRevealed: seqP1HandRevealed,
+    p2HandRevealed: seqP2HandRevealed,
+    privacyMode: seqPrivacyMode,
     moveCount,
     scoreA, scoreB, scoreD, streak
   });
@@ -3522,6 +3561,9 @@ function undoSequenceMove() {
   seqP2Sequences = snap.p2Sequences;
   seqOver = snap.over;
   seqWinner = snap.winner;
+  seqP1HandRevealed = snap.p1HandRevealed ?? true;
+  seqP2HandRevealed = snap.p2HandRevealed ?? false;
+  seqPrivacyMode = snap.privacyMode ?? true;
   moveCount = snap.moveCount || 0;
   scoreA = snap.scoreA;
   scoreB = snap.scoreB;
@@ -3662,6 +3704,8 @@ function initSequence() {
   seqWinner = null;
   seqSnapshots = [];
   seqAiThinking = false;
+  seqP1HandRevealed = true;
+  seqP2HandRevealed = false;
   moveCount = 0;
 
   // Deal 6 cards to each player
@@ -3728,8 +3772,14 @@ function renderSequenceHUD() {
         seqPromptBanner.textContent = `Card ${rank}${sym} selected: Click a highlighted spot to place your chip`;
       }
     } else {
-      const turnName = seqTurn === "p1" ? (isAiMode ? "Your turn" : "Player 1's turn") : (isAiMode ? "AI turn" : "Player 2's turn");
-      seqPromptBanner.textContent = `${turnName}: Select a card from your hand rack below`;
+      const isCurtained = (seqTurn === "p1" && seqPrivacyMode && !seqP1HandRevealed) || (seqTurn === "p2" && !isAiMode && seqPrivacyMode && !seqP2HandRevealed);
+      if (isCurtained) {
+        const who = seqTurn === "p1" ? "Player 1" : "Player 2";
+        seqPromptBanner.textContent = `${who}: Tap 'Reveal Hand' on your rack to view cards`;
+      } else {
+        const turnName = seqTurn === "p1" ? (isAiMode ? "Your turn" : "Player 1's turn") : (isAiMode ? "AI turn" : "Player 2's turn");
+        seqPromptBanner.textContent = `${turnName}: Select a card from your rack to play`;
+      }
     }
   }
 }
@@ -3795,66 +3845,184 @@ function renderSequenceBoard() {
   }
 }
 
-// Render Player Hand Cards Rack
-function renderSequenceHand() {
-  if (!sequenceHandCardsEl) return;
-  sequenceHandCardsEl.innerHTML = "";
+// Render Single Player Shelf (Flanking Left or Right Rack)
+function renderSinglePlayerShelf({
+  playerKey,
+  cardsContainer,
+  shelfEl,
+  titleEl,
+  tipEl,
+  curtainEl,
+  privacyBtnEl,
+  isAi,
+  isRevealed,
+  isTurn
+}) {
+  if (!cardsContainer || !shelfEl) return;
+  cardsContainer.innerHTML = "";
 
   const isAiMode = modeSelect.value === "sequence-ai";
-  const activePlayer = seqTurn;
-  const hand = seqHands[activePlayer] || [];
+  const hand = seqHands[playerKey] || [];
 
-  if (seqShelfTitle) {
-    if (isAiMode) {
-      seqShelfTitle.textContent = "Your Hand (6 Cards)";
+  // Update Title
+  if (titleEl) {
+    if (playerKey === "p1") {
+      titleEl.textContent = isAiMode ? "You (Blue)" : "P1 (Blue)";
     } else {
-      seqShelfTitle.textContent = activePlayer === "p1" ? "Player 1 Hand (Blue)" : "Player 2 Hand (Green)";
+      titleEl.textContent = isAiMode ? `AI (${hubState.difficulty.toUpperCase()})` : "P2 (Green)";
     }
   }
 
-  if (seqShelfTip) {
-    seqShelfTip.textContent = seqSelectedCardIdx !== null ? "Tap board spot to play" : "Tap card to highlight moves";
+  // Active / Inactive Turn CSS
+  shelfEl.classList.toggle("active-turn", isTurn && !seqOver);
+  shelfEl.classList.toggle("inactive-turn", !isTurn && !seqOver);
+
+  // Determine if cards should be shown face-up
+  // 1. AI hand is ALWAYS face-down
+  // 2. Inactive player is ALWAYS face-down (Opponent Fog of War)
+  // 3. Active player: face-up only if isRevealed is true
+  const showFaceUp = !isAi && isTurn && isRevealed;
+
+  // Curtain visibility (Anti-Peeking Cover)
+  const shouldShowCurtain = isTurn && !isAi && seqPrivacyMode && !isRevealed && !seqOver;
+  if (curtainEl) {
+    curtainEl.classList.toggle("hidden", !shouldShowCurtain);
   }
 
+  // Privacy Hide Button in shelf header
+  if (privacyBtnEl) {
+    privacyBtnEl.classList.toggle("hidden", !(isTurn && !isAi && isRevealed && !seqOver));
+  }
+
+  // Shelf Tip / Status Text
+  if (tipEl) {
+    if (seqOver) {
+      tipEl.textContent = `${hand.length} cards`;
+    } else if (isAi) {
+      tipEl.textContent = `${hand.length} cards (face-down)`;
+    } else if (!isTurn) {
+      tipEl.textContent = `${hand.length} cards (hidden)`;
+    } else if (shouldShowCurtain) {
+      tipEl.textContent = "Cards protected • Tap to reveal";
+    } else {
+      tipEl.textContent = seqSelectedCardIdx !== null ? "Tap board spot to play" : "Tap card to highlight moves";
+    }
+  }
+
+  // Render Cards (2x3 Grid)
   hand.forEach((card, idx) => {
     const cardEl = document.createElement("div");
     cardEl.className = "seq-hand-card";
-    if (idx === seqSelectedCardIdx) cardEl.classList.add("selected");
 
-    const rank = getCardRank(card);
-    const sym = getCardSuitSymbol(card);
-    const colClass = getCardSuitColor(card);
-    cardEl.classList.add(colClass);
+    if (showFaceUp) {
+      // Face-up interactive card
+      if (idx === seqSelectedCardIdx) cardEl.classList.add("selected");
 
-    let badgeHtml = "";
-    if (isTwoEyedJack(card)) {
-      badgeHtml = `<div class="seq-card-badge badge-wild">WILD</div>`;
-    } else if (isOneEyedJack(card)) {
-      badgeHtml = `<div class="seq-card-badge badge-remove">REMOVE</div>`;
-    } else if (isDeadCard(card)) {
-      badgeHtml = `<div class="seq-card-badge badge-dead" title="Both board spots occupied! Click to swap.">SWAP</div>`;
+      const rank = getCardRank(card);
+      const sym = getCardSuitSymbol(card);
+      const colClass = getCardSuitColor(card);
+      cardEl.classList.add(colClass);
+
+      let badgeHtml = "";
+      if (isTwoEyedJack(card)) {
+        badgeHtml = `<div class="seq-card-badge badge-wild">WILD</div>`;
+      } else if (isOneEyedJack(card)) {
+        badgeHtml = `<div class="seq-card-badge badge-remove">REMOVE</div>`;
+      } else if (isDeadCard(card)) {
+        badgeHtml = `<div class="seq-card-badge badge-dead" title="Both board spots occupied! Click to swap.">SWAP</div>`;
+      }
+
+      cardEl.innerHTML = `
+        <div class="seq-hand-corner">
+          <span class="hc-rank">${rank}</span>
+          <span class="hc-suit">${sym}</span>
+        </div>
+        <div class="seq-hand-center-emblem">${sym}</div>
+        ${badgeHtml}
+      `;
+
+      cardEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (seqOver || seqAiThinking) return;
+        if (isDeadCard(card)) {
+          onSeqDeadCardSwap(idx);
+        } else {
+          onSeqCardSelect(idx);
+        }
+      });
+    } else {
+      // Face-down card (Opponent Fog of War / AI / Privacy Curtain)
+      cardEl.classList.add("face-down");
+      if (isAi) cardEl.classList.add("ai-card");
+
+      const emblem = isAi ? "🤖" : (playerKey === "p1" ? "👑" : "🛡️");
+      const brand = isAi ? "AI CORE" : "GAP";
+
+      cardEl.innerHTML = `
+        <div class="seq-card-back-pattern">
+          <div class="seq-card-back-emblem">${emblem}</div>
+          <div class="seq-card-back-brand">${brand}</div>
+        </div>
+      `;
+
+      // If it's this human player's active turn and cards are concealed, clicking a card reveals hand
+      if (isTurn && !isAi && !seqOver) {
+        cardEl.style.cursor = "pointer";
+        cardEl.title = "Click to reveal your hand";
+        cardEl.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (playerKey === "p1") seqP1HandRevealed = true;
+          else seqP2HandRevealed = true;
+          renderSequenceHUD();
+          renderSequenceHand();
+        });
+      }
     }
 
-    cardEl.innerHTML = `
-      <div class="seq-hand-corner">
-        <span class="hc-rank">${rank}</span>
-        <span class="hc-suit">${sym}</span>
-      </div>
-      <div class="seq-hand-center-emblem">${sym}</div>
-      ${badgeHtml}
-    `;
-
-    cardEl.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (isDeadCard(card)) {
-        onSeqDeadCardSwap(idx);
-      } else {
-        onSeqCardSelect(idx);
-      }
-    });
-
-    sequenceHandCardsEl.appendChild(cardEl);
+    cardsContainer.appendChild(cardEl);
   });
+}
+
+// Render Both Player Hand Shelves (Left & Right Racks)
+function renderSequenceHand() {
+  const isAiMode = modeSelect.value === "sequence-ai";
+
+  // 1. Left Shelf: Player 1 (Blue)
+  renderSinglePlayerShelf({
+    playerKey: "p1",
+    cardsContainer: seqP1HandCardsEl,
+    shelfEl: seqP1HandShelf,
+    titleEl: seqP1ShelfTitle,
+    tipEl: seqP1ShelfTip,
+    curtainEl: seqP1Curtain,
+    privacyBtnEl: seqP1PrivacyBtn,
+    isAi: false,
+    isRevealed: seqP1HandRevealed,
+    isTurn: seqTurn === "p1"
+  });
+
+  // 2. Right Shelf: Player 2 / AI (Green)
+  renderSinglePlayerShelf({
+    playerKey: "p2",
+    cardsContainer: seqP2HandCardsEl,
+    shelfEl: seqP2HandShelf,
+    titleEl: seqP2ShelfTitle,
+    tipEl: seqP2ShelfTip,
+    curtainEl: seqP2Curtain,
+    privacyBtnEl: seqP2PrivacyBtn,
+    isAi: isAiMode,
+    isRevealed: seqP2HandRevealed,
+    isTurn: seqTurn === "p2"
+  });
+
+  // 3. Update Privacy Mode Toggle Button in HUD
+  if (seqPrivacyModeBtn && seqPrivacyModeText) {
+    seqPrivacyModeBtn.classList.toggle("privacy-off", !seqPrivacyMode);
+    seqPrivacyModeText.textContent = seqPrivacyMode ? "Shield: ON" : "Shield: OFF";
+    seqPrivacyModeBtn.title = seqPrivacyMode
+      ? "Anti-peeking privacy shield is ON (hands concealed until revealed)"
+      : "Anti-peeking privacy shield is OFF (hands open automatically on turn)";
+  }
 }
 
 // Hand Card Selection Handler
@@ -3978,7 +4146,15 @@ function executeSequenceMove(cardIdx, r, c) {
   }
 
   // Advance turn
+  const isAiMode = modeSelect.value === "sequence-ai";
   seqTurn = (seqTurn === "p1") ? "p2" : "p1";
+  if (seqTurn === "p1") {
+    seqP2HandRevealed = false;
+    seqP1HandRevealed = !seqPrivacyMode;
+  } else {
+    seqP1HandRevealed = false;
+    seqP2HandRevealed = isAiMode ? false : !seqPrivacyMode;
+  }
   renderSequenceUI();
   persistLiveState();
 
@@ -4157,6 +4333,45 @@ function evaluateSequenceMove(card, r, c, type) {
 
   return score;
 }
+
+// Sequence Anti-Peeking Privacy Event Handlers
+seqPrivacyModeBtn?.addEventListener("click", () => {
+  seqPrivacyMode = !seqPrivacyMode;
+  if (!seqPrivacyMode) {
+    if (seqTurn === "p1") seqP1HandRevealed = true;
+    else if (modeSelect.value !== "sequence-ai") seqP2HandRevealed = true;
+  }
+  renderSequenceHUD();
+  renderSequenceHand();
+});
+
+seqP1RevealBtn?.addEventListener("click", () => {
+  seqP1HandRevealed = true;
+  renderSequenceHUD();
+  renderSequenceHand();
+});
+
+seqP1PrivacyBtn?.addEventListener("click", () => {
+  seqP1HandRevealed = false;
+  seqSelectedCardIdx = null;
+  renderSequenceHUD();
+  renderSequenceHand();
+  renderSequenceBoard();
+});
+
+seqP2RevealBtn?.addEventListener("click", () => {
+  seqP2HandRevealed = true;
+  renderSequenceHUD();
+  renderSequenceHand();
+});
+
+seqP2PrivacyBtn?.addEventListener("click", () => {
+  seqP2HandRevealed = false;
+  seqSelectedCardIdx = null;
+  renderSequenceHUD();
+  renderSequenceHand();
+  renderSequenceBoard();
+});
 
 /* ==========================================================================
    Pattukunte Pattucheera (Tollywood Movie Guesser) Engine
