@@ -6,7 +6,7 @@
   <title>GAP</title>
   <!-- Konoha Leaf Glow Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffb703'/%3E%3Cstop offset='50%25' stop-color='%23fb8500'/%3E%3Cstop offset='100%25' stop-color='%23d00000'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='%23050002'/%3E%3Cpath d='M 86 26 L 76 33 C 65 26 44 26 31 43 L 18 68 L 62 68 C 76 68 83 55 80 43 C 77 31 63 25 49 28 C 35 32 30 46 34 58 C 39 68 53 71 64 67 C 72 62 74 51 68 44 C 62 37 51 40 47 48 C 45 54 49 60 55 58 C 59 56 60 52 58 49' fill='none' stroke='url(%23g)' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="style.css?v=37.0" />
+  <link rel="stylesheet" href="style.css?v=38.0" />
 </head>
 <body data-theme="dark">
   <!-- Thematic Background Art -->
@@ -44,6 +44,7 @@
       </div>
       <div class="seg" id="gameTypePills">
         <button class="seg-btn active" data-game="ttt" id="btnGameTTT" type="button" title="Shortcut: 1">TTT</button>
+        <button class="seg-btn" data-game="sequence" id="btnGameSequence" type="button" title="Shortcut: 2">Sequence</button>
         <button class="seg-btn" data-game="chess" type="button" title="Shortcut: 3">Chess</button>
         <button class="seg-btn" data-game="wordle" type="button" title="Shortcut: 4">Wordle</button>
         <button class="seg-btn" data-game="poker" type="button" title="Shortcut: 5">Poker</button>
@@ -213,6 +214,50 @@
               <button class="poker-action-btn raise-btn" id="pokerRaiseBtn" type="button">Raise $40</button>
               <button class="poker-action-btn next-hand-btn hidden" id="pokerNextHandBtn" type="button">Next Hand ➔</button>
             </div>
+          </div>
+        </div>
+
+        <!-- Sequence (Classic 10x10 Board & Card Game) -->
+        <div id="sequenceGame" class="sequence-arena hidden">
+          <!-- Top Sequence Status Bar -->
+          <div class="sequence-top-hud">
+            <div class="sequence-pills-row">
+              <div class="seq-score-pill seq-p1-pill" id="seqP1ScorePill">
+                <span class="seq-chip-dot p1-dot"></span>
+                <span class="seq-player-label" id="seqP1Label">You (Blue)</span>:
+                <b id="seqP1Sequences">0 / 2</b>
+              </div>
+              <div class="seq-deck-pill" id="seqDeckPill" title="Cards remaining in shoe">
+                <span class="seq-deck-icon">🎴</span>
+                <span id="seqDeckCount">92 left</span>
+              </div>
+              <div class="seq-discard-pill" id="seqDiscardPill" title="Last discarded card">
+                <span class="seq-discard-label">Last:</span>
+                <span id="seqLastDiscard">—</span>
+              </div>
+              <div class="seq-score-pill seq-p2-pill" id="seqP2ScorePill">
+                <span class="seq-chip-dot p2-dot"></span>
+                <span class="seq-player-label" id="seqP2Label">AI (Green)</span>:
+                <b id="seqP2Sequences">0 / 2</b>
+              </div>
+            </div>
+            <div class="sequence-prompt-banner" id="seqPromptBanner">
+              Select a card from your hand below to highlight matching board spots
+            </div>
+          </div>
+
+          <!-- 10x10 Sequence Board -->
+          <div class="sequence-board-wrap">
+            <div id="sequenceBoard" class="sequence-board"></div>
+          </div>
+
+          <!-- Player Hand Shelf -->
+          <div class="sequence-hand-shelf" id="sequenceHandShelf">
+            <div class="sequence-shelf-header">
+              <span class="sequence-shelf-title" id="seqShelfTitle">Your Hand (6 Cards)</span>
+              <span class="sequence-shelf-tip" id="seqShelfTip">Tap a card to highlight board spaces</span>
+            </div>
+            <div class="sequence-hand-cards" id="sequenceHandCards"></div>
           </div>
         </div>
 
@@ -455,6 +500,8 @@
     <option value="ttt5-ai">TTT5 AI</option>
     <option value="chess-2p">Chess Local</option>
     <option value="chess-ai">Chess AI</option>
+    <option value="sequence-ai">Sequence AI</option>
+    <option value="sequence-2p">Sequence Local</option>
     <option value="wordle">Wordle</option>
     <option value="poker-ai">Poker AI</option>
     <option value="poker-2p">Poker Local</option>
@@ -494,6 +541,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=37.0"></script>
+  <script src="script.js?v=38.0"></script>
 </body>
 </html>

@@ -56,6 +56,23 @@ const pokerCallBtn = document.getElementById("pokerCallBtn");
 const pokerRaiseBtn = document.getElementById("pokerRaiseBtn");
 const pokerNextHandBtn = document.getElementById("pokerNextHandBtn");
 
+// Sequence DOM
+const sequenceGameEl = document.getElementById("sequenceGame");
+const seqP1ScorePill = document.getElementById("seqP1ScorePill");
+const seqP2ScorePill = document.getElementById("seqP2ScorePill");
+const seqP1Label = document.getElementById("seqP1Label");
+const seqP2Label = document.getElementById("seqP2Label");
+const seqP1Sequences = document.getElementById("seqP1Sequences");
+const seqP2Sequences = document.getElementById("seqP2Sequences");
+const seqDeckCount = document.getElementById("seqDeckCount");
+const seqLastDiscard = document.getElementById("seqLastDiscard");
+const seqPromptBanner = document.getElementById("seqPromptBanner");
+const sequenceBoardEl = document.getElementById("sequenceBoard");
+const sequenceHandShelf = document.getElementById("sequenceHandShelf");
+const seqShelfTitle = document.getElementById("seqShelfTitle");
+const seqShelfTip = document.getElementById("seqShelfTip");
+const sequenceHandCardsEl = document.getElementById("sequenceHandCards");
+
 // Pattu DOM (Tollywood Movie Guesser - Exact Original UI)
 const pattuGameEl = document.getElementById("pattuGame");
 const pattuStatsBtn = document.getElementById("pattuStatsBtn");
@@ -477,6 +494,7 @@ function startIdleWatchdog() {
 function modeFromHub() {
   if (hubState.game === "wordle") return "wordle";
   if (hubState.game === "pattu") return "pattu";
+  if (hubState.game === "sequence") return hubState.opponent === "ai" ? "sequence-ai" : "sequence-2p";
   if (hubState.game === "poker") return hubState.opponent === "ai" ? "poker-ai" : "poker-2p";
   if (hubState.game === "ttt3") return hubState.opponent === "ai" ? "ttt3-ai" : "ttt3-2p";
   if (hubState.game === "ttt5") return hubState.opponent === "ai" ? "ttt5-ai" : "ttt5-2p";
@@ -492,6 +510,11 @@ function hubFromMode(mode) {
   if (mode === "pattu") {
     hubState.game = "pattu";
     hubState.opponent = "local";
+    return;
+  }
+  if (mode.startsWith("sequence")) {
+    hubState.game = "sequence";
+    hubState.opponent = mode.endsWith("-ai") ? "ai" : "local";
     return;
   }
   if (mode.startsWith("poker")) {
@@ -526,7 +549,7 @@ function loadHub() {
   const raw = location.hash || "";
   if (raw.startsWith("#/")) {
     const [path, query = ""] = raw.slice(2).split("?");
-    if (["ttt3", "ttt5", "chess", "wordle", "poker", "pattu"].includes(path)) hubState.game = path;
+    if (["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu"].includes(path)) hubState.game = path;
 
     const q = new URLSearchParams(query);
     const vs = q.get("vs");
@@ -547,7 +570,7 @@ function loadHub() {
   if (!["dark", "light", "itachi", "naruto"].includes(hubState.theme)) hubState.theme = "dark";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
-  if (!["ttt3", "ttt5", "chess", "wordle", "poker", "pattu"].includes(hubState.game)) hubState.game = "ttt3";
+  if (!["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu"].includes(hubState.game)) hubState.game = "ttt3";
 
   if (hubState.game === "wordle" || hubState.game === "pattu") hubState.opponent = "local";
 }
@@ -599,6 +622,7 @@ function showOnlyActiveGame(gameKey) {
   const isWordle = (gameKey === "wordle");
   const isPoker = (gameKey === "poker");
   const isPattu = (gameKey === "pattu");
+  const isSequence = (gameKey === "sequence");
 
   // 1. TTT Board
   if (tttBoardEl) {
@@ -655,6 +679,17 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
+  // 6. Sequence Arena
+  if (sequenceGameEl) {
+    if (isSequence) {
+      sequenceGameEl.classList.remove("hidden");
+      sequenceGameEl.style.removeProperty("display");
+    } else {
+      sequenceGameEl.classList.add("hidden");
+      sequenceGameEl.style.setProperty("display", "none", "important");
+    }
+  }
+
   // Hide TTT HUD turn status pill & adjust arena when playing Pattu
   const statusWrapEl = document.querySelector(".status-wrap");
   const arenaEl = document.querySelector(".arena");
@@ -689,11 +724,12 @@ function showOnlyActiveGame(gameKey) {
   }
 
   // Board wrap shell classes
-  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode", "pattu-mode");
+  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode", "pattu-mode", "sequence-mode");
   if (isChess) boardWrap?.classList.add("chess-mode");
   else if (isWordle) boardWrap?.classList.add("wordle-mode");
   else if (isPoker) boardWrap?.classList.add("poker-mode");
   else if (isPattu) boardWrap?.classList.add("pattu-mode");
+  else if (isSequence) boardWrap?.classList.add("sequence-mode");
 
   // Sidebars (Chess only, and hidden on small / mini-window)
   const isMini = isMiniWindow();
@@ -754,6 +790,7 @@ function setTheme(theme) {
     renderChess();
   }
   if (hubState.game === "poker") renderPokerUI();
+  if (hubState.game === "sequence") renderSequenceUI();
 }
 
 themeTrigger?.addEventListener("click", (e) => {
@@ -864,6 +901,7 @@ scoreTickerBtn?.addEventListener("click", () => {
   const modes = [
     { label: "3x3 TTT (AI)", key: "scores_ttt3-ai_medium" },
     { label: "5x5 TTT (AI)", key: "scores_ttt5-ai_medium" },
+    { label: "Sequence (AI)", key: "scores_sequence-ai_medium" },
     { label: "Chess (AI)", key: "scores_chess-ai_medium" },
     { label: "Wordle", key: "scores_wordle_medium" },
     { label: "Poker (AI)", key: "scores_poker-ai_medium" },
@@ -3315,6 +3353,818 @@ pokerNextHandBtn?.addEventListener("click", () => {
 });
 
 /* ==========================================================================
+   Sequence (Classic 10x10 Board & Card Game) Engine
+   ========================================================================== */
+
+const SEQUENCE_BOARD_LAYOUT = [
+  ["CORNER", "2S",  "3S",  "4S",  "5S",  "6S",  "7S",  "8S",  "9S",  "CORNER"],
+  ["6C",     "5C",  "4C",  "3C",  "2C",  "AH",  "KH",  "QH",  "10H", "10S"],
+  ["7C",     "AS",  "2D",  "3D",  "4D",  "5D",  "6D",  "7D",  "9H",  "QS"],
+  ["8C",     "KS",  "6C",  "5C",  "4C",  "3C",  "2C",  "8D",  "8H",  "KS"],
+  ["9C",     "QS",  "7C",  "6H",  "5H",  "4H",  "AH",  "9D",  "7H",  "AS"],
+  ["10C",    "10S", "8C",  "7H",  "2H",  "3H",  "KH",  "10D", "6H",  "2D"],
+  ["QC",     "9S",  "9C",  "8H",  "9H",  "10H", "QH",  "QD",  "5H",  "3D"],
+  ["KC",     "8S",  "10C", "QC",  "KC",  "AC",  "AD",  "KD",  "4H",  "4D"],
+  ["AC",     "7S",  "6S",  "5S",  "4S",  "3S",  "2S",  "2H",  "3H",  "5D"],
+  ["CORNER", "AD",  "KD",  "QD",  "10D", "9D",  "8D",  "7D",  "6D",  "CORNER"]
+];
+
+let seqBoard = Array(10).fill(null).map(() => Array(10).fill(null));
+let seqLocked = Array(10).fill(false).map(() => Array(10).fill(false));
+let seqDeck = [];
+let seqDiscards = [];
+let seqHands = { p1: [], p2: [] };
+let seqTurn = "p1"; // "p1" (You/Blue), "p2" (AI or Local 2/Green)
+let seqSelectedCardIdx = null;
+let seqP1Sequences = 0;
+let seqP2Sequences = 0;
+let seqOver = false;
+let seqWinner = null;
+let seqSnapshots = [];
+let seqAiThinking = false;
+
+// Helper: Corners
+function isSeqCorner(r, c) {
+  return (r === 0 || r === 9) && (c === 0 || c === 9);
+}
+
+// Helper: Card parsing
+function getCardSuit(card) {
+  if (!card || card === "CORNER") return "";
+  return card.slice(-1);
+}
+
+function getCardRank(card) {
+  if (!card || card === "CORNER") return "";
+  return card.slice(0, -1);
+}
+
+function getCardSuitColor(card) {
+  const suit = getCardSuit(card);
+  return (suit === "H" || suit === "D") ? "suit-red" : "suit-black";
+}
+
+function getCardSuitSymbol(card) {
+  const suit = getCardSuit(card);
+  if (suit === "S") return "♠";
+  if (suit === "C") return "♣";
+  if (suit === "H") return "♥";
+  if (suit === "D") return "♦";
+  return "";
+}
+
+// Two-Eyed Jacks: Clubs and Diamonds (Wild - place anywhere empty)
+function isTwoEyedJack(card) {
+  return card === "JC" || card === "JD";
+}
+
+// One-Eyed Jacks: Spades and Hearts (Anti-Wild - remove opponent chip if not locked)
+function isOneEyedJack(card) {
+  return card === "JS" || card === "JH";
+}
+
+// Dead card check: standard card whose both board spaces are occupied
+function isDeadCard(card, board = seqBoard) {
+  if (!card || isTwoEyedJack(card) || isOneEyedJack(card)) return false;
+  let occupiedCount = 0;
+  let totalSpots = 0;
+  for (let r = 0; r < 10; r++) {
+    for (let c = 0; c < 10; c++) {
+      if (SEQUENCE_BOARD_LAYOUT[r][c] === card) {
+        totalSpots++;
+        if (board[r][c] !== null) occupiedCount++;
+      }
+    }
+  }
+  return totalSpots > 0 && occupiedCount === totalSpots;
+}
+
+// Deck builder: 2 standard 52-card decks (104 cards)
+function createSequenceShoe() {
+  const suits = ["S", "C", "H", "D"];
+  const ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+  const shoe = [];
+  for (let d = 0; d < 2; d++) {
+    for (const s of suits) {
+      for (const r of ranks) {
+        shoe.push(r + s);
+      }
+    }
+  }
+  // Shuffle (Fisher-Yates)
+  for (let i = shoe.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shoe[i], shoe[j]] = [shoe[j], shoe[i]];
+  }
+  return shoe;
+}
+
+// Draw card from deck (replenishes with shuffled discards if empty)
+function drawSequenceCard() {
+  if (seqDeck.length === 0) {
+    if (seqDiscards.length === 0) return null;
+    seqDeck = [...seqDiscards];
+    seqDiscards = [];
+    for (let i = seqDeck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [seqDeck[i], seqDeck[j]] = [seqDeck[j], seqDeck[i]];
+    }
+  }
+  return seqDeck.pop() || null;
+}
+
+// Save snapshot for undo
+function saveSequenceSnapshot() {
+  seqSnapshots.push({
+    board: seqBoard.map(row => [...row]),
+    locked: seqLocked.map(row => [...row]),
+    deck: [...seqDeck],
+    discards: [...seqDiscards],
+    hands: {
+      p1: [...seqHands.p1],
+      p2: [...seqHands.p2]
+    },
+    turn: seqTurn,
+    p1Sequences: seqP1Sequences,
+    p2Sequences: seqP2Sequences,
+    over: seqOver,
+    winner: seqWinner,
+    moveCount,
+    scoreA, scoreB, scoreD, streak
+  });
+}
+
+// Undo move
+function undoSequenceMove() {
+  if (seqAiThinking || seqSnapshots.length === 0) return;
+
+  const isAiMode = modeSelect.value === "sequence-ai";
+  // In vs AI mode, undo 2 steps (AI move + human move) if possible so user is back on their turn
+  let stepsToUndo = (isAiMode && seqSnapshots.length >= 2) ? 2 : 1;
+
+  let snap = null;
+  while (stepsToUndo > 0 && seqSnapshots.length > 0) {
+    snap = seqSnapshots.pop();
+    stepsToUndo--;
+  }
+  if (!snap) return;
+
+  seqBoard = snap.board.map(row => [...row]);
+  seqLocked = snap.locked.map(row => [...row]);
+  seqDeck = [...snap.deck];
+  seqDiscards = [...snap.discards];
+  seqHands = {
+    p1: [...snap.hands.p1],
+    p2: [...snap.hands.p2]
+  };
+  seqTurn = snap.turn;
+  seqP1Sequences = snap.p1Sequences;
+  seqP2Sequences = snap.p2Sequences;
+  seqOver = snap.over;
+  seqWinner = snap.winner;
+  moveCount = snap.moveCount || 0;
+  scoreA = snap.scoreA;
+  scoreB = snap.scoreB;
+  scoreD = snap.scoreD;
+  streak = snap.streak;
+  seqSelectedCardIdx = null;
+
+  hideWinScreen();
+  renderScores();
+  updateMoveCounter(true);
+  renderSequenceUI();
+  persistLiveState();
+}
+
+// Find valid target coordinates on board for a card
+function getValidTargetsForCard(card, player = seqTurn, board = seqBoard, locked = seqLocked) {
+  if (!card) return [];
+  const targets = [];
+  const opponent = player === "p1" ? "p2" : "p1";
+
+  if (isTwoEyedJack(card)) {
+    // Wild: Any empty, non-corner cell
+    for (let r = 0; r < 10; r++) {
+      for (let c = 0; c < 10; c++) {
+        if (!isSeqCorner(r, c) && board[r][c] === null) {
+          targets.push({ r, c, type: "place" });
+        }
+      }
+    }
+  } else if (isOneEyedJack(card)) {
+    // Removal: Any non-locked opponent chip
+    for (let r = 0; r < 10; r++) {
+      for (let c = 0; c < 10; c++) {
+        if (!isSeqCorner(r, c) && board[r][c] === opponent && !locked[r][c]) {
+          targets.push({ r, c, type: "remove" });
+        }
+      }
+    }
+  } else {
+    // Standard card: Matches layout space and currently unoccupied
+    for (let r = 0; r < 10; r++) {
+      for (let c = 0; c < 10; c++) {
+        if (!isSeqCorner(r, c) && SEQUENCE_BOARD_LAYOUT[r][c] === card && board[r][c] === null) {
+          targets.push({ r, c, type: "place" });
+        }
+      }
+    }
+  }
+  return targets;
+}
+
+// Recalculate sequences and locks
+function recalculateSequences(board = seqBoard) {
+  const dirs = [
+    [0, 1],   // horizontal
+    [1, 0],   // vertical
+    [1, 1],   // diagonal down-right
+    [1, -1]   // diagonal down-left
+  ];
+
+  function findForPlayer(player) {
+    const candidates = [];
+    for (let r = 0; r < 10; r++) {
+      for (let c = 0; c < 10; c++) {
+        for (const [dr, dc] of dirs) {
+          const line = [];
+          let valid = true;
+          for (let step = 0; step < 5; step++) {
+            const nr = r + dr * step;
+            const nc = c + dc * step;
+            if (nr < 0 || nr >= 10 || nc < 0 || nc >= 10) {
+              valid = false;
+              break;
+            }
+            if (isSeqCorner(nr, nc) || board[nr][nc] === player) {
+              line.push([nr, nc]);
+            } else {
+              valid = false;
+              break;
+            }
+          }
+          if (valid && line.length === 5) {
+            candidates.push(line);
+          }
+        }
+      }
+    }
+
+    // Two sequences can share at most 1 common chip
+    const accepted = [];
+    for (const line of candidates) {
+      let canAdd = true;
+      for (const existing of accepted) {
+        let sharedNonCorners = 0;
+        for (const [er, ec] of existing) {
+          if (line.some(([lr, lc]) => lr === er && lc === ec && !isSeqCorner(er, ec))) {
+            sharedNonCorners++;
+          }
+        }
+        if (sharedNonCorners > 1) {
+          canAdd = false;
+          break;
+        }
+      }
+      if (canAdd) accepted.push(line);
+    }
+    return accepted;
+  }
+
+  const p1Seqs = findForPlayer("p1");
+  const p2Seqs = findForPlayer("p2");
+  seqP1Sequences = p1Seqs.length;
+  seqP2Sequences = p2Seqs.length;
+
+  // Reset locks and lock all chips in accepted sequences
+  seqLocked = Array(10).fill(false).map(() => Array(10).fill(false));
+  [...p1Seqs, ...p2Seqs].forEach(seq => {
+    seq.forEach(([r, c]) => {
+      if (!isSeqCorner(r, c)) seqLocked[r][c] = true;
+    });
+  });
+
+  return { p1Seqs, p2Seqs };
+}
+
+// Initialize Sequence Match
+function initSequence() {
+  seqBoard = Array(10).fill(null).map(() => Array(10).fill(null));
+  seqLocked = Array(10).fill(false).map(() => Array(10).fill(false));
+  seqDeck = createSequenceShoe();
+  seqDiscards = [];
+  seqHands = { p1: [], p2: [] };
+  seqTurn = "p1";
+  seqSelectedCardIdx = null;
+  seqP1Sequences = 0;
+  seqP2Sequences = 0;
+  seqOver = false;
+  seqWinner = null;
+  seqSnapshots = [];
+  seqAiThinking = false;
+  moveCount = 0;
+
+  // Deal 6 cards to each player
+  for (let i = 0; i < 6; i++) {
+    seqHands.p1.push(drawSequenceCard());
+    seqHands.p2.push(drawSequenceCard());
+  }
+
+  updateMoveCounter(true);
+  showOnlyActiveGame("sequence");
+  renderSequenceUI();
+  startTurnTimer();
+}
+
+// Render Complete Sequence UI
+function renderSequenceUI() {
+  if (hubState.game !== "sequence") return;
+  renderSequenceHUD();
+  renderSequenceBoard();
+  renderSequenceHand();
+}
+
+// Render Top HUD Status Bar
+function renderSequenceHUD() {
+  const isAiMode = modeSelect.value === "sequence-ai";
+  if (seqP1Label) seqP1Label.textContent = isAiMode ? "You (Blue)" : "P1 (Blue)";
+  if (seqP2Label) seqP2Label.textContent = isAiMode ? `AI (${hubState.difficulty.toUpperCase()})` : "P2 (Green)";
+
+  if (seqP1Sequences !== undefined && seqP1Sequences !== null) {
+    const sEl = document.getElementById("seqP1Sequences");
+    if (sEl) sEl.textContent = `${seqP1Sequences} / 2`;
+  }
+  if (seqP2Sequences !== undefined && seqP2Sequences !== null) {
+    const sEl = document.getElementById("seqP2Sequences");
+    if (sEl) sEl.textContent = `${seqP2Sequences} / 2`;
+  }
+
+  if (seqP1ScorePill) seqP1ScorePill.classList.toggle("active-turn", seqTurn === "p1" && !seqOver);
+  if (seqP2ScorePill) seqP2ScorePill.classList.toggle("active-turn", seqTurn === "p2" && !seqOver);
+
+  if (seqDeckCount) seqDeckCount.textContent = `${seqDeck.length} cards`;
+  if (seqLastDiscard) {
+    if (seqDiscards.length > 0) {
+      const top = seqDiscards[seqDiscards.length - 1];
+      const rank = getCardRank(top);
+      const sym = getCardSuitSymbol(top);
+      const col = getCardSuitColor(top);
+      seqLastDiscard.innerHTML = `<span class="${col}">${rank}${sym}</span>`;
+    } else {
+      seqLastDiscard.textContent = "—";
+    }
+  }
+
+  // Banner prompt text
+  if (seqPromptBanner) {
+    if (seqOver) {
+      seqPromptBanner.textContent = seqWinner === "p1" ? "Victory! 2 sequences completed." : "Game Over! 2 sequences completed.";
+    } else if (seqAiThinking) {
+      seqPromptBanner.textContent = "AI is evaluating optimal plays...";
+    } else if (seqSelectedCardIdx !== null) {
+      const activeHand = seqHands[seqTurn];
+      const selectedCard = activeHand[seqSelectedCardIdx];
+      if (isTwoEyedJack(selectedCard)) {
+        seqPromptBanner.textContent = "Wild Two-Eyed Jack: Place a chip on ANY empty board space!";
+      } else if (isOneEyedJack(selectedCard)) {
+        seqPromptBanner.textContent = "One-Eyed Jack: Click an opponent's chip to remove it!";
+      } else {
+        const rank = getCardRank(selectedCard);
+        const sym = getCardSuitSymbol(selectedCard);
+        seqPromptBanner.textContent = `Card ${rank}${sym} selected: Click a highlighted spot to place your chip`;
+      }
+    } else {
+      const turnName = seqTurn === "p1" ? (isAiMode ? "Your turn" : "Player 1's turn") : (isAiMode ? "AI turn" : "Player 2's turn");
+      seqPromptBanner.textContent = `${turnName}: Select a card from your hand rack below`;
+    }
+  }
+}
+
+// Render 10x10 Board Grid
+function renderSequenceBoard() {
+  if (!sequenceBoardEl) return;
+  sequenceBoardEl.innerHTML = "";
+
+  const activeHand = seqHands[seqTurn] || [];
+  const selectedCard = seqSelectedCardIdx !== null ? activeHand[seqSelectedCardIdx] : null;
+  const validTargets = selectedCard ? getValidTargetsForCard(selectedCard, seqTurn) : [];
+
+  for (let r = 0; r < 10; r++) {
+    for (let c = 0; c < 10; c++) {
+      const cellEl = document.createElement("div");
+      cellEl.className = "seq-cell";
+      cellEl.dataset.r = String(r);
+      cellEl.dataset.c = String(c);
+
+      if (isSeqCorner(r, c)) {
+        cellEl.classList.add("corner");
+        cellEl.innerHTML = `<span class="seq-corner-icon">★</span>`;
+      } else {
+        const cardCode = SEQUENCE_BOARD_LAYOUT[r][c];
+        const rank = getCardRank(cardCode);
+        const sym = getCardSuitSymbol(cardCode);
+        const colClass = getCardSuitColor(cardCode);
+
+        cellEl.innerHTML = `
+          <div class="seq-rank ${colClass}">${rank}</div>
+          <div class="seq-suit ${colClass}">${sym}</div>
+        `;
+
+        // Chip display
+        const occupant = seqBoard[r][c];
+        if (occupant) {
+          const chipEl = document.createElement("div");
+          chipEl.className = `seq-chip ${occupant === "p1" ? "chip-p1" : "chip-p2"}`;
+          if (seqLocked[r][c]) {
+            chipEl.classList.add("locked");
+            chipEl.innerHTML = `<span class="seq-chip-crown">👑</span>`;
+          }
+          cellEl.appendChild(chipEl);
+        }
+
+        // Highlight matching targets for currently selected card
+        if (!seqOver && !seqAiThinking && selectedCard) {
+          const matchingTarget = validTargets.find(t => t.r === r && t.c === c);
+          if (matchingTarget) {
+            if (matchingTarget.type === "remove") {
+              cellEl.classList.add("target-remove");
+            } else {
+              cellEl.classList.add("target-valid");
+            }
+          }
+        }
+      }
+
+      cellEl.addEventListener("click", () => onSeqCellClick(r, c));
+      sequenceBoardEl.appendChild(cellEl);
+    }
+  }
+}
+
+// Render Player Hand Cards Rack
+function renderSequenceHand() {
+  if (!sequenceHandCardsEl) return;
+  sequenceHandCardsEl.innerHTML = "";
+
+  const isAiMode = modeSelect.value === "sequence-ai";
+  const activePlayer = seqTurn;
+  const hand = seqHands[activePlayer] || [];
+
+  if (seqShelfTitle) {
+    if (isAiMode) {
+      seqShelfTitle.textContent = "Your Hand (6 Cards)";
+    } else {
+      seqShelfTitle.textContent = activePlayer === "p1" ? "Player 1 Hand (Blue)" : "Player 2 Hand (Green)";
+    }
+  }
+
+  if (seqShelfTip) {
+    seqShelfTip.textContent = seqSelectedCardIdx !== null ? "Tap board spot to play" : "Tap card to highlight moves";
+  }
+
+  hand.forEach((card, idx) => {
+    const cardEl = document.createElement("div");
+    cardEl.className = "seq-hand-card";
+    if (idx === seqSelectedCardIdx) cardEl.classList.add("selected");
+
+    const rank = getCardRank(card);
+    const sym = getCardSuitSymbol(card);
+    const colClass = getCardSuitColor(card);
+    cardEl.classList.add(colClass);
+
+    let badgeHtml = "";
+    if (isTwoEyedJack(card)) {
+      badgeHtml = `<div class="seq-card-badge badge-wild">WILD</div>`;
+    } else if (isOneEyedJack(card)) {
+      badgeHtml = `<div class="seq-card-badge badge-remove">REMOVE</div>`;
+    } else if (isDeadCard(card)) {
+      badgeHtml = `<div class="seq-card-badge badge-dead" title="Both board spots occupied! Click to swap.">SWAP</div>`;
+    }
+
+    cardEl.innerHTML = `
+      <div class="seq-hand-corner">
+        <span class="hc-rank">${rank}</span>
+        <span class="hc-suit">${sym}</span>
+      </div>
+      <div class="seq-hand-center-emblem">${sym}</div>
+      ${badgeHtml}
+    `;
+
+    cardEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (isDeadCard(card)) {
+        onSeqDeadCardSwap(idx);
+      } else {
+        onSeqCardSelect(idx);
+      }
+    });
+
+    sequenceHandCardsEl.appendChild(cardEl);
+  });
+}
+
+// Hand Card Selection Handler
+function onSeqCardSelect(idx) {
+  if (seqOver || seqAiThinking) return;
+  const isAiMode = modeSelect.value === "sequence-ai";
+  if (isAiMode && seqTurn === "p2") return;
+
+  if (seqSelectedCardIdx === idx) {
+    seqSelectedCardIdx = null; // Toggle deselect
+  } else {
+    seqSelectedCardIdx = idx;
+  }
+  renderSequenceHUD();
+  renderSequenceBoard();
+  renderSequenceHand();
+}
+
+// Dead Card Swap Handler
+function onSeqDeadCardSwap(idx) {
+  if (seqOver || seqAiThinking) return;
+  const isAiMode = modeSelect.value === "sequence-ai";
+  if (isAiMode && seqTurn === "p2") return;
+
+  const currentHand = seqHands[seqTurn];
+  const deadCard = currentHand[idx];
+  if (!isDeadCard(deadCard)) return;
+
+  saveSequenceSnapshot();
+
+  // Discard dead card
+  seqDiscards.push(deadCard);
+  // Draw new card
+  const newCard = drawSequenceCard();
+  currentHand[idx] = newCard;
+  seqSelectedCardIdx = null;
+
+  renderSequenceUI();
+  if (seqPromptBanner) {
+    seqPromptBanner.textContent = `Dead card swapped for a new draw! Pick a card to play.`;
+  }
+  persistLiveState();
+}
+
+// Cell Click Handler
+function onSeqCellClick(r, c) {
+  if (seqOver || seqAiThinking) return;
+  const isAiMode = modeSelect.value === "sequence-ai";
+  if (isAiMode && seqTurn === "p2") return;
+  if (seqSelectedCardIdx === null) {
+    if (seqPromptBanner) seqPromptBanner.textContent = "Select a card from your hand first!";
+    return;
+  }
+
+  const activeHand = seqHands[seqTurn];
+  const selectedCard = activeHand[seqSelectedCardIdx];
+  const validTargets = getValidTargetsForCard(selectedCard, seqTurn);
+  const target = validTargets.find(t => t.r === r && t.c === c);
+
+  if (!target) return; // Invalid cell clicked
+
+  executeSequenceMove(seqSelectedCardIdx, r, c);
+}
+
+// Execute Move (place or remove chip, draw replacement, check sequences)
+function executeSequenceMove(cardIdx, r, c) {
+  saveSequenceSnapshot();
+
+  const activeHand = seqHands[seqTurn];
+  const playedCard = activeHand[cardIdx];
+
+  if (isOneEyedJack(playedCard)) {
+    // Remove opponent chip
+    seqBoard[r][c] = null;
+  } else {
+    // Place friendly chip
+    seqBoard[r][c] = seqTurn;
+  }
+
+  // Discard played card and draw replacement
+  seqDiscards.push(playedCard);
+  activeHand[cardIdx] = drawSequenceCard();
+  seqSelectedCardIdx = null;
+
+  moveCount++;
+  updateMoveCounter(true);
+
+  // Recalculate sequences
+  recalculateSequences();
+
+  // Check victory (2 sequences needed)
+  if (seqP1Sequences >= 2) {
+    seqOver = true;
+    seqWinner = "p1";
+    scoreA++;
+    updateStreak(true);
+    persistScores();
+    renderScores();
+    renderSequenceUI();
+    showWinScreen("YOU COMPLETED 2 SEQUENCES!", "Sequence Grand Master Victory!");
+    persistLiveState();
+    return;
+  }
+
+  if (seqP2Sequences >= 2) {
+    seqOver = true;
+    seqWinner = "p2";
+    scoreB++;
+    updateStreak(false);
+    persistScores();
+    renderScores();
+    renderSequenceUI();
+    const isAiMode = modeSelect.value === "sequence-ai";
+    if (isAiMode) {
+      showDefeatScreen("AI COMPLETED 2 SEQUENCES!", "Better luck in the next game!");
+    } else {
+      showWinScreen("PLAYER 2 (GREEN) WINS!", "2 Sequences Completed!");
+    }
+    persistLiveState();
+    return;
+  }
+
+  // Advance turn
+  seqTurn = (seqTurn === "p1") ? "p2" : "p1";
+  renderSequenceUI();
+  persistLiveState();
+
+  // AI Turn Trigger
+  const isAiMode = modeSelect.value === "sequence-ai";
+  if (!seqOver && isAiMode && seqTurn === "p2") {
+    seqAiThinking = true;
+    renderSequenceHUD();
+    setTimeout(() => {
+      executeSequenceAiTurn();
+    }, 650);
+  }
+}
+
+// Sequence AI Heuristic Engine
+function executeSequenceAiTurn() {
+  seqAiThinking = false;
+  if (seqOver || seqTurn !== "p2") return;
+
+  const aiHand = seqHands.p2;
+
+  // 1. Check for any dead cards and auto-swap them
+  for (let i = 0; i < aiHand.length; i++) {
+    if (isDeadCard(aiHand[i])) {
+      seqDiscards.push(aiHand[i]);
+      aiHand[i] = drawSequenceCard();
+      renderSequenceHUD();
+      break; // Swapped 1 dead card, continue evaluation
+    }
+  }
+
+  // 2. Gather all possible moves across all cards in AI's hand
+  const candidateMoves = [];
+  aiHand.forEach((card, cardIdx) => {
+    if (!card) return;
+    const targets = getValidTargetsForCard(card, "p2");
+    targets.forEach(t => {
+      candidateMoves.push({
+        cardIdx,
+        card,
+        r: t.r,
+        c: t.c,
+        type: t.type,
+        score: evaluateSequenceMove(card, t.r, t.c, t.type)
+      });
+    });
+  });
+
+  if (candidateMoves.length === 0) {
+    // No legal moves; discard first non-wild card if possible and draw fresh
+    if (aiHand.length > 0) {
+      seqDiscards.push(aiHand[0]);
+      aiHand[0] = drawSequenceCard();
+    }
+    seqTurn = "p1";
+    renderSequenceUI();
+    persistLiveState();
+    return;
+  }
+
+  // Difficulty adjustment
+  const diff = hubState.difficulty || "medium";
+  let chosenMove = null;
+
+  if (diff === "easy") {
+    // Easy: Pick random move
+    chosenMove = candidateMoves[Math.floor(Math.random() * candidateMoves.length)];
+  } else {
+    // Medium and Hard: Sort by heuristic score descending
+    candidateMoves.sort((a, b) => b.score - a.score);
+    if (diff === "medium") {
+      // Medium: 80% best move, 20% second/third best
+      const topPool = candidateMoves.slice(0, Math.min(3, candidateMoves.length));
+      chosenMove = Math.random() < 0.8 ? topPool[0] : topPool[Math.floor(Math.random() * topPool.length)];
+    } else {
+      // Hard: Always optimal best move
+      chosenMove = candidateMoves[0];
+    }
+  }
+
+  if (chosenMove) {
+    executeSequenceMove(chosenMove.cardIdx, chosenMove.r, chosenMove.c);
+  }
+}
+
+// Evaluate Move Heuristic Score
+function evaluateSequenceMove(card, r, c, type) {
+  // Simulate board
+  const simBoard = seqBoard.map(row => [...row]);
+
+  if (type === "remove") {
+    // One-Eyed Jack removal of opponent chip
+    simBoard[r][c] = null;
+    // Removing opponent chip that breaks their long lines is highly scored
+    let threatBroken = 0;
+    const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    dirs.forEach(([dr, dc]) => {
+      let p1Count = 0;
+      for (let s = -4; s <= 4; s++) {
+        const nr = r + dr * s;
+        const nc = c + dc * s;
+        if (nr >= 0 && nr < 10 && nc >= 0 && nc < 10) {
+          if (seqBoard[nr][nc] === "p1") p1Count++;
+        }
+      }
+      if (p1Count >= 4) threatBroken += 8000;
+      else if (p1Count >= 3) threatBroken += 2000;
+      else if (p1Count >= 2) threatBroken += 400;
+    });
+    return 1500 + threatBroken;
+  }
+
+  // Place chip
+  simBoard[r][c] = "p2";
+
+  // Check if this move completes a sequence
+  const { p2Seqs: simP2Seqs } = recalculateSequences(simBoard);
+  if (simP2Seqs >= 2) return 500000; // Immediate match victory!
+  if (simP2Seqs > seqP2Sequences) return 50000; // Completes 1st sequence!
+
+  // Check if opponent would have completed a sequence on this spot if they had it
+  const oppSimBoard = seqBoard.map(row => [...row]);
+  oppSimBoard[r][c] = "p1";
+  const { p1Seqs: oppSeqs } = recalculateSequences(oppSimBoard);
+  if (oppSeqs > seqP1Sequences) return 25000; // Crucial block!
+
+  let score = 0;
+  const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+
+  dirs.forEach(([dr, dc]) => {
+    // Inspect 5-cell windows passing through (r, c)
+    for (let offset = 0; offset < 5; offset++) {
+      let aiCount = 0;
+      let oppCount = 0;
+      let cornerCount = 0;
+      let valid = true;
+
+      for (let step = 0; step < 5; step++) {
+        const nr = r + dr * (step - offset);
+        const nc = c + dc * (step - offset);
+        if (nr < 0 || nr >= 10 || nc < 0 || nc >= 10) {
+          valid = false;
+          break;
+        }
+        if (isSeqCorner(nr, nc)) cornerCount++;
+        else if (simBoard[nr][nc] === "p2") aiCount++;
+        else if (simBoard[nr][nc] === "p1") oppCount++;
+      }
+
+      if (valid) {
+        if (oppCount === 0) {
+          // Open friendly window
+          const friendlyTotal = aiCount + cornerCount;
+          if (friendlyTotal === 4) score += 3000;
+          else if (friendlyTotal === 3) score += 600;
+          else if (friendlyTotal === 2) score += 120;
+          else score += 25;
+        } else if (aiCount === 1 && oppCount >= 3) {
+          // Blocked opponent window
+          score += oppCount * 150;
+        }
+      }
+    }
+  });
+
+  // Corner proximity bonus
+  if ((r <= 1 || r >= 8) && (c <= 1 || c >= 8)) score += 60;
+  // Center board bonus
+  const distFromCenter = Math.abs(4.5 - r) + Math.abs(4.5 - c);
+  score += Math.max(0, 30 - distFromCenter * 3);
+
+  // Wild Two-Eyed Jack conservation: only use if score is high
+  if (isTwoEyedJack(card) && score < 1000) {
+    score -= 800; // Hold wildcard for crucial moment
+  }
+
+  return score;
+}
+
+/* ==========================================================================
    Pattukunte Pattucheera (Tollywood Movie Guesser) Engine
    ========================================================================== */
 
@@ -4484,6 +5334,18 @@ function persistLiveState() {
     wordle: {
       target: wordleTarget, row: wordleRow, col: wordleCol, grid: wordleGrid, over: wordleOver
     },
+    sequence: {
+      board: seqBoard,
+      locked: seqLocked,
+      deck: seqDeck,
+      discards: seqDiscards,
+      hands: seqHands,
+      turn: seqTurn,
+      p1Sequences: seqP1Sequences,
+      p2Sequences: seqP2Sequences,
+      over: seqOver,
+      winner: seqWinner
+    },
     pattu: {
       puzzle: pattuCurrentPuzzle,
       day: pattuCurrentDay,
@@ -4528,6 +5390,25 @@ function restoreLiveStateIfAny() {
       updateMoveCounter(false);
       renderWordle();
       if (statusPill) statusPill.textContent = `Wordle (${hubState.difficulty.toUpperCase()})`;
+      return true;
+    }
+
+    if (s.mode && s.mode.startsWith("sequence") && s.sequence) {
+      seqBoard = Array.isArray(s.sequence.board) ? s.sequence.board : Array(10).fill(null).map(() => Array(10).fill(null));
+      seqLocked = Array.isArray(s.sequence.locked) ? s.sequence.locked : Array(10).fill(false).map(() => Array(10).fill(false));
+      seqDeck = Array.isArray(s.sequence.deck) ? s.sequence.deck : [];
+      seqDiscards = Array.isArray(s.sequence.discards) ? s.sequence.discards : [];
+      seqHands = s.sequence.hands || { p1: [], p2: [] };
+      seqTurn = s.sequence.turn || "p1";
+      seqP1Sequences = s.sequence.p1Sequences || 0;
+      seqP2Sequences = s.sequence.p2Sequences || 0;
+      seqOver = !!s.sequence.over;
+      seqWinner = s.sequence.winner || null;
+      seqSelectedCardIdx = null;
+      seqSnapshots = [];
+      updateMoveCounter(true);
+      showOnlyActiveGame("sequence");
+      renderSequenceUI();
       return true;
     }
 
@@ -4606,16 +5487,16 @@ window.addEventListener("keydown", (e) => {
     }
     // Number row switches games
     if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
-    if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+    if (k === "2") { hubState.game = "sequence"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     if (k === "5") { hubState.game = "poker"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     if (k === "6") { hubState.game = "pattu"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
     return;
   }
 
-  // Global shortcuts for TTT, Chess, Wordle, Poker, Pattu
+  // Global shortcuts for TTT, Chess, Wordle, Poker, Pattu, Sequence
   if (k === "1") { hubState.game = "ttt3"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
-  if (k === "2") { hubState.game = "ttt5"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
+  if (k === "2") { hubState.game = "sequence"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "3") { hubState.game = "chess"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "4") { hubState.game = "wordle"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "5") { hubState.game = "poker"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
@@ -4668,6 +5549,10 @@ undoBtn?.addEventListener("click", () => {
     return;
   }
   if (hubState.game === "poker" || hubState.game === "pattu") {
+    return;
+  }
+  if (hubState.game === "sequence") {
+    undoSequenceMove();
     return;
   }
   const mode = modeSelect.value;
@@ -4758,6 +5643,7 @@ difficultyPills?.addEventListener("click", (e) => {
   persistHub();
   loadScores();
   if (hubState.game === "wordle") initWordle();
+  if (hubState.game === "sequence") renderSequenceHUD();
   persistLiveState();
 });
 
@@ -4791,6 +5677,7 @@ function initBoard(forceFresh = false) {
 
   if (modeSelect) modeSelect.value = modeFromHub();
   if (hubState.game === "wordle") initWordle();
+  else if (hubState.game === "sequence") initSequence();
   else if (hubState.game === "poker") initPoker();
   else if (hubState.game === "pattu") initPattu();
   else if (hubState.game === "ttt3") initTTT(3);
@@ -4834,7 +5721,7 @@ function initStageDragger() {
 
   stage.addEventListener("pointerdown", (e) => {
     // Ignore drag start on buttons, links, inputs, game board cells, or interactive modals / dropdowns
-    if (e.target.closest("button, input, textarea, select, a, .chess-cell, .chess-board, .ttt-cell, .ttt-board, .win-overlay, #pattuResultBanner, .poker-action-btn, #pattuDropdown, .pattu-drop-item, .pc-search-pill-wrap, .pc-modern-dropdown, .pattu-orig-dropdown")) {
+    if (e.target.closest("button, input, textarea, select, a, .chess-cell, .chess-board, .ttt-cell, .ttt-board, .seq-cell, .sequence-board, .seq-hand-card, .sequence-hand-shelf, .win-overlay, #pattuResultBanner, .poker-action-btn, #pattuDropdown, .pattu-drop-item, .pc-search-pill-wrap, .pc-modern-dropdown, .pattu-orig-dropdown")) {
       return;
     }
 
