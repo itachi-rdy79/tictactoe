@@ -62,8 +62,8 @@ const seqP1ScorePill = document.getElementById("seqP1ScorePill");
 const seqP2ScorePill = document.getElementById("seqP2ScorePill");
 const seqP1Label = document.getElementById("seqP1Label");
 const seqP2Label = document.getElementById("seqP2Label");
-const seqP1Sequences = document.getElementById("seqP1Sequences");
-const seqP2Sequences = document.getElementById("seqP2Sequences");
+const seqP1SeqEl = document.getElementById("seqP1Sequences");
+const seqP2SeqEl = document.getElementById("seqP2Sequences");
 const seqDeckCount = document.getElementById("seqDeckCount");
 const seqLastDiscard = document.getElementById("seqLastDiscard");
 const seqPromptBanner = document.getElementById("seqPromptBanner");
@@ -3690,14 +3690,8 @@ function renderSequenceHUD() {
   if (seqP1Label) seqP1Label.textContent = isAiMode ? "You (Blue)" : "P1 (Blue)";
   if (seqP2Label) seqP2Label.textContent = isAiMode ? `AI (${hubState.difficulty.toUpperCase()})` : "P2 (Green)";
 
-  if (seqP1Sequences !== undefined && seqP1Sequences !== null) {
-    const sEl = document.getElementById("seqP1Sequences");
-    if (sEl) sEl.textContent = `${seqP1Sequences} / 2`;
-  }
-  if (seqP2Sequences !== undefined && seqP2Sequences !== null) {
-    const sEl = document.getElementById("seqP2Sequences");
-    if (sEl) sEl.textContent = `${seqP2Sequences} / 2`;
-  }
+  if (seqP1SeqEl) seqP1SeqEl.textContent = `${seqP1Sequences} / 2`;
+  if (seqP2SeqEl) seqP2SeqEl.textContent = `${seqP2Sequences} / 2`;
 
   if (seqP1ScorePill) seqP1ScorePill.classList.toggle("active-turn", seqTurn === "p1" && !seqOver);
   if (seqP2ScorePill) seqP2ScorePill.classList.toggle("active-turn", seqTurn === "p2" && !seqOver);
