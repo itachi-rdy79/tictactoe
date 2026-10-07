@@ -132,6 +132,34 @@
       </section>
 
       <section class="board-area">
+        <!-- Left Extreme Edge: Sequence Player 1 Hand Shelf -->
+        <div class="sequence-edge-shelf glass-panel hidden" id="seqP1HandShelf">
+          <div class="sequence-shelf-header">
+            <div class="seq-shelf-badge">
+              <span class="seq-chip-dot p1-dot"></span>
+              <span class="sequence-shelf-title" id="seqP1ShelfTitle">P1 (Blue)</span>
+            </div>
+            <button type="button" class="seq-shelf-privacy-btn hidden" id="seqP1PrivacyBtn" title="Conceal Cards">🔒 Hide</button>
+          </div>
+          <div class="sequence-shelf-tip" id="seqP1ShelfTip">6 cards</div>
+
+          <!-- P1 Draw Actions (Pick a Card / Skip) -->
+          <div class="seq-draw-actions hidden" id="seqP1DrawActions">
+            <button type="button" class="seq-pick-card-btn" id="seqP1PickCardBtn" title="Draw random replacement card from shoe">🎴 Pick a Card (+1)</button>
+            <button type="button" class="seq-skip-draw-btn" id="seqP1SkipDrawBtn" title="End turn without drawing (lose this card slot!)">End Turn (Skip Pick)</button>
+          </div>
+
+          <!-- P1 Privacy Curtain (Anti-Peeking Cover) -->
+          <div class="seq-curtain-overlay hidden" id="seqP1Curtain">
+            <div class="seq-curtain-icon">🛡️</div>
+            <div class="seq-curtain-msg">P1 Cards Protected</div>
+            <button type="button" class="seq-curtain-btn" id="seqP1RevealBtn">👁️ Reveal Hand</button>
+          </div>
+
+          <!-- P1 Hand Cards Rack (2x3 Grid) -->
+          <div class="sequence-hand-cards vertical-grid" id="seqP1HandCards"></div>
+        </div>
+
         <!-- Left Side: White Captured -->
         <div class="captured-sidebar glass-panel hidden" id="capturedLeft">
           <div class="captured-header" id="whiteCapturedHeader">White Captured</div>
@@ -227,7 +255,7 @@
                 <span class="seq-player-label" id="seqP1Label">You (Blue)</span>:
                 <b id="seqP1Sequences">0 / 2</b>
               </div>
-              <div class="seq-deck-pill" id="seqDeckPill" title="Cards remaining in shoe">
+              <div class="seq-deck-pill" id="seqDeckPill" title="Click to Pick a Card from shoe">
                 <span class="seq-deck-icon">🎴</span>
                 <span id="seqDeckCount">92 left</span>
               </div>
@@ -250,56 +278,9 @@
             </div>
           </div>
 
-          <!-- Sequence Play Arena: Left Rack (P1) | Center Board | Right Rack (P2/AI) -->
-          <div class="sequence-play-arena">
-            <!-- Player 1 Hand Shelf (Left Flank) -->
-            <div class="sequence-player-shelf seq-shelf-p1" id="seqP1HandShelf">
-              <div class="sequence-shelf-header">
-                <div class="seq-shelf-badge">
-                  <span class="seq-chip-dot p1-dot"></span>
-                  <span class="sequence-shelf-title" id="seqP1ShelfTitle">P1 (Blue)</span>
-                </div>
-                <button type="button" class="seq-shelf-privacy-btn hidden" id="seqP1PrivacyBtn" title="Conceal Cards">🔒 Hide</button>
-              </div>
-              <div class="sequence-shelf-tip" id="seqP1ShelfTip">6 cards</div>
-
-              <!-- P1 Privacy Curtain (Anti-Peeking Cover) -->
-              <div class="seq-curtain-overlay hidden" id="seqP1Curtain">
-                <div class="seq-curtain-icon">🛡️</div>
-                <div class="seq-curtain-msg">P1 Cards Protected</div>
-                <button type="button" class="seq-curtain-btn" id="seqP1RevealBtn">👁️ Reveal Hand</button>
-              </div>
-
-              <!-- P1 Hand Cards Rack (2x3 Grid) -->
-              <div class="sequence-hand-cards vertical-grid" id="seqP1HandCards"></div>
-            </div>
-
-            <!-- 10x10 Sequence Board (Center) -->
-            <div class="sequence-board-wrap">
-              <div id="sequenceBoard" class="sequence-board"></div>
-            </div>
-
-            <!-- Player 2 / AI Hand Shelf (Right Flank) -->
-            <div class="sequence-player-shelf seq-shelf-p2" id="seqP2HandShelf">
-              <div class="sequence-shelf-header">
-                <div class="seq-shelf-badge">
-                  <span class="seq-chip-dot p2-dot"></span>
-                  <span class="sequence-shelf-title" id="seqP2ShelfTitle">AI (Green)</span>
-                </div>
-                <button type="button" class="seq-shelf-privacy-btn hidden" id="seqP2PrivacyBtn" title="Conceal Cards">🔒 Hide</button>
-              </div>
-              <div class="sequence-shelf-tip" id="seqP2ShelfTip">6 cards</div>
-
-              <!-- P2 Privacy Curtain (Anti-Peeking Cover) -->
-              <div class="seq-curtain-overlay hidden" id="seqP2Curtain">
-                <div class="seq-curtain-icon">🛡️</div>
-                <div class="seq-curtain-msg">P2 Cards Protected</div>
-                <button type="button" class="seq-curtain-btn" id="seqP2RevealBtn">👁️ Reveal Hand</button>
-              </div>
-
-              <!-- P2 Hand Cards Rack (2x3 Grid) -->
-              <div class="sequence-hand-cards vertical-grid" id="seqP2HandCards"></div>
-            </div>
+          <!-- 10x10 Sequence Board (Center - Present Format) -->
+          <div class="sequence-board-wrap">
+            <div id="sequenceBoard" class="sequence-board"></div>
           </div>
         </div>
 
@@ -479,6 +460,34 @@
       <div class="captured-sidebar glass-panel hidden" id="capturedRight">
         <div class="captured-header" id="blackCapturedHeader">Black Captured</div>
         <div class="captured-tray" id="blackCaptured"></div>
+      </div>
+
+      <!-- Right Extreme Edge: Sequence Player 2 / AI Hand Shelf -->
+      <div class="sequence-edge-shelf glass-panel hidden" id="seqP2HandShelf">
+        <div class="sequence-shelf-header">
+          <div class="seq-shelf-badge">
+            <span class="seq-chip-dot p2-dot"></span>
+            <span class="sequence-shelf-title" id="seqP2ShelfTitle">AI (Green)</span>
+          </div>
+          <button type="button" class="seq-shelf-privacy-btn hidden" id="seqP2PrivacyBtn" title="Conceal Cards">🔒 Hide</button>
+        </div>
+        <div class="sequence-shelf-tip" id="seqP2ShelfTip">6 cards</div>
+
+        <!-- P2 Draw Actions (Pick a Card / Skip) -->
+        <div class="seq-draw-actions hidden" id="seqP2DrawActions">
+          <button type="button" class="seq-pick-card-btn" id="seqP2PickCardBtn" title="Draw random replacement card from shoe">🎴 Pick a Card (+1)</button>
+          <button type="button" class="seq-skip-draw-btn" id="seqP2SkipDrawBtn" title="End turn without drawing (lose this card slot!)">End Turn (Skip Pick)</button>
+        </div>
+
+        <!-- P2 Privacy Curtain (Anti-Peeking Cover) -->
+        <div class="seq-curtain-overlay hidden" id="seqP2Curtain">
+          <div class="seq-curtain-icon">🛡️</div>
+          <div class="seq-curtain-msg">P2 Cards Protected</div>
+          <button type="button" class="seq-curtain-btn" id="seqP2RevealBtn">👁️ Reveal Hand</button>
+        </div>
+
+        <!-- P2 Hand Cards Rack (2x3 Grid) -->
+        <div class="sequence-hand-cards vertical-grid" id="seqP2HandCards"></div>
       </div>
     </section>
   </div>

@@ -89,6 +89,15 @@ const seqP2Curtain = document.getElementById("seqP2Curtain");
 const seqP2RevealBtn = document.getElementById("seqP2RevealBtn");
 const seqP2HandCardsEl = document.getElementById("seqP2HandCards");
 
+// Sequence Draw Actions DOM (Pick a Card / Skip)
+const seqP1DrawActions = document.getElementById("seqP1DrawActions");
+const seqP1PickCardBtn = document.getElementById("seqP1PickCardBtn");
+const seqP1SkipDrawBtn = document.getElementById("seqP1SkipDrawBtn");
+
+const seqP2DrawActions = document.getElementById("seqP2DrawActions");
+const seqP2PickCardBtn = document.getElementById("seqP2PickCardBtn");
+const seqP2SkipDrawBtn = document.getElementById("seqP2SkipDrawBtn");
+
 // Legacy aliases for backward compatibility
 const sequenceHandShelf = seqP1HandShelf;
 const seqShelfTitle = seqP1ShelfTitle;
@@ -764,7 +773,7 @@ function showOnlyActiveGame(gameKey) {
   else if (isPattu) boardWrap?.classList.add("pattu-mode");
   else if (isSequence) boardWrap?.classList.add("sequence-mode");
 
-  // Sidebars (Chess only, and hidden on small / mini-window)
+  // Sidebars (Chess captured only)
   const isMini = isMiniWindow();
   const showSidebars = isChess && !isMini;
   if (capturedLeft) {
@@ -783,6 +792,27 @@ function showOnlyActiveGame(gameKey) {
     } else {
       capturedRight.classList.add("hidden");
       capturedRight.style.setProperty("display", "none", "important");
+    }
+  }
+
+  // Sequence Flanking Edge Shelves (P1 on extreme left, P2/AI on extreme right)
+  const showSeqShelves = isSequence;
+  if (seqP1HandShelf) {
+    if (showSeqShelves) {
+      seqP1HandShelf.classList.remove("hidden");
+      seqP1HandShelf.style.removeProperty("display");
+    } else {
+      seqP1HandShelf.classList.add("hidden");
+      seqP1HandShelf.style.setProperty("display", "none", "important");
+    }
+  }
+  if (seqP2HandShelf) {
+    if (showSeqShelves) {
+      seqP2HandShelf.classList.remove("hidden");
+      seqP2HandShelf.style.removeProperty("display");
+    } else {
+      seqP2HandShelf.classList.add("hidden");
+      seqP2HandShelf.style.setProperty("display", "none", "important");
     }
   }
 }
@@ -3418,6 +3448,7 @@ let seqAiThinking = false;
 let seqPrivacyMode = true; // Anti-peeking privacy shield enabled for local 2P
 let seqP1HandRevealed = true; // Whether Player 1's hand is revealed
 let seqP2HandRevealed = false; // Whether Player 2's hand is revealed
+let seqAwaitingDraw = null; // null | "p1" | "p2" (player currently in Draw Phase)
 
 // Helper: Corners
 function isSeqCorner(r, c) {
@@ -3528,6 +3559,7 @@ function saveSequenceSnapshot() {
     p1HandRevealed: seqP1HandRevealed,
     p2HandRevealed: seqP2HandRevealed,
     privacyMode: seqPrivacyMode,
+    awaitingDraw: seqAwaitingDraw,
     moveCount,
     scoreA, scoreB, scoreD, streak
   });
@@ -3564,6 +3596,7 @@ function undoSequenceMove() {
   seqP1HandRevealed = snap.p1HandRevealed ?? true;
   seqP2HandRevealed = snap.p2HandRevealed ?? false;
   seqPrivacyMode = snap.privacyMode ?? true;
+  seqAwaitingDraw = snap.awaitingDraw ?? null;
   moveCount = snap.moveCount || 0;
   scoreA = snap.scoreA;
   scoreB = snap.scoreB;
@@ -3706,6 +3739,7 @@ function initSequence() {
   seqAiThinking = false;
   seqP1HandRevealed = true;
   seqP2HandRevealed = false;
+  seqAwaitingDraw = null;
   moveCount = 0;
 
   // Deal 6 cards to each player
@@ -3741,6 +3775,9 @@ function renderSequenceHUD() {
   if (seqP2ScorePill) seqP2ScorePill.classList.toggle("active-turn", seqTurn === "p2" && !seqOver);
 
   if (seqDeckCount) seqDeckCount.textContent = `${seqDeck.length} cards`;
+  if (seqDeckPill) {
+    seqDeckPill.classList.toggle("draw-ready", !!seqAwaitingDraw && !seqOver);
+  }
   if (seqLastDiscard) {
     if (seqDiscards.length > 0) {
       const top = seqDiscards[seqDiscards.length - 1];
@@ -3757,6 +3794,14 @@ function renderSequenceHUD() {
   if (seqPromptBanner) {
     if (seqOver) {
       seqPromptBanner.textContent = seqWinner === "p1" ? "Victory! 2 sequences completed." : "Game Over! 2 sequences completed.";
+    } else if (seqAwaitingDraw) {
+      const isHuman = seqAwaitingDraw === "p1" || !isAiMode;
+      if (isHuman) {
+        const who = seqAwaitingDraw === "p1" ? (isAiMode ? "You" : "Player 1") : "Player 2";
+        seqPromptBanner.textContent = `🎴 ${who}: Click 'Pick a Card' (+1) to draw your new card, or End Turn to forfeit it!`;
+      } else {
+        seqPromptBanner.textContent = "AI is picking a replacement card...";
+      }
     } else if (seqAiThinking) {
       seqPromptBanner.textContent = "AI is evaluating optimal plays...";
     } else if (seqSelectedCardIdx !== null) {
@@ -3845,7 +3890,7 @@ function renderSequenceBoard() {
   }
 }
 
-// Render Single Player Shelf (Flanking Left or Right Rack)
+// Render Single Player Shelf (Flanking Extreme Edge Rack)
 function renderSinglePlayerShelf({
   playerKey,
   cardsContainer,
@@ -3854,6 +3899,7 @@ function renderSinglePlayerShelf({
   tipEl,
   curtainEl,
   privacyBtnEl,
+  drawActionsEl,
   isAi,
   isRevealed,
   isTurn
@@ -3877,6 +3923,13 @@ function renderSinglePlayerShelf({
   shelfEl.classList.toggle("active-turn", isTurn && !seqOver);
   shelfEl.classList.toggle("inactive-turn", !isTurn && !seqOver);
 
+  // Draw phase actions visibility (Pick a Card / Skip)
+  const isAwaitingThisPlayer = (seqAwaitingDraw === playerKey && !seqOver);
+  if (drawActionsEl) {
+    // Show draw action buttons for human players during draw phase
+    drawActionsEl.classList.toggle("hidden", !(isAwaitingThisPlayer && (!isAi || playerKey === "p1")));
+  }
+
   // Determine if cards should be shown face-up
   // 1. AI hand is ALWAYS face-down
   // 2. Inactive player is ALWAYS face-down (Opponent Fog of War)
@@ -3898,6 +3951,8 @@ function renderSinglePlayerShelf({
   if (tipEl) {
     if (seqOver) {
       tipEl.textContent = `${hand.length} cards`;
+    } else if (isAwaitingThisPlayer) {
+      tipEl.textContent = "🎴 Pick a Card (+1) or forfeit slot";
     } else if (isAi) {
       tipEl.textContent = `${hand.length} cards (face-down)`;
     } else if (!isTurn) {
@@ -3909,7 +3964,7 @@ function renderSinglePlayerShelf({
     }
   }
 
-  // Render Cards (2x3 Grid)
+  // Render Cards (2-column Rack)
   hand.forEach((card, idx) => {
     const cardEl = document.createElement("div");
     cardEl.className = "seq-hand-card";
@@ -3943,7 +3998,7 @@ function renderSinglePlayerShelf({
 
       cardEl.addEventListener("click", (e) => {
         e.stopPropagation();
-        if (seqOver || seqAiThinking) return;
+        if (seqOver || seqAiThinking || seqAwaitingDraw !== null) return;
         if (isDeadCard(card)) {
           onSeqDeadCardSwap(idx);
         } else {
@@ -3966,7 +4021,7 @@ function renderSinglePlayerShelf({
       `;
 
       // If it's this human player's active turn and cards are concealed, clicking a card reveals hand
-      if (isTurn && !isAi && !seqOver) {
+      if (isTurn && !isAi && !seqOver && seqAwaitingDraw === null) {
         cardEl.style.cursor = "pointer";
         cardEl.title = "Click to reveal your hand";
         cardEl.addEventListener("click", (e) => {
@@ -3983,7 +4038,7 @@ function renderSinglePlayerShelf({
   });
 }
 
-// Render Both Player Hand Shelves (Left & Right Racks)
+// Render Both Player Hand Shelves (Left & Right Flanking Racks)
 function renderSequenceHand() {
   const isAiMode = modeSelect.value === "sequence-ai";
 
@@ -3996,6 +4051,7 @@ function renderSequenceHand() {
     tipEl: seqP1ShelfTip,
     curtainEl: seqP1Curtain,
     privacyBtnEl: seqP1PrivacyBtn,
+    drawActionsEl: seqP1DrawActions,
     isAi: false,
     isRevealed: seqP1HandRevealed,
     isTurn: seqTurn === "p1"
@@ -4010,6 +4066,7 @@ function renderSequenceHand() {
     tipEl: seqP2ShelfTip,
     curtainEl: seqP2Curtain,
     privacyBtnEl: seqP2PrivacyBtn,
+    drawActionsEl: seqP2DrawActions,
     isAi: isAiMode,
     isRevealed: seqP2HandRevealed,
     isTurn: seqTurn === "p2"
@@ -4027,7 +4084,7 @@ function renderSequenceHand() {
 
 // Hand Card Selection Handler
 function onSeqCardSelect(idx) {
-  if (seqOver || seqAiThinking) return;
+  if (seqOver || seqAiThinking || seqAwaitingDraw !== null) return;
   const isAiMode = modeSelect.value === "sequence-ai";
   if (isAiMode && seqTurn === "p2") return;
 
@@ -4043,7 +4100,7 @@ function onSeqCardSelect(idx) {
 
 // Dead Card Swap Handler
 function onSeqDeadCardSwap(idx) {
-  if (seqOver || seqAiThinking) return;
+  if (seqOver || seqAiThinking || seqAwaitingDraw !== null) return;
   const isAiMode = modeSelect.value === "sequence-ai";
   if (isAiMode && seqTurn === "p2") return;
 
@@ -4070,6 +4127,10 @@ function onSeqDeadCardSwap(idx) {
 // Cell Click Handler
 function onSeqCellClick(r, c) {
   if (seqOver || seqAiThinking) return;
+  if (seqAwaitingDraw !== null) {
+    if (seqPromptBanner) seqPromptBanner.textContent = "Please pick a card (+1) or skip to finish your turn!";
+    return;
+  }
   const isAiMode = modeSelect.value === "sequence-ai";
   if (isAiMode && seqTurn === "p2") return;
   if (seqSelectedCardIdx === null) {
@@ -4087,12 +4148,13 @@ function onSeqCellClick(r, c) {
   executeSequenceMove(seqSelectedCardIdx, r, c);
 }
 
-// Execute Move (place or remove chip, draw replacement, check sequences)
+// Execute Move (place/remove chip, remove used card from hand, enter draw phase)
 function executeSequenceMove(cardIdx, r, c) {
   saveSequenceSnapshot();
 
   const activeHand = seqHands[seqTurn];
-  const playedCard = activeHand[cardIdx];
+  // Remove the chosen card from the player's hand list
+  const playedCard = activeHand.splice(cardIdx, 1)[0];
 
   if (isOneEyedJack(playedCard)) {
     // Remove opponent chip
@@ -4102,9 +4164,8 @@ function executeSequenceMove(cardIdx, r, c) {
     seqBoard[r][c] = seqTurn;
   }
 
-  // Discard played card and draw replacement
+  // Discard played card
   seqDiscards.push(playedCard);
-  activeHand[cardIdx] = drawSequenceCard();
   seqSelectedCardIdx = null;
 
   moveCount++;
@@ -4145,7 +4206,40 @@ function executeSequenceMove(cardIdx, r, c) {
     return;
   }
 
-  // Advance turn
+  // Enter Draw Phase: Player must click 'Pick a Card' (+1) or skip (loss of card slot)
+  seqAwaitingDraw = seqTurn;
+  renderSequenceUI();
+  persistLiveState();
+
+  // If AI just made its move, AI picks a card after 550ms
+  const isAiMode = modeSelect.value === "sequence-ai";
+  if (isAiMode && seqTurn === "p2") {
+    setTimeout(() => {
+      pickSequenceCard("p2");
+    }, 550);
+  }
+}
+
+// Pick a Card from Shoe (Interactive Draw Phase)
+function pickSequenceCard(playerKey) {
+  if (seqAwaitingDraw !== playerKey || seqOver) return;
+  const newCard = drawSequenceCard();
+  if (newCard) {
+    seqHands[playerKey].push(newCard);
+  }
+  seqAwaitingDraw = null;
+  advanceSequenceTurn(true, playerKey);
+}
+
+// Skip Draw (Forfeit Card - Permanently lose card slot on player's side)
+function skipSequenceCardDraw(playerKey) {
+  if (seqAwaitingDraw !== playerKey || seqOver) return;
+  seqAwaitingDraw = null;
+  advanceSequenceTurn(false, playerKey);
+}
+
+// Advance Turn after Draw / Skip
+function advanceSequenceTurn(didDraw, previousPlayer) {
   const isAiMode = modeSelect.value === "sequence-ai";
   seqTurn = (seqTurn === "p1") ? "p2" : "p1";
   if (seqTurn === "p1") {
@@ -4156,6 +4250,11 @@ function executeSequenceMove(cardIdx, r, c) {
     seqP2HandRevealed = isAiMode ? false : !seqPrivacyMode;
   }
   renderSequenceUI();
+
+  if (!didDraw && seqPromptBanner) {
+    const who = previousPlayer === "p1" ? (isAiMode ? "You" : "Player 1") : (isAiMode ? "AI" : "Player 2");
+    seqPromptBanner.textContent = `⚠️ ${who} did not pick a card and lost 1 card slot!`;
+  }
   persistLiveState();
 
   // AI Turn Trigger
@@ -4370,6 +4469,19 @@ seqP2PrivacyBtn?.addEventListener("click", () => {
   renderSequenceHUD();
   renderSequenceHand();
   renderSequenceBoard();
+});
+
+// Sequence Draw Actions Event Listeners (Pick a Card / Skip)
+seqP1PickCardBtn?.addEventListener("click", () => pickSequenceCard("p1"));
+seqP1SkipDrawBtn?.addEventListener("click", () => skipSequenceCardDraw("p1"));
+
+seqP2PickCardBtn?.addEventListener("click", () => pickSequenceCard("p2"));
+seqP2SkipDrawBtn?.addEventListener("click", () => skipSequenceCardDraw("p2"));
+
+seqDeckPill?.addEventListener("click", () => {
+  if (seqAwaitingDraw && !seqOver) {
+    pickSequenceCard(seqAwaitingDraw);
+  }
 });
 
 /* ==========================================================================
@@ -5717,6 +5829,12 @@ window.addEventListener("keydown", (e) => {
 /* ---------- Timer Expiration ---------- */
 function onTimerExpired() {
   const mode = modeSelect.value;
+  if (mode.startsWith("sequence") && !seqOver) {
+    if (seqAwaitingDraw) {
+      skipSequenceCardDraw(seqAwaitingDraw);
+    }
+    return;
+  }
   if (mode.startsWith("ttt")) {
     const e = getEmptyCells(tttBoard);
     if (!e.length || tttOver) return;
