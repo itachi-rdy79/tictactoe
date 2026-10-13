@@ -1,4 +1,4 @@
-﻿const modeSelect = document.getElementById("modeSelect");
+const modeSelect = document.getElementById("modeSelect");
 const difficultySelect = document.getElementById("difficultySelect");
 const themeSelect = document.getElementById("themeSelect");
 
@@ -442,7 +442,7 @@ function applyRandomPalette(target = null) {
 
   const brandEl = document.querySelector(".brand, .dock-brand, #arcadeDock .dock-brand");
   if (brandEl) {
-    brandEl.title = `GAP â€¢ Hex: ${chosen.name} (Click to cycle colors)`;
+    brandEl.title = `GAP • Hex: ${chosen.name} (Click to cycle colors)`;
   }
 
   try {
@@ -456,7 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (brandEl) {
     brandEl.style.cursor = "pointer";
     const chosen = DYNAMIC_PALETTES[currentPaletteIdx];
-    brandEl.title = `GAP â€¢ Hex: ${chosen.name} (Click to cycle colors)`;
+    brandEl.title = `GAP • Hex: ${chosen.name} (Click to cycle colors)`;
     brandEl.addEventListener("click", () => {
       applyRandomPalette();
     });
@@ -501,8 +501,8 @@ let idleInterval = null;
 
 function resetIdleWatchdog() {
   idleSeconds = 0;
-  statusPill - .classList.remove("idle-nudge");
-  boardWrap - .classList.remove("idle-shake");
+  statusPill?.classList.remove("idle-nudge");
+  boardWrap?.classList.remove("idle-shake");
 }
 
 function startIdleWatchdog() {
@@ -512,10 +512,10 @@ function startIdleWatchdog() {
     if (hubState.timer === "off") {
       idleSeconds++;
       if (idleSeconds >= 60) {
-        statusPill - .classList.add("idle-nudge");
-        boardWrap - .classList.add("idle-shake");
+        statusPill?.classList.add("idle-nudge");
+        boardWrap?.classList.add("idle-shake");
         if (statusPill && !statusPill.textContent.includes("Take your turn!")) {
-          statusPill.textContent = "â³ Take your turn!";
+          statusPill.textContent = "⏳ Take your turn!";
         }
       }
     }
@@ -526,11 +526,11 @@ function startIdleWatchdog() {
 function modeFromHub() {
   if (hubState.game === "wordle") return "wordle";
   if (hubState.game === "pattu") return "pattu";
-  if (hubState.game === "sequence") return hubState.opponent === "ai"  -  "sequence-ai" : "sequence-2p";
-  if (hubState.game === "poker") return hubState.opponent === "ai"  -  "poker-ai" : "poker-2p";
-  if (hubState.game === "ttt3") return hubState.opponent === "ai"  -  "ttt3-ai" : "ttt3-2p";
-  if (hubState.game === "ttt5") return hubState.opponent === "ai"  -  "ttt5-ai" : "ttt5-2p";
-  return hubState.opponent === "ai"  -  "chess-ai" : "chess-2p";
+  if (hubState.game === "sequence") return hubState.opponent === "ai" ? "sequence-ai" : "sequence-2p";
+  if (hubState.game === "poker") return hubState.opponent === "ai" ? "poker-ai" : "poker-2p";
+  if (hubState.game === "ttt3") return hubState.opponent === "ai" ? "ttt3-ai" : "ttt3-2p";
+  if (hubState.game === "ttt5") return hubState.opponent === "ai" ? "ttt5-ai" : "ttt5-2p";
+  return hubState.opponent === "ai" ? "chess-ai" : "chess-2p";
 }
 
 function hubFromMode(mode) {
@@ -546,30 +546,30 @@ function hubFromMode(mode) {
   }
   if (mode.startsWith("sequence")) {
     hubState.game = "sequence";
-    hubState.opponent = mode.endsWith("-ai")  -  "ai" : "local";
+    hubState.opponent = mode.endsWith("-ai") ? "ai" : "local";
     return;
   }
   if (mode.startsWith("poker")) {
     hubState.game = "poker";
-    hubState.opponent = mode.endsWith("-ai")  -  "ai" : "local";
+    hubState.opponent = mode.endsWith("-ai") ? "ai" : "local";
     return;
   }
   if (mode.startsWith("ttt3")) hubState.game = "ttt3";
   else if (mode.startsWith("ttt5")) hubState.game = "ttt5";
   else hubState.game = "chess";
-  hubState.opponent = mode.endsWith("-ai")  -  "ai" : "local";
+  hubState.opponent = mode.endsWith("-ai") ? "ai" : "local";
 }
 
 function setActive(groupEl, key, val) {
-  groupEl - .querySelectorAll(`[data-${key}]`).forEach(btn => {
+  groupEl?.querySelectorAll(`[data-${key}]`).forEach(btn => {
     btn.classList.toggle("active", btn.dataset[key] === val);
   });
 }
 
 function persistHub() {
-  const opponentVal = (hubState.game === "wordle")  -  "local" : hubState.opponent;
+  const opponentVal = (hubState.game === "wordle") ? "local" : hubState.opponent;
   localStorage.setItem("hubState", JSON.stringify({ ...hubState, opponent: opponentVal }));
-  const hash = `#/${hubState.game} - vs=${opponentVal}&diff=${hubState.difficulty}&timer=${hubState.timer}&theme=${hubState.theme}`;
+  const hash = `#/${hubState.game}?vs=${opponentVal}&diff=${hubState.difficulty}&timer=${hubState.timer}&theme=${hubState.theme}`;
   history.replaceState(null, "", hash);
 }
 
@@ -580,7 +580,7 @@ function loadHub() {
   // URL sync on reload
   const raw = location.hash || "";
   if (raw.startsWith("#/")) {
-    const [path, query = ""] = raw.slice(2).split(" - ");
+    const [path, query = ""] = raw.slice(2).split("?");
     if (["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu"].includes(path)) hubState.game = path;
 
     const q = new URLSearchParams(query);
@@ -614,7 +614,7 @@ function syncHud() {
   const isSolo = isWordle || isPattu;
   if (isSolo) hubState.opponent = "local";
 
-  const activeGamePill = isTTT  -  "ttt" : hubState.game;
+  const activeGamePill = isTTT ? "ttt" : hubState.game;
   setActive(gameTypePills, "game", activeGamePill);
   setActive(opponentPills, "opponent", hubState.opponent);
   setActive(difficultyPills, "difficulty", hubState.difficulty);
@@ -626,7 +626,7 @@ function syncHud() {
   if (tttModeGroup) {
     if (isTTT) {
       tttModeGroup.style.display = "flex";
-      setActive(tttModePills, "grid", hubState.game === "ttt5"  -  "5" : "3");
+      setActive(tttModePills, "grid", hubState.game === "ttt5" ? "5" : "3");
     } else {
       tttModeGroup.style.setProperty("display", "none", "important");
     }
@@ -728,40 +728,40 @@ function showOnlyActiveGame(gameKey) {
   const statusWrapEl = document.querySelector(".status-wrap");
   const arenaEl = document.querySelector(".arena");
   if (isPalace) {
-    arenaEl - .classList.remove("pattu-arena-mode");
-    statusWrapEl - .classList.add("hidden");
-    statusWrapEl - .style.setProperty("display", "none", "important");
-    statusPill - .classList.add("hidden");
-    statusPill - .style.setProperty("display", "none", "important");
-    moveCounterPill - .classList.add("hidden");
-    moveCounterPill - .style.setProperty("display", "none", "important");
+    arenaEl?.classList.remove("pattu-arena-mode");
+    statusWrapEl?.classList.add("hidden");
+    statusWrapEl?.style.setProperty("display", "none", "important");
+    statusPill?.classList.add("hidden");
+    statusPill?.style.setProperty("display", "none", "important");
+    moveCounterPill?.classList.add("hidden");
+    moveCounterPill?.style.setProperty("display", "none", "important");
   } else if (isPattu) {
-    arenaEl - .classList.add("pattu-arena-mode");
-    statusWrapEl - .classList.add("hidden");
-    statusWrapEl - .style.setProperty("display", "none", "important");
-    statusPill - .classList.add("hidden");
-    statusPill - .style.setProperty("display", "none", "important");
-    moveCounterPill - .classList.add("hidden");
-    moveCounterPill - .style.setProperty("display", "none", "important");
+    arenaEl?.classList.add("pattu-arena-mode");
+    statusWrapEl?.classList.add("hidden");
+    statusWrapEl?.style.setProperty("display", "none", "important");
+    statusPill?.classList.add("hidden");
+    statusPill?.style.setProperty("display", "none", "important");
+    moveCounterPill?.classList.add("hidden");
+    moveCounterPill?.style.setProperty("display", "none", "important");
     updatePattuConnectionBadge();
   } else if (isSequence) {
-    arenaEl - .classList.remove("pattu-arena-mode");
-    statusWrapEl - .classList.add("hidden");
-    statusWrapEl - .style.setProperty("display", "none", "important");
-    statusPill - .classList.add("hidden");
-    statusPill - .style.setProperty("display", "none", "important");
-    moveCounterPill - .classList.add("hidden");
-    moveCounterPill - .style.setProperty("display", "none", "important");
+    arenaEl?.classList.remove("pattu-arena-mode");
+    statusWrapEl?.classList.add("hidden");
+    statusWrapEl?.style.setProperty("display", "none", "important");
+    statusPill?.classList.add("hidden");
+    statusPill?.style.setProperty("display", "none", "important");
+    moveCounterPill?.classList.add("hidden");
+    moveCounterPill?.style.setProperty("display", "none", "important");
   } else {
-    arenaEl - .classList.remove("pattu-arena-mode");
-    statusWrapEl - .classList.remove("hidden");
-    statusWrapEl - .style.removeProperty("display");
+    arenaEl?.classList.remove("pattu-arena-mode");
+    statusWrapEl?.classList.remove("hidden");
+    statusWrapEl?.style.removeProperty("display");
     if (!isWordle && !isPoker && hubState.timer === "off") {
-      statusPill - .classList.remove("hidden");
-      statusPill - .style.removeProperty("display");
+      statusPill?.classList.remove("hidden");
+      statusPill?.style.removeProperty("display");
     } else {
-      statusPill - .classList.add("hidden");
-      statusPill - .style.setProperty("display", "none", "important");
+      statusPill?.classList.add("hidden");
+      statusPill?.style.setProperty("display", "none", "important");
     }
   }
 
@@ -770,19 +770,19 @@ function showOnlyActiveGame(gameKey) {
     if (isChess) {
       chessHintsBtn.classList.remove("hidden");
       chessHintsBtn.classList.toggle("active", chessShowMoveHints);
-      chessHintsBtn.setAttribute("aria-pressed", chessShowMoveHints  -  "true" : "false");
+      chessHintsBtn.setAttribute("aria-pressed", chessShowMoveHints ? "true" : "false");
     } else {
       chessHintsBtn.classList.add("hidden");
     }
   }
 
   // Board wrap shell classes
-  boardWrap - .classList.remove("chess-mode", "wordle-mode", "poker-mode", "pattu-mode", "sequence-mode");
-  if (isChess) boardWrap - .classList.add("chess-mode");
-  else if (isWordle) boardWrap - .classList.add("wordle-mode");
-  else if (isPoker) boardWrap - .classList.add("poker-mode");
-  else if (isPattu) boardWrap - .classList.add("pattu-mode");
-  else if (isSequence) boardWrap - .classList.add("sequence-mode");
+  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode", "pattu-mode", "sequence-mode");
+  if (isChess) boardWrap?.classList.add("chess-mode");
+  else if (isWordle) boardWrap?.classList.add("wordle-mode");
+  else if (isPoker) boardWrap?.classList.add("poker-mode");
+  else if (isPattu) boardWrap?.classList.add("pattu-mode");
+  else if (isSequence) boardWrap?.classList.add("sequence-mode");
 
   // Sidebars (Chess captured only)
   const isMini = isMiniWindow();
@@ -855,7 +855,7 @@ function setTheme(theme) {
   const m = themeMeta(theme);
   if (themeCurrentIcon) themeCurrentIcon.innerHTML = m.icon;
   if (themeCurrentText) themeCurrentText.textContent = m.text;
-  themeMenu - .querySelectorAll(".theme-item").forEach(b => b.classList.toggle("active", b.dataset.theme === theme));
+  themeMenu?.querySelectorAll(".theme-item").forEach(b => b.classList.toggle("active", b.dataset.theme === theme));
   persistHub();
 
   if (hubState.game.startsWith("ttt")) renderTTT();
@@ -867,20 +867,20 @@ function setTheme(theme) {
   if (hubState.game === "sequence") renderSequenceUI();
 }
 
-themeTrigger - .addEventListener("click", (e) => {
+themeTrigger?.addEventListener("click", (e) => {
   e.stopPropagation();
-  themePicker - .classList.toggle("open");
+  themePicker?.classList.toggle("open");
 });
 
-themeMenu - .addEventListener("click", (e) => {
+themeMenu?.addEventListener("click", (e) => {
   e.stopPropagation();
   const b = e.target.closest(".theme-item");
   if (!b) return;
   setTheme(b.dataset.theme);
-  themePicker - .classList.remove("open");
+  themePicker?.classList.remove("open");
 });
 
-document.addEventListener("click", () => themePicker - .classList.remove("open"));
+document.addEventListener("click", () => themePicker?.classList.remove("open"));
 
 /* ---------- Mini-Window (Pop-Out / Floating Mode) ---------- */
 function isMiniWindow() {
@@ -921,7 +921,7 @@ function updateMiniWindowUI() {
   }
 }
 
-miniWindowBtn - .addEventListener("click", () => {
+miniWindowBtn?.addEventListener("click", () => {
   persistLiveState();
   persistHub();
 
@@ -949,7 +949,7 @@ function renderScores() {
   if (scoreAEl) scoreAEl.textContent = scoreA;
   if (scoreBEl) scoreBEl.textContent = scoreB;
   if (scoreDEl) scoreDEl.textContent = scoreD;
-  if (streakBadge) streakBadge.textContent = `ðŸ”¥ Streak: ${streak}`;
+  if (streakBadge) streakBadge.textContent = `🔥 Streak: ${streak}`;
 }
 
 function persistScores() {
@@ -969,9 +969,9 @@ function loadScores() {
   renderScores();
 }
 
-function updateStreak(winA) { streak = winA  -  streak + 1 : 0; }
+function updateStreak(winA) { streak = winA ? streak + 1 : 0; }
 
-scoreTickerBtn - .addEventListener("click", () => {
+scoreTickerBtn?.addEventListener("click", () => {
   const modes = [
     { label: "3x3 TTT (AI)", key: "scores_ttt3-ai_medium" },
     { label: "5x5 TTT (AI)", key: "scores_ttt5-ai_medium" },
@@ -988,7 +988,7 @@ scoreTickerBtn - .addEventListener("click", () => {
     const wins = data.scoreA || 0;
     const losses = data.scoreB || 0;
     const totalForRate = wins + losses;
-    const winRate = totalForRate > 0  -  Math.round((wins / totalForRate) * 100) : 0;
+    const winRate = totalForRate > 0 ? Math.round((wins / totalForRate) * 100) : 0;
     return `
       <div class="stat-card">
         <span>${m.label}</span>
@@ -1000,8 +1000,8 @@ scoreTickerBtn - .addEventListener("click", () => {
   statsModal.classList.remove("hidden");
 });
 
-closeStatsBtn - .addEventListener("click", () => statsModal - .classList.add("hidden"));
-statsModal - .addEventListener("click", (e) => { if (e.target === statsModal) statsModal.classList.add("hidden"); });
+closeStatsBtn?.addEventListener("click", () => statsModal?.classList.add("hidden"));
+statsModal?.addEventListener("click", (e) => { if (e.target === statsModal) statsModal.classList.add("hidden"); });
 
 /* ---------- Endgame Visual Effects (Zero Audio, Pure Visual) ---------- */
 let activeEndgameAnim = null;
@@ -1079,8 +1079,8 @@ function triggerDrawAnimation() {
 
   // Dual clashing streams meeting in equilibrium (Force A: Cyan, Force B: Amber)
   const isLight = document.body.dataset.theme === "light";
-  const colA = isLight  -  "2, 132, 199" : "34, 211, 238";
-  const colB = isLight  -  "217, 119, 6" : "251, 191, 36";
+  const colA = isLight ? "2, 132, 199" : "34, 211, 238";
+  const colB = isLight ? "217, 119, 6" : "251, 191, 36";
 
   const clashingParticles = [];
   // Left stream (Force A)
@@ -1129,7 +1129,7 @@ function triggerDrawAnimation() {
       vRot: (Math.random() - 0.5) * 5,
       size: Math.random() * 5 + 2.2,
       alpha: Math.random() * 0.85 + 0.25,
-      color: Math.random() > 0.5  -  colA : colB
+      color: Math.random() > 0.5 ? colA : colB
     });
   }
 
@@ -1228,12 +1228,12 @@ function stopTurnTimer() {
   turnTimer = null;
 }
 function showTimerInactive() {
-  radialWrap - .classList.add("hidden");
-  statusPill - .classList.remove("hidden");
+  radialWrap?.classList.add("hidden");
+  statusPill?.classList.remove("hidden");
 }
 function showTimerActive() {
-  statusPill - .classList.add("hidden");
-  radialWrap - .classList.remove("hidden");
+  statusPill?.classList.add("hidden");
+  radialWrap?.classList.remove("hidden");
 }
 function renderRadial() {
   if (!turnTimeTotal || !ringFg || !radialText) return;
@@ -1279,11 +1279,11 @@ function startTurnTimer() {
 function showWinScreen(msg, subtitle = "Outstanding Victory!") {
   resetIdleWatchdog();
   stopActiveEndgameAnim();
-  winOverlay - .classList.remove("draw-mode");
-  winOverlay - .classList.remove("hidden");
+  winOverlay?.classList.remove("draw-mode");
+  winOverlay?.classList.remove("hidden");
   if (winMessage) winMessage.textContent = msg.toUpperCase();
   if (winIcon) {
-    winIcon.textContent = "ðŸ†";
+    winIcon.textContent = "🏆";
     winIcon.classList.remove("hidden");
   }
   if (winSubtitle) {
@@ -1294,21 +1294,21 @@ function showWinScreen(msg, subtitle = "Outstanding Victory!") {
   triggerConfetti();
 }
 
-function showDrawScreen(msg, subtitle = "Equilibrium â€¢ Perfect Standoff") {
+function showDrawScreen(msg, subtitle = "Equilibrium • Perfect Standoff") {
   resetIdleWatchdog();
   stopActiveEndgameAnim();
-  winOverlay - .classList.add("draw-mode");
-  winOverlay - .classList.remove("hidden");
+  winOverlay?.classList.add("draw-mode");
+  winOverlay?.classList.remove("hidden");
   if (winMessage) winMessage.textContent = msg.toUpperCase();
 
   const theme = hubState.theme;
-  let icon = "âš–ï¸";
+  let icon = "⚖️";
   if (theme === "naruto") {
-    icon = "âš¡";
-    subtitle = "Shinobi Armistice â€¢ Equal Will";
+    icon = "⚡";
+    subtitle = "Shinobi Armistice • Equal Will";
   } else if (theme === "itachi") {
-    icon = "ðŸ‘ï¸";
-    subtitle = "Tsukuyomi in Harmony â€¢ Tied Fate";
+    icon = "👁️";
+    subtitle = "Tsukuyomi in Harmony • Tied Fate";
   }
 
   if (winIcon) {
@@ -1326,11 +1326,11 @@ function showDrawScreen(msg, subtitle = "Equilibrium â€¢ Perfect Standoff") 
 function showDefeatScreen(msg, subtitle = "Game Over") {
   resetIdleWatchdog();
   stopActiveEndgameAnim();
-  winOverlay - .classList.remove("draw-mode");
-  winOverlay - .classList.remove("hidden");
+  winOverlay?.classList.remove("draw-mode");
+  winOverlay?.classList.remove("hidden");
   if (winMessage) winMessage.textContent = msg.toUpperCase();
   if (winIcon) {
-    winIcon.textContent = "ðŸ’€";
+    winIcon.textContent = "💀";
     winIcon.classList.remove("hidden");
   }
   if (winSubtitle) {
@@ -1342,11 +1342,11 @@ function showDefeatScreen(msg, subtitle = "Game Over") {
 
 function hideWinScreen() {
   stopActiveEndgameAnim();
-  winOverlay - .classList.add("hidden");
-  winOverlay - .classList.remove("draw-mode");
+  winOverlay?.classList.add("hidden");
+  winOverlay?.classList.remove("draw-mode");
 }
-winRestartBtn - .addEventListener("click", () => { hideWinScreen(); initBoard(true); });
-winOverlay - .addEventListener("click", (e) => { if (e.target === winOverlay) hideWinScreen(); });
+winRestartBtn?.addEventListener("click", () => { hideWinScreen(); initBoard(true); });
+winOverlay?.addEventListener("click", (e) => { if (e.target === winOverlay) hideWinScreen(); });
 
 /* ---------- Tic-Tac-Toe (3x3 & 5x5) ---------- */
 let tttBoard = [], tttSize = 3, tttWinLen = 3, tttTurn = "X", tttOver = false, tttWinningCells = [];
@@ -1441,7 +1441,7 @@ function saveTTTSnapshot() {
 
 function initTTT(size) {
   tttSize = size;
-  tttWinLen = size === 3  -  3 : 4;
+  tttWinLen = size === 3 ? 3 : 4;
   tttBoard = Array(size * size).fill(null);
   tttTurn = "X";
   tttOver = false;
@@ -1492,11 +1492,11 @@ function renderTTT() {
   const r = getTTTResult(tttBoard);
   if (hubState.timer === "off" && statusPill) {
     if (theme === "naruto") {
-      statusPill.textContent = r.winner === "draw"  -  "Shinobi Draw" : r.winner  -  (r.winner === "X"  -  "Konoha Leaf Prevails" : "Akatsuki Strikes") : (tttTurn === "X"  -  "Leaf Ninja's Turn" : "Akatsuki's Turn");
+      statusPill.textContent = r.winner === "draw" ? "Shinobi Draw" : r.winner ? (r.winner === "X" ? "Konoha Leaf Prevails" : "Akatsuki Strikes") : (tttTurn === "X" ? "Leaf Ninja's Turn" : "Akatsuki's Turn");
     } else if (theme === "itachi") {
-      statusPill.innerHTML = r.winner === "draw"  -  "Draw" : r.winner  -  (r.winner === "X"  -  "Sharingan Wins" : "Crow Wins") : (tttTurn === "X"  -  "Sharingan's Turn" : "Crow's Turn");
+      statusPill.innerHTML = r.winner === "draw" ? "Draw" : r.winner ? (r.winner === "X" ? "Sharingan Wins" : "Crow Wins") : (tttTurn === "X" ? "Sharingan's Turn" : "Crow's Turn");
     } else {
-      statusPill.textContent = r.winner === "draw"  -  "Draw" : r.winner  -  `${r.winner} Wins` : `${tttTurn}'s Turn`;
+      statusPill.textContent = r.winner === "draw" ? "Draw" : r.winner ? `${r.winner} Wins` : `${tttTurn}'s Turn`;
     }
   }
 }
@@ -1587,7 +1587,7 @@ function getBestTTT3Moves(board, depth = 9) {
     if (oThreats >= 2) tactical += 100;
     else if (oThreats === 1) tactical += 25;
 
-    // Fork block bonus (if X played here, would X have created a fork - )
+    // Fork block bonus (if X played here, would X have created a fork?)
     board[idx] = "X";
     const xThreats = countThreats(board, 3, 3, "X");
     if (xThreats >= 2) tactical += 80;
@@ -1705,7 +1705,7 @@ function getTTT5Candidates(board) {
     }
     if (hasNeighbor) candidates.push(idx);
   }
-  return candidates.length  -  candidates : empties;
+  return candidates.length ? candidates : empties;
 }
 
 function findTTTImmediateThreat(board, size, winLen, piece) {
@@ -1797,7 +1797,7 @@ function aiTTTMove() {
   if (!empties.length) return;
 
   saveTTTSnapshot();
-  const diff = hubState.difficulty || difficultySelect - .value || "medium";
+  const diff = hubState.difficulty || difficultySelect?.value || "medium";
   let move = empties[Math.floor(Math.random() * empties.length)];
 
   if (tttSize === 3) {
@@ -1867,13 +1867,13 @@ function finishTTT(winner, line) {
   const theme = hubState.theme;
   if (winner === "X") {
     scoreA++; updateStreak(aiMode);
-    let msg = aiMode  -  "You Win!" : "X Wins!";
+    let msg = aiMode ? "You Win!" : "X Wins!";
     if (theme === "naruto") msg = "Will of Fire Prevails!";
     else if (theme === "itachi") msg = "Sharingan Triumphs!";
     showWinScreen(msg);
   } else if (winner === "O") {
     scoreB++; updateStreak(false);
-    let msg = aiMode  -  "Computer Wins!" : "O Wins!";
+    let msg = aiMode ? "Computer Wins!" : "O Wins!";
     if (theme === "naruto") msg = "Akatsuki Triumphs!";
     else if (theme === "itachi") msg = "Crow Triumphs!";
     showWinScreen(msg);
@@ -1904,30 +1904,30 @@ function onTTTClick(i) {
   const r = getTTTResult(tttBoard);
   if (r.winner) return finishTTT(r.winner, r.line);
 
-  tttTurn = tttTurn === "X"  -  "O" : "X";
+  tttTurn = tttTurn === "X" ? "O" : "X";
   renderTTT();
   startTurnTimer();
   persistLiveState();
 
   if (aiMode && tttTurn === "O") {
     if (hubState.timer === "off" && statusPill) statusPill.textContent = "AI Thinking...";
-    const curDiff = hubState.difficulty || difficultySelect - .value || "medium";
-    setTimeout(aiTTTMove, curDiff === "easy"  -  220 : curDiff === "medium"  -  380 : 520);
+    const curDiff = hubState.difficulty || difficultySelect?.value || "medium";
+    setTimeout(aiTTTMove, curDiff === "easy" ? 220 : curDiff === "medium" ? 380 : 520);
   }
 }
 
 /* ---------- Chess Engine & Custom UI ---------- */
-const CHESS_U = { wp: "â™Ÿ", wr: "â™œ", wn: "â™ž", wb: "â™", wq: "â™›", wk: "â™š", bp: "â™Ÿ", br: "â™œ", bn: "â™ž", bb: "â™", bq: "â™›", bk: "â™š" };
+const CHESS_U = { wp: "♟", wr: "♜", wn: "♞", wb: "♝", wq: "♛", wk: "♚", bp: "♟", br: "♜", bn: "♞", bb: "♝", bq: "♛", bk: "♚" };
 const PIECE_VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 let chessBoard = [], chessTurn = "w", chessSelected = null, chessOver = false, whiteCaptured = [], blackCaptured = [], chessSnapshots = [];
 let chessShowMoveHints = false;
 
 function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
-function cloneBoard(b) { return b.map(row => row.map(cell => cell  -  { ...cell } : null)); }
+function cloneBoard(b) { return b.map(row => row.map(cell => cell ? { ...cell } : null)); }
 
 function saveChessSnapshot() {
   chessSnapshots.push({
-    board: cloneBoard(chessBoard), turn: chessTurn, selected: chessSelected  -  { ...chessSelected } : null,
+    board: cloneBoard(chessBoard), turn: chessTurn, selected: chessSelected ? { ...chessSelected } : null,
     over: chessOver, whiteCaptured: [...whiteCaptured], blackCaptured: [...blackCaptured],
     scoreA, scoreB, scoreD, streak, moveCount
   });
@@ -1953,7 +1953,7 @@ function initChess() {
 /* ---------- Liquid Glass Vector Chess Pieces ---------- */
 function getPieceSvgHtml(color, type) {
   const isWhite = color === "w";
-  const pieceClass = isWhite  -  "glass-piece-white" : "glass-piece-black";
+  const pieceClass = isWhite ? "glass-piece-white" : "glass-piece-black";
   
   const paths = {
     p: `<path d="M22.5 9c-2.2 0-4 1.8-4 4 0 .9.3 1.7.8 2.4-1.9 1.1-3.3 3.2-3.3 5.6 0 2 1 3.8 2.4 5-3.4 1.1-7.4 5.6-7.4 13.5h24c0-7.9-4-12.4-7.4-13.5 1.5-1.2 2.4-3 2.4-5 0-2.4-1.3-4.5-3.3-5.6.5-.7.8-1.5.8-2.4 0-2.2-1.8-4-4-4z"/>`,
@@ -1965,7 +1965,7 @@ function getPieceSvgHtml(color, type) {
   };
 
   const path = paths[type] || paths.p;
-  return `<svg viewBox="0 0 45 45" class="glass-piece-svg ${pieceClass}" aria-label="${isWhite  -  'White' : 'Black'} ${type}">${path}</svg>`;
+  return `<svg viewBox="0 0 45 45" class="glass-piece-svg ${pieceClass}" aria-label="${isWhite ? 'White' : 'Black'} ${type}">${path}</svg>`;
 }
 
 /* ---------- 3D Embossed Tactile Chess Captured Counters ---------- */
@@ -1983,12 +1983,12 @@ function renderCaptured() {
       .filter(type => counts[type])
       .map(type => {
         const pieceSvg = getPieceSvgHtml(pieceColor, type);
-        const pieceClass = pieceColor === "w"  -  "white-piece" : "black-piece";
+        const pieceClass = pieceColor === "w" ? "white-piece" : "black-piece";
         const count = counts[type];
         return `
           <div class="captured-piece-chip" title="${count} piece(s) captured">
             <span class="chip-icon ${pieceClass}">${pieceSvg}</span>
-            <span class="chip-badge">Ã—${count}</span>
+            <span class="chip-badge">×${count}</span>
           </div>
         `;
       })
@@ -2027,7 +2027,7 @@ function getPseudoMoves(board, r, c) {
   const add = (nr, nc) => { if (!inBounds(nr, nc)) return; const t = board[nr][nc]; if (!t || t.color !== p.color) out.push({ r: nr, c: nc }); };
 
   if (p.type === "p") {
-    const dir = p.color === "w"  -  -1 : 1, start = p.color === "w"  -  6 : 1;
+    const dir = p.color === "w" ? -1 : 1, start = p.color === "w" ? 6 : 1;
     if (inBounds(r + dir, c) && !board[r + dir][c]) out.push({ r: r + dir, c });
     if (r === start && !board[r + dir][c] && !board[r + 2 * dir][c]) out.push({ r: r + 2 * dir, c });
     for (const dc of [-1, 1]) { const nr = r + dir, nc = c + dc; if (inBounds(nr, nc) && board[nr][nc] && board[nr][nc].color !== p.color) out.push({ r: nr, c: nc }); }
@@ -2077,7 +2077,7 @@ function renderChess() {
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
     const cell = document.createElement("button");
     cell.type = "button";
-    cell.className = "chess-cell " + (((r + c) % 2 === 0)  -  "light" : "dark");
+    cell.className = "chess-cell " + (((r + c) % 2 === 0) ? "light" : "dark");
     cell.dataset.row = r;
     cell.dataset.col = c;
     const colName = String.fromCharCode(97 + c);
@@ -2099,8 +2099,8 @@ function renderChess() {
     const p = chessBoard[r][c];
     if (p) {
       cell.innerHTML = getPieceSvgHtml(p.color, p.type);
-      cell.classList.add(p.color === "w"  -  "white-piece" : "black-piece");
-      cell.setAttribute("aria-label", `${p.color === 'w'  -  'White' : 'Black'} ${p.type.toUpperCase()} at ${squareName}`);
+      cell.classList.add(p.color === "w" ? "white-piece" : "black-piece");
+      cell.setAttribute("aria-label", `${p.color === 'w' ? 'White' : 'Black'} ${p.type.toUpperCase()} at ${squareName}`);
     } else {
       cell.setAttribute("aria-label", `Square ${squareName}`);
     }
@@ -2116,11 +2116,11 @@ function renderChess() {
 
   if (hubState.timer === "off" && statusPill) {
     if (hubState.theme === "naruto") {
-      statusPill.textContent = chessOver  -  "Shinobi War Concluded" : `${chessTurn === "w"  -  "Leaf Shinobi" : "Akatsuki"}'s Turn`;
+      statusPill.textContent = chessOver ? "Shinobi War Concluded" : `${chessTurn === "w" ? "Leaf Shinobi" : "Akatsuki"}'s Turn`;
     } else if (hubState.theme === "itachi") {
-      statusPill.textContent = chessOver  -  "Tsukuyomi Shattered" : `${chessTurn === "w"  -  "White" : "Black"}'s Turn`;
+      statusPill.textContent = chessOver ? "Tsukuyomi Shattered" : `${chessTurn === "w" ? "White" : "Black"}'s Turn`;
     } else {
-      statusPill.textContent = chessOver  -  "Game Over" : `${chessTurn === "w"  -  "White" : "Black"}'s Turn`;
+      statusPill.textContent = chessOver ? "Game Over" : `${chessTurn === "w" ? "White" : "Black"}'s Turn`;
     }
   }
 }
@@ -2248,7 +2248,7 @@ function evalChess(board) {
       const p = board[r][c];
       if (!p) continue;
       const base = PIECE_VAL[p.type] || 0;
-      const pst = PST_W[p.type]  -  (p.color === "w"  -  PST_W[p.type][r][c] : PST_W[p.type][7 - r][c]) : 0;
+      const pst = PST_W[p.type] ? (p.color === "w" ? PST_W[p.type][r][c] : PST_W[p.type][7 - r][c]) : 0;
       const total = base + pst;
       if (p.color === "b") {
         s += total;
@@ -2269,7 +2269,7 @@ function minimaxChess(board, depth, alpha, beta, maxing) {
   if (Math.abs(currentEval) >= 40000) return { score: currentEval, move: null };
   if (depth === 0) return { score: currentEval, move: null };
 
-  const color = maxing  -  "b" : "w";
+  const color = maxing ? "b" : "w";
   let moves = allMovesForColor(board, color);
   if (!moves.length) return { score: currentEval, move: null };
   moves = orderChessMoves(board, moves);
@@ -2365,7 +2365,7 @@ function onChessClick(r, c) {
 
   const legal = getPseudoMoves(chessBoard, chessSelected.r, chessSelected.c).find(m => m.r === r && m.c === c);
   if (!legal) {
-    chessSelected = (p && p.color === chessTurn)  -  { r, c } : null;
+    chessSelected = (p && p.color === chessTurn) ? { r, c } : null;
     renderChess();
     return;
   }
@@ -2377,7 +2377,7 @@ function onChessClick(r, c) {
 
   if (chessOver) { renderChess(); stopTurnTimer(); persistLiveState(); return; }
 
-  const nextColor = chessTurn === "w"  -  "b" : "w";
+  const nextColor = chessTurn === "w" ? "b" : "w";
   const humanDraw = checkChessDrawCondition(chessBoard, nextColor);
   if (humanDraw) {
     handleChessDraw(humanDraw);
@@ -2394,7 +2394,7 @@ function onChessClick(r, c) {
     if (hubState.timer === "off" && statusPill) statusPill.textContent = "AI Thinking...";
     setTimeout(() => {
       saveChessSnapshot();
-      const diff = hubState.difficulty || difficultySelect - .value || "medium";
+      const diff = hubState.difficulty || difficultySelect?.value || "medium";
       const allMoves = allMovesForColor(chessBoard, "b");
       let mv = null;
 
@@ -2646,7 +2646,7 @@ function renderWordleKeyboard(keyStatuses) {
     row.forEach(key => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "kb-key" + (key === "ENTER" || key === "DEL"  -  " wide" : "");
+      btn.className = "kb-key" + (key === "ENTER" || key === "DEL" ? " wide" : "");
       btn.dataset.key = key;
       if (key === "DEL") {
         btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>';
@@ -2667,7 +2667,7 @@ function renderWordleKeyboard(keyStatuses) {
 }
 
 function updateVirtualKey(char, newStatus) {
-  const btn = wordleKeyboardEl - .querySelector(`[data-key="${char}"]`);
+  const btn = wordleKeyboardEl?.querySelector(`[data-key="${char}"]`);
   if (!btn) return;
   if (newStatus === "correct") {
     btn.classList.remove("present", "absent");
@@ -2692,7 +2692,7 @@ function renderWordle() {
 
     const isSubmitted = (r < wordleRow) || (r === wordleRow && wordleOver && wordleGrid[r].every(Boolean));
     const rowWord = wordleGrid[r].join("");
-    const rowStatuses = (isSubmitted && rowWord.length === 5)  -  evaluateWordleGuess(rowWord, wordleTarget) : null;
+    const rowStatuses = (isSubmitted && rowWord.length === 5) ? evaluateWordleGuess(rowWord, wordleTarget) : null;
 
     for (let c = 0; c < 5; c++) {
       const tile = document.createElement("div");
@@ -2890,9 +2890,9 @@ function renderPokerCard(card, faceUp = true, highlight = false) {
     return `<div class="poker-card back"></div>`;
   }
   const isRed = card.suit === "h" || card.suit === "d";
-  const colorClass = isRed  -  "red" : "black";
-  const hlClass = highlight  -  " highlight" : "";
-  const suitSymbol = card.suit === "s"  -  "â™ " : card.suit === "h"  -  "â™¥" : card.suit === "d"  -  "â™¦" : "â™£";
+  const colorClass = isRed ? "red" : "black";
+  const hlClass = highlight ? " highlight" : "";
+  const suitSymbol = card.suit === "s" ? "♠" : card.suit === "h" ? "♥" : card.suit === "d" ? "♦" : "♣";
   const rankStr = card.rankStr;
 
   return `
@@ -3080,7 +3080,7 @@ function renderPokerUI(winningCardIds = []) {
 
   if (pokerCallBtn) {
     const toCall = pokerCurrentBet - pokerPlayerBet;
-    pokerCallBtn.textContent = toCall > 0  -  `Call $${toCall}` : "Check";
+    pokerCallBtn.textContent = toCall > 0 ? `Call $${toCall}` : "Check";
   }
 
   if (pokerBetSliderEl && pokerSliderValEl) {
@@ -3091,7 +3091,7 @@ function renderPokerUI(winningCardIds = []) {
     pokerSliderValEl.textContent = `$${pokerBetSliderEl.value}`;
     if (pokerRaiseBtn) {
       const isBet = pokerCurrentBet === 0;
-      pokerRaiseBtn.textContent = `${isBet  -  "Bet" : "Raise"} $${pokerBetSliderEl.value}`;
+      pokerRaiseBtn.textContent = `${isBet ? "Bet" : "Raise"} $${pokerBetSliderEl.value}`;
     }
   }
 
@@ -3139,7 +3139,7 @@ function startNewPokerHand() {
   pokerStage = "preflop";
   pokerOver = false;
 
-  pokerDealer = pokerDealer === "player"  -  "ai" : "player";
+  pokerDealer = pokerDealer === "player" ? "ai" : "player";
 
   const sb = 10, bb = 20;
   if (pokerDealer === "player") {
@@ -3154,16 +3154,16 @@ function startNewPokerHand() {
   pokerPot = pokerPlayerBet + pokerAiBet;
   pokerCurrentBet = bb;
 
-  pokerTurn = pokerDealer === "player"  -  "player" : "ai";
+  pokerTurn = pokerDealer === "player" ? "player" : "ai";
 
-  pokerBetControlsEl - .classList.remove("hidden");
-  pokerFoldBtn - .classList.remove("hidden");
-  pokerCallBtn - .classList.remove("hidden");
-  pokerRaiseBtn - .classList.remove("hidden");
-  pokerNextHandBtn - .classList.add("hidden");
+  pokerBetControlsEl?.classList.remove("hidden");
+  pokerFoldBtn?.classList.remove("hidden");
+  pokerCallBtn?.classList.remove("hidden");
+  pokerRaiseBtn?.classList.remove("hidden");
+  pokerNextHandBtn?.classList.add("hidden");
 
   if (pokerStatusBannerEl) {
-    pokerStatusBannerEl.textContent = `Pre-Flop: Blinds Posted ($10 / $20). ${pokerTurn === "player"  -  "Your turn." : "AI is thinking..."}`;
+    pokerStatusBannerEl.textContent = `Pre-Flop: Blinds Posted ($10 / $20). ${pokerTurn === "player" ? "Your turn." : "AI is thinking..."}`;
   }
 
   renderPokerUI();
@@ -3238,11 +3238,11 @@ function pokerShowdown() {
   if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = winMsg;
   pokerPot = 0;
 
-  pokerBetControlsEl - .classList.add("hidden");
-  pokerFoldBtn - .classList.add("hidden");
-  pokerCallBtn - .classList.add("hidden");
-  pokerRaiseBtn - .classList.add("hidden");
-  pokerNextHandBtn - .classList.remove("hidden");
+  pokerBetControlsEl?.classList.add("hidden");
+  pokerFoldBtn?.classList.add("hidden");
+  pokerCallBtn?.classList.add("hidden");
+  pokerRaiseBtn?.classList.add("hidden");
+  pokerNextHandBtn?.classList.remove("hidden");
 
   renderPokerUI(winningCards);
 }
@@ -3266,13 +3266,13 @@ function aiPokerTurn() {
     if (toCall > 120 && evalHand.rank === 0) action = "fold";
     else if (evalHand.rank >= 2 && Math.random() < 0.6) action = "raise";
     else if (evalHand.rank >= 1 && toCall <= 60) action = "call";
-    else action = toCall === 0  -  "call" : (Math.random() < 0.4  -  "call" : "fold");
+    else action = toCall === 0 ? "call" : (Math.random() < 0.4 ? "call" : "fold");
   } else {
     if (evalHand.rank >= 3) {
       action = "raise";
       raiseAmount = Math.min(pokerAiChips, toCall + Math.max(40, Math.floor(pokerPot * 0.6)));
     } else if (evalHand.rank >= 1) {
-      action = Math.random() < 0.4  -  "raise" : "call";
+      action = Math.random() < 0.4 ? "raise" : "call";
       raiseAmount = Math.min(pokerAiChips, toCall + 30);
     } else {
       if (toCall === 0 && Math.random() < 0.25) {
@@ -3295,11 +3295,11 @@ function aiPokerTurn() {
     renderScores();
     if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `AI Folds. You win $${pokerPot}!`;
     pokerPot = 0;
-    pokerBetControlsEl - .classList.add("hidden");
-    pokerFoldBtn - .classList.add("hidden");
-    pokerCallBtn - .classList.add("hidden");
-    pokerRaiseBtn - .classList.add("hidden");
-    pokerNextHandBtn - .classList.remove("hidden");
+    pokerBetControlsEl?.classList.add("hidden");
+    pokerFoldBtn?.classList.add("hidden");
+    pokerCallBtn?.classList.add("hidden");
+    pokerRaiseBtn?.classList.add("hidden");
+    pokerNextHandBtn?.classList.remove("hidden");
     renderPokerUI();
     return;
   }
@@ -3330,7 +3330,7 @@ function aiPokerTurn() {
   }
 }
 
-pokerFoldBtn - .addEventListener("click", () => {
+pokerFoldBtn?.addEventListener("click", () => {
   if (pokerOver || pokerTurn !== "player") return;
   pokerOver = true;
   pokerAiChips += pokerPot;
@@ -3340,15 +3340,15 @@ pokerFoldBtn - .addEventListener("click", () => {
   renderScores();
   if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `You Folded. AI takes $${pokerPot}.`;
   pokerPot = 0;
-  pokerBetControlsEl - .classList.add("hidden");
-  pokerFoldBtn - .classList.add("hidden");
-  pokerCallBtn - .classList.add("hidden");
-  pokerRaiseBtn - .classList.add("hidden");
-  pokerNextHandBtn - .classList.remove("hidden");
+  pokerBetControlsEl?.classList.add("hidden");
+  pokerFoldBtn?.classList.add("hidden");
+  pokerCallBtn?.classList.add("hidden");
+  pokerRaiseBtn?.classList.add("hidden");
+  pokerNextHandBtn?.classList.remove("hidden");
   renderPokerUI();
 });
 
-pokerCallBtn - .addEventListener("click", () => {
+pokerCallBtn?.addEventListener("click", () => {
   if (pokerOver || pokerTurn !== "player") return;
   const toCall = pokerCurrentBet - pokerPlayerBet;
   const callAmt = Math.min(pokerPlayerChips, toCall);
@@ -3366,9 +3366,9 @@ pokerCallBtn - .addEventListener("click", () => {
   }
 });
 
-pokerRaiseBtn - .addEventListener("click", () => {
+pokerRaiseBtn?.addEventListener("click", () => {
   if (pokerOver || pokerTurn !== "player") return;
-  const raiseVal = Number(pokerBetSliderEl - .value || 40);
+  const raiseVal = Number(pokerBetSliderEl?.value || 40);
   const toCall = pokerCurrentBet - pokerPlayerBet;
   const totalCommit = Math.min(pokerPlayerChips, toCall + raiseVal);
   if (totalCommit <= 0) return;
@@ -3384,22 +3384,22 @@ pokerRaiseBtn - .addEventListener("click", () => {
   setTimeout(aiPokerTurn, 650);
 });
 
-pokerBetSliderEl - .addEventListener("input", () => {
+pokerBetSliderEl?.addEventListener("input", () => {
   if (pokerSliderValEl) pokerSliderValEl.textContent = `$${pokerBetSliderEl.value}`;
   if (pokerRaiseBtn) {
     const isBet = pokerCurrentBet === 0;
-    pokerRaiseBtn.textContent = `${isBet  -  "Bet" : "Raise"} $${pokerBetSliderEl.value}`;
+    pokerRaiseBtn.textContent = `${isBet ? "Bet" : "Raise"} $${pokerBetSliderEl.value}`;
   }
 });
 
-pokerQuickMinBtn - .addEventListener("click", () => {
+pokerQuickMinBtn?.addEventListener("click", () => {
   if (pokerBetSliderEl) {
     pokerBetSliderEl.value = pokerBetSliderEl.min;
     pokerBetSliderEl.dispatchEvent(new Event("input"));
   }
 });
 
-pokerQuickHalfBtn - .addEventListener("click", () => {
+pokerQuickHalfBtn?.addEventListener("click", () => {
   if (pokerBetSliderEl) {
     const half = Math.max(Number(pokerBetSliderEl.min), Math.floor(pokerPot / 2));
     pokerBetSliderEl.value = String(Math.min(pokerPlayerChips, half));
@@ -3407,7 +3407,7 @@ pokerQuickHalfBtn - .addEventListener("click", () => {
   }
 });
 
-pokerQuickPotBtn - .addEventListener("click", () => {
+pokerQuickPotBtn?.addEventListener("click", () => {
   if (pokerBetSliderEl) {
     const potBet = Math.max(Number(pokerBetSliderEl.min), pokerPot || 40);
     pokerBetSliderEl.value = String(Math.min(pokerPlayerChips, potBet));
@@ -3415,14 +3415,14 @@ pokerQuickPotBtn - .addEventListener("click", () => {
   }
 });
 
-pokerQuickAllInBtn - .addEventListener("click", () => {
+pokerQuickAllInBtn?.addEventListener("click", () => {
   if (pokerBetSliderEl) {
     pokerBetSliderEl.value = String(pokerPlayerChips);
     pokerBetSliderEl.dispatchEvent(new Event("input"));
   }
 });
 
-pokerNextHandBtn - .addEventListener("click", () => {
+pokerNextHandBtn?.addEventListener("click", () => {
   startNewPokerHand();
 });
 
@@ -3479,15 +3479,15 @@ function getCardRank(card) {
 
 function getCardSuitColor(card) {
   const suit = getCardSuit(card);
-  return (suit === "H" || suit === "D")  -  "suit-red" : "suit-black";
+  return (suit === "H" || suit === "D") ? "suit-red" : "suit-black";
 }
 
 function getCardSuitSymbol(card) {
   const suit = getCardSuit(card);
-  if (suit === "S") return "â™ ";
-  if (suit === "C") return "â™£";
-  if (suit === "H") return "â™¥";
-  if (suit === "D") return "â™¦";
+  if (suit === "S") return "♠";
+  if (suit === "C") return "♣";
+  if (suit === "H") return "♥";
+  if (suit === "D") return "♦";
   return "";
 }
 
@@ -3582,7 +3582,7 @@ function undoSequenceMove() {
 
   const isAiMode = modeSelect.value === "sequence-ai";
   // In vs AI mode, undo 2 steps (AI move + human move) if possible so user is back on their turn
-  let stepsToUndo = (isAiMode && seqSnapshots.length >= 2)  -  2 : 1;
+  let stepsToUndo = (isAiMode && seqSnapshots.length >= 2) ? 2 : 1;
 
   let snap = null;
   while (stepsToUndo > 0 && seqSnapshots.length > 0) {
@@ -3604,10 +3604,10 @@ function undoSequenceMove() {
   seqP2Sequences = snap.p2Sequences;
   seqOver = snap.over;
   seqWinner = snap.winner;
-  seqP1HandRevealed = snap.p1HandRevealed  -  -  true;
-  seqP2HandRevealed = snap.p2HandRevealed  -  -  false;
-  seqPrivacyMode = snap.privacyMode  -  -  true;
-  seqAwaitingDraw = snap.awaitingDraw  -  -  null;
+  seqP1HandRevealed = snap.p1HandRevealed ?? true;
+  seqP2HandRevealed = snap.p2HandRevealed ?? false;
+  seqPrivacyMode = snap.privacyMode ?? true;
+  seqAwaitingDraw = snap.awaitingDraw ?? null;
   moveCount = snap.moveCount || 0;
   scoreA = snap.scoreA;
   scoreB = snap.scoreB;
@@ -3626,7 +3626,7 @@ function undoSequenceMove() {
 function getValidTargetsForCard(card, player = seqTurn, board = seqBoard, locked = seqLocked) {
   if (!card) return [];
   const targets = [];
-  const opponent = player === "p1"  -  "p2" : "p1";
+  const opponent = player === "p1" ? "p2" : "p1";
 
   if (isTwoEyedJack(card)) {
     // Wild: Any empty, non-corner cell
@@ -3776,8 +3776,8 @@ function renderSequenceUI() {
 // Render Top HUD Status Bar
 function renderSequenceHUD() {
   const isAiMode = modeSelect.value === "sequence-ai";
-  if (seqP1Label) seqP1Label.textContent = isAiMode  -  "You (Blue)" : "P1 (Blue)";
-  if (seqP2Label) seqP2Label.textContent = isAiMode  -  `AI (${hubState.difficulty.toUpperCase()})` : "P2 (Green)";
+  if (seqP1Label) seqP1Label.textContent = isAiMode ? "You (Blue)" : "P1 (Blue)";
+  if (seqP2Label) seqP2Label.textContent = isAiMode ? `AI (${hubState.difficulty.toUpperCase()})` : "P2 (Green)";
 
   if (seqP1SeqEl) seqP1SeqEl.textContent = `${seqP1Sequences} / 2`;
   if (seqP2SeqEl) seqP2SeqEl.textContent = `${seqP2Sequences} / 2`;
@@ -3797,19 +3797,19 @@ function renderSequenceHUD() {
       const col = getCardSuitColor(top);
       seqLastDiscard.innerHTML = `<span class="${col}">${rank}${sym}</span>`;
     } else {
-      seqLastDiscard.textContent = "â€”";
+      seqLastDiscard.textContent = "—";
     }
   }
 
   // Banner prompt text
   if (seqPromptBanner) {
     if (seqOver) {
-      seqPromptBanner.textContent = seqWinner === "p1"  -  "Victory! 2 sequences completed." : "Game Over! 2 sequences completed.";
+      seqPromptBanner.textContent = seqWinner === "p1" ? "Victory! 2 sequences completed." : "Game Over! 2 sequences completed.";
     } else if (seqAwaitingDraw) {
       const isHuman = seqAwaitingDraw === "p1" || !isAiMode;
       if (isHuman) {
-        const who = seqAwaitingDraw === "p1"  -  (isAiMode  -  "You" : "Player 1") : "Player 2";
-        seqPromptBanner.textContent = `ðŸŽ´ ${who}: Click 'Pick a Card' (+1) to draw your new card, or End Turn to forfeit it!`;
+        const who = seqAwaitingDraw === "p1" ? (isAiMode ? "You" : "Player 1") : "Player 2";
+        seqPromptBanner.textContent = `🎴 ${who}: Click 'Pick a Card' (+1) to draw your new card, or End Turn to forfeit it!`;
       } else {
         seqPromptBanner.textContent = "AI is picking a replacement card...";
       }
@@ -3830,10 +3830,10 @@ function renderSequenceHUD() {
     } else {
       const isCurtained = (seqTurn === "p1" && seqPrivacyMode && !seqP1HandRevealed) || (seqTurn === "p2" && !isAiMode && seqPrivacyMode && !seqP2HandRevealed);
       if (isCurtained) {
-        const who = seqTurn === "p1"  -  "Player 1" : "Player 2";
+        const who = seqTurn === "p1" ? "Player 1" : "Player 2";
         seqPromptBanner.textContent = `${who}: Tap 'Reveal Hand' on your rack to view cards`;
       } else {
-        const turnName = seqTurn === "p1"  -  (isAiMode  -  "Your turn" : "Player 1's turn") : (isAiMode  -  "AI turn" : "Player 2's turn");
+        const turnName = seqTurn === "p1" ? (isAiMode ? "Your turn" : "Player 1's turn") : (isAiMode ? "AI turn" : "Player 2's turn");
         seqPromptBanner.textContent = `${turnName}: Select a card from your rack to play`;
       }
     }
@@ -3846,8 +3846,8 @@ function renderSequenceBoard() {
   sequenceBoardEl.innerHTML = "";
 
   const activeHand = seqHands[seqTurn] || [];
-  const selectedCard = seqSelectedCardIdx !== null  -  activeHand[seqSelectedCardIdx] : null;
-  const validTargets = selectedCard  -  getValidTargetsForCard(selectedCard, seqTurn) : [];
+  const selectedCard = seqSelectedCardIdx !== null ? activeHand[seqSelectedCardIdx] : null;
+  const validTargets = selectedCard ? getValidTargetsForCard(selectedCard, seqTurn) : [];
 
   for (let r = 0; r < 10; r++) {
     for (let c = 0; c < 10; c++) {
@@ -3858,7 +3858,7 @@ function renderSequenceBoard() {
 
       if (isSeqCorner(r, c)) {
         cellEl.classList.add("corner");
-        cellEl.innerHTML = `<span class="seq-corner-icon">â˜…</span>`;
+        cellEl.innerHTML = `<span class="seq-corner-icon">★</span>`;
       } else {
         const cardCode = SEQUENCE_BOARD_LAYOUT[r][c];
         const rank = getCardRank(cardCode);
@@ -3874,10 +3874,10 @@ function renderSequenceBoard() {
         const occupant = seqBoard[r][c];
         if (occupant) {
           const chipEl = document.createElement("div");
-          chipEl.className = `seq-chip ${occupant === "p1"  -  "chip-p1" : "chip-p2"}`;
+          chipEl.className = `seq-chip ${occupant === "p1" ? "chip-p1" : "chip-p2"}`;
           if (seqLocked[r][c]) {
             chipEl.classList.add("locked");
-            chipEl.innerHTML = `<span class="seq-chip-crown">ðŸ‘‘</span>`;
+            chipEl.innerHTML = `<span class="seq-chip-crown">👑</span>`;
           }
           cellEl.appendChild(chipEl);
         }
@@ -3924,9 +3924,9 @@ function renderSinglePlayerShelf({
   // Update Title
   if (titleEl) {
     if (playerKey === "p1") {
-      titleEl.textContent = isAiMode  -  "You (Blue)" : "P1 (Blue)";
+      titleEl.textContent = isAiMode ? "You (Blue)" : "P1 (Blue)";
     } else {
-      titleEl.textContent = isAiMode  -  `AI (${hubState.difficulty.toUpperCase()})` : "P2 (Green)";
+      titleEl.textContent = isAiMode ? `AI (${hubState.difficulty.toUpperCase()})` : "P2 (Green)";
     }
   }
 
@@ -3963,15 +3963,15 @@ function renderSinglePlayerShelf({
     if (seqOver) {
       tipEl.textContent = `${hand.length} cards`;
     } else if (isAwaitingThisPlayer) {
-      tipEl.textContent = "ðŸŽ´ Pick a Card (+1) or forfeit slot";
+      tipEl.textContent = "🎴 Pick a Card (+1) or forfeit slot";
     } else if (isAi) {
       tipEl.textContent = `${hand.length} cards (face-down)`;
     } else if (!isTurn) {
       tipEl.textContent = `${hand.length} cards (hidden)`;
     } else if (shouldShowCurtain) {
-      tipEl.textContent = "Cards protected â€¢ Tap to reveal";
+      tipEl.textContent = "Cards protected • Tap to reveal";
     } else {
-      tipEl.textContent = seqSelectedCardIdx !== null  -  "Tap board spot to play" : "Tap card to highlight moves";
+      tipEl.textContent = seqSelectedCardIdx !== null ? "Tap board spot to play" : "Tap card to highlight moves";
     }
   }
 
@@ -4021,8 +4021,8 @@ function renderSinglePlayerShelf({
       cardEl.classList.add("face-down");
       if (isAi) cardEl.classList.add("ai-card");
 
-      const emblem = isAi  -  "ðŸ¤–" : (playerKey === "p1"  -  "ðŸ‘‘" : "ðŸ›¡ï¸");
-      const brand = isAi  -  "AI CORE" : "GAP";
+      const emblem = isAi ? "🤖" : (playerKey === "p1" ? "👑" : "🛡️");
+      const brand = isAi ? "AI CORE" : "GAP";
 
       cardEl.innerHTML = `
         <div class="seq-card-back-pattern">
@@ -4086,9 +4086,9 @@ function renderSequenceHand() {
   // 3. Update Privacy Mode Toggle Button in HUD
   if (seqPrivacyModeBtn && seqPrivacyModeText) {
     seqPrivacyModeBtn.classList.toggle("privacy-off", !seqPrivacyMode);
-    seqPrivacyModeText.textContent = seqPrivacyMode  -  "Shield: ON" : "Shield: OFF";
+    seqPrivacyModeText.textContent = seqPrivacyMode ? "Shield: ON" : "Shield: OFF";
     seqPrivacyModeBtn.title = seqPrivacyMode
-       -  "Anti-peeking privacy shield is ON (hands concealed until revealed)"
+      ? "Anti-peeking privacy shield is ON (hands concealed until revealed)"
       : "Anti-peeking privacy shield is OFF (hands open automatically on turn)";
   }
 }
@@ -4252,19 +4252,19 @@ function skipSequenceCardDraw(playerKey) {
 // Advance Turn after Draw / Skip
 function advanceSequenceTurn(didDraw, previousPlayer) {
   const isAiMode = modeSelect.value === "sequence-ai";
-  seqTurn = (seqTurn === "p1")  -  "p2" : "p1";
+  seqTurn = (seqTurn === "p1") ? "p2" : "p1";
   if (seqTurn === "p1") {
     seqP2HandRevealed = false;
     seqP1HandRevealed = !seqPrivacyMode;
   } else {
     seqP1HandRevealed = false;
-    seqP2HandRevealed = isAiMode  -  false : !seqPrivacyMode;
+    seqP2HandRevealed = isAiMode ? false : !seqPrivacyMode;
   }
   renderSequenceUI();
 
   if (!didDraw && seqPromptBanner) {
-    const who = previousPlayer === "p1"  -  (isAiMode  -  "You" : "Player 1") : (isAiMode  -  "AI" : "Player 2");
-    seqPromptBanner.textContent = `âš ï¸ ${who} did not pick a card and lost 1 card slot!`;
+    const who = previousPlayer === "p1" ? (isAiMode ? "You" : "Player 1") : (isAiMode ? "AI" : "Player 2");
+    seqPromptBanner.textContent = `⚠️ ${who} did not pick a card and lost 1 card slot!`;
   }
   persistLiveState();
 
@@ -4337,7 +4337,7 @@ function executeSequenceAiTurn() {
     if (diff === "medium") {
       // Medium: 80% best move, 20% second/third best
       const topPool = candidateMoves.slice(0, Math.min(3, candidateMoves.length));
-      chosenMove = Math.random() < 0.8  -  topPool[0] : topPool[Math.floor(Math.random() * topPool.length)];
+      chosenMove = Math.random() < 0.8 ? topPool[0] : topPool[Math.floor(Math.random() * topPool.length)];
     } else {
       // Hard: Always optimal best move
       chosenMove = candidateMoves[0];
@@ -4444,7 +4444,7 @@ function evaluateSequenceMove(card, r, c, type) {
 }
 
 // Sequence Anti-Peeking Privacy Event Handlers
-seqPrivacyModeBtn - .addEventListener("click", () => {
+seqPrivacyModeBtn?.addEventListener("click", () => {
   seqPrivacyMode = !seqPrivacyMode;
   if (!seqPrivacyMode) {
     if (seqTurn === "p1") seqP1HandRevealed = true;
@@ -4454,13 +4454,13 @@ seqPrivacyModeBtn - .addEventListener("click", () => {
   renderSequenceHand();
 });
 
-seqP1RevealBtn - .addEventListener("click", () => {
+seqP1RevealBtn?.addEventListener("click", () => {
   seqP1HandRevealed = true;
   renderSequenceHUD();
   renderSequenceHand();
 });
 
-seqP1PrivacyBtn - .addEventListener("click", () => {
+seqP1PrivacyBtn?.addEventListener("click", () => {
   seqP1HandRevealed = false;
   seqSelectedCardIdx = null;
   renderSequenceHUD();
@@ -4468,13 +4468,13 @@ seqP1PrivacyBtn - .addEventListener("click", () => {
   renderSequenceBoard();
 });
 
-seqP2RevealBtn - .addEventListener("click", () => {
+seqP2RevealBtn?.addEventListener("click", () => {
   seqP2HandRevealed = true;
   renderSequenceHUD();
   renderSequenceHand();
 });
 
-seqP2PrivacyBtn - .addEventListener("click", () => {
+seqP2PrivacyBtn?.addEventListener("click", () => {
   seqP2HandRevealed = false;
   seqSelectedCardIdx = null;
   renderSequenceHUD();
@@ -4483,13 +4483,13 @@ seqP2PrivacyBtn - .addEventListener("click", () => {
 });
 
 // Sequence Draw Actions Event Listeners (Pick a Card / Skip)
-seqP1PickCardBtn - .addEventListener("click", () => pickSequenceCard("p1"));
-seqP1SkipDrawBtn - .addEventListener("click", () => skipSequenceCardDraw("p1"));
+seqP1PickCardBtn?.addEventListener("click", () => pickSequenceCard("p1"));
+seqP1SkipDrawBtn?.addEventListener("click", () => skipSequenceCardDraw("p1"));
 
-seqP2PickCardBtn - .addEventListener("click", () => pickSequenceCard("p2"));
-seqP2SkipDrawBtn - .addEventListener("click", () => skipSequenceCardDraw("p2"));
+seqP2PickCardBtn?.addEventListener("click", () => pickSequenceCard("p2"));
+seqP2SkipDrawBtn?.addEventListener("click", () => skipSequenceCardDraw("p2"));
 
-seqDeckPill - .addEventListener("click", () => {
+seqDeckPill?.addEventListener("click", () => {
   if (seqAwaitingDraw && !seqOver) {
     pickSequenceCard(seqAwaitingDraw);
   }
@@ -4786,7 +4786,7 @@ let PATTU_MOVIES = [
   "Maryada Ramanna", "Maska", "Mathu Vadalara", "Mathu Vadalara 2", "Middle Class Melodies", "Mirchi", "Mr. Perfect", "Naa Autograph",
   "Nani", "Nenunnanu", "Ninne Pelladata", "Nuvve Kavali", "Nuvve Nuvve", "Nuvvostanante Nenoddantana", "Okkadu", "Oopiri",
   "Panjaa", "Pelli Choopulu", "Pokiri", "Prasthanam", "Pushpa: The Rise", "Pushpa 2: The Rule", "Race Gurram", "Radhe Shyam",
-  "Rangasthalam", "Ready", "Robo", "RRR", "Salaar: Part 1 â€“ Ceasefire", "Samajavaragamana", "Sarileru Neekevvaru", "Sarkaru Vaari Paata",
+  "Rangasthalam", "Ready", "Robo", "RRR", "Salaar: Part 1 – Ceasefire", "Samajavaragamana", "Sarileru Neekevvaru", "Sarkaru Vaari Paata",
   "Sathamanam Bhavati", "Seethamma Vakitlo Sirimalle Chettu", "Shiva", "Shyam Singha Roy", "Simhadri", "Sir", "Sita Ramam", "Srimanthudu",
   "Subhash Chandra Bose", "Surya s/o Krishnan", "Tagore", "Temper", "Thammudu", "Tholi Prema", "Tillu Square", "Uppena", "Vakeel Saab",
   "Varsham", "Vedam", "Veta", "Virupaksha", "Waltair Veerayya", "Yamadonga", "Ye Maaya Chesave"
@@ -4908,7 +4908,7 @@ function initPattu(targetDay = null) {
   showOnlyActiveGame("pattu");
   loadPattuStats();
   const todayDay = getPattuDayCount();
-  pattuCurrentDay = (typeof targetDay === "number" && targetDay >= 0)  -  targetDay : todayDay;
+  pattuCurrentDay = (typeof targetDay === "number" && targetDay >= 0) ? targetDay : todayDay;
 
   // Set default puzzle from offline list first
   const pIdx = Math.abs(pattuCurrentDay) % PATTU_OFFLINE_PUZZLES.length;
@@ -4966,10 +4966,10 @@ function initPattu(targetDay = null) {
   pattuSelectedDropIndex = -1;
 
   if (pattuInputEl) pattuInputEl.value = "";
-  pattuDropdownEl - .classList.add("hidden");
-  pattuClearBtn - .classList.add("hidden");
-  pattuResultBannerEl - .classList.add("hidden");
-  pattuSearchWrap - .classList.remove("hidden");
+  pattuDropdownEl?.classList.add("hidden");
+  pattuClearBtn?.classList.add("hidden");
+  pattuResultBannerEl?.classList.add("hidden");
+  pattuSearchWrap?.classList.remove("hidden");
 
   renderPattuUI();
   renderPattuFrame(1);
@@ -4989,11 +4989,11 @@ function renderPattuUI() {
       if (guess) {
         if (guess.status === "skipped" || guess.status === "wrong") {
           tabClass += " wrong";
-          tabContent = "âŒ";
+          tabContent = "❌";
           tabTitle = `Frame ${i}: Skipped / Wrong`;
         } else if (guess.status === "correct") {
           tabClass += " correct";
-          tabContent = "âœ…";
+          tabContent = "✅";
           tabTitle = `Frame ${i}: Correct!`;
         }
       }
@@ -5008,7 +5008,7 @@ function renderPattuUI() {
   }
 
   // 2. Skip Button
-  const skipWrap = pattuSkipBtn - .closest(".pattu-skip-wrap");
+  const skipWrap = pattuSkipBtn?.closest(".pattu-skip-wrap");
   if (skipWrap) {
     if (pattuOver) skipWrap.classList.add("hidden");
     else skipWrap.classList.remove("hidden");
@@ -5024,7 +5024,7 @@ function renderPattuUI() {
   if (pattuRemainingTextEl) {
     if (!pattuOver) {
       const remaining = 6 - pattuAttempt;
-      const countColor = remaining >= 4  -  "#22c55e" : (remaining === 3  -  "#f59e0b" : "#ef4444");
+      const countColor = remaining >= 4 ? "#22c55e" : (remaining === 3 ? "#f59e0b" : "#ef4444");
       pattuRemainingTextEl.innerHTML = `You got <span class="rem-count" style="color:${countColor}">${remaining}</span> guesses remaining out of <b style="color:#22c55e">5</b>.`;
       pattuRemainingTextEl.classList.remove("hidden");
     } else {
@@ -5032,7 +5032,7 @@ function renderPattuUI() {
     }
   }
 
-  // 5. Guess History: Skipped steps are indicated directly by âŒ on the frame tabs;
+  // 5. Guess History: Skipped steps are indicated directly by ❌ on the frame tabs;
   // only show named movie guesses during gameplay if any, and hide completely on game over
   if (pattuHistoryEl) {
     const namedGuesses = pattuGuesses.filter(g => g.status !== "skipped");
@@ -5042,13 +5042,13 @@ function renderPattuUI() {
         if (g.status === "correct") {
           histHtml += `
             <div class="pattu-hist-card correct">
-              <span class="pattu-hist-icon">âœ…</span>
+              <span class="pattu-hist-icon">✅</span>
               <span class="pattu-hist-text">${g.text}</span>
             </div>`;
         } else if (g.status === "wrong") {
           histHtml += `
             <div class="pattu-hist-card wrong">
-              <span class="pattu-hist-icon">âŒ</span>
+              <span class="pattu-hist-icon">❌</span>
               <span class="pattu-hist-text">${g.text}</span>
             </div>`;
         }
@@ -5069,14 +5069,14 @@ function renderPattuUI() {
         pattuResultBannerEl.classList.remove("lost");
         pattuResultBannerEl.classList.add("won");
         if (pattuResultTitleEl) {
-          pattuResultTitleEl.textContent = "ðŸŽ‰ Splendid! You Guessed It!";
+          pattuResultTitleEl.textContent = "🎉 Splendid! You Guessed It!";
           pattuResultTitleEl.style.color = "#22c55e";
         }
       } else {
         pattuResultBannerEl.classList.remove("won");
         pattuResultBannerEl.classList.add("lost");
         if (pattuResultTitleEl) {
-          pattuResultTitleEl.textContent = "ðŸ’” The Answer Was:";
+          pattuResultTitleEl.textContent = "💔 The Answer Was:";
           pattuResultTitleEl.style.color = "#ef4444";
         }
       }
@@ -5084,11 +5084,11 @@ function renderPattuUI() {
         pattuResultMovieEl.textContent = pattuCurrentPuzzle.movie;
       }
       if (pattuResultSubEl) {
-        pattuResultSubEl.textContent = `Day #${pattuCurrentDay}${pattuCurrentPuzzle.contributor  -  " â€¢ Contributed by @" + pattuCurrentPuzzle.contributor : ""}`;
+        pattuResultSubEl.textContent = `Day #${pattuCurrentDay}${pattuCurrentPuzzle.contributor ? " • Contributed by @" + pattuCurrentPuzzle.contributor : ""}`;
       }
     }
   } else {
-    pattuResultBannerEl - .classList.add("hidden");
+    pattuResultBannerEl?.classList.add("hidden");
   }
 }
 
@@ -5121,11 +5121,11 @@ function getPattuCandidateUrls(day, frameNum) {
     urls.push(`data/daily/${frameNum}.jpg`);
   }
   // 2. High-speed Cloudflare image mirror (proper image/jpeg Content-Type and CORS *)
-  urls.push(`https://wsrv.nl/ - url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
+  urls.push(`https://wsrv.nl/?url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
   // 3. Direct AWS S3 bucket
   urls.push(`${PATTU_S3_BASE}/${day}/${frameNum}.jpg`);
   // 4. Backup weserv mirror
-  urls.push(`https://images.weserv.nl/ - url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
+  urls.push(`https://images.weserv.nl/?url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
   return urls;
 }
 
@@ -5155,7 +5155,7 @@ function renderPattuFrame(frameNum) {
   pattuActiveFrame = frameNum;
 
   // Highlight active number tab
-  pattuFramePillsEl - .querySelectorAll(".pattu-num-tab, .pattu-frame-tab, .pc-step-card").forEach(tab => {
+  pattuFramePillsEl?.querySelectorAll(".pattu-num-tab, .pattu-frame-tab, .pc-step-card").forEach(tab => {
     const f = Number(tab.dataset.frame);
     const isThis = (f === frameNum);
     tab.classList.toggle("active", isThis);
@@ -5173,21 +5173,21 @@ function renderPattuFrame(frameNum) {
       const hasMatchingClues = pattuCurrentPuzzle && clues.length > 0 && !pattuCurrentPuzzle.movieFromS3;
       if (pattuFallbackClueEl) {
         pattuFallbackClueEl.textContent = (hasMatchingClues && clues[frameNum - 1])
-           -  clues[frameNum - 1]
+          ? clues[frameNum - 1]
           : `Tollywood Scene Frame #${frameNum}`;
       }
       if (pattuFallbackSubEl) {
         pattuFallbackSubEl.textContent = (hasMatchingClues && pattuCurrentPuzzle.hero)
-           -  `Starring: ${pattuCurrentPuzzle.hero} â€¢ Dir: ${pattuCurrentPuzzle.director || "Tollywood"}`
+          ? `Starring: ${pattuCurrentPuzzle.hero} • Dir: ${pattuCurrentPuzzle.director || "Tollywood"}`
           : (pattuCurrentPuzzle.contributor
-               -  `Contributed by @${pattuCurrentPuzzle.contributor}`
+              ? `Contributed by @${pattuCurrentPuzzle.contributor}`
               : `Tollywood Cinema Archives (Day #${pattuCurrentDay})`);
       }
     }
   };
 
   pattuImgEl.style.display = "block";
-  pattuFallbackCardEl - .classList.add("hidden");
+  pattuFallbackCardEl?.classList.add("hidden");
 
   const key = `${pattuCurrentDay}_${frameNum}`;
   const candidateUrls = getPattuCandidateUrls(pattuCurrentDay, frameNum);
@@ -5197,7 +5197,7 @@ function renderPattuFrame(frameNum) {
     const cachedUrl = PATTU_PRELOAD_CACHE.get(key);
     pattuImgEl.onload = () => {
       pattuImgEl.style.display = "block";
-      pattuFallbackCardEl - .classList.add("hidden");
+      pattuFallbackCardEl?.classList.add("hidden");
     };
     pattuImgEl.onerror = () => {
       PATTU_PRELOAD_CACHE.delete(key);
@@ -5206,7 +5206,7 @@ function renderPattuFrame(frameNum) {
     pattuImgEl.src = cachedUrl;
     if (pattuImgEl.complete && pattuImgEl.naturalWidth > 0) {
       pattuImgEl.style.display = "block";
-      pattuFallbackCardEl - .classList.add("hidden");
+      pattuFallbackCardEl?.classList.add("hidden");
     }
     return;
   }
@@ -5222,7 +5222,7 @@ function renderPattuFrame(frameNum) {
       if (resolved) return;
       resolved = true;
       pattuImgEl.style.display = "block";
-      pattuFallbackCardEl - .classList.add("hidden");
+      pattuFallbackCardEl?.classList.add("hidden");
       PATTU_PRELOAD_CACHE.set(key, currentUrl);
     };
     pattuImgEl.onerror = () => {
@@ -5248,7 +5248,7 @@ function filterPattuSuggestions(query) {
 function renderPattuDropdown(matches) {
   if (!pattuDropdownEl) return;
   if (!matches.length) {
-    pattuDropdownEl.innerHTML = `<div class="pattu-drop-item" style="opacity:0.6; cursor:default;">No Telugu movie found matching "${pattuInputEl - .value || ""}"</div>`;
+    pattuDropdownEl.innerHTML = `<div class="pattu-drop-item" style="opacity:0.6; cursor:default;">No Telugu movie found matching "${pattuInputEl?.value || ""}"</div>`;
     pattuDropdownEl.classList.remove("hidden");
     pattuSelectedDropIndex = -1;
     return;
@@ -5263,9 +5263,9 @@ function renderPattuDropdown(matches) {
 
 function submitPattuGuess(guessedName) {
   if (pattuOver) return;
-  const name = guessedName  -  guessedName.trim() : (pattuInputEl - .value || "").trim();
+  const name = guessedName ? guessedName.trim() : (pattuInputEl?.value || "").trim();
   if (!name) {
-    pattuInputEl - .focus();
+    pattuInputEl?.focus();
     return;
   }
 
@@ -5302,8 +5302,8 @@ function submitPattuGuess(guessedName) {
   }
 
   if (pattuInputEl) pattuInputEl.value = "";
-  pattuDropdownEl - .classList.add("hidden");
-  pattuClearBtn - .classList.add("hidden");
+  pattuDropdownEl?.classList.add("hidden");
+  pattuClearBtn?.classList.add("hidden");
 }
 
 function skipPattuAttempt() {
@@ -5326,8 +5326,8 @@ function skipPattuAttempt() {
   }
 
   if (pattuInputEl) pattuInputEl.value = "";
-  pattuDropdownEl - .classList.add("hidden");
-  pattuClearBtn - .classList.add("hidden");
+  pattuDropdownEl?.classList.add("hidden");
+  pattuClearBtn?.classList.add("hidden");
 }
 
 // Modal helper: Stats
@@ -5335,7 +5335,7 @@ function renderPattuStatsModal() {
   const saved = loadPattuStats();
   const played = saved.gamesPlayed || 0;
   const won = saved.gamesWon || 0;
-  const winPct = played > 0  -  Math.round((won / played) * 100) : 0;
+  const winPct = played > 0 ? Math.round((won / played) * 100) : 0;
   const curStreak = saved.currentStreak || 0;
   const maxStreak = saved.maxStreak || 0;
   const dist = saved.guessDistribution || { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
@@ -5358,39 +5358,39 @@ function renderPattuStatsModal() {
         <div class="pattu-dist-row">
           <span style="width:14px; text-align:center; font-weight:700;">${k}</span>
           <div style="flex:1;">
-            <div class="pattu-dist-bar ${count > 0  -  'highlight' : ''}" style="width:${pct}%;">${count}</div>
+            <div class="pattu-dist-bar ${count > 0 ? 'highlight' : ''}" style="width:${pct}%;">${count}</div>
           </div>
         </div>`;
     }
     pattuDistChartEl.innerHTML = chartHtml;
   }
 
-  pattuStatsCustomModal - .classList.remove("hidden");
+  pattuStatsCustomModal?.classList.remove("hidden");
 }
 
 // Pattu DOM Event Listeners
-pattuInputEl - .addEventListener("focus", () => {
+pattuInputEl?.addEventListener("focus", () => {
   window.scrollTo(0, 0);
   document.documentElement.scrollTop = 0;
 });
 
-pattuInputEl - .addEventListener("input", (e) => {
+pattuInputEl?.addEventListener("input", (e) => {
   window.scrollTo(0, 0);
   document.documentElement.scrollTop = 0;
   const val = e.target.value;
-  pattuClearBtn - .classList.toggle("hidden", !val);
+  pattuClearBtn?.classList.toggle("hidden", !val);
   if (!val.trim()) {
-    pattuDropdownEl - .classList.add("hidden");
+    pattuDropdownEl?.classList.add("hidden");
     return;
   }
   const matches = filterPattuSuggestions(val);
   renderPattuDropdown(matches);
 });
 
-pattuInputEl - .addEventListener("keydown", (e) => {
+pattuInputEl?.addEventListener("keydown", (e) => {
   if (e.key === "ArrowDown") {
     e.preventDefault();
-    const items = pattuDropdownEl - .querySelectorAll(".pattu-drop-item[data-movie]");
+    const items = pattuDropdownEl?.querySelectorAll(".pattu-drop-item[data-movie]");
     if (!items || !items.length) return;
     pattuSelectedDropIndex = (pattuSelectedDropIndex + 1) % items.length;
     items.forEach((it, idx) => it.classList.toggle("selected", idx === pattuSelectedDropIndex));
@@ -5398,16 +5398,16 @@ pattuInputEl - .addEventListener("keydown", (e) => {
     if (targetItem) {
       if (targetItem.dataset.movie && pattuInputEl) {
         pattuInputEl.value = targetItem.dataset.movie;
-        pattuClearBtn - .classList.remove("hidden");
+        pattuClearBtn?.classList.remove("hidden");
       }
       if (pattuDropdownEl) {
-        targetItem.scrollIntoView - .({ block: "nearest", inline: "nearest" });
+        targetItem.scrollIntoView?.({ block: "nearest", inline: "nearest" });
         window.scrollTo(0, 0);
       }
     }
   } else if (e.key === "ArrowUp") {
     e.preventDefault();
-    const items = pattuDropdownEl - .querySelectorAll(".pattu-drop-item[data-movie]");
+    const items = pattuDropdownEl?.querySelectorAll(".pattu-drop-item[data-movie]");
     if (!items || !items.length) return;
     pattuSelectedDropIndex = (pattuSelectedDropIndex - 1 + items.length) % items.length;
     items.forEach((it, idx) => it.classList.toggle("selected", idx === pattuSelectedDropIndex));
@@ -5415,28 +5415,28 @@ pattuInputEl - .addEventListener("keydown", (e) => {
     if (targetItem) {
       if (targetItem.dataset.movie && pattuInputEl) {
         pattuInputEl.value = targetItem.dataset.movie;
-        pattuClearBtn - .classList.remove("hidden");
+        pattuClearBtn?.classList.remove("hidden");
       }
       if (pattuDropdownEl) {
-        targetItem.scrollIntoView - .({ block: "nearest", inline: "nearest" });
+        targetItem.scrollIntoView?.({ block: "nearest", inline: "nearest" });
         window.scrollTo(0, 0);
       }
     }
   } else if (e.key === "Enter") {
     e.preventDefault();
-    const items = pattuDropdownEl - .querySelectorAll(".pattu-drop-item[data-movie]");
+    const items = pattuDropdownEl?.querySelectorAll(".pattu-drop-item[data-movie]");
     if (items && pattuSelectedDropIndex >= 0 && items[pattuSelectedDropIndex]) {
       const selectedMovie = items[pattuSelectedDropIndex].dataset.movie;
       if (pattuInputEl) pattuInputEl.value = selectedMovie;
-      pattuDropdownEl - .classList.add("hidden");
+      pattuDropdownEl?.classList.add("hidden");
       pattuSelectedDropIndex = -1;
       submitPattuGuess(selectedMovie);
     } else {
-      pattuDropdownEl - .classList.add("hidden");
+      pattuDropdownEl?.classList.add("hidden");
       submitPattuGuess();
     }
   } else if (e.key === "Escape") {
-    pattuDropdownEl - .classList.add("hidden");
+    pattuDropdownEl?.classList.add("hidden");
   }
 });
 
@@ -5445,21 +5445,21 @@ function selectPattuSuggestion(movie) {
   if (pattuInputEl) {
     pattuInputEl.value = movie;
   }
-  pattuClearBtn - .classList.remove("hidden");
-  pattuDropdownEl - .classList.add("hidden");
+  pattuClearBtn?.classList.remove("hidden");
+  pattuDropdownEl?.classList.add("hidden");
   pattuSelectedDropIndex = -1;
-  pattuInputEl - .focus();
+  pattuInputEl?.focus();
 }
 
-pattuDropdownEl - .addEventListener("pointerdown", (e) => {
+pattuDropdownEl?.addEventListener("pointerdown", (e) => {
   e.stopPropagation();
 });
 
-pattuDropdownEl - .addEventListener("mousedown", (e) => {
+pattuDropdownEl?.addEventListener("mousedown", (e) => {
   e.stopPropagation();
 });
 
-pattuDropdownEl - .addEventListener("click", (e) => {
+pattuDropdownEl?.addEventListener("click", (e) => {
   const item = e.target.closest(".pattu-drop-item[data-movie]");
   if (!item) return;
   const movie = item.dataset.movie;
@@ -5467,27 +5467,27 @@ pattuDropdownEl - .addEventListener("click", (e) => {
 });
 
 // Dropdown chevron click to expand suggestions
-document.querySelector(".pattu-dropdown-chevron") - .parentElement - .addEventListener("click", () => {
-  if (pattuDropdownEl - .classList.contains("hidden")) {
-    const matches = filterPattuSuggestions(pattuInputEl - .value || "");
-    renderPattuDropdown(matches.length  -  matches : PATTU_MOVIES.slice(0, 8));
-    pattuInputEl - .focus();
+document.querySelector(".pattu-dropdown-chevron")?.parentElement?.addEventListener("click", () => {
+  if (pattuDropdownEl?.classList.contains("hidden")) {
+    const matches = filterPattuSuggestions(pattuInputEl?.value || "");
+    renderPattuDropdown(matches.length ? matches : PATTU_MOVIES.slice(0, 8));
+    pattuInputEl?.focus();
   } else {
-    pattuDropdownEl - .classList.add("hidden");
+    pattuDropdownEl?.classList.add("hidden");
   }
 });
 
-pattuClearBtn - .addEventListener("click", () => {
+pattuClearBtn?.addEventListener("click", () => {
   if (pattuInputEl) pattuInputEl.value = "";
-  pattuClearBtn - .classList.add("hidden");
-  pattuDropdownEl - .classList.add("hidden");
-  pattuInputEl - .focus();
+  pattuClearBtn?.classList.add("hidden");
+  pattuDropdownEl?.classList.add("hidden");
+  pattuInputEl?.focus();
 });
 
-pattuSubmitBtn - .addEventListener("click", () => submitPattuGuess());
-pattuSkipBtn - .addEventListener("click", () => skipPattuAttempt());
+pattuSubmitBtn?.addEventListener("click", () => submitPattuGuess());
+pattuSkipBtn?.addEventListener("click", () => skipPattuAttempt());
 // Frame navigation buttons delegation
-pattuFramePillsEl - .addEventListener("click", (e) => {
+pattuFramePillsEl?.addEventListener("click", (e) => {
   const tab = e.target.closest(".pattu-num-tab, .pc-step-card, .pattu-frame-tab");
   if (!tab) return;
   const f = Number(tab.dataset.frame);
@@ -5507,20 +5507,20 @@ pattuFramePillsEl - .addEventListener("click", (e) => {
 });
 
 // Right Edge Time Travel Button trigger
-document.getElementById("pcTimeTravelEdgeBtn") - .addEventListener("click", () => {
-  pattuTimeTravelBtn - .click();
+document.getElementById("pcTimeTravelEdgeBtn")?.addEventListener("click", () => {
+  pattuTimeTravelBtn?.click();
 });
 
 // Instructions Modal
-pattuHelpBtn - .addEventListener("click", () => {
-  pattuInstructionsModal - .classList.remove("hidden");
+pattuHelpBtn?.addEventListener("click", () => {
+  pattuInstructionsModal?.classList.remove("hidden");
 });
-closePattuHelpBtn - .addEventListener("click", () => {
-  pattuInstructionsModal - .classList.add("hidden");
+closePattuHelpBtn?.addEventListener("click", () => {
+  pattuInstructionsModal?.classList.add("hidden");
 });
 
 // Time Travel Modal (Interactive Calendar Date Picker)
-pattuTimeTravelBtn - .addEventListener("click", () => {
+pattuTimeTravelBtn?.addEventListener("click", () => {
   const todayDay = getPattuDayCount();
   const minDate = "2022-05-23";
   const maxDate = pattuDayToDateStr(todayDay);
@@ -5545,9 +5545,9 @@ pattuTimeTravelBtn - .addEventListener("click", () => {
 
   if (pattuTtTargetDay) pattuTtTargetDay.textContent = `Day #${defaultSelectedDay}`;
   if (pattuTtFormattedDate) pattuTtFormattedDate.textContent = formatPattuDisplayDate(defaultDateStr);
-  pattuTtManualWrap - .classList.add("hidden");
+  pattuTtManualWrap?.classList.add("hidden");
 
-  pattuTimeTravelModal - .classList.remove("hidden");
+  pattuTimeTravelModal?.classList.remove("hidden");
 });
 
 function handlePattuDateSelection() {
@@ -5559,11 +5559,11 @@ function handlePattuDateSelection() {
   if (pattuTtFormattedDate) pattuTtFormattedDate.textContent = formatPattuDisplayDate(pattuDateInput.value);
 }
 
-pattuDateInput - .addEventListener("click", () => {
+pattuDateInput?.addEventListener("click", () => {
   try { pattuDateInput.showPicker(); } catch {}
 });
-pattuDateInput - .addEventListener("input", handlePattuDateSelection);
-pattuDateInput - .addEventListener("change", handlePattuDateSelection);
+pattuDateInput?.addEventListener("input", handlePattuDateSelection);
+pattuDateInput?.addEventListener("change", handlePattuDateSelection);
 
 function handlePattuDayNumberInput() {
   const maxDay = getPattuDayCount();
@@ -5576,71 +5576,71 @@ function handlePattuDayNumberInput() {
   if (pattuTtFormattedDate) pattuTtFormattedDate.textContent = formatPattuDisplayDate(dateStr);
 }
 
-pattuDayInput - .addEventListener("input", handlePattuDayNumberInput);
-pattuDayInput - .addEventListener("change", handlePattuDayNumberInput);
+pattuDayInput?.addEventListener("input", handlePattuDayNumberInput);
+pattuDayInput?.addEventListener("change", handlePattuDayNumberInput);
 
-pattuToggleDayNumBtn - .addEventListener("click", () => {
-  pattuTtManualWrap - .classList.toggle("hidden");
-  if (!pattuTtManualWrap - .classList.contains("hidden")) {
-    pattuDayInput - .focus();
+pattuToggleDayNumBtn?.addEventListener("click", () => {
+  pattuTtManualWrap?.classList.toggle("hidden");
+  if (!pattuTtManualWrap?.classList.contains("hidden")) {
+    pattuDayInput?.focus();
   }
 });
 
-closePattuTimeTravelBtn - .addEventListener("click", () => {
-  pattuTimeTravelModal - .classList.add("hidden");
+closePattuTimeTravelBtn?.addEventListener("click", () => {
+  pattuTimeTravelModal?.classList.add("hidden");
 });
 
-submitPattuTimeTravelBtn - .addEventListener("click", () => {
+submitPattuTimeTravelBtn?.addEventListener("click", () => {
   const maxDay = getPattuDayCount();
   const isManual = pattuTtManualWrap && !pattuTtManualWrap.classList.contains("hidden");
-  let val = isManual  -  parseInt(pattuDayInput - .value, 10) : pattuDateStrToDay(pattuDateInput - .value);
+  let val = isManual ? parseInt(pattuDayInput?.value, 10) : pattuDateStrToDay(pattuDateInput?.value);
   if (isNaN(val) || val < 0) {
-    val = parseInt(pattuDayInput - .value, 10);
+    val = parseInt(pattuDayInput?.value, 10);
   }
   if (isNaN(val) || val < 0) {
-    val = pattuDateStrToDay(pattuDateInput - .value);
+    val = pattuDateStrToDay(pattuDateInput?.value);
   }
   if (isNaN(val) || val < 0) val = 0;
   if (val > maxDay) val = maxDay;
 
-  pattuTimeTravelModal - .classList.add("hidden");
+  pattuTimeTravelModal?.classList.add("hidden");
   initPattu(val);
 });
 
 // Stats Modal
-pattuStatsBtn - .addEventListener("click", renderPattuStatsModal);
-closePattuStatsModalBtn - .addEventListener("click", () => {
-  pattuStatsCustomModal - .classList.add("hidden");
+pattuStatsBtn?.addEventListener("click", renderPattuStatsModal);
+closePattuStatsModalBtn?.addEventListener("click", () => {
+  pattuStatsCustomModal?.classList.add("hidden");
 });
 
 // Share Button
-pattuShareBtn - .addEventListener("click", () => {
-  let shareResult = `Pattukunte Pattucheera Day #${pattuCurrentDay} ${pattuWon  -  pattuGuesses.length : "X"}/5\n`;
+pattuShareBtn?.addEventListener("click", () => {
+  let shareResult = `Pattukunte Pattucheera Day #${pattuCurrentDay} ${pattuWon ? pattuGuesses.length : "X"}/5\n`;
   pattuGuesses.forEach(g => {
-    if (g.status === "correct") shareResult += "ðŸŸ©";
-    else shareResult += "ðŸŸ¥";
+    if (g.status === "correct") shareResult += "🟩";
+    else shareResult += "🟥";
   });
   shareResult += "\nPlay on GAP Gaming Hub!";
 
   if (navigator.clipboard) {
     navigator.clipboard.writeText(shareResult).then(() => {
       const origText = pattuShareBtn.textContent;
-      pattuShareBtn.textContent = "Copied! âœ“";
+      pattuShareBtn.textContent = "Copied! ✓";
       setTimeout(() => { pattuShareBtn.textContent = origText; }, 2000);
     });
   }
 });
 
 // Next Movie Button (loads another past day puzzle)
-pattuNextBtn - .addEventListener("click", () => {
+pattuNextBtn?.addEventListener("click", () => {
   const maxDay = getPattuDayCount();
   const randomDay = Math.floor(Math.random() * (maxDay + 1));
   initPattu(randomDay);
 });
 
 document.addEventListener("click", (e) => {
-  if (!pattuInputEl - .contains(e.target) && !pattuDropdownEl - .contains(e.target) && !e.target.closest(".pattu-input-addon")) {
-    pattuDropdownEl - .classList.add("hidden");
+  if (!pattuInputEl?.contains(e.target) && !pattuDropdownEl?.contains(e.target) && !e.target.closest(".pattu-input-addon")) {
+    pattuDropdownEl?.classList.add("hidden");
   }
   // Click outside to close modals
   if (e.target === pattuInstructionsModal) pattuInstructionsModal.classList.add("hidden");
@@ -5725,10 +5725,10 @@ function restoreLiveStateIfAny() {
     }
 
     if (s.mode && s.mode.startsWith("sequence") && s.sequence) {
-      seqBoard = Array.isArray(s.sequence.board)  -  s.sequence.board : Array(10).fill(null).map(() => Array(10).fill(null));
-      seqLocked = Array.isArray(s.sequence.locked)  -  s.sequence.locked : Array(10).fill(false).map(() => Array(10).fill(false));
-      seqDeck = Array.isArray(s.sequence.deck)  -  s.sequence.deck : [];
-      seqDiscards = Array.isArray(s.sequence.discards)  -  s.sequence.discards : [];
+      seqBoard = Array.isArray(s.sequence.board) ? s.sequence.board : Array(10).fill(null).map(() => Array(10).fill(null));
+      seqLocked = Array.isArray(s.sequence.locked) ? s.sequence.locked : Array(10).fill(false).map(() => Array(10).fill(false));
+      seqDeck = Array.isArray(s.sequence.deck) ? s.sequence.deck : [];
+      seqDiscards = Array.isArray(s.sequence.discards) ? s.sequence.discards : [];
       seqHands = s.sequence.hands || { p1: [], p2: [] };
       seqTurn = s.sequence.turn || "p1";
       seqP1Sequences = s.sequence.p1Sequences || 0;
@@ -5744,24 +5744,24 @@ function restoreLiveStateIfAny() {
     }
 
     if (s.mode.startsWith("ttt") && s.ttt) {
-      tttBoard = Array.isArray(s.ttt.board)  -  s.ttt.board : [];
-      tttSize = s.ttt.size || (s.mode.startsWith("ttt5")  -  5 : 3);
-      tttWinLen = s.ttt.winLen || (tttSize === 3  -  3 : 4);
+      tttBoard = Array.isArray(s.ttt.board) ? s.ttt.board : [];
+      tttSize = s.ttt.size || (s.mode.startsWith("ttt5") ? 5 : 3);
+      tttWinLen = s.ttt.winLen || (tttSize === 3 ? 3 : 4);
       tttTurn = s.ttt.turn || "X";
       tttOver = !!s.ttt.over;
-      tttWinningCells = Array.isArray(s.ttt.winning)  -  s.ttt.winning : [];
+      tttWinningCells = Array.isArray(s.ttt.winning) ? s.ttt.winning : [];
       updateMoveCounter(true);
       renderTTT();
       return true;
     }
 
     if (s.mode.startsWith("chess") && s.chess) {
-      chessBoard = Array.isArray(s.chess.board)  -  s.chess.board : [];
+      chessBoard = Array.isArray(s.chess.board) ? s.chess.board : [];
       chessTurn = s.chess.turn || "w";
       chessSelected = s.chess.selected || null;
       chessOver = !!s.chess.over;
-      whiteCaptured = Array.isArray(s.chess.whiteCaptured)  -  s.chess.whiteCaptured : [];
-      blackCaptured = Array.isArray(s.chess.blackCaptured)  -  s.chess.blackCaptured : [];
+      whiteCaptured = Array.isArray(s.chess.whiteCaptured) ? s.chess.whiteCaptured : [];
+      blackCaptured = Array.isArray(s.chess.blackCaptured) ? s.chess.blackCaptured : [];
 
       const looksValid = chessBoard.length === 8 && Array.isArray(chessBoard[0]) && chessBoard[0].length === 8;
       if (!looksValid || chessOver) return false;
@@ -5784,7 +5784,7 @@ function restoreLiveStateIfAny() {
         pattuCurrentPuzzle = s.pattu.puzzle || PATTU_OFFLINE_PUZZLES[0];
         pattuAttempt = s.pattu.attempt || 1;
         pattuActiveFrame = s.pattu.activeFrame || 1;
-        pattuGuesses = Array.isArray(s.pattu.guesses)  -  s.pattu.guesses : [];
+        pattuGuesses = Array.isArray(s.pattu.guesses) ? s.pattu.guesses : [];
         pattuOver = !!s.pattu.over;
         pattuWon = !!s.pattu.won;
         preloadPattuPuzzle(pattuCurrentDay);
@@ -5833,8 +5833,8 @@ window.addEventListener("keydown", (e) => {
   if (k === "5") { hubState.game = "poker"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
   if (k === "6") { hubState.game = "pattu"; modeSelect.value = modeFromHub(); syncHud(); persistHub(); initBoard(true); return; }
 
-  if (k === "R") { newGameBtn - .click(); return; }
-  if (k === "Z") { undoBtn - .click(); return; }
+  if (k === "R") { newGameBtn?.click(); return; }
+  if (k === "Z") { undoBtn?.click(); return; }
 });
 
 /* ---------- Timer Expiration ---------- */
@@ -5858,7 +5858,7 @@ function onTimerExpired() {
     moveChess(chessBoard, moves[Math.floor(Math.random() * moves.length)], true);
     moveCount++;
     updateMoveCounter(true);
-    chessTurn = chessTurn === "w"  -  "b" : "w";
+    chessTurn = chessTurn === "w" ? "b" : "w";
     renderChess();
     startTurnTimer();
     persistLiveState();
@@ -5866,12 +5866,12 @@ function onTimerExpired() {
 }
 
 /* ---------- Action Controls ---------- */
-newGameBtn - .addEventListener("click", () => {
+newGameBtn?.addEventListener("click", () => {
   resetIdleWatchdog();
   initBoard(true);
 });
 
-resetScoreBtn - .addEventListener("click", () => {
+resetScoreBtn?.addEventListener("click", () => {
   resetIdleWatchdog();
   scoreA = 0; scoreB = 0; scoreD = 0; streak = 0;
   persistScores();
@@ -5879,7 +5879,7 @@ resetScoreBtn - .addEventListener("click", () => {
   persistLiveState();
 });
 
-undoBtn - .addEventListener("click", () => {
+undoBtn?.addEventListener("click", () => {
   resetIdleWatchdog();
   if (hubState.game === "wordle") {
     handleWordleKey("DEL");
@@ -5922,16 +5922,16 @@ undoBtn - .addEventListener("click", () => {
   persistLiveState();
 });
 
-chessHintsBtn - .addEventListener("click", () => {
+chessHintsBtn?.addEventListener("click", () => {
   resetIdleWatchdog();
   chessShowMoveHints = !chessShowMoveHints;
   chessHintsBtn.classList.toggle("active", chessShowMoveHints);
-  chessHintsBtn.setAttribute("aria-pressed", chessShowMoveHints  -  "true" : "false");
+  chessHintsBtn.setAttribute("aria-pressed", chessShowMoveHints ? "true" : "false");
   renderChess();
 });
 
 /* ---------- HUD Bar Events ---------- */
-gameTypePills - .addEventListener("click", (e) => {
+gameTypePills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-game]");
   if (!btn) return;
   const targetGame = btn.dataset.game;
@@ -5952,11 +5952,11 @@ gameTypePills - .addEventListener("click", (e) => {
   initBoard(true);
 });
 
-tttModePills - .addEventListener("click", (e) => {
+tttModePills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-grid]");
   if (!btn) return;
   const grid = btn.dataset.grid;
-  const targetGame = grid === "5"  -  "ttt5" : "ttt3";
+  const targetGame = grid === "5" ? "ttt5" : "ttt3";
   hubState.game = targetGame;
   hubState.lastTttMode = targetGame;
   modeSelect.value = modeFromHub();
@@ -5965,7 +5965,7 @@ tttModePills - .addEventListener("click", (e) => {
   initBoard(true);
 });
 
-opponentPills - .addEventListener("click", (e) => {
+opponentPills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-opponent]");
   if (!btn) return;
   hubState.opponent = btn.dataset.opponent;
@@ -5975,7 +5975,7 @@ opponentPills - .addEventListener("click", (e) => {
   initBoard(true);
 });
 
-difficultyPills - .addEventListener("click", (e) => {
+difficultyPills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-difficulty]");
   if (!btn) return;
   hubState.difficulty = btn.dataset.difficulty;
@@ -5988,7 +5988,7 @@ difficultyPills - .addEventListener("click", (e) => {
   persistLiveState();
 });
 
-timerPills - .addEventListener("click", (e) => {
+timerPills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-timer]");
   if (!btn) return;
   hubState.timer = btn.dataset.timer;
@@ -6179,13 +6179,15 @@ if (document.readyState === "loading") {
 }
 
 
+
+
 /* ==========================================================================
-   GAP Games â€” Scenic Glassmorphism Navigation & Landing Card Interactions
+   GAP Games — Scenic Glassmorphism Navigation & Landing Card Interactions
    ========================================================================== */
 
 function getGameDisplayName(gameKey) {
-  if (gameKey === "ttt3") return "Tic-Tac-Toe (3Ã—3)";
-  if (gameKey === "ttt5") return "Tic-Tac-Toe (5Ã—5)";
+  if (gameKey === "ttt3") return "Tic-Tac-Toe (3×3)";
+  if (gameKey === "ttt5") return "Tic-Tac-Toe (5×5)";
   if (gameKey === "chess") return "Chess";
   if (gameKey === "sequence") return "Sequence";
   if (gameKey === "wordle") return "Wordle";
@@ -6255,7 +6257,7 @@ function initScenicLandingAndNav() {
   }
 
   // 1. Game Selection Cards
-  cardGrid - .addEventListener("click", (e) => {
+  cardGrid?.addEventListener("click", (e) => {
     const card = e.target.closest("[data-game]");
     if (!card) return;
     const targetGame = card.dataset.game;
@@ -6274,25 +6276,25 @@ function initScenicLandingAndNav() {
   });
 
   // 2. Return to All Games Button
-  backBtn - .addEventListener("click", () => {
+  backBtn?.addEventListener("click", () => {
     showLandingView();
     location.hash = "#/";
   });
 
   // 3. Header Play Button
-  navPlayBtn - .addEventListener("click", () => {
+  navPlayBtn?.addEventListener("click", () => {
     const landing = document.getElementById("landingView");
     if (landing && landing.classList.contains("hidden")) {
       showLandingView();
       location.hash = "#/";
     } else {
       const selectSec = document.getElementById("gameSelectSection");
-      selectSec - .scrollIntoView({ behavior: "smooth" });
+      selectSec?.scrollIntoView({ behavior: "smooth" });
     }
   });
 
   // 4. Header Brand Logo
-  brand - .addEventListener("click", () => {
+  brand?.addEventListener("click", () => {
     const landing = document.getElementById("landingView");
     if (landing && landing.classList.contains("hidden")) {
       showLandingView();
@@ -6304,11 +6306,11 @@ function initScenicLandingAndNav() {
 
   // 5. Header Stats, Avatar, & Leaderboard
   const triggerStats = () => {
-    scoreTickerBtn - .click();
+    scoreTickerBtn?.click();
   };
-  navStatsBtn - .addEventListener("click", triggerStats);
-  navAvatarBtn - .addEventListener("click", triggerStats);
-  navLeaderboardBtn - .addEventListener("click", triggerStats);
+  navStatsBtn?.addEventListener("click", triggerStats);
+  navAvatarBtn?.addEventListener("click", triggerStats);
+  navLeaderboardBtn?.addEventListener("click", triggerStats);
 
   // 6. Header Settings Modal
   const openSettings = () => {
@@ -6319,19 +6321,19 @@ function initScenicLandingAndNav() {
     setActive(document.getElementById("modalThemePills"), "theme", hubState.theme);
     settingsModal.classList.remove("hidden");
   };
-  navSettingsBtn - .addEventListener("click", openSettings);
+  navSettingsBtn?.addEventListener("click", openSettings);
 
   const closeSettings = () => {
-    settingsModal - .classList.add("hidden");
+    settingsModal?.classList.add("hidden");
   };
-  closeSettingsBtn - .addEventListener("click", closeSettings);
-  closeSettingsXBtn - .addEventListener("click", closeSettings);
-  settingsModal - .addEventListener("click", (e) => {
+  closeSettingsBtn?.addEventListener("click", closeSettings);
+  closeSettingsXBtn?.addEventListener("click", closeSettings);
+  settingsModal?.addEventListener("click", (e) => {
     if (e.target === settingsModal) closeSettings();
   });
 
   // Settings Modal Pill Controls
-  document.getElementById("modalOpponentPills") - .addEventListener("click", (e) => {
+  document.getElementById("modalOpponentPills")?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-opponent]");
     if (!btn) return;
     hubState.opponent = btn.dataset.opponent;
@@ -6342,7 +6344,7 @@ function initScenicLandingAndNav() {
     initBoard(true);
   });
 
-  document.getElementById("modalDifficultyPills") - .addEventListener("click", (e) => {
+  document.getElementById("modalDifficultyPills")?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-difficulty]");
     if (!btn) return;
     hubState.difficulty = btn.dataset.difficulty;
@@ -6355,7 +6357,7 @@ function initScenicLandingAndNav() {
     if (hubState.game === "sequence") renderSequenceHUD();
   });
 
-  document.getElementById("modalTimerPills") - .addEventListener("click", (e) => {
+  document.getElementById("modalTimerPills")?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-timer]");
     if (!btn) return;
     hubState.timer = btn.dataset.timer;
@@ -6365,7 +6367,7 @@ function initScenicLandingAndNav() {
     startTurnTimer();
   });
 
-  document.getElementById("modalThemePills") - .addEventListener("click", (e) => {
+  document.getElementById("modalThemePills")?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-theme]");
     if (!btn) return;
     setTheme(btn.dataset.theme);
@@ -6373,26 +6375,26 @@ function initScenicLandingAndNav() {
   });
 
   // 7. Hero Feature Indicators
-  document.getElementById("featBadgeGames") - .addEventListener("click", () => {
-    document.getElementById("gameSelectSection") - .scrollIntoView({ behavior: "smooth" });
+  document.getElementById("featBadgeGames")?.addEventListener("click", () => {
+    document.getElementById("gameSelectSection")?.scrollIntoView({ behavior: "smooth" });
   });
 
-  document.getElementById("featBadgeOpponent") - .addEventListener("click", () => {
-    hubState.opponent = (hubState.opponent === "ai"  -  "local" : "ai");
+  document.getElementById("featBadgeOpponent")?.addEventListener("click", () => {
+    hubState.opponent = (hubState.opponent === "ai" ? "local" : "ai");
     if (modeSelect) modeSelect.value = modeFromHub();
     syncHud();
     persistHub();
     initBoard(true);
     const txt = document.getElementById("featOpponentText");
     if (txt) {
-      txt.textContent = hubState.opponent === "ai"  -  "vs AI Active" : "Local 2P Active";
+      txt.textContent = hubState.opponent === "ai" ? "vs AI Active" : "Local 2P Active";
       setTimeout(() => { txt.textContent = "Play Local or AI"; }, 1800);
     }
   });
 
-  document.getElementById("featBadgeStats") - .addEventListener("click", triggerStats);
+  document.getElementById("featBadgeStats")?.addEventListener("click", triggerStats);
 
-  document.getElementById("featBadgeThemes") - .addEventListener("click", () => {
+  document.getElementById("featBadgeThemes")?.addEventListener("click", () => {
     const themes = ["dark", "light", "itachi", "naruto"];
     const nextIdx = (themes.indexOf(hubState.theme) + 1) % themes.length;
     setTheme(themes[nextIdx]);
