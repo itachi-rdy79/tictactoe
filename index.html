@@ -36,23 +36,71 @@
       <path d="M 330 140 L 290 160 C 250 140 180 140 140 190 L 100 270 L 240 270 C 280 270 310 230 300 200 C 290 160 250 150 200 160 C 160 170 140 210 150 240 C 165 270 210 280 240 270 C 270 255 275 220 255 200 C 235 180 200 190 190 210 C 185 225 195 240 210 235 C 220 230 225 220 220 212" fill="none" stroke="#f97316" stroke-width="12" stroke-linecap="round" opacity="0.3" filter="drop-shadow(0 0 20px #ea580c)"/>
     </svg>
   </div>
-  <!-- Top Floating Command Island -->
-  <header class="top-hud glass-island">
-    <div class="hud-left">
-      <div class="brand">
-        <span class="brand-title">GAP</span>
+  <!-- Left Sea Glass Arcade Dock -->
+  <aside class="sea-glass-dock" id="arcadeDock" aria-label="Games Dock">
+    <div class="dock-header">
+      <div class="dock-brand">
+        <span class="dock-sea-orb" aria-hidden="true"></span>
+        <span class="dock-brand-title">GAP</span>
       </div>
-      <div class="seg" id="gameTypePills">
-        <button class="seg-btn active" data-game="ttt" id="btnGameTTT" type="button" title="Shortcut: 1">TTT</button>
-        <button class="seg-btn" data-game="sequence" id="btnGameSequence" type="button" title="Shortcut: 2">Sequence</button>
-        <button class="seg-btn" data-game="chess" type="button" title="Shortcut: 3">Chess</button>
-        <button class="seg-btn" data-game="wordle" type="button" title="Shortcut: 4">Wordle</button>
-        <button class="seg-btn" data-game="poker" type="button" title="Shortcut: 5">Poker</button>
-        <button class="seg-btn" data-game="pattu" type="button" title="Shortcut: 6">PC Guesser</button>
-        <a href="palace-escape/" class="seg-btn" id="btnGamePalace" data-game="palace" title="Play Palace Escape Fullscreen" style="text-decoration:none;">Palace Escape &#8599;</a>
-      </div>
+      <span class="dock-brand-badge">ARCADE</span>
     </div>
 
+    <nav class="dock-nav" id="gameTypePills" aria-label="Games Selection">
+      <button class="dock-btn seg-btn active" data-game="ttt" id="btnGameTTT" type="button" title="Shortcut: 1">
+        <span class="dock-btn-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9h16M4 15h16M9 4v16M15 4v16"/></svg>
+        </span>
+        <span class="dock-btn-label">Tic-Tac-Toe</span>
+      </button>
+
+      <button class="dock-btn seg-btn" data-game="sequence" id="btnGameSequence" type="button" title="Shortcut: 2">
+        <span class="dock-btn-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m8 12 3 3 5-5"/></svg>
+        </span>
+        <span class="dock-btn-label">Sequence</span>
+      </button>
+
+      <button class="dock-btn seg-btn" data-game="chess" id="btnGameChess" type="button" title="Shortcut: 3">
+        <span class="dock-btn-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m9 20 6 0M10 4h4M9.5 7h5M12 4v3M9 20l1-9c-.5-.5-1-1.5-1-2.5 0-1.5 1-2.5 2-2.5s2 1 2 2.5c0 1-.5 2-1 2.5l1 9"/></svg>
+        </span>
+        <span class="dock-btn-label">Chess</span>
+      </button>
+
+      <button class="dock-btn seg-btn" data-game="wordle" id="btnGameWordle" type="button" title="Shortcut: 4">
+        <span class="dock-btn-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        </span>
+        <span class="dock-btn-label">Wordle</span>
+      </button>
+
+      <button class="dock-btn seg-btn" data-game="poker" id="btnGamePoker" type="button" title="Shortcut: 5">
+        <span class="dock-btn-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2c3 4 7 7 7 11a7 7 0 0 1-14 0c0-4 4-7 7-11Z"/><path d="M10 22h4M12 18v4"/></svg>
+        </span>
+        <span class="dock-btn-label">Poker</span>
+      </button>
+
+      <button class="dock-btn seg-btn" data-game="pattu" id="btnGamePattu" type="button" title="Shortcut: 6">
+        <span class="dock-btn-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M7 15h4M15 15h2M7 9l4 4-4 4"/></svg>
+        </span>
+        <span class="dock-btn-label">PC Guesser</span>
+      </button>
+
+      <a href="palace-escape/" class="dock-btn dock-btn-palace seg-btn" id="btnGamePalace" data-game="palace" title="Play Palace Escape Fullscreen" style="text-decoration:none;">
+        <span class="dock-btn-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 10h.01M15 10h.01"/></svg>
+        </span>
+        <span class="dock-btn-label">Palace Escape</span>
+        <span class="dock-btn-tag">&#8599;</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Top Floating Sea Glass Match Controls -->
+  <header class="top-hud glass-island sea-glass-top-hud">
     <div class="hud-center" id="hudCenterGroup">
       <div class="group" id="tttModeGroup">
         <div class="seg" id="tttModePills">
