@@ -106,6 +106,7 @@ const sequenceHandCardsEl = seqP1HandCardsEl;
 
 // Pattu DOM (Tollywood Movie Guesser - Exact Original UI)
 const pattuGameEl = document.getElementById("pattuGame");
+const palaceGameEl = document.getElementById("palaceGame");
 const pattuStatsBtn = document.getElementById("pattuStatsBtn");
 const pattuTimeTravelBtn = document.getElementById("pattuTimeTravelBtn");
 const pattuHelpBtn = document.getElementById("pattuHelpBtn");
@@ -580,7 +581,7 @@ function loadHub() {
   const raw = location.hash || "";
   if (raw.startsWith("#/")) {
     const [path, query = ""] = raw.slice(2).split("?");
-    if (["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu"].includes(path)) hubState.game = path;
+    if (["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu", "palace"].includes(path)) hubState.game = path;
 
     const q = new URLSearchParams(query);
     const vs = q.get("vs");
@@ -601,7 +602,7 @@ function loadHub() {
   if (!["dark", "light", "itachi", "naruto"].includes(hubState.theme)) hubState.theme = "dark";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
-  if (!["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu"].includes(hubState.game)) hubState.game = "ttt3";
+  if (!["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu", "palace"].includes(hubState.game)) hubState.game = "ttt3";
 
   if (hubState.game === "wordle" || hubState.game === "pattu") hubState.opponent = "local";
 }
@@ -610,7 +611,7 @@ function syncHud() {
   const isTTT = hubState.game.startsWith("ttt");
   const isWordle = hubState.game === "wordle";
   const isPattu = hubState.game === "pattu";
-  const isSolo = isWordle || isPattu;
+  const isSolo = isWordle || isPattu || (hubState.game === "palace");
   if (isSolo) hubState.opponent = "local";
 
   const activeGamePill = isTTT ? "ttt" : hubState.game;
@@ -637,7 +638,7 @@ function syncHud() {
   }
 
   if (difficultyGroup) {
-    if (isPattu) {
+    if (isPattu || hubState.game === "palace") {
       difficultyGroup.style.setProperty("display", "none", "important");
     } else {
       difficultyGroup.style.display = "flex";
@@ -653,6 +654,7 @@ function showOnlyActiveGame(gameKey) {
   const isWordle = (gameKey === "wordle");
   const isPoker = (gameKey === "poker");
   const isPattu = (gameKey === "pattu");
+  const isPalace = (gameKey === "palace");
   const isSequence = (gameKey === "sequence");
 
   // 1. TTT Board
@@ -699,6 +701,17 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
+  // Palace Escape Arena
+  if (palaceGameEl) {
+    if (isPalace) {
+      palaceGameEl.classList.remove("hidden");
+      palaceGameEl.style.removeProperty("display");
+    } else {
+      palaceGameEl.classList.add("hidden");
+      palaceGameEl.style.setProperty("display", "none", "important");
+    }
+  }
+
   // 5. Pattu Arena
   if (pattuGameEl) {
     if (isPattu) {
@@ -724,7 +737,15 @@ function showOnlyActiveGame(gameKey) {
   // Hide TTT HUD turn status pill & adjust arena when playing Pattu or Sequence
   const statusWrapEl = document.querySelector(".status-wrap");
   const arenaEl = document.querySelector(".arena");
-  if (isPattu) {
+  if (isPalace) {
+    arenaEl?.classList.remove("pattu-arena-mode");
+    statusWrapEl?.classList.add("hidden");
+    statusWrapEl?.style.setProperty("display", "none", "important");
+    statusPill?.classList.add("hidden");
+    statusPill?.style.setProperty("display", "none", "important");
+    moveCounterPill?.classList.add("hidden");
+    moveCounterPill?.style.setProperty("display", "none", "important");
+  } else if (isPattu) {
     arenaEl?.classList.add("pattu-arena-mode");
     statusWrapEl?.classList.add("hidden");
     statusWrapEl?.style.setProperty("display", "none", "important");
@@ -6006,6 +6027,7 @@ function initBoard(forceFresh = false) {
   else if (hubState.game === "sequence") initSequence();
   else if (hubState.game === "poker") initPoker();
   else if (hubState.game === "pattu") initPattu();
+  else if (hubState.game === "palace") showOnlyActiveGame("palace");
   else if (hubState.game === "ttt3") initTTT(3);
   else if (hubState.game === "ttt5") initTTT(5);
   else initChess();

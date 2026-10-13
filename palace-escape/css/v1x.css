@@ -1,0 +1,1011 @@
+/* =====================================================================================================
+   PALACE ESCAPE — "V1 look + V2 effects".
+   Loaded after style.css (the original ivory / gold / charcoal look is untouched). This file styles the new
+   components that came with V2's features — level badge and progress dots, coin pill, power rings, round intro,
+   star rating, Aasthi-earned reward, caught card, danger glow, menu motion — in V1's own colours, and brings
+   V2's animations.
+   ===================================================================================================== */
+
+.ico {
+  width: 1.2em;
+  height: 1.2em;
+  flex: 0 0 auto;
+  vertical-align: -0.2em;
+}
+
+.btn-ico {
+  display: inline-grid;
+  place-items: center;
+  line-height: 0;
+}
+
+.btn,
+.link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* ---------- loading ---------- */
+
+.loading-crest {
+  width: 46px;
+  margin: 0 auto 8px;
+  color: var(--gold);
+  animation: heroFloat 3s ease-in-out infinite;
+}
+
+.loading-crest .ico {
+  width: 100%;
+  height: auto;
+}
+
+/* ---------- buttons: a slow shine across the primary button ---------- */
+
+.btn.primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn.primary::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  left: 0;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  transform: translateX(-150%) skewX(-18deg);
+  animation: shine 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.btn.ghost {
+  font-size: 14px;
+  padding: 10px 18px;
+}
+
+/* ---------- HUD ---------- */
+
+#hud {
+  animation: hudIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+.level-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  background: rgba(255, 250, 240, 0.92);
+  border: 2px solid var(--gold);
+  border-radius: 999px;
+  padding: 4px 14px;
+  color: var(--terracotta-dark);
+  white-space: nowrap;
+}
+
+.level-badge span {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.level-badge b {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--navy);
+}
+
+.level-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.level-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(47, 47, 53, 0.2);
+  transition: background 0.3s;
+}
+
+.level-dots i.done {
+  background: var(--gold);
+}
+
+.level-dots i.now {
+  background: var(--gold-light);
+  box-shadow: 0 0 0 2px var(--gold);
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+
+.hud-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 250, 240, 0.92);
+  border: 2px solid var(--gold);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  color: var(--terracotta-dark);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.hud-stat b {
+  color: var(--navy);
+}
+
+.hud-ico {
+  display: inline-grid;
+  color: var(--teal);
+}
+
+.hud-ico .ico {
+  width: 16px;
+  height: 16px;
+}
+
+.hud-coins.bump {
+  animation: coinBump 0.7s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.icon-btn {
+  transition: transform 0.14s, background 0.2s;
+}
+
+.icon-btn .ico {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-btn:active {
+  transform: scale(0.9);
+}
+
+/* power-ups: a ring that drains */
+
+.power-avatar {
+  height: 44px;
+}
+
+.power-chip {
+  --p: 100;
+  background: none;
+  padding: 0;
+  gap: 5px;
+  animation: popIn 0.35s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+
+.power-ring {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(var(--gold) calc(var(--p) * 1%), rgba(47, 47, 53, 0.2) 0);
+  box-shadow: 0 2px 8px rgba(30, 30, 35, 0.25);
+}
+
+.power-ring::before {
+  content: "";
+  position: absolute;
+  inset: 3.5px;
+  border-radius: 50%;
+  background: var(--ivory);
+}
+
+.power-ring img {
+  position: relative;
+  width: 28px;
+  height: 28px;
+}
+
+.power-count {
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--navy);
+}
+
+/* ---------- board ---------- */
+
+#stage.enter #game {
+  animation: boardIn 0.6s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+}
+
+/* the red danger glow is painted on the board itself (see the renderer); this overlay stays off */
+.danger-vignette {
+  display: none;
+}
+
+/* the quick "GO" flash when a round begins */
+
+.countdown {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 6;
+}
+
+.countdown.show {
+  opacity: 1;
+}
+
+.cd-level {
+  display: none;
+}
+
+.cd-num {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: clamp(64px, 18vw, 120px);
+  letter-spacing: 0.04em;
+  color: var(--gold-light);
+  -webkit-text-stroke: 4px var(--terracotta-dark);
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 var(--terracotta-dark);
+}
+
+.cd-num.tick {
+  animation: cdTick 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.25) both;
+}
+
+/* ---------- overlays + cards ---------- */
+
+.card {
+  animation: cardIn 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.12) both;
+}
+
+.overlay {
+  animation: fadeIn 0.25s both;
+}
+
+.howto-icon .ico {
+  width: 18px;
+  height: 18px;
+  color: var(--terracotta-dark);
+}
+
+.legend-trap-icon .ico {
+  width: 24px;
+  height: 24px;
+  color: var(--terracotta-dark);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.stack .link {
+  justify-content: center;
+}
+
+/* ---------- round intro ---------- */
+
+.splash-inner {
+  background: var(--ivory);
+  border: 3px solid var(--gold);
+  border-radius: 22px;
+  box-shadow: 0 0 0 6px rgba(47, 47, 53, 0.92), 0 20px 50px rgba(20, 20, 25, 0.35);
+  width: min(430px, 94vw);
+  padding: 22px 20px 20px;
+  text-align: center;
+  animation: splashIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+
+.splash-kicker {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 10px;
+}
+
+.splash .trap-brief-icon {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 10px;
+  color: var(--terracotta-dark);
+  font-size: 0;
+  animation: iconPulse 2.6s ease-in-out infinite;
+}
+
+.trap-brief-icon .ico {
+  width: 42px;
+  height: 42px;
+}
+
+#trap-brief-title {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: clamp(26px, 7vw, 34px);
+  letter-spacing: 0.04em;
+  margin: 2px 0 8px;
+  color: var(--terracotta-dark);
+}
+
+.trap-brief-lead {
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.splash .trap-brief-points {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ---------- caught ---------- */
+
+.caught-overlay {
+  animation: redFlash 0.6s both;
+}
+
+.caught.card {
+  animation: slamIn 0.55s cubic-bezier(0.2, 0.9, 0.2, 1.2) both;
+}
+
+.caught-icon {
+  color: #b3261e;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.caught-icon .ico {
+  width: 54px;
+  height: 54px;
+}
+
+.caught h2 {
+  white-space: nowrap;
+  animation: shake 0.6s 0.2s both;
+}
+
+.caught .btn.primary {
+  width: 100%;
+}
+
+/* ---------- level complete ---------- */
+
+.complete.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.complete h2 {
+  margin: 2px 0 6px;
+}
+
+.complete-crown {
+  color: var(--gold);
+  filter: drop-shadow(0 3px 6px rgba(168, 102, 26, 0.35));
+  animation: heroFloat 3s ease-in-out infinite;
+}
+
+.complete-crown .ico {
+  width: 50px;
+  height: 50px;
+}
+
+.stars {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 2px 0 14px;
+}
+
+.star .ico {
+  width: 48px;
+  height: 48px;
+  fill: rgba(47, 47, 53, 0.08);
+  stroke: rgba(47, 47, 53, 0.3);
+}
+
+.star.on .ico {
+  fill: var(--gold);
+  stroke: #a8661a;
+  filter: drop-shadow(0 3px 6px rgba(168, 102, 26, 0.4));
+  animation: starPop 0.7s var(--d, 0.4s) cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.reward {
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 12px 10px;
+  border-radius: 16px;
+  background: #fff8e6;
+  border: 2px solid var(--gold);
+}
+
+.reward.empty {
+  opacity: 0.55;
+}
+
+.reward-label {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.reward-amount {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: clamp(30px, 8.5vw, 42px);
+  line-height: 1.15;
+  color: var(--terracotta-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.reward-total {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.stat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--line);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--terracotta-dark);
+}
+
+.chip .ico {
+  width: 16px;
+  height: 16px;
+}
+
+.chip.gold {
+  background: #fff8e6;
+  border-color: var(--gold);
+  color: var(--teal);
+}
+
+.complete .btn.primary {
+  width: 100%;
+}
+
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.complete.card {
+  z-index: 1;
+}
+
+/* ---------- main menu: motion ---------- */
+
+.menu {
+  overflow: hidden auto;
+}
+
+.menu-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.menu-bg i {
+  position: absolute;
+  bottom: -12px;
+  left: var(--x, 50%);
+  width: var(--s, 4px);
+  height: var(--s, 4px);
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px 2px rgba(212, 169, 63, 0.5);
+  opacity: 0;
+  animation: floatUp var(--t, 10s) linear var(--d, 0s) infinite;
+}
+
+.menu-bg i:nth-child(1) { --x: 6%; --s: 3px; --t: 11s; --d: 0s; }
+.menu-bg i:nth-child(2) { --x: 14%; --s: 5px; --t: 14s; --d: 2s; }
+.menu-bg i:nth-child(3) { --x: 23%; --s: 3px; --t: 9s; --d: 4s; }
+.menu-bg i:nth-child(4) { --x: 33%; --s: 4px; --t: 13s; --d: 1s; }
+.menu-bg i:nth-child(5) { --x: 42%; --s: 3px; --t: 10s; --d: 6s; }
+.menu-bg i:nth-child(6) { --x: 51%; --s: 5px; --t: 15s; --d: 3s; }
+.menu-bg i:nth-child(7) { --x: 60%; --s: 3px; --t: 12s; --d: 7s; }
+.menu-bg i:nth-child(8) { --x: 69%; --s: 4px; --t: 10s; --d: 0.5s; }
+.menu-bg i:nth-child(9) { --x: 78%; --s: 3px; --t: 14s; --d: 5s; }
+.menu-bg i:nth-child(10) { --x: 86%; --s: 5px; --t: 11s; --d: 2.5s; }
+.menu-bg i:nth-child(11) { --x: 93%; --s: 3px; --t: 13s; --d: 8s; }
+.menu-bg i:nth-child(12) { --x: 48%; --s: 4px; --t: 16s; --d: 9s; }
+
+.menu-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.menu-glow {
+  position: absolute;
+  inset: 12% -18% 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(243, 210, 122, 0.5), transparent 62%);
+  filter: blur(10px);
+}
+
+#menu-hero {
+  animation: heroFloat 5.5s ease-in-out infinite;
+}
+
+.title span {
+  animation: titleIn 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+
+.title span + span {
+  animation-delay: 0.12s;
+}
+
+.menu-links {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 14px;
+}
+
+/* ---------- motion ---------- */
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cardIn { from { opacity: 0; transform: translateY(24px) scale(0.94); } to { opacity: 1; transform: none; } }
+@keyframes splashIn { from { opacity: 0; transform: scale(0.88); } to { opacity: 1; transform: none; } }
+@keyframes slamIn { 0% { opacity: 0; transform: scale(1.7) rotate(-3deg); } 60% { opacity: 1; transform: scale(0.96); } 100% { transform: none; } }
+@keyframes popIn { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: none; } }
+@keyframes hudIn { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+@keyframes boardIn { from { opacity: 0; transform: scale(0.96); filter: brightness(0.7); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes pulseDot { 0%, 100% { box-shadow: 0 0 0 2px var(--gold); } 50% { box-shadow: 0 0 0 5px rgba(212, 169, 63, 0); } }
+@keyframes coinBump { 0% { transform: scale(1); } 30% { transform: scale(1.18); box-shadow: 0 0 22px rgba(212, 169, 63, 0.9); } 100% { transform: scale(1); } }
+/* animated with transform (not left), so it runs on the GPU and never causes layout work or layout shift */
+@keyframes shine {
+  0%, 55% { transform: translateX(-150%) skewX(-18deg); }
+  100% { transform: translateX(325%) skewX(-18deg); }
+}
+@keyframes heroFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+@keyframes floatUp { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: 0.9; } 90% { opacity: 0.5; } 100% { transform: translateY(-105vh); opacity: 0; } }
+@keyframes cdTick { 0% { transform: scale(2.3); opacity: 0; } 35% { opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes starPop { 0% { transform: scale(0) rotate(-40deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+@keyframes iconPulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(240, 199, 99, 0.25), 0 8px 18px rgba(0, 0, 0, 0.24); } 50% { box-shadow: 0 0 0 10px rgba(240, 199, 99, 0.12), 0 8px 18px rgba(0, 0, 0, 0.24); } }
+@keyframes redFlash { 0% { background-color: rgba(220, 40, 55, 0.6); } 100% { background-color: rgba(25, 25, 30, 0.3); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 15% { transform: translateX(-9px); } 30% { transform: translateX(8px); } 45% { transform: translateX(-6px); } 60% { transform: translateX(5px); } 80% { transform: translateX(-2px); } }
+@keyframes dangerPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.6); } }
+@keyframes titleIn { from { opacity: 0; transform: translateY(18px) scale(0.95); } to { opacity: 1; transform: none; } }
+
+/* ---------- round intro: the Start button unlocks after a few seconds ---------- */
+
+.btn.locked {
+  position: relative;
+  overflow: hidden;
+  cursor: not-allowed;
+  filter: saturate(0.5) brightness(0.92);
+}
+
+.btn.locked::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.4);
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: lockFill var(--lock-ms, 4s) linear forwards;
+  pointer-events: none;
+}
+
+.btn.locked::after {
+  display: none;
+}
+
+@keyframes lockFill {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.btn.ready {
+  animation: readyPulse 0.5s ease-out 2;
+}
+
+@keyframes readyPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 560px) {
+  .level-dots {
+    display: none;
+  }
+
+  #hud {
+    gap: 6px;
+  }
+
+  .hud-ico {
+    display: none;
+  }
+
+  .hud-stat {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+
+  .level-badge {
+    padding: 3px 11px;
+  }
+
+  .power-ring {
+    width: 36px;
+    height: 36px;
+  }
+
+  .power-ring img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .menu-links {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.caught .link {
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- skippable conversation hint ---------- */
+
+.skip-hint {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--safe-bottom, 0px) + 22px);
+  transform: translate(-50%, 12px);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(38, 38, 43, 0.9);
+  color: #fff8e6;
+  border: 1.5px solid var(--gold);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 20;
+  white-space: nowrap;
+}
+
+.skip-hint.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* breathing room between the menu buttons and the Aasthi Pathralu line */
+.menu .tagline {
+  margin: 24px auto 18px;
+}
+
+/* ---------- level 1 swipe coach ---------- */
+
+.coach {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--safe-bottom, 0px) + 22px);
+  transform: translate(-50%, 16px);
+  width: min(360px, calc(100vw - 28px));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px 10px 10px;
+  border-radius: 20px;
+  background: rgba(255, 250, 240, 0.97);
+  border: 2.5px solid var(--gold);
+  box-shadow: 0 0 0 4px rgba(47, 47, 53, 0.9), 0 14px 30px rgba(20, 20, 25, 0.3);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 20;
+}
+
+.coach.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* when the hero starts in the lower half, the guide sits at the top (just under the HUD) so it never covers him */
+.coach.top {
+  bottom: auto;
+  top: calc(var(--safe-top, 0px) + 112px);
+  transform: translate(-50%, -16px);
+}
+
+.coach.top.show {
+  transform: translate(-50%, 0);
+}
+
+.coach-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 800;
+  color: var(--terracotta-dark);
+}
+
+.coach-swipe {
+  position: relative;
+  flex: 0 0 74px;
+  height: 46px;
+  transform: rotate(var(--rot, 0deg));
+}
+
+.coach-trail {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 50%;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(212, 169, 63, 0), #d4a93f);
+}
+
+.coach-trail::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: -6px;
+  border-left: 13px solid #d4a93f;
+  border-top: 8.5px solid transparent;
+  border-bottom: 8.5px solid transparent;
+}
+
+.coach-finger {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  margin-top: -13px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #f3d27a 65%, #d4a93f);
+  box-shadow: 0 0 0 6px rgba(212, 169, 63, 0.28), 0 3px 8px rgba(0, 0, 0, 0.25);
+  animation: coachSwipe 1.7s ease-in-out infinite;
+}
+
+@keyframes coachSwipe {
+  0% { transform: translateX(0) scale(0.7); opacity: 0; }
+  15% { transform: translateX(2px) scale(1); opacity: 1; }
+  70% { transform: translateX(44px) scale(1); opacity: 1; }
+  100% { transform: translateX(46px) scale(0.85); opacity: 0; }
+}
+
+/* ---------- performance: collecting a power-up must not move or resize anything ---------- */
+
+/* the power icons sit in a fixed-height slot and may overflow it visually, but never push the HUD (or the board) */
+.hud-powers {
+  height: 36px;
+  min-height: 36px;
+  contain: layout;
+}
+
+.power-avatar,
+.power-chip {
+  margin-block: -6px;
+}
+
+.power-avatar.hidden {
+  display: none;
+}
+
+/* ---------- compact top bar: with power-ups active it must still fit (timer, coins and Pause stay on screen) ---------- */
+
+@media (max-width: 860px) {
+  .power-avatar {
+    display: none;
+  }
+
+  .power-chip {
+    margin-inline: -4px;
+  }
+
+  #hud.has-powers .level-badge span {
+    display: none;
+  }
+
+  #hud.has-powers .hud-coins {
+    display: none;
+  }
+}
+
+/* the very narrowest phones (320-340 px) */
+@media (max-width: 345px) {
+  #hud {
+    gap: 4px;
+    padding-left: calc(var(--safe-left) + 8px);
+    padding-right: calc(var(--safe-right) + 8px);
+  }
+
+  .power-ring {
+    width: 32px;
+    height: 32px;
+  }
+
+  .power-ring img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .hud-stat {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* ---------- no layout shift while the page boots: the menu is in the first paint, before its script has run ---------- */
+
+[data-icon]:empty {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+#btn-play {
+  min-width: min(260px, 80vw);
+}
+
+#btn-play:disabled {
+  opacity: 0.85;
+  cursor: progress;
+}
+
+/* ---------- the menu picture keeps its real proportions (the width/height attributes only reserve its space) ---------- */
+
+#menu-hero {
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ---------- "Follow the makers": a quiet row under the buttons, from level 3 on ---------- */
+
+.follow {
+  margin-top: 14px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+.follow.hidden {
+  display: none;
+}
+
+/* (.follow .follow-caption is deliberately more specific than the caught card's own ".caught p" rule) */
+.follow .follow-caption {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8d8d94;
+}
+
+.follow-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.follow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid #d3d1cb;
+  background: transparent;
+  color: #6b6b73;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.follow-link svg {
+  width: 10px;
+  height: 10px;
+  flex: none;
+}
+
+.follow-link:hover,
+.follow-link:focus-visible {
+  color: var(--ink);
+  border-color: var(--gold);
+  background: rgba(212, 169, 63, 0.09);
+  outline: none;
+}
+
+/* inert for the first moments after the card appears (see UIManager.setFollow) */
+.follow:not(.armed) .follow-link {
+  pointer-events: none;
+}
+
+/* short landscape screens: a tighter row (no caption) so the card does not need to scroll... */
+@media (max-height: 520px) {
+  .follow {
+    margin-top: 8px;
+    padding-top: 7px;
+  }
+
+  .follow .follow-caption {
+    display: none;
+  }
+}
+
+/* ...and on the shortest ones (a phone held sideways) there is simply no room: the buttons matter more */
+@media (max-height: 431px) {
+  .follow {
+    display: none;
+  }
+}

@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#ecebe8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="description" content="Palace Escape — a fast, funny palace chase. Dodge Dhayyam, the Crocodile and Thatha, and escape fast to take back more Aasthi." />
+    <link rel="canonical" href="https://rajasaabenduktesavra.tfigames.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="TFI Games" />
+    <meta property="og:url" content="https://rajasaabenduktesavra.tfigames.com/" />
+    <meta property="og:title" content="Palace Escape" />
+    <meta property="og:description" content="Escape the palace. Claim your title: PAN INDIA NO.1 BACHELOR." />
+    <meta property="og:image" content="https://tfigames.com/images/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Palace Escape" />
+    <meta name="twitter:description" content="Escape fast. Take more Aasthi." />
+    <meta name="twitter:image" content="https://tfigames.com/images/og.png" />
+    <title>Palace Escape</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2333333a'/%3E%3Cpath d='M18 56V30q14-22 28 0v26z' fill='%23e3b448'/%3E%3Cpath d='M24 56V33q8-12 16 0v23z' fill='%23fff3c4'/%3E%3C/svg%3E" />
+    <!-- The menu picture is the biggest thing on the first screen: ask for it early and first. -->
+    <link rel="preload" href="assets/sprites/hero-new.webp" as="image" fetchpriority="high" />
+    <!-- The game is a graph of ES modules; naming them all up front lets the browser fetch them in parallel
+         instead of discovering them one level at a time. -->
+    <link rel="modulepreload" href="js/main.js" />
+    <link rel="modulepreload" href="js/config.js" />
+    <link rel="modulepreload" href="js/input.js" />
+    <link rel="modulepreload" href="js/audio.js" />
+    <link rel="modulepreload" href="js/ui.js" />
+    <link rel="modulepreload" href="js/renderer.js" />
+    <link rel="modulepreload" href="js/game.js" />
+    <link rel="modulepreload" href="js/share.js" />
+    <link rel="modulepreload" href="js/aasthi.js" />
+    <link rel="modulepreload" href="js/icons.js" />
+    <link rel="modulepreload" href="js/levels.js" />
+    <link rel="modulepreload" href="js/entities.js" />
+    <link rel="modulepreload" href="js/smash.js" />
+    <link rel="modulepreload" href="js/train.js" />
+    <link rel="modulepreload" href="js/maze.js" />
+    <link rel="modulepreload" href="js/herolimbs.js" />
+    <link rel="modulepreload" href="js/walk.js" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/v1x.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header id="hud" class="hidden">
+        <div class="hud-left">
+          <div class="level-badge" aria-label="Level"><span>LEVEL</span><b id="hud-level">1</b></div>
+          <div id="hud-progress" class="level-dots" aria-hidden="true"></div>
+        </div>
+        <div id="hud-powers" class="hud-powers" aria-live="polite"></div>
+        <div class="hud-right">
+          <div class="hud-stat hud-timer" aria-label="Time"><span class="hud-ico" data-icon="timer"></span><b id="hud-time">00:00</b></div>
+          <div class="hud-stat hud-coins" aria-label="Total Aasthi"><span class="hud-ico" data-icon="coin"></span><b id="hud-aasthi">₹0.00 CR</b></div>
+          <button id="btn-bachelor-card" class="icon-btn hidden" aria-label="Aasthi Pathralu" data-icon="scroll"></button>
+          <button id="btn-legend" class="icon-btn" aria-label="Legend" data-icon="help"></button>
+          <button id="btn-pause" class="icon-btn" aria-label="Pause" data-icon="pause"></button>
+        </div>
+      </header>
+
+      <main id="stage">
+        <canvas id="game" aria-label="Palace maze"></canvas>
+        <div id="banner" class="banner" aria-live="polite">
+          <div class="banner-title"></div>
+          <div class="banner-sub"></div>
+        </div>
+        <div id="toasts" class="toasts" aria-live="polite"></div>
+        <div id="flash" class="flash"></div>
+        <div id="countdown" class="countdown" aria-live="assertive"><div class="cd-level"></div><div class="cd-num"></div></div>
+        <div id="danger" class="danger-vignette" aria-hidden="true"></div>
+      </main>
+    </div>
+
+    <!-- Loading -->
+    <section id="screen-loading" class="screen loading">
+      <div class="loading-inner">
+        <div class="loading-crest" data-icon="crown"></div>
+        <div class="loading-title">PALACE ESCAPE</div>
+        <div class="loading-bar"><i id="loading-progress"></i></div>
+        <div class="loading-text">Polishing the palace floors…</div>
+      </div>
+    </section>
+
+    <!-- Main menu -->
+    <section id="screen-menu" class="screen menu show">
+      <div class="menu-bg" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="menu-inner">
+        <div class="menu-art">
+          <div class="menu-sun"></div>
+          <div class="menu-glow"></div>
+          <img id="menu-hero" alt="The hero" src="assets/sprites/hero-new.webp" width="432" height="640" fetchpriority="high" decoding="async" />
+        </div>
+        <div class="menu-copy">
+          <h1 class="title"><span>PALACE</span><span>ESCAPE</span></h1>
+          <p class="menu-help">Help Rajasaab get his Aasthi</p>
+          <p class="tagline-strong">Escape fast. Take more Aasthi.</p>
+          <div class="menu-buttons">
+            <button id="btn-play" class="btn primary big" disabled><span class="btn-ico" data-icon="play"></span><span id="btn-play-label">PLAY</span></button>
+            <div class="menu-row">
+              <button id="btn-howto" class="btn ghost"><span class="btn-ico" data-icon="controller"></span>How to play</button>
+              <button id="btn-menu-legend" class="btn ghost"><span class="btn-ico" data-icon="help"></span>Legend</button>
+            </div>
+          </div>
+          <p class="tagline">Every 10 levels, Thatha gives you back your Aasthi Pathralu.</p>
+          <div class="menu-links">
+            <button id="btn-start-over" class="link hidden">Start over from Level 1</button>
+            <button id="btn-menu-bachelor-card" class="link hidden"><span class="btn-ico" data-icon="scroll"></span>My Aasthi Pathralu</button>
+            <button id="btn-mute-menu" class="link mute-toggle"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How to play -->
+    <section id="modal-howto" class="overlay">
+      <div class="card">
+        <h2>HOW TO PLAY</h2>
+        <ol class="howto">
+          <li><span class="howto-icon" data-icon="door"></span><span>Reach the <b>glowing palace door</b> to escape each level.</span></li>
+          <li><span class="howto-icon" data-icon="swipe"></span><span><b>Swipe</b> on the maze to move (on a computer, use <b>Arrow keys</b> or <b>WASD</b>). Turn early — you'll take it at the next junction.</span></li>
+          <li><span class="howto-icon" data-icon="skull"></span><span>Caught? No lives lost. Hit <b>Restart Level</b> and try again — as many times as you like.</span></li>
+          <li><span class="howto-icon" data-icon="bolt"></span><span>Grab power-ups from the first level. They activate automatically when touched.</span></li>
+          <li><span class="howto-icon" data-icon="scroll"></span><span>Every 10 levels earns an <b>Aasthi Pathralu</b> with more palace wealth for a faster run.</span></li>
+        </ol>
+        <button class="btn primary" data-close>GOT IT</button>
+      </div>
+    </section>
+
+    <!-- Legend -->
+    <section id="modal-legend" class="overlay">
+      <div class="card wide">
+        <h2>LEGEND</h2>
+        <div id="legend-trap" class="legend-item legend-trap hidden">
+          <div class="legend-trap-icon" aria-hidden="true"></div>
+          <div><b></b><ul></ul></div>
+        </div>
+        <div id="legend-grid" class="legend-grid"></div>
+        <button class="btn primary" data-close>GOT IT</button>
+      </div>
+    </section>
+
+    <!-- Power-ups -->
+    <section id="modal-powers" class="overlay">
+      <div class="card">
+        <h2>POWER-UPS</h2>
+        <div id="powers-list" class="powers-list"></div>
+        <div class="powers-note">
+          <img id="powers-hero2" alt="" />
+          <p><b>All powers activate automatically!</b><br />While a power lasts, you transform.</p>
+        </div>
+        <button id="btn-powers-go" class="btn primary" data-primary>LET'S GO</button>
+      </div>
+    </section>
+
+    <section id="modal-trap-brief" class="overlay splash">
+      <div class="splash-inner trap-brief">
+        <div class="splash-kicker">This round</div>
+        <div id="trap-brief-icon" class="trap-brief-icon"></div>
+        <h2 id="trap-brief-title">PALACE SHIFT</h2>
+        <p id="trap-brief-lead" class="trap-brief-lead"></p>
+        <ul id="trap-brief-points" class="trap-brief-points"></ul>
+        <button id="btn-trap-brief-go" class="btn primary big" data-primary><span class="btn-ico" data-icon="play"></span><span class="btn-label">START</span></button>
+      </div>
+    </section>
+
+    <!-- Pause -->
+    <section id="modal-pause" class="overlay">
+      <div class="card narrow">
+        <h2>PAUSED</h2>
+        <div class="stack">
+          <button id="btn-resume" class="btn primary" data-primary><span class="btn-ico" data-icon="play"></span>RESUME</button>
+          <button id="btn-pause-restart" class="btn"><span class="btn-ico" data-icon="restart"></span>RESTART LEVEL</button>
+          <button id="btn-mute-pause" class="link mute-toggle"></button>
+          <button id="btn-pause-menu" class="link"><span class="btn-ico" data-icon="home"></span>Main menu</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Caught -->
+    <section id="card-caught" class="overlay soft caught-overlay">
+      <div class="card narrow caught">
+        <div class="caught-icon" data-icon="skull"></div>
+        <h2>CHAMPESADU</h2>
+        <button id="btn-restart" class="btn primary big" data-primary><span class="btn-ico" data-icon="restart"></span>RESTART LEVEL</button>
+        <button id="btn-caught-menu" class="link"><span class="btn-ico" data-icon="home"></span>Main menu</button>
+        <div class="follow hidden" data-follow></div>
+      </div>
+    </section>
+
+    <!-- Level complete -->
+    <section id="card-complete" class="overlay soft complete-overlay">
+      <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
+      <div class="card narrow complete">
+        <div class="complete-crown" data-icon="crown"></div>
+        <h2>LEVEL COMPLETE</h2>
+        <div id="complete-stars" class="stars" aria-label="Rating">
+          <span class="star" data-icon="star"></span><span class="star" data-icon="star"></span><span class="star" data-icon="star"></span>
+        </div>
+        <div class="reward">
+          <div class="reward-label">Aasthi earned</div>
+          <div id="reward-amount" class="reward-amount">+₹0.00 CR</div>
+          <div id="reward-total" class="reward-total"></div>
+        </div>
+        <div id="complete-stats" class="stat-chips"></div>
+        <button id="btn-next" class="btn primary big" data-primary>NEXT LEVEL<span class="btn-ico" data-icon="chevron"></span></button>
+        <div class="follow hidden" data-follow></div>
+      </div>
+    </section>
+
+    <!-- Final game completion (Level 20) -->
+    <section id="card-game-end" class="overlay final">
+      <div class="final-wrap">
+        <div class="final-step game-end">
+          <div class="poster game-end-poster">
+            <div class="poster-brand">PALACE ESCAPE</div>
+            <div class="poster-kicker">THE FINAL ESCAPE</div>
+            <h2 class="poster-headline">THE PALACE<br />IS QUIET.</h2>
+            <img class="game-end-art" id="game-end-art" alt="The hero after the final escape" />
+            <p class="game-end-message">Eyana ochinappudu malli kaludham</p>
+          </div>
+          <p class="game-end-note">You completed all 20 levels.</p>
+          <button id="btn-play-from-start" class="btn primary big" data-primary>PLAY FROM LEVEL 1</button>
+          <button id="btn-game-end-menu" class="link">Main menu</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Always-available bachelor card -->
+    <section id="modal-bachelor-card" class="overlay final">
+      <div class="final-wrap">
+        <div class="final-step">
+          <canvas class="aasthi-canvas" id="bachelor-card-canvas" width="1122" height="1402" role="img" aria-label="Your Aasthi Pathralu card"></canvas>
+          <div class="final-controls">
+            <form class="claim-form" autocomplete="off">
+              <label for="bachelor-name-input">Name:</label>
+              <input id="bachelor-name-input" class="card-name-input" type="text" maxlength="24" placeholder="Your name" enterkeyhint="done" />
+              <label for="bachelor-photo-input">Photo (optional):</label>
+              <input id="bachelor-photo-input" class="card-photo-input" type="file" accept="image/png,image/jpeg,image/webp" />
+            </form>
+            <div class="final-actions">
+              <button id="btn-bachelor-share" class="btn primary big" data-primary>TAKE SCREENSHOT &amp; SHARE</button>
+              <button id="btn-bachelor-close" class="link">Back to game</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hero2 / reversed controls -->
+    <section id="modal-hero2-mode" class="overlay">
+      <div class="card">
+        <img class="hero2-mode-art" id="hero2-mode-art" alt="" />
+        <h2>HERO2 MODE!</h2>
+        <p>You have reached the next palace wing. Hero2 is now your default avatar.</p>
+        <p><b>Twist:</b> every movement control is reversed. Up moves down, left moves right — on keyboard, taps and swipes.</p>
+        <button id="btn-hero2-mode-go" class="btn primary" data-primary>I'M READY</button>
+      </div>
+    </section>
+
+    <!-- Final -->
+    <section id="card-final" class="overlay final">
+      <div class="final-wrap">
+        <div class="final-step">
+          <canvas class="aasthi-canvas" id="final-card-canvas" width="1122" height="1402" role="img" aria-label="Your Aasthi Pathralu card"></canvas>
+          <div class="final-controls">
+            <form class="claim-form" autocomplete="off">
+              <label for="name-input">Name:</label>
+              <input id="name-input" class="card-name-input" type="text" maxlength="24" placeholder="Your name" enterkeyhint="done" />
+              <label for="photo-input">Photo (optional):</label>
+              <input id="photo-input" class="card-photo-input" type="file" accept="image/png,image/jpeg,image/webp" />
+            </form>
+            <div class="final-actions">
+              <button id="btn-keep-going" class="btn primary big" data-primary>KEEP ESCAPING → LEVEL 11</button>
+              <button id="btn-share" class="btn">TAKE SCREENSHOT &amp; SHARE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

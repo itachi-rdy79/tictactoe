@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -49,6 +49,7 @@
         <button class="seg-btn" data-game="wordle" type="button" title="Shortcut: 4">Wordle</button>
         <button class="seg-btn" data-game="poker" type="button" title="Shortcut: 5">Poker</button>
         <button class="seg-btn" data-game="pattu" type="button" title="Shortcut: 6">PC Guesser</button>
+        <button class="seg-btn" data-game="palace" id="btnGamePalace" type="button" title="Shortcut: 7">Palace Escape</button>
       </div>
     </div>
 
@@ -385,6 +386,11 @@
           </div>
         </div>
 
+        <!-- Palace Escape Arena (100% Offline Air-Gapped Game) -->
+        <div id="palaceGame" class="palace-arena hidden" style="width: 100%; max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <iframe id="palaceFrame" src="palace-escape/index.html" style="width: 100%; height: 86vh; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5); background: #1a1a1f;" allow="autoplay" loading="lazy"></iframe>
+        </div>
+
         <!-- Pattu Instructions Modal -->
         <div id="pattuInstructionsModal" class="win-overlay hidden">
           <div class="win-modal glass-island pattu-modal-box">
@@ -595,3 +601,4 @@
   <script src="script.js?v=38.0"></script>
 </body>
 </html>
+
