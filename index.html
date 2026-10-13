@@ -49,7 +49,7 @@
         <button class="seg-btn" data-game="wordle" type="button" title="Shortcut: 4">Wordle</button>
         <button class="seg-btn" data-game="poker" type="button" title="Shortcut: 5">Poker</button>
         <button class="seg-btn" data-game="pattu" type="button" title="Shortcut: 6">PC Guesser</button>
-        <button class="seg-btn" data-game="palace" id="btnGamePalace" type="button" title="Shortcut: 7">Palace Escape</button>
+        <a href="palace-escape/" class="seg-btn" id="btnGamePalace" data-game="palace" title="Play Palace Escape Fullscreen" style="text-decoration:none;">Palace Escape &#8599;</a>
       </div>
     </div>
 
@@ -386,38 +386,15 @@
           </div>
         </div>
 
-        <!-- Palace Escape Arena (100% Fullscreen Viewport Mode) -->
-        <div id="palaceGame" class="palace-arena hidden">
-          <div class="palace-floating-hud" id="palaceFloatingHud">
-            <button class="palace-nav-pill" id="palaceBackBtn" type="button" title="Back to GAP Arcade Hub">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-              </svg>
-              <span>Back to Hub</span>
-            </button>
-            <div class="palace-hud-divider"></div>
-            <span class="palace-hud-brand">GAP â€¢ PALACE ESCAPE</span>
-            <div class="palace-hud-divider"></div>
-            <button class="palace-nav-pill" id="palaceFullscreenBtn" type="button" title="Toggle Fullscreen">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-              </svg>
-              <span id="palaceFsLabel">Fullscreen</span>
-            </button>
-          </div>
-          <iframe id="palaceFrame" src="palace-escape/index.html" allow="autoplay; fullscreen" loading="lazy"></iframe>
-        </div>
-
         <!-- Pattu Instructions Modal -->
         <div id="pattuInstructionsModal" class="win-overlay hidden">
           <div class="win-modal glass-island pattu-modal-box">
-            <h2>📜 How to Play</h2>
+            <h2>&#128220; How to Play</h2>
             <div class="pattu-modal-body">
-              <p>• Guess the <b>Tollywood (Telugu)</b> movie from the 5 movie stills.</p>
-              <p>• Each incorrect guess or skip reveals the next frame from the movie.</p>
-              <p>• Use the numbered buttons below the image to toggle between unlocked frames.</p>
-              <p>• Guess in as few tries as possible and maintain your streak!</p>
+              <p>&bull; Guess the <b>Tollywood (Telugu)</b> movie from the 5 movie stills.</p>
+              <p>&bull; Each incorrect guess or skip reveals the next frame from the movie.</p>
+              <p>&bull; Use the numbered buttons below the image to toggle between unlocked frames.</p>
+              <p>&bull; Guess in as few tries as possible and maintain your streak!</p>
             </div>
             <button id="closePattuHelpBtn" class="pattu-orig-submit-btn" type="button">Got it!</button>
           </div>
@@ -426,7 +403,7 @@
         <!-- PC Time Travel Modal (Interactive Calendar Picker) -->
         <div id="pattuTimeTravelModal" class="win-overlay hidden">
           <div class="win-modal glass-island pattu-modal-box pattu-tt-modal-box">
-            <h2>⏳ Time Travel</h2>
+            <h2>&#128197; Time Travel</h2>
             <div class="pattu-modal-body">
               <div class="pattu-tt-playing-badge">
                 You are playing day <b id="pattuTtCurrentDayText">#1570</b> game

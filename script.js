@@ -1,4 +1,4 @@
-﻿const modeSelect = document.getElementById("modeSelect");
+const modeSelect = document.getElementById("modeSelect");
 const difficultySelect = document.getElementById("difficultySelect");
 const themeSelect = document.getElementById("themeSelect");
 
@@ -106,7 +106,6 @@ const sequenceHandCardsEl = seqP1HandCardsEl;
 
 // Pattu DOM (Tollywood Movie Guesser - Exact Original UI)
 const pattuGameEl = document.getElementById("pattuGame");
-const palaceGameEl = document.getElementById("palaceGame");
 const pattuStatsBtn = document.getElementById("pattuStatsBtn");
 const pattuTimeTravelBtn = document.getElementById("pattuTimeTravelBtn");
 const pattuHelpBtn = document.getElementById("pattuHelpBtn");
@@ -581,7 +580,7 @@ function loadHub() {
   const raw = location.hash || "";
   if (raw.startsWith("#/")) {
     const [path, query = ""] = raw.slice(2).split("?");
-    if (["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu", "palace"].includes(path)) hubState.game = path;
+    if (["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu"].includes(path)) hubState.game = path;
 
     const q = new URLSearchParams(query);
     const vs = q.get("vs");
@@ -602,7 +601,7 @@ function loadHub() {
   if (!["dark", "light", "itachi", "naruto"].includes(hubState.theme)) hubState.theme = "dark";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
-  if (!["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu", "palace"].includes(hubState.game)) hubState.game = "ttt3";
+  if (!["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu"].includes(hubState.game)) hubState.game = "ttt3";
 
   if (hubState.game === "wordle" || hubState.game === "pattu") hubState.opponent = "local";
 }
@@ -611,7 +610,7 @@ function syncHud() {
   const isTTT = hubState.game.startsWith("ttt");
   const isWordle = hubState.game === "wordle";
   const isPattu = hubState.game === "pattu";
-  const isSolo = isWordle || isPattu || (hubState.game === "palace");
+  const isSolo = isWordle || isPattu;
   if (isSolo) hubState.opponent = "local";
 
   const activeGamePill = isTTT ? "ttt" : hubState.game;
@@ -638,7 +637,7 @@ function syncHud() {
   }
 
   if (difficultyGroup) {
-    if (isPattu || hubState.game === "palace") {
+    if (isPattu) {
       difficultyGroup.style.setProperty("display", "none", "important");
     } else {
       difficultyGroup.style.display = "flex";
@@ -654,7 +653,6 @@ function showOnlyActiveGame(gameKey) {
   const isWordle = (gameKey === "wordle");
   const isPoker = (gameKey === "poker");
   const isPattu = (gameKey === "pattu");
-  const isPalace = (gameKey === "palace");
   const isSequence = (gameKey === "sequence");
 
   // 1. TTT Board
@@ -699,17 +697,7 @@ function showOnlyActiveGame(gameKey) {
       pokerGameEl.classList.add("hidden");
       pokerGameEl.style.setProperty("display", "none", "important");
     }
-  }
 
-  // Palace Escape Arena
-  if (palaceGameEl) {
-    if (isPalace) {
-      palaceGameEl.classList.remove("hidden");
-      palaceGameEl.style.removeProperty("display");
-    } else {
-      palaceGameEl.classList.add("hidden");
-      palaceGameEl.style.setProperty("display", "none", "important");
-    }
   }
 
   // 5. Pattu Arena
@@ -5945,6 +5933,10 @@ gameTypePills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-game]");
   if (!btn) return;
   const targetGame = btn.dataset.game;
+    if (targetGame === "palace") {
+      window.location.href = "palace-escape/";
+      return;
+    }
   if (targetGame === "ttt") {
     if (!hubState.game.startsWith("ttt")) {
       hubState.game = hubState.lastTttMode || "ttt3";
@@ -6027,7 +6019,6 @@ function initBoard(forceFresh = false) {
   else if (hubState.game === "sequence") initSequence();
   else if (hubState.game === "poker") initPoker();
   else if (hubState.game === "pattu") initPattu();
-  else if (hubState.game === "palace") showOnlyActiveGame("palace");
   else if (hubState.game === "ttt3") initTTT(3);
   else if (hubState.game === "ttt5") initTTT(5);
   else initChess();
@@ -6157,32 +6148,6 @@ function initStageDragger() {
 }
 
 /* ---------- App Boot ---------- */
-  const palaceBackBtn = document.getElementById("palaceBackBtn");
-  const palaceFullscreenBtn = document.getElementById("palaceFullscreenBtn");
-  const palaceFsLabel = document.getElementById("palaceFsLabel");
-
-  palaceBackBtn?.addEventListener("click", () => {
-    hubState.game = hubState.lastTttMode || "ttt3";
-    syncHud();
-    persistHub();
-    initBoard(true);
-  });
-
-  palaceFullscreenBtn?.addEventListener("click", () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
-      if (palaceFsLabel) palaceFsLabel.textContent = "Exit Fullscreen";
-    } else {
-      document.exitFullscreen?.().catch(() => {});
-      if (palaceFsLabel) palaceFsLabel.textContent = "Fullscreen";
-    }
-  });
-
-  document.addEventListener("fullscreenchange", () => {
-    if (palaceFsLabel) {
-      palaceFsLabel.textContent = document.fullscreenElement ? "Exit Fullscreen" : "Fullscreen";
-    }
-  });
 
 function boot() {
   loadHub();
