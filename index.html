@@ -1,20 +1,28 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GAP</title>
+  <title>GAP Games — Classic Games Beautifully Reimagined</title>
   <!-- Konoha Leaf Glow Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffb703'/%3E%3Cstop offset='50%25' stop-color='%23fb8500'/%3E%3Cstop offset='100%25' stop-color='%23d00000'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='%23050002'/%3E%3Cpath d='M 86 26 L 76 33 C 65 26 44 26 31 43 L 18 68 L 62 68 C 76 68 83 55 80 43 C 77 31 63 25 49 28 C 35 32 30 46 34 58 C 39 68 53 71 64 67 C 72 62 74 51 68 44 C 62 37 51 40 47 48 C 45 54 49 60 55 58 C 59 56 60 52 58 49' fill='none' stroke='url(%23g)' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="style.css?v=38.0" />
+  <!-- Google Fonts Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2 — family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css — v=40.0" />
 </head>
 <body data-theme="dark">
-  <!-- Thematic Background Art -->
+  <!-- Scenic Mountain-Lake Sunset Background -->
+  <div class="scenic-background" id="scenicBg" aria-hidden="true">
+    <div class="scenic-overlay"></div>
+  </div>
+
+  <!-- Thematic Anime Background Overlays (Preserved for Itachi & Naruto themes) -->
   <div class="itachi-bg-art" aria-hidden="true">
     <img src="assets/itachi-bg.png" class="theme-bg-img itachi-bg-img" alt="Itachi Background" />
   </div>
 
-  <!-- Naruto Shinobi Aura Background Art -->
   <div class="naruto-bg-art" aria-hidden="true">
     <svg class="naruto-crest-svg" viewBox="0 0 500 500">
       <defs>
@@ -32,567 +40,774 @@
       </defs>
       <circle cx="250" cy="220" r="170" fill="url(#kuramaSun)"/>
       <circle cx="250" cy="250" r="230" fill="url(#rasenganCyanMist)"/>
-      <!-- Glowing Giant Leaf Spiral Motif -->
       <path d="M 330 140 L 290 160 C 250 140 180 140 140 190 L 100 270 L 240 270 C 280 270 310 230 300 200 C 290 160 250 150 200 160 C 160 170 140 210 150 240 C 165 270 210 280 240 270 C 270 255 275 220 255 200 C 235 180 200 190 190 210 C 185 225 195 240 210 235 C 220 230 225 220 220 212" fill="none" stroke="#f97316" stroke-width="12" stroke-linecap="round" opacity="0.3" filter="drop-shadow(0 0 20px #ea580c)"/>
     </svg>
   </div>
-  <!-- Left Sea Glass Arcade Dock -->
-  <aside class="sea-glass-dock" id="arcadeDock" aria-label="Games Dock">
-    <div class="dock-header">
-      <div class="dock-brand brand" id="gapBrand" role="button" tabindex="0" title="GAP â€¢ Click to cycle colors">
-        <span class="dock-sea-orb" aria-hidden="true"></span>
-        <span class="dock-brand-title brand-title">GAP</span>
+
+  <!-- Floating Translucent Top Navigation Header -->
+  <header class="scenic-nav" id="scenicNav">
+    <div class="scenic-nav-content glass-panel">
+      <!-- Left: GAP GAMES Logo -->
+      <div class="nav-brand" id="gapBrand" role="button" tabindex="0" title="GAP GAMES — Click to return to Home">
+        <span class="logo-text">GAP <span class="logo-accent">GAMES</span></span>
       </div>
-      <span class="dock-brand-badge">ARCADE</span>
-    </div>
 
-    <nav class="dock-nav" id="gameTypePills" aria-label="Games Selection">
-      <button class="dock-btn active" data-game="ttt" id="btnGameTTT" type="button" title="Shortcut: 1">
-        <span class="dock-btn-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9h16M4 15h16M9 4v16M15 4v16"/></svg>
-        </span>
-        <span class="dock-btn-label">Tic-Tac-Toe</span>
-      </button>
+      <!-- Center: Main Navigation Links -->
+      <nav class="nav-links" id="mainNavLinks" aria-label="Main Navigation">
+        <button class="nav-pill-btn active" id="navPlayBtn" type="button">Play</button>
+        <button class="nav-pill-btn" id="navStatsBtn" type="button">Stats</button>
+        <button class="nav-pill-btn" id="navLeaderboardBtn" type="button">Leaderboard</button>
+        <button class="nav-pill-btn" id="navSettingsBtn" type="button">Settings</button>
+      </nav>
 
-      <button class="dock-btn" data-game="sequence" id="btnGameSequence" type="button" title="Shortcut: 2">
-        <span class="dock-btn-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m8 12 3 3 5-5"/></svg>
-        </span>
-        <span class="dock-btn-label">Sequence</span>
-      </button>
-
-      <button class="dock-btn" data-game="chess" id="btnGameChess" type="button" title="Shortcut: 3">
-        <span class="dock-btn-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m9 20 6 0M10 4h4M9.5 7h5M12 4v3M9 20l1-9c-.5-.5-1-1.5-1-2.5 0-1.5 1-2.5 2-2.5s2 1 2 2.5c0 1-.5 2-1 2.5l1 9"/></svg>
-        </span>
-        <span class="dock-btn-label">Chess</span>
-      </button>
-
-      <button class="dock-btn" data-game="wordle" id="btnGameWordle" type="button" title="Shortcut: 4">
-        <span class="dock-btn-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-        </span>
-        <span class="dock-btn-label">Wordle</span>
-      </button>
-
-      <button class="dock-btn" data-game="poker" id="btnGamePoker" type="button" title="Shortcut: 5">
-        <span class="dock-btn-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2c3 4 7 7 7 11a7 7 0 0 1-14 0c0-4 4-7 7-11Z"/><path d="M10 22h4M12 18v4"/></svg>
-        </span>
-        <span class="dock-btn-label">Poker</span>
-      </button>
-
-      <button class="dock-btn" data-game="pattu" id="btnGamePattu" type="button" title="Shortcut: 6">
-        <span class="dock-btn-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M7 15h4M15 15h2M7 9l4 4-4 4"/></svg>
-        </span>
-        <span class="dock-btn-label">PC Guesser</span>
-      </button>
-
-      <a href="palace-escape/" class="dock-btn dock-btn-palace" id="btnGamePalace" data-game="palace" title="Play Palace Escape Fullscreen" style="text-decoration:none;">
-        <span class="dock-btn-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 10h.01M15 10h.01"/></svg>
-        </span>
-        <span class="dock-btn-label">Palace Escape</span>
-        <span class="dock-btn-tag">&#8599;</span>
-      </a>
-    </nav>
-  </aside>
-
-  <!-- Top Floating Sea Glass Match Controls -->
-  <header class="top-hud glass-island sea-glass-top-hud">
-    <div class="hud-center" id="hudCenterGroup">
-      <div class="group" id="tttModeGroup">
-        <div class="seg" id="tttModePills">
-          <button class="seg-btn active" data-grid="3" type="button">3×3</button>
-          <button class="seg-btn" data-grid="5" type="button">5×5</button>
+      <!-- Right: Theme Switcher & Utility Actions -->
+      <div class="nav-right">
+        <!-- Theme Picker -->
+        <div class="theme-picker" id="themePicker">
+          <button class="theme-trigger nav-icon-btn" id="themeTrigger" type="button" aria-expanded="false" title="Switch Theme">
+            <span id="themeCurrentIcon">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            </span>
+            <span id="themeCurrentText" class="sr-only">Theme</span>
+          </button>
+          <div class="theme-menu glass-panel" id="themeMenu">
+            <button class="theme-item active" data-theme="dark" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              Dark
+            </button>
+            <button class="theme-item" data-theme="light" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              Light
+            </button>
+            <button class="theme-item" data-theme="itachi" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>
+              Itachi
+            </button>
+            <button class="theme-item" data-theme="naruto" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/><circle cx="12" cy="13" r="2.5" fill="currentColor"/></svg>
+              Naruto
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="group" id="opponentGroup">
-        <span class="group-label">Opponent</span>
-        <div class="seg" id="opponentPills">
-          <button class="seg-btn" data-opponent="local" type="button">Local 2P</button>
-          <button class="seg-btn active" data-opponent="ai" type="button">vs AI</button>
-        </div>
-      </div>
-
-      <div class="group" id="difficultyGroup">
-        <span class="group-label">Difficulty</span>
-        <div class="seg" id="difficultyPills">
-          <button class="seg-btn" data-difficulty="easy" type="button">Easy</button>
-          <button class="seg-btn active" data-difficulty="medium" type="button">Medium</button>
-          <button class="seg-btn" data-difficulty="hard" type="button">Hard</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="hud-right">
-      <div class="theme-picker" id="themePicker">
-        <button class="theme-trigger seg-btn" id="themeTrigger" type="button" aria-expanded="false">
-          <span id="themeCurrentIcon">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          </span>
-          <span id="themeCurrentText">Light</span>
+        <!-- Avatar / Player Stats Action -->
+        <button class="nav-icon-btn" id="navAvatarBtn" type="button" title="Player Profile & Arcade Stats">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
         </button>
-        <div class="theme-menu glass-panel" id="themeMenu">
-          <button class="theme-item active" data-theme="light" type="button">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-            Light
-          </button>
-          <button class="theme-item" data-theme="dark" type="button">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            Dark
-          </button>
-          <button class="theme-item" data-theme="itachi" type="button">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>
-            Itachi
-          </button>
-          <button class="theme-item" data-theme="naruto" type="button">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/><circle cx="12" cy="13" r="2.5" fill="currentColor"/></svg>
-            Naruto
-          </button>
-        </div>
+
+        <!-- Mini Window Toggle -->
+        <button class="nav-icon-btn mini-window-btn" id="miniWindowBtn" type="button" title="Toggle Compact Mode" aria-label="Toggle Compact Mode">
+          <svg id="miniWindowIcon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h6v6"/>
+            <path d="M10 14L21 3"/>
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          </svg>
+        </button>
       </div>
-      <button class="mini-window-btn seg-btn" id="miniWindowBtn" type="button" title="Pop out into Mini Window" aria-label="Toggle Mini Window">
-        <svg id="miniWindowIcon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 3h6v6"/>
-          <path d="M10 14L21 3"/>
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-        </svg>
-      </button>
     </div>
   </header>
 
-  <!-- Arena Stage -->
-  <main class="arena">
-    <div class="arena-stage" id="arenaStage">
-      <section class="status-wrap">
-        <div class="turn-pill glass-panel" id="statusPill">X's Turn</div>
-        <div class="move-pill glass-panel hidden" id="moveCounterPill">Move: <b id="moveCount">0</b></div>
+  <!-- ============================================================== -->
+  <!-- 1. LANDING VIEW: Scenic Hero + 7 Interactive Glass Game Cards -->
+  <!-- ============================================================== -->
+  <div class="landing-view" id="landingView">
+    <!-- Hero Section -->
+    <section class="hero-section" id="heroSection">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Classic Games.<br />
+          Beautifully Reimagined.
+        </h1>
+        <p class="hero-subtitle">
+          Play your favorite games with a modern, elegant experience.
+        </p>
 
-        <div class="radial-wrap glass-panel hidden" id="radialWrap">
-          <svg class="radial" viewBox="0 0 120 120">
-            <circle class="ring-bg" cx="60" cy="60" r="50"></circle>
-            <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="50"></circle>
-          </svg>
-          <div class="radial-text" id="radialText">30</div>
-        </div>
-      </section>
-
-      <section class="board-area">
-        <!-- Left Extreme Edge: Sequence Player 1 Hand Shelf -->
-        <div class="sequence-edge-shelf glass-panel hidden" id="seqP1HandShelf">
-          <div class="sequence-shelf-header">
-            <div class="seq-shelf-badge">
-              <span class="seq-chip-dot p1-dot"></span>
-              <span class="sequence-shelf-title" id="seqP1ShelfTitle">P1 (Blue)</span>
-            </div>
-            <button type="button" class="seq-shelf-privacy-btn hidden" id="seqP1PrivacyBtn" title="Conceal Cards">🔒 Hide</button>
+        <!-- 4 Translucent Feature Indicators -->
+        <div class="hero-features" id="heroFeatures">
+          <div class="feature-badge glass-panel" id="featBadgeGames" role="button" tabindex="0" title="Explore all 7 games">
+            <span class="feat-icon">🏆</span>
+            <span class="feat-text">7 Games</span>
           </div>
-          <div class="sequence-shelf-tip" id="seqP1ShelfTip">6 cards</div>
-
-          <!-- P1 Draw Actions (Pick a Card / Skip) -->
-          <div class="seq-draw-actions hidden" id="seqP1DrawActions">
-            <button type="button" class="seq-pick-card-btn" id="seqP1PickCardBtn" title="Draw random replacement card from shoe">🎴 Pick a Card (+1)</button>
-            <button type="button" class="seq-skip-draw-btn" id="seqP1SkipDrawBtn" title="End turn without drawing (lose this card slot!)">End Turn (Skip Pick)</button>
+          <div class="feature-badge glass-panel" id="featBadgeOpponent" role="button" tabindex="0" title="Click to toggle Local 2P / AI">
+            <span class="feat-icon">👥</span>
+            <span class="feat-text" id="featOpponentText">Play Local or AI</span>
           </div>
-
-          <!-- P1 Privacy Curtain (Anti-Peeking Cover) -->
-          <div class="seq-curtain-overlay hidden" id="seqP1Curtain">
-            <div class="seq-curtain-icon">🛡️</div>
-            <div class="seq-curtain-msg">P1 Cards Protected</div>
-            <button type="button" class="seq-curtain-btn" id="seqP1RevealBtn">👁️ Reveal Hand</button>
+          <div class="feature-badge glass-panel" id="featBadgeStats" role="button" tabindex="0" title="View Arcade Statistics">
+            <span class="feat-icon">📊</span>
+            <span class="feat-text">Track Progress</span>
           </div>
-
-          <!-- P1 Hand Cards Rack (2x3 Grid) -->
-          <div class="sequence-hand-cards vertical-grid" id="seqP1HandCards"></div>
-        </div>
-
-        <!-- Left Side: White Captured -->
-        <div class="captured-sidebar glass-panel hidden" id="capturedLeft">
-          <div class="captured-header" id="whiteCapturedHeader">White Captured</div>
-          <div class="captured-tray" id="whiteCaptured"></div>
-        </div>
-
-        <!-- Main Board Shell -->
-        <section class="board-shell glass-island" id="boardWrap">
-          <div class="stage-drag-handle" title="Drag board left or right with mouse" aria-label="Drag board left or right"><span class="stage-drag-bar"></span></div>
-          <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
-        <div id="tttBoard" class="ttt-board"></div>
-        <div id="chessBoard" class="chess-board hidden"></div>
-        
-        <!-- Wordle Container -->
-        <div id="wordleGame" class="wordle-arena hidden">
-          <div id="wordleBoard" class="wordle-board"></div>
-          <div id="wordleKeyboard" class="wordle-keyboard"></div>
-        </div>
-
-        <!-- Poker Container -->
-        <div id="pokerGame" class="poker-arena hidden">
-          <!-- Opponent / AI Zone -->
-          <div class="poker-seat opponent-seat">
-            <div class="poker-player-info">
-              <span class="poker-player-name" id="pokerAiName">AI Opponent</span>
-              <div class="poker-chips-badge" id="pokerAiChipsBadge">
-                <span class="chip-coin-svg">🪙</span>
-                <span id="pokerAiChips">$1,000</span>
-              </div>
-            </div>
-            <div class="poker-cards-wrap" id="pokerAiCards"></div>
-            <div class="poker-bet-bubble hidden" id="pokerAiBetBubble">Bet: $0</div>
-          </div>
-
-          <!-- Felt Center / Community Board -->
-          <div class="poker-felt-center">
-            <div class="poker-pot-wrap">
-              <div class="poker-pot-pill">
-                <span>POT</span>
-                <b id="pokerPotAmount">$0</b>
-              </div>
-            </div>
-            <div class="poker-community-cards" id="pokerCommunityCards"></div>
-            <div class="poker-status-banner" id="pokerStatusBanner">Texas Hold'em — Place Your Bets</div>
-          </div>
-
-          <!-- Human Player Zone -->
-          <div class="poker-seat player-seat">
-            <div class="poker-bet-bubble hidden" id="pokerPlayerBetBubble">Bet: $0</div>
-            <div class="poker-cards-wrap" id="pokerPlayerCards"></div>
-            <div class="poker-player-info">
-              <div class="poker-name-and-hand">
-                <span class="poker-player-name" id="pokerPlayerName">You (Hero)</span>
-                <span class="poker-hand-eval" id="pokerHandEval">High Card</span>
-              </div>
-              <div class="poker-chips-badge" id="pokerPlayerChipsBadge">
-                <span class="chip-coin-svg">🪙</span>
-                <span id="pokerPlayerChips">$1,000</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Poker Action Dock -->
-          <div class="poker-action-dock" id="pokerActionDock">
-            <div class="poker-bet-controls" id="pokerBetControls">
-              <div class="poker-quick-bets">
-                <button class="poker-quick-btn" id="pokerQuickMin" type="button">Min</button>
-                <button class="poker-quick-btn" id="pokerQuickHalf" type="button">½ Pot</button>
-                <button class="poker-quick-btn" id="pokerQuickPot" type="button">Pot</button>
-                <button class="poker-quick-btn" id="pokerQuickAllIn" type="button">All-In</button>
-              </div>
-              <div class="poker-slider-row">
-                <input type="range" id="pokerBetSlider" min="20" max="1000" step="10" value="40" class="poker-slider" />
-                <span class="poker-slider-val" id="pokerSliderVal">$40</span>
-              </div>
-            </div>
-            <div class="poker-main-actions">
-              <button class="poker-action-btn fold-btn" id="pokerFoldBtn" type="button">Fold</button>
-              <button class="poker-action-btn call-btn" id="pokerCallBtn" type="button">Check</button>
-              <button class="poker-action-btn raise-btn" id="pokerRaiseBtn" type="button">Raise $40</button>
-              <button class="poker-action-btn next-hand-btn hidden" id="pokerNextHandBtn" type="button">Next Hand ➔</button>
-            </div>
+          <div class="feature-badge glass-panel" id="featBadgeThemes" role="button" tabindex="0" title="Switch Theme">
+            <span class="feat-icon">⚙️</span>
+            <span class="feat-text">Multiple Themes</span>
           </div>
         </div>
-
-        <!-- Sequence (Classic 10x10 Board & Card Game) -->
-        <div id="sequenceGame" class="sequence-arena hidden">
-          <!-- Top Sequence Status Bar -->
-          <div class="sequence-top-hud">
-            <div class="sequence-pills-row">
-              <div class="seq-score-pill seq-p1-pill" id="seqP1ScorePill">
-                <span class="seq-chip-dot p1-dot"></span>
-                <span class="seq-player-label" id="seqP1Label">You (Blue)</span>:
-                <b id="seqP1Sequences">0 / 2</b>
-              </div>
-              <div class="seq-deck-pill" id="seqDeckPill" title="Click to Pick a Card from shoe">
-                <span class="seq-deck-icon">🎴</span>
-                <span id="seqDeckCount">92 left</span>
-              </div>
-              <button type="button" class="seq-privacy-mode-btn" id="seqPrivacyModeBtn" title="Toggle anti-peeking privacy shield for local play">
-                <span class="seq-privacy-icon">🛡️</span>
-                <span id="seqPrivacyModeText">Shield: ON</span>
-              </button>
-              <div class="seq-discard-pill" id="seqDiscardPill" title="Last discarded card">
-                <span class="seq-discard-label">Last:</span>
-                <span id="seqLastDiscard">—</span>
-              </div>
-              <div class="seq-score-pill seq-p2-pill" id="seqP2ScorePill">
-                <span class="seq-chip-dot p2-dot"></span>
-                <span class="seq-player-label" id="seqP2Label">AI (Green)</span>:
-                <b id="seqP2Sequences">0 / 2</b>
-              </div>
-            </div>
-            <div class="sequence-prompt-banner" id="seqPromptBanner">
-              Select a card from your hand rack to highlight matching board spots
-            </div>
-          </div>
-
-          <!-- 10x10 Sequence Board (Center - Present Format) -->
-          <div class="sequence-board-wrap">
-            <div id="sequenceBoard" class="sequence-board"></div>
-          </div>
-        </div>
-
-        <!-- PC (Tollywood Movie Cinema Guesser Arena) -->
-        <div id="pattuGame" class="pattu-original-arena hidden">
-          <!-- Top Header Row: Full Name in small font on left, Time Travel on top right -->
-          <div class="pattu-top-row">
-            <div class="pattu-title-group">
-              <h1 class="pattu-orig-title">Pattukunte Pattucheera</h1>
-              <span class="pattu-badge-dot online" id="pattuBadgeDot" title="Live Cloud Stills"></span>
-            </div>
-            <div class="pattu-top-nav-actions">
-              <button class="pattu-mini-nav-btn timetravel-icon" id="pattuTimeTravelBtn" type="button" title="Time Travel (Play Past Dates)">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                  <path d="M3 3v5h5"></path>
-                  <polyline points="12 7 12 12 15 15"></polyline>
-                </svg>
-                <span>Time Travel</span>
-              </button>
-              <button class="pattu-mini-nav-btn help-icon" id="pattuHelpBtn" type="button" title="Instructions">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Cinema Movie Still Viewport (No attempt overlay or buffer circle) -->
-          <div class="pattu-cinema-viewport pc-viewport" id="pattuViewport">
-            <img id="pattuImg" class="pattu-cinema-img" alt="Telugu Movie Still" />
-            
-            <!-- Fallback Card -->
-            <div id="pattuFallbackCard" class="pattu-fallback-card hidden">
-              <div class="pattu-fallback-watermark" id="pattuFallbackTag">FRAME 1 OF 5</div>
-              <div class="pattu-fallback-icon">🎬</div>
-              <div class="pattu-fallback-clue" id="pattuFallbackClue">Loading Movie Frame...</div>
-              <div class="pattu-fallback-sub" id="pattuFallbackSub">Connecting to Tollywood CDN Stills</div>
-            </div>
-          </div>
-
-          <!-- Frame Number Buttons [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] (Numbers only, no "Step", no "Active" text) -->
-          <div class="pattu-num-tabs" id="pattuFramePills">
-            <button class="pattu-num-tab active" data-frame="1" type="button">1</button>
-            <button class="pattu-num-tab" data-frame="2" type="button">2</button>
-            <button class="pattu-num-tab" data-frame="3" type="button">3</button>
-            <button class="pattu-num-tab" data-frame="4" type="button">4</button>
-            <button class="pattu-num-tab" data-frame="5" type="button">5</button>
-          </div>
-
-          <!-- Centered Red Skip Button (exact pic 2 & 3 style) -->
-          <div class="pattu-skip-wrap">
-            <button id="pattuSkipBtn" class="pattu-orig-skip-btn" type="button">Skip</button>
-          </div>
-
-          <!-- Movie Search Row (Sleek unified pill with electric blue SUBMIT >) -->
-          <div class="pc-search-pill-wrap" id="pattuSearchWrap">
-            <div class="pc-search-pill-inner">
-              <span class="pc-search-icon">
-                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-              </span>
-              <input type="text" id="pattuInput" class="pc-movie-input" placeholder="GUESS THE MOVIE TITLE..." autocomplete="off" />
-              <button id="pattuClearBtn" class="pattu-clear-btn hidden" type="button" aria-label="Clear">✕</button>
-              <button id="pattuSubmitBtn" class="pc-submit-pill-btn" type="button">SUBMIT ❯</button>
-            </div>
-            <div id="pattuDropdown" class="pattu-orig-dropdown pc-modern-dropdown hidden"></div>
-          </div>
-
-          <!-- Bottom Row: Stats Button under submit + Guesses Remaining Counter -->
-          <div class="pattu-bottom-row" id="pattuBottomRow">
-            <button class="pattu-bottom-stats-btn" id="pattuStatsBtn" type="button" title="View Statistics">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="20" x2="18" y2="10"></line>
-                <line x1="12" y1="20" x2="12" y2="4"></line>
-                <line x1="6" y1="20" x2="6" y2="14"></line>
-              </svg>
-              <span>Stats</span>
-            </button>
-            <div class="pattu-remaining-text" id="pattuRemainingText">
-              You got <span class="rem-count" id="pattuRemainingCount">5</span> guesses remaining out of <b>5</b>.
-            </div>
-          </div>
-
-          <!-- Hidden elements preserved for JS bindings -->
-          <div id="pattuHistory" class="hidden" style="display:none;"></div>
-          <button id="pcTimeTravelEdgeBtn" class="hidden" type="button" aria-hidden="true" style="display:none;"></button>
-
-          <!-- Win / Loss Result Modal Overlay -->
-          <div id="pattuResultBanner" class="pattu-result-card hidden">
-            <div class="pattu-result-title" id="pattuResultTitle">🎉 Splendid!</div>
-            <div class="pattu-result-movie" id="pattuResultMovie">Movie Name</div>
-            <div class="pattu-result-sub" id="pattuResultSub">Day #1569</div>
-            <div class="pattu-result-actions">
-              <button id="pattuShareBtn" class="pattu-orig-submit-btn" type="button">Share Results 📋</button>
-              <button id="pattuNextBtn" class="pattu-orig-skip-btn" type="button">Next Movie ➔</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pattu Instructions Modal -->
-        <div id="pattuInstructionsModal" class="win-overlay hidden">
-          <div class="win-modal glass-island pattu-modal-box">
-            <h2>&#128220; How to Play</h2>
-            <div class="pattu-modal-body">
-              <p>&bull; Guess the <b>Tollywood (Telugu)</b> movie from the 5 movie stills.</p>
-              <p>&bull; Each incorrect guess or skip reveals the next frame from the movie.</p>
-              <p>&bull; Use the numbered buttons below the image to toggle between unlocked frames.</p>
-              <p>&bull; Guess in as few tries as possible and maintain your streak!</p>
-            </div>
-            <button id="closePattuHelpBtn" class="pattu-orig-submit-btn" type="button">Got it!</button>
-          </div>
-        </div>
-
-        <!-- PC Time Travel Modal (Interactive Calendar Picker) -->
-        <div id="pattuTimeTravelModal" class="win-overlay hidden">
-          <div class="win-modal glass-island pattu-modal-box pattu-tt-modal-box">
-            <h2>&#128197; Time Travel</h2>
-            <div class="pattu-modal-body">
-              <div class="pattu-tt-playing-badge">
-                You are playing day <b id="pattuTtCurrentDayText">#1570</b> game
-              </div>
-              <div class="pattu-tt-input-row">
-                <label for="pattuDateInput">Select the date you want to travel to :</label>
-                <div class="pattu-date-input-wrap">
-                  <input
-                    type="date"
-                    id="pattuDateInput"
-                    class="pattu-orig-input pattu-date-input"
-                    min="2022-05-23"
-                  />
-                  <span class="pattu-date-cal-icon">📅</span>
-                </div>
-              </div>
-              <div class="pattu-tt-target-preview">
-                Targeting: <b id="pattuTtTargetDay">Day #1569</b> (<span id="pattuTtFormattedDate">Sep 7, 2026</span>)
-                <button type="button" id="pattuToggleDayNumBtn" class="pattu-tt-link">or enter Day #</button>
-              </div>
-              <div id="pattuTtManualWrap" class="pattu-tt-manual-wrap hidden">
-                <label for="pattuDayInput">Day Number (0 to <span id="pattuMaxDayText">1581</span>):</label>
-                <input type="number" id="pattuDayInput" class="pattu-orig-input" min="0" max="2500" value="0" />
-              </div>
-              <div class="pattu-tt-disclaimer">
-                Time travel games won't be counted in streak or any other daily game stats
-              </div>
-            </div>
-            <div class="pattu-modal-actions">
-              <button id="submitPattuTimeTravelBtn" class="pattu-orig-submit-btn" type="button">Travel ➔</button>
-              <button id="closePattuTimeTravelBtn" class="pattu-orig-skip-btn" type="button">Cancel</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pattu Stats Modal -->
-        <div id="pattuStatsCustomModal" class="win-overlay hidden">
-          <div class="win-modal glass-island pattu-modal-box">
-            <h2>📊 PC (Pattukunte Pattucheera) Stats</h2>
-            <div class="pattu-stats-summary-grid">
-              <div class="pattu-stat-col"><b id="pattuStatPlayed">0</b><span>Played</span></div>
-              <div class="pattu-stat-col"><b id="pattuStatWinPct">0%</b><span>Win %</span></div>
-              <div class="pattu-stat-col"><b id="pattuStatStreak">0</b><span>Streak</span></div>
-              <div class="pattu-stat-col"><b id="pattuStatMaxStreak">0</b><span>Max Streak</span></div>
-            </div>
-            <h3 style="margin-top:12px; font-size:0.95rem;">GUESS DISTRIBUTION</h3>
-            <div class="pattu-distribution-chart" id="pattuDistChart"></div>
-            <button id="closePattuStatsModalBtn" class="pattu-orig-submit-btn" style="margin-top:14px;" type="button">Close</button>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- Right Side: Black Captured -->
-      <div class="captured-sidebar glass-panel hidden" id="capturedRight">
-        <div class="captured-header" id="blackCapturedHeader">Black Captured</div>
-        <div class="captured-tray" id="blackCaptured"></div>
       </div>
+    </section>
 
-      <!-- Right Extreme Edge: Sequence Player 2 / AI Hand Shelf -->
-      <div class="sequence-edge-shelf glass-panel hidden" id="seqP2HandShelf">
-        <div class="sequence-shelf-header">
-          <div class="seq-shelf-badge">
-            <span class="seq-chip-dot p2-dot"></span>
-            <span class="sequence-shelf-title" id="seqP2ShelfTitle">AI (Green)</span>
+    <!-- Choose a Game Section -->
+    <section class="game-select-section" id="gameSelectSection">
+      <h2 class="section-title">Choose a Game</h2>
+
+      <!-- Responsive 4 + 3 Centered Grid of Frosted Glass Cards -->
+      <div class="games-grid" id="gamesCardGrid">
+        <!-- 1. Tic Tac Toe -->
+        <div class="game-card glass-panel" data-game="ttt3" role="button" tabindex="0" id="cardTTT" title="Play Tic-Tac-Toe">
+          <div class="game-card-icon-wrap ttt-icon-wrap">
+            <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+              <rect width="64" height="64" rx="16" fill="url(#tttCardBg)" />
+              <path d="M20 20 L44 44 M44 20 L20 44" stroke="#38bdf8" stroke-width="6.5" stroke-linecap="round" filter="drop-shadow(0 0 8px rgba(56, 189, 248, 0.9))" />
+              <circle cx="48" cy="48" r="4.5" fill="#f472b6" filter="drop-shadow(0 0 6px #f472b6)" />
+              <defs>
+                <linearGradient id="tttCardBg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#1e1b4b"/>
+                  <stop offset="1" stop-color="#0f172a"/>
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
-          <button type="button" class="seq-shelf-privacy-btn hidden" id="seqP2PrivacyBtn" title="Conceal Cards">🔒 Hide</button>
-        </div>
-        <div class="sequence-shelf-tip" id="seqP2ShelfTip">6 cards</div>
-
-        <!-- P2 Draw Actions (Pick a Card / Skip) -->
-        <div class="seq-draw-actions hidden" id="seqP2DrawActions">
-          <button type="button" class="seq-pick-card-btn" id="seqP2PickCardBtn" title="Draw random replacement card from shoe">🎴 Pick a Card (+1)</button>
-          <button type="button" class="seq-skip-draw-btn" id="seqP2SkipDrawBtn" title="End turn without drawing (lose this card slot!)">End Turn (Skip Pick)</button>
+          <h3 class="game-card-title">Tic Tac Toe</h3>
+          <p class="game-card-desc">Quick & fun</p>
         </div>
 
-        <!-- P2 Privacy Curtain (Anti-Peeking Cover) -->
-        <div class="seq-curtain-overlay hidden" id="seqP2Curtain">
-          <div class="seq-curtain-icon">🛡️</div>
-          <div class="seq-curtain-msg">P2 Cards Protected</div>
-          <button type="button" class="seq-curtain-btn" id="seqP2RevealBtn">👁️ Reveal Hand</button>
+        <!-- 2. Sequence -->
+        <div class="game-card glass-panel" data-game="sequence" role="button" tabindex="0" id="cardSequence" title="Play Sequence">
+          <div class="game-card-icon-wrap seq-icon-wrap">
+            <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+              <!-- Top Left: Cyan 3D Sphere -->
+              <circle cx="23" cy="23" r="10.5" fill="url(#seqSphereCyan)" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.5))" />
+              <circle cx="20" cy="20" r="3.2" fill="white" opacity="0.75" />
+              <!-- Top Right: Gold 3D Sphere -->
+              <circle cx="41" cy="23" r="10.5" fill="url(#seqSphereGold)" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.5))" />
+              <circle cx="38" cy="20" r="3.2" fill="white" opacity="0.75" />
+              <!-- Bottom Left: Electric Blue 3D Sphere -->
+              <circle cx="23" cy="41" r="10.5" fill="url(#seqSphereBlue)" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.5))" />
+              <circle cx="20" cy="38" r="3.2" fill="white" opacity="0.75" />
+              <!-- Bottom Right: Coral/Ruby 3D Sphere -->
+              <circle cx="41" cy="41" r="10.5" fill="url(#seqSphereRuby)" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.5))" />
+              <circle cx="38" cy="38" r="3.2" fill="white" opacity="0.75" />
+              <defs>
+                <radialGradient id="seqSphereCyan" cx="30%" cy="30%" r="70%">
+                  <stop stop-color="#67e8f9" />
+                  <stop offset="60%" stop-color="#06b6d4" />
+                  <stop offset="100%" stop-color="#0e7490" />
+                </radialGradient>
+                <radialGradient id="seqSphereGold" cx="30%" cy="30%" r="70%">
+                  <stop stop-color="#fde047" />
+                  <stop offset="60%" stop-color="#eab308" />
+                  <stop offset="100%" stop-color="#a16207" />
+                </radialGradient>
+                <radialGradient id="seqSphereBlue" cx="30%" cy="30%" r="70%">
+                  <stop stop-color="#93c5fd" />
+                  <stop offset="60%" stop-color="#3b82f6" />
+                  <stop offset="100%" stop-color="#1d4ed8" />
+                </radialGradient>
+                <radialGradient id="seqSphereRuby" cx="30%" cy="30%" r="70%">
+                  <stop stop-color="#fda4af" />
+                  <stop offset="60%" stop-color="#f43f5e" />
+                  <stop offset="100%" stop-color="#be123c" />
+                </radialGradient>
+              </defs>
+            </svg>
+          </div>
+          <h3 class="game-card-title">Sequence</h3>
+          <p class="game-card-desc">Strategy game</p>
         </div>
 
-        <!-- P2 Hand Cards Rack (2x3 Grid) -->
-        <div class="sequence-hand-cards vertical-grid" id="seqP2HandCards"></div>
+        <!-- 3. Chess -->
+        <div class="game-card glass-panel" data-game="chess" role="button" tabindex="0" id="cardChess" title="Play Chess">
+          <div class="game-card-icon-wrap chess-icon-wrap">
+            <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+              <defs>
+                <linearGradient id="chessGold" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#fef08a"/>
+                  <stop offset="45%" stop-color="#facc15"/>
+                  <stop offset="80%" stop-color="#ca8a04"/>
+                  <stop offset="100%" stop-color="#a16207"/>
+                </linearGradient>
+              </defs>
+              <!-- 3D Carved Chess Knight -->
+              <path d="M42 47 H22 C22 45 24 44 27 43 C25 40 23 36 23 32 C23 30 21 27 19 27 C18 27 17 28 17 29 C16 28 16 25 18 23 C20 21 23 19 25 17 C26 14 28 11 33 11 C36 11 38 12 38 14 C41 14 44 16 45 19 C46 22 45 25 44 27 C45 30 46 34 46 38 C46 41 44 43 42 44 Z" fill="url(#chessGold)" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.4))" />
+              <path d="M20 51 H44 V48 H20 Z" fill="url(#chessGold)" />
+            </svg>
+          </div>
+          <h3 class="game-card-title">Chess</h3>
+          <p class="game-card-desc">Think ahead</p>
+        </div>
+
+        <!-- 4. Wordle -->
+        <div class="game-card glass-panel" data-game="wordle" role="button" tabindex="0" id="cardWordle" title="Play Wordle">
+          <div class="game-card-icon-wrap wordle-icon-wrap">
+            <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+              <defs>
+                <linearGradient id="wordleGreen" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#22c55e"/>
+                  <stop offset="100%" stop-color="#15803d"/>
+                </linearGradient>
+              </defs>
+              <rect width="64" height="64" rx="16" fill="url(#wordleGreen)" filter="drop-shadow(0 4px 10px rgba(22, 163, 74, 0.45))" />
+              <text x="32" y="44" font-family="'Outfit', -apple-system, sans-serif" font-size="33" font-weight="800" fill="white" text-anchor="middle">W</text>
+            </svg>
+          </div>
+          <h3 class="game-card-title">Wordle</h3>
+          <p class="game-card-desc">Daily word challenge</p>
+        </div>
+
+        <!-- 5. Poker (Centered in second row) -->
+        <div class="game-card glass-panel" data-game="poker" role="button" tabindex="0" id="cardPoker" title="Play Poker">
+          <div class="game-card-icon-wrap poker-icon-wrap">
+            <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+              <!-- Back Card (Tilted) -->
+              <g transform="rotate(-14 26 36)">
+                <rect x="14" y="14" width="26" height="38" rx="3.5" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.2" filter="drop-shadow(0 2px 5px rgba(0,0,0,0.3))"/>
+                <rect x="17" y="17" width="20" height="32" rx="2" fill="#3b82f6" opacity="0.35"/>
+              </g>
+              <!-- Front Card (Ace of Hearts) -->
+              <g transform="rotate(6 36 34)">
+                <rect x="22" y="12" width="27" height="40" rx="3.5" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.2" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.45))"/>
+                <path d="M35.5 28 C35.5 25.5 33 24 31 25.5 C29 27 29 29.5 35.5 36 C42 29.5 42 27 40 25.5 C38 24 35.5 25.5 35.5 28 Z" fill="#ef4444"/>
+                <text x="25.5" y="21" font-family="sans-serif" font-size="7.5" font-weight="bold" fill="#ef4444">A</text>
+              </g>
+            </svg>
+          </div>
+          <h3 class="game-card-title">Poker</h3>
+          <p class="game-card-desc">Play your hand</p>
+        </div>
+
+        <!-- 6. PC Guesser (Centered in second row) -->
+        <div class="game-card glass-panel" data-game="pattu" role="button" tabindex="0" id="cardPattu" title="Play PC Guesser (Pattukunte Pattucheera)">
+          <div class="game-card-icon-wrap pc-icon-wrap">
+            <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+              <rect x="11" y="13" width="42" height="28" rx="3.5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.4))"/>
+              <rect x="14" y="16" width="36" height="22" rx="2" fill="#0284c7"/>
+              <path d="M30 41 H34 V48 H30 Z" fill="#94a3b8"/>
+              <rect x="21" y="47" width="22" height="3" rx="1.5" fill="#cbd5e1"/>
+            </svg>
+          </div>
+          <h3 class="game-card-title">PC Guesser</h3>
+          <p class="game-card-desc">Guess the movie</p>
+        </div>
+
+        <!-- 7. Palace Escape (Centered in second row) -->
+        <a href="palace-escape/" class="game-card glass-panel" data-game="palace" id="cardPalace" title="Play Palace Escape Fullscreen" style="text-decoration:none;">
+          <div class="game-card-icon-wrap palace-icon-wrap">
+            <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+              <defs>
+                <linearGradient id="palaceGold" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#f59e0b"/>
+                  <stop offset="100%" stop-color="#d97706"/>
+                </linearGradient>
+              </defs>
+              <path d="M12 28 L32 14 L52 28 Z" fill="url(#palaceGold)" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.4))" />
+              <circle cx="32" cy="22" r="2.8" fill="#fef3c7"/>
+              <rect x="12" y="27" width="40" height="4" rx="1" fill="#b45309"/>
+              <rect x="15" y="31" width="5" height="18" rx="1" fill="url(#palaceGold)"/>
+              <rect x="24" y="31" width="5" height="18" rx="1" fill="url(#palaceGold)"/>
+              <rect x="35" y="31" width="5" height="18" rx="1" fill="url(#palaceGold)"/>
+              <rect x="44" y="31" width="5" height="18" rx="1" fill="url(#palaceGold)"/>
+              <path d="M29 49 V39 C29 36 35 36 35 39 V49 Z" fill="#451a03"/>
+              <rect x="10" y="48" width="44" height="4" rx="1" fill="#92400e"/>
+            </svg>
+          </div>
+          <h3 class="game-card-title">Palace Escape</h3>
+          <p class="game-card-desc">Puzzle adventure</p>
+        </a>
       </div>
     </section>
   </div>
-  </main>
 
-  <!-- Bottom Floating Quick-Dock -->
-  <footer class="quick-dock glass-island">
-    <div class="dock-block" id="timerGroup">
-      <span class="dock-label">Timer</span>
-      <div class="seg" id="timerPills">
-        <button class="seg-btn active" data-timer="off" type="button">Off</button>
-        <button class="seg-btn" data-timer="30" type="button">30s</button>
-        <button class="seg-btn" data-timer="60" type="button">60s</button>
-        <button class="seg-btn" data-timer="90" type="button">90s</button>
-      </div>
-    </div>
-
-    <div class="dock-block">
-      <span class="dock-label">Actions</span>
-      <div class="seg">
-        <button id="resetScoreBtn" class="seg-btn icon-btn" type="button" title="Reset Score">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-          <span>Reset</span>
-        </button>
-        <button id="undoBtn" class="seg-btn icon-btn" type="button" title="Undo (Z)">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
-          <span>Undo</span>
-        </button>
-        <button id="chessHintsBtn" class="seg-btn icon-btn hidden" type="button" title="Toggle Move Possibilities (OFF by default)" aria-pressed="false">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="12" cy="12" r="3"></circle>
-            <line x1="12" y1="2" x2="12" y2="5"></line>
-            <line x1="12" y1="19" x2="12" y2="22"></line>
-            <line x1="2" y1="12" x2="5" y2="12"></line>
-            <line x1="19" y1="12" x2="22" y2="12"></line>
+  <!-- ============================================================== -->
+  <!-- 2. GAME VIEW: Active Gameplay Arena with Floating Match Bar    -->
+  <!-- ============================================================== -->
+  <div class="game-view hidden" id="gameView">
+    <!-- Compact Floating Sea Glass Match Controls Bar -->
+    <div class="game-match-bar glass-panel" id="gameMatchBar">
+      <div class="match-bar-left">
+        <button type="button" class="back-to-hub-btn seg-btn" id="backToHubBtn" title="Return to All Games">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
-          <span>Hints</span>
+          <span>All Games</span>
         </button>
-        <button id="newGameBtn" class="seg-btn icon-btn" type="button" title="New Game (R)">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          <span>New Game</span>
-        </button>
+        <span class="active-game-badge" id="activeGameBadge">Tic-Tac-Toe</span>
+      </div>
+
+      <div class="match-bar-center" id="hudCenterGroup">
+        <!-- TTT 3x3 vs 5x5 Grid Selector -->
+        <div class="group" id="tttModeGroup">
+          <div class="seg" id="tttModePills">
+            <button class="seg-btn active" data-grid="3" type="button">3×3</button>
+            <button class="seg-btn" data-grid="5" type="button">5×5</button>
+          </div>
+        </div>
+
+        <!-- Opponent Mode Selector -->
+        <div class="group" id="opponentGroup">
+          <span class="group-label">Opponent</span>
+          <div class="seg" id="opponentPills">
+            <button class="seg-btn" data-opponent="local" type="button">Local 2P</button>
+            <button class="seg-btn active" data-opponent="ai" type="button">vs AI</button>
+          </div>
+        </div>
+
+        <!-- Difficulty Selector -->
+        <div class="group" id="difficultyGroup">
+          <span class="group-label">Difficulty</span>
+          <div class="seg" id="difficultyPills">
+            <button class="seg-btn" data-difficulty="easy" type="button">Easy</button>
+            <button class="seg-btn active" data-difficulty="medium" type="button">Medium</button>
+            <button class="seg-btn" data-difficulty="hard" type="button">Hard</button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="score-ticker clickable-ticker" id="scoreTickerBtn" title="Click for Detailed Statistics">
-      You: <b id="scoreA">0</b> |
-      Opponent: <b id="scoreB">0</b> |
-      Draws: <b id="scoreD">0</b> |
-      <b id="streakBadge">🔥 Streak: 0</b>
-      <span class="stats-hint">📊 Stats</span>
-    </div>
-  </footer>
+    <!-- Arena Stage -->
+    <main class="arena">
+      <div class="arena-stage" id="arenaStage">
+        <section class="status-wrap">
+          <div class="turn-pill glass-panel" id="statusPill">X's Turn</div>
+          <div class="move-pill glass-panel hidden" id="moveCounterPill">Move: <b id="moveCount">0</b></div>
 
-  <!-- State Selectors -->
+          <div class="radial-wrap glass-panel hidden" id="radialWrap">
+            <svg class="radial" viewBox="0 0 120 120">
+              <circle class="ring-bg" cx="60" cy="60" r="50"></circle>
+              <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="50"></circle>
+            </svg>
+            <div class="radial-text" id="radialText">30</div>
+          </div>
+        </section>
+
+        <section class="board-area">
+          <!-- Left Extreme Edge: Sequence Player 1 Hand Shelf -->
+          <div class="sequence-edge-shelf glass-panel hidden" id="seqP1HandShelf">
+            <div class="sequence-shelf-header">
+              <div class="seq-shelf-badge">
+                <span class="seq-chip-dot p1-dot"></span>
+                <span class="sequence-shelf-title" id="seqP1ShelfTitle">P1 (Blue)</span>
+              </div>
+              <button type="button" class="seq-shelf-privacy-btn hidden" id="seqP1PrivacyBtn" title="Conceal Cards">🙈 Hide</button>
+            </div>
+            <div class="sequence-shelf-tip" id="seqP1ShelfTip">6 cards</div>
+
+            <!-- P1 Draw Actions (Pick a Card / Skip) -->
+            <div class="seq-draw-actions hidden" id="seqP1DrawActions">
+              <button type="button" class="seq-pick-card-btn" id="seqP1PickCardBtn" title="Draw random replacement card from shoe">🃏 Pick a Card (+1)</button>
+              <button type="button" class="seq-skip-draw-btn" id="seqP1SkipDrawBtn" title="End turn without drawing (lose this card slot!)">End Turn (Skip Pick)</button>
+            </div>
+
+            <!-- P1 Privacy Curtain (Anti-Peeking Cover) -->
+            <div class="seq-curtain-overlay hidden" id="seqP1Curtain">
+              <div class="seq-curtain-icon">🛡️</div>
+              <div class="seq-curtain-msg">P1 Cards Protected</div>
+              <button type="button" class="seq-curtain-btn" id="seqP1RevealBtn">👁️ Reveal Hand</button>
+            </div>
+
+            <!-- P1 Hand Cards Rack (2x3 Grid) -->
+            <div class="sequence-hand-cards vertical-grid" id="seqP1HandCards"></div>
+          </div>
+
+          <!-- Left Side: White Captured -->
+          <div class="captured-sidebar glass-panel hidden" id="capturedLeft">
+            <div class="captured-header" id="whiteCapturedHeader">White Captured</div>
+            <div class="captured-tray" id="whiteCaptured"></div>
+          </div>
+
+          <!-- Main Board Shell -->
+          <section class="board-shell glass-island" id="boardWrap">
+            <div class="stage-drag-handle" title="Drag board left or right with mouse" aria-label="Drag board left or right"><span class="stage-drag-bar"></span></div>
+            <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+            <div id="tttBoard" class="ttt-board"></div>
+            <div id="chessBoard" class="chess-board hidden"></div>
+            
+            <!-- Wordle Container -->
+            <div id="wordleGame" class="wordle-arena hidden">
+              <div id="wordleBoard" class="wordle-board"></div>
+              <div id="wordleKeyboard" class="wordle-keyboard"></div>
+            </div>
+
+            <!-- Poker Container -->
+            <div id="pokerGame" class="poker-arena hidden">
+              <!-- Opponent / AI Zone -->
+              <div class="poker-seat opponent-seat">
+                <div class="poker-player-info">
+                  <span class="poker-player-name" id="pokerAiName">AI Opponent</span>
+                  <div class="poker-chips-badge" id="pokerAiChipsBadge">
+                    <span class="chip-coin-svg">🪙</span>
+                    <span id="pokerAiChips">$1,000</span>
+                  </div>
+                </div>
+                <div class="poker-cards-wrap" id="pokerAiCards"></div>
+                <div class="poker-bet-bubble hidden" id="pokerAiBetBubble">Bet: $0</div>
+              </div>
+
+              <!-- Felt Center / Community Board -->
+              <div class="poker-felt-center">
+                <div class="poker-pot-wrap">
+                  <div class="poker-pot-pill">
+                    <span>POT</span>
+                    <b id="pokerPotAmount">$0</b>
+                  </div>
+                </div>
+                <div class="poker-community-cards" id="pokerCommunityCards"></div>
+                <div class="poker-status-banner" id="pokerStatusBanner">Texas Hold'em — Place Your Bets</div>
+              </div>
+
+              <!-- Human Player Zone -->
+              <div class="poker-seat player-seat">
+                <div class="poker-bet-bubble hidden" id="pokerPlayerBetBubble">Bet: $0</div>
+                <div class="poker-cards-wrap" id="pokerPlayerCards"></div>
+                <div class="poker-player-info">
+                  <div class="poker-name-and-hand">
+                    <span class="poker-player-name" id="pokerPlayerName">You (Hero)</span>
+                    <span class="poker-hand-eval" id="pokerHandEval">High Card</span>
+                  </div>
+                  <div class="poker-chips-badge" id="pokerPlayerChipsBadge">
+                    <span class="chip-coin-svg">🪙</span>
+                    <span id="pokerPlayerChips">$1,000</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Poker Action Dock -->
+              <div class="poker-action-dock" id="pokerActionDock">
+                <div class="poker-bet-controls" id="pokerBetControls">
+                  <div class="poker-quick-bets">
+                    <button class="poker-quick-btn" id="pokerQuickMin" type="button">Min</button>
+                    <button class="poker-quick-btn" id="pokerQuickHalf" type="button">½ Pot</button>
+                    <button class="poker-quick-btn" id="pokerQuickPot" type="button">Pot</button>
+                    <button class="poker-quick-btn" id="pokerQuickAllIn" type="button">All-In</button>
+                  </div>
+                  <div class="poker-slider-row">
+                    <input type="range" id="pokerBetSlider" min="20" max="1000" step="10" value="40" class="poker-slider" />
+                    <span class="poker-slider-val" id="pokerSliderVal">$40</span>
+                  </div>
+                </div>
+                <div class="poker-main-actions">
+                  <button class="poker-action-btn fold-btn" id="pokerFoldBtn" type="button">Fold</button>
+                  <button class="poker-action-btn call-btn" id="pokerCallBtn" type="button">Check</button>
+                  <button class="poker-action-btn raise-btn" id="pokerRaiseBtn" type="button">Raise $40</button>
+                  <button class="poker-action-btn next-hand-btn hidden" id="pokerNextHandBtn" type="button">Next Hand ➔</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sequence (Classic 10x10 Board & Card Game) -->
+            <div id="sequenceGame" class="sequence-arena hidden">
+              <!-- Top Sequence Status Bar -->
+              <div class="sequence-top-hud">
+                <div class="sequence-pills-row">
+                  <div class="seq-score-pill seq-p1-pill" id="seqP1ScorePill">
+                    <span class="seq-chip-dot p1-dot"></span>
+                    <span class="seq-player-label" id="seqP1Label">You (Blue)</span>:
+                    <b id="seqP1Sequences">0 / 2</b>
+                  </div>
+                  <div class="seq-deck-pill" id="seqDeckPill" title="Click to Pick a Card from shoe">
+                    <span class="seq-deck-icon">🃏</span>
+                    <span id="seqDeckCount">92 left</span>
+                  </div>
+                  <button type="button" class="seq-privacy-mode-btn" id="seqPrivacyModeBtn" title="Toggle anti-peeking privacy shield for local play">
+                    <span class="seq-privacy-icon">🛡️</span>
+                    <span id="seqPrivacyModeText">Shield: ON</span>
+                  </button>
+                  <div class="seq-discard-pill" id="seqDiscardPill" title="Last discarded card">
+                    <span class="seq-discard-label">Last:</span>
+                    <span id="seqLastDiscard">—</span>
+                  </div>
+                  <div class="seq-score-pill seq-p2-pill" id="seqP2ScorePill">
+                    <span class="seq-chip-dot p2-dot"></span>
+                    <span class="seq-player-label" id="seqP2Label">AI (Green)</span>:
+                    <b id="seqP2Sequences">0 / 2</b>
+                  </div>
+                </div>
+                <div class="sequence-prompt-banner" id="seqPromptBanner">
+                  Select a card from your hand rack to highlight matching board spots
+                </div>
+              </div>
+
+              <!-- 10x10 Sequence Board -->
+              <div class="sequence-board-wrap">
+                <div id="sequenceBoard" class="sequence-board"></div>
+              </div>
+            </div>
+
+            <!-- PC (Tollywood Movie Cinema Guesser Arena) -->
+            <div id="pattuGame" class="pattu-original-arena hidden">
+              <!-- Top Header Row -->
+              <div class="pattu-top-row">
+                <div class="pattu-title-group">
+                  <h1 class="pattu-orig-title">Pattukunte Pattucheera</h1>
+                  <span class="pattu-badge-dot online" id="pattuBadgeDot" title="Live Cloud Stills"></span>
+                </div>
+                <div class="pattu-top-nav-actions">
+                  <button class="pattu-mini-nav-btn timetravel-icon" id="pattuTimeTravelBtn" type="button" title="Time Travel (Play Past Dates)">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                      <path d="M3 3v5h5"></path>
+                      <polyline points="12 7 12 12 15 15"></polyline>
+                    </svg>
+                    <span>Time Travel</span>
+                  </button>
+                  <button class="pattu-mini-nav-btn help-icon" id="pattuHelpBtn" type="button" title="Instructions">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Cinema Movie Still Viewport -->
+              <div class="pattu-cinema-viewport pc-viewport" id="pattuViewport">
+                <img id="pattuImg" class="pattu-cinema-img" alt="Telugu Movie Still" />
+                
+                <!-- Fallback Card -->
+                <div id="pattuFallbackCard" class="pattu-fallback-card hidden">
+                  <div class="pattu-fallback-watermark" id="pattuFallbackTag">FRAME 1 OF 5</div>
+                  <div class="pattu-fallback-icon">🎬</div>
+                  <div class="pattu-fallback-clue" id="pattuFallbackClue">Loading Movie Frame...</div>
+                  <div class="pattu-fallback-sub" id="pattuFallbackSub">Connecting to Tollywood CDN Stills</div>
+                </div>
+              </div>
+
+              <!-- Frame Number Buttons [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] -->
+              <div class="pattu-num-tabs" id="pattuFramePills">
+                <button class="pattu-num-tab active" data-frame="1" type="button">1</button>
+                <button class="pattu-num-tab" data-frame="2" type="button">2</button>
+                <button class="pattu-num-tab" data-frame="3" type="button">3</button>
+                <button class="pattu-num-tab" data-frame="4" type="button">4</button>
+                <button class="pattu-num-tab" data-frame="5" type="button">5</button>
+              </div>
+
+              <!-- Centered Red Skip Button -->
+              <div class="pattu-skip-wrap">
+                <button id="pattuSkipBtn" class="pattu-orig-skip-btn" type="button">Skip</button>
+              </div>
+
+              <!-- Movie Search Row -->
+              <div class="pc-search-pill-wrap" id="pattuSearchWrap">
+                <div class="pc-search-pill-inner">
+                  <span class="pc-search-icon">
+                    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </span>
+                  <input type="text" id="pattuInput" class="pc-movie-input" placeholder="GUESS THE MOVIE TITLE..." autocomplete="off" />
+                  <button id="pattuClearBtn" class="pattu-clear-btn hidden" type="button" aria-label="Clear">✕</button>
+                  <button id="pattuSubmitBtn" class="pc-submit-pill-btn" type="button">SUBMIT ➔</button>
+                </div>
+                <div id="pattuDropdown" class="pattu-orig-dropdown pc-modern-dropdown hidden"></div>
+              </div>
+
+              <!-- Bottom Row: Stats Button + Guesses Remaining Counter -->
+              <div class="pattu-bottom-row" id="pattuBottomRow">
+                <button class="pattu-bottom-stats-btn" id="pattuStatsBtn" type="button" title="View Statistics">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
+                  <span>Stats</span>
+                </button>
+                <div class="pattu-remaining-text" id="pattuRemainingText">
+                  You got <span class="rem-count" id="pattuRemainingCount">5</span> guesses remaining out of <b>5</b>.
+                </div>
+              </div>
+
+              <!-- Hidden elements preserved for JS bindings -->
+              <div id="pattuHistory" class="hidden" style="display:none;"></div>
+              <button id="pcTimeTravelEdgeBtn" class="hidden" type="button" aria-hidden="true" style="display:none;"></button>
+
+              <!-- Win / Loss Result Modal Overlay -->
+              <div id="pattuResultBanner" class="pattu-result-card hidden">
+                <div class="pattu-result-title" id="pattuResultTitle">🎉 Splendid!</div>
+                <div class="pattu-result-movie" id="pattuResultMovie">Movie Name</div>
+                <div class="pattu-result-sub" id="pattuResultSub">Day #1569</div>
+                <div class="pattu-result-actions">
+                  <button id="pattuShareBtn" class="pattu-orig-submit-btn" type="button">Share Results 📲</button>
+                  <button id="pattuNextBtn" class="pattu-orig-skip-btn" type="button">Next Movie ➔</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pattu Instructions Modal -->
+            <div id="pattuInstructionsModal" class="win-overlay hidden">
+              <div class="win-modal glass-island pattu-modal-box">
+                <h2>📖 How to Play</h2>
+                <div class="pattu-modal-body">
+                  <p>&bull; Guess the <b>Tollywood (Telugu)</b> movie from the 5 movie stills.</p>
+                  <p>&bull; Each incorrect guess or skip reveals the next frame from the movie.</p>
+                  <p>&bull; Use the numbered buttons below the image to toggle between unlocked frames.</p>
+                  <p>&bull; Guess in as few tries as possible and maintain your streak!</p>
+                </div>
+                <button id="closePattuHelpBtn" class="pattu-orig-submit-btn" type="button">Got it!</button>
+              </div>
+            </div>
+
+            <!-- PC Time Travel Modal (Interactive Calendar Picker) -->
+            <div id="pattuTimeTravelModal" class="win-overlay hidden">
+              <div class="win-modal glass-island pattu-modal-box pattu-tt-modal-box">
+                <h2>📅 Time Travel</h2>
+                <div class="pattu-modal-body">
+                  <div class="pattu-tt-playing-badge">
+                    You are playing day <b id="pattuTtCurrentDayText">#1570</b> game
+                  </div>
+                  <div class="pattu-tt-input-row">
+                    <label for="pattuDateInput">Select the date you want to travel to :</label>
+                    <div class="pattu-date-input-wrap">
+                      <input
+                        type="date"
+                        id="pattuDateInput"
+                        class="pattu-orig-input pattu-date-input"
+                        min="2022-05-23"
+                      />
+                      <span class="pattu-date-cal-icon">📅</span>
+                    </div>
+                  </div>
+                  <div class="pattu-tt-target-preview">
+                    Targeting: <b id="pattuTtTargetDay">Day #1569</b> (<span id="pattuTtFormattedDate">Sep 7, 2026</span>)
+                    <button type="button" id="pattuToggleDayNumBtn" class="pattu-tt-link">or enter Day #</button>
+                  </div>
+                  <div id="pattuTtManualWrap" class="pattu-tt-manual-wrap hidden">
+                    <label for="pattuDayInput">Day Number (0 to <span id="pattuMaxDayText">1581</span>):</label>
+                    <input type="number" id="pattuDayInput" class="pattu-orig-input" min="0" max="2500" value="0" />
+                  </div>
+                  <div class="pattu-tt-disclaimer">
+                    Time travel games won't be counted in streak or any other daily game stats
+                  </div>
+                </div>
+                <div class="pattu-modal-actions">
+                  <button id="submitPattuTimeTravelBtn" class="pattu-orig-submit-btn" type="button">Travel ➔</button>
+                  <button id="closePattuTimeTravelBtn" class="pattu-orig-skip-btn" type="button">Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pattu Stats Modal -->
+            <div id="pattuStatsCustomModal" class="win-overlay hidden">
+              <div class="win-modal glass-island pattu-modal-box">
+                <h2>📊 PC (Pattukunte Pattucheera) Stats</h2>
+                <div class="pattu-stats-summary-grid">
+                  <div class="pattu-stat-col"><b id="pattuStatPlayed">0</b><span>Played</span></div>
+                  <div class="pattu-stat-col"><b id="pattuStatWinPct">0%</b><span>Win %</span></div>
+                  <div class="pattu-stat-col"><b id="pattuStatStreak">0</b><span>Streak</span></div>
+                  <div class="pattu-stat-col"><b id="pattuStatMaxStreak">0</b><span>Max Streak</span></div>
+                </div>
+                <h3 style="margin-top:12px; font-size:0.95rem;">GUESS DISTRIBUTION</h3>
+                <div class="pattu-distribution-chart" id="pattuDistChart"></div>
+                <button id="closePattuStatsModalBtn" class="pattu-orig-submit-btn" style="margin-top:14px;" type="button">Close</button>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- Right Side: Black Captured -->
+          <div class="captured-sidebar glass-panel hidden" id="capturedRight">
+            <div class="captured-header" id="blackCapturedHeader">Black Captured</div>
+            <div class="captured-tray" id="blackCaptured"></div>
+          </div>
+
+          <!-- Right Extreme Edge: Sequence Player 2 / AI Hand Shelf -->
+          <div class="sequence-edge-shelf glass-panel hidden" id="seqP2HandShelf">
+            <div class="sequence-shelf-header">
+              <div class="seq-shelf-badge">
+                <span class="seq-chip-dot p2-dot"></span>
+                <span class="sequence-shelf-title" id="seqP2ShelfTitle">AI (Green)</span>
+              </div>
+              <button type="button" class="seq-shelf-privacy-btn hidden" id="seqP2PrivacyBtn" title="Conceal Cards">🙈 Hide</button>
+            </div>
+            <div class="sequence-shelf-tip" id="seqP2ShelfTip">6 cards</div>
+
+            <!-- P2 Draw Actions (Pick a Card / Skip) -->
+            <div class="seq-draw-actions hidden" id="seqP2DrawActions">
+              <button type="button" class="seq-pick-card-btn" id="seqP2PickCardBtn" title="Draw random replacement card from shoe">🃏 Pick a Card (+1)</button>
+              <button type="button" class="seq-skip-draw-btn" id="seqP2SkipDrawBtn" title="End turn without drawing (lose this card slot!)">End Turn (Skip Pick)</button>
+            </div>
+
+            <!-- P2 Privacy Curtain (Anti-Peeking Cover) -->
+            <div class="seq-curtain-overlay hidden" id="seqP2Curtain">
+              <div class="seq-curtain-icon">🛡️</div>
+              <div class="seq-curtain-msg">P2 Cards Protected</div>
+              <button type="button" class="seq-curtain-btn" id="seqP2RevealBtn">👁️ Reveal Hand</button>
+            </div>
+
+            <!-- P2 Hand Cards Rack (2x3 Grid) -->
+            <div class="sequence-hand-cards vertical-grid" id="seqP2HandCards"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Bottom Floating Quick-Dock -->
+    <footer class="quick-dock glass-island" id="quickDock">
+      <div class="dock-block" id="timerGroup">
+        <span class="dock-label">Timer</span>
+        <div class="seg" id="timerPills">
+          <button class="seg-btn active" data-timer="off" type="button">Off</button>
+          <button class="seg-btn" data-timer="30" type="button">30s</button>
+          <button class="seg-btn" data-timer="60" type="button">60s</button>
+          <button class="seg-btn" data-timer="90" type="button">90s</button>
+        </div>
+      </div>
+
+      <div class="dock-block">
+        <span class="dock-label">Actions</span>
+        <div class="seg">
+          <button id="resetScoreBtn" class="seg-btn icon-btn" type="button" title="Reset Score">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            <span>Reset</span>
+          </button>
+          <button id="undoBtn" class="seg-btn icon-btn" type="button" title="Undo (Z)">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+            <span>Undo</span>
+          </button>
+          <button id="chessHintsBtn" class="seg-btn icon-btn hidden" type="button" title="Toggle Move Possibilities (OFF by default)" aria-pressed="false">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="3"></circle>
+              <line x1="12" y1="2" x2="12" y2="5"></line>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+              <line x1="2" y1="12" x2="5" y2="12"></line>
+              <line x1="19" y1="12" x2="22" y2="12"></line>
+            </svg>
+            <span>Hints</span>
+          </button>
+          <button id="newGameBtn" class="seg-btn icon-btn" type="button" title="New Game (R)">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span>New Game</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="score-ticker clickable-ticker" id="scoreTickerBtn" title="Click for Detailed Statistics">
+        You: <b id="scoreA">0</b> |
+        Opponent: <b id="scoreB">0</b> |
+        Draws: <b id="scoreD">0</b> |
+        <b id="streakBadge">🔥 Streak: 0</b>
+        <span class="stats-hint">📊 Stats</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Preserved hidden dock container for full backward compatibility with any script selectors -->
+  <aside class="sea-glass-dock hidden" id="arcadeDock" aria-hidden="true" style="display:none;">
+    <nav class="dock-nav" id="gameTypePills">
+      <button class="dock-btn" data-game="ttt" id="btnGameTTT" type="button">TTT</button>
+      <button class="dock-btn" data-game="sequence" id="btnGameSequence" type="button">Sequence</button>
+      <button class="dock-btn" data-game="chess" id="btnGameChess" type="button">Chess</button>
+      <button class="dock-btn" data-game="wordle" id="btnGameWordle" type="button">Wordle</button>
+      <button class="dock-btn" data-game="poker" id="btnGamePoker" type="button">Poker</button>
+      <button class="dock-btn" data-game="pattu" id="btnGamePattu" type="button">Pattu</button>
+      <a href="palace-escape/" class="dock-btn" id="btnGamePalace" data-game="palace">Palace</a>
+    </nav>
+  </aside>
+
+  <!-- State Selectors (Hidden) -->
   <select id="modeSelect" hidden>
     <option value="ttt3-2p">TTT3 Local</option>
     <option value="ttt3-ai" selected>TTT3 AI</option>
@@ -613,11 +828,59 @@
     <option value="hard">Hard</option>
   </select>
   <select id="themeSelect" hidden>
-    <option value="light" selected>Light</option>
-    <option value="dark">Dark</option>
+    <option value="light">Light</option>
+    <option value="dark" selected>Dark</option>
     <option value="itachi">Itachi</option>
     <option value="naruto">Naruto</option>
   </select>
+
+  <!-- Modern Frosted Glass Settings Modal -->
+  <div id="settingsModal" class="win-overlay hidden">
+    <div class="win-modal glass-island settings-modal-box">
+      <div class="settings-modal-header">
+        <h2>⚙️ Game Settings</h2>
+        <button type="button" class="modal-close-icon" id="closeSettingsXBtn" aria-label="Close Settings">&times;</button>
+      </div>
+      <div class="settings-modal-body">
+        <div class="settings-row">
+          <label class="settings-label">Opponent Mode</label>
+          <div class="seg" id="modalOpponentPills">
+            <button class="seg-btn" data-opponent="local" type="button">Local 2P</button>
+            <button class="seg-btn active" data-opponent="ai" type="button">vs AI</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">AI Difficulty</label>
+          <div class="seg" id="modalDifficultyPills">
+            <button class="seg-btn" data-difficulty="easy" type="button">Easy</button>
+            <button class="seg-btn active" data-difficulty="medium" type="button">Medium</button>
+            <button class="seg-btn" data-difficulty="hard" type="button">Hard</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">Turn Timer</label>
+          <div class="seg" id="modalTimerPills">
+            <button class="seg-btn active" data-timer="off" type="button">Off</button>
+            <button class="seg-btn" data-timer="30" type="button">30s</button>
+            <button class="seg-btn" data-timer="60" type="button">60s</button>
+            <button class="seg-btn" data-timer="90" type="button">90s</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">Visual Theme</label>
+          <div class="seg" id="modalThemePills">
+            <button class="seg-btn active" data-theme="dark" type="button">Dark</button>
+            <button class="seg-btn" data-theme="light" type="button">Light</button>
+            <button class="seg-btn" data-theme="itachi" type="button">Itachi</button>
+            <button class="seg-btn" data-theme="naruto" type="button">Naruto</button>
+          </div>
+        </div>
+      </div>
+      <div class="settings-modal-footer">
+        <button id="closeSettingsBtn" class="seg-btn active" type="button">Save & Close</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Win / Draw Modal Overlay -->
   <div id="winOverlay" class="win-overlay hidden">
@@ -641,8 +904,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=38.0"></script>
+  <script src="script.js — v=40.0"></script>
 </body>
 </html>
-
-
