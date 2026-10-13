@@ -1,4 +1,4 @@
-const modeSelect = document.getElementById("modeSelect");
+﻿const modeSelect = document.getElementById("modeSelect");
 const difficultySelect = document.getElementById("difficultySelect");
 const themeSelect = document.getElementById("themeSelect");
 
@@ -6157,6 +6157,33 @@ function initStageDragger() {
 }
 
 /* ---------- App Boot ---------- */
+  const palaceBackBtn = document.getElementById("palaceBackBtn");
+  const palaceFullscreenBtn = document.getElementById("palaceFullscreenBtn");
+  const palaceFsLabel = document.getElementById("palaceFsLabel");
+
+  palaceBackBtn?.addEventListener("click", () => {
+    hubState.game = hubState.lastTttMode || "ttt3";
+    syncHud();
+    persistHub();
+    initBoard(true);
+  });
+
+  palaceFullscreenBtn?.addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+      if (palaceFsLabel) palaceFsLabel.textContent = "Exit Fullscreen";
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+      if (palaceFsLabel) palaceFsLabel.textContent = "Fullscreen";
+    }
+  });
+
+  document.addEventListener("fullscreenchange", () => {
+    if (palaceFsLabel) {
+      palaceFsLabel.textContent = document.fullscreenElement ? "Exit Fullscreen" : "Fullscreen";
+    }
+  });
+
 function boot() {
   loadHub();
   updateMiniWindowUI();
@@ -6183,3 +6210,4 @@ if (document.readyState === "loading") {
 } else {
   boot();
 }
+
