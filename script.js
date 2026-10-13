@@ -64,6 +64,7 @@ const seqP1Label = document.getElementById("seqP1Label");
 const seqP2Label = document.getElementById("seqP2Label");
 const seqP1SeqEl = document.getElementById("seqP1Sequences");
 const seqP2SeqEl = document.getElementById("seqP2Sequences");
+const seqDeckPill = document.getElementById("seqDeckPill");
 const seqDeckCount = document.getElementById("seqDeckCount");
 const seqLastDiscard = document.getElementById("seqLastDiscard");
 const seqPromptBanner = document.getElementById("seqPromptBanner");
@@ -439,7 +440,7 @@ function applyRandomPalette(target = null) {
   root.style.setProperty("--dyn-bg-dark", chosen.darkBg);
   root.style.setProperty("--dyn-bg-light", chosen.lightBg);
 
-  const brandEl = document.querySelector(".brand");
+  const brandEl = document.querySelector(".brand, .dock-brand, #arcadeDock .dock-brand");
   if (brandEl) {
     brandEl.title = `GAP • Hex: ${chosen.name} (Click to cycle colors)`;
   }
@@ -451,7 +452,7 @@ function applyRandomPalette(target = null) {
 applyRandomPalette(currentPaletteIdx);
 
 document.addEventListener("DOMContentLoaded", () => {
-  const brandEl = document.querySelector(".brand");
+  const brandEl = document.querySelector(".brand, .dock-brand, #arcadeDock .dock-brand");
   if (brandEl) {
     brandEl.style.cursor = "pointer";
     const chosen = DYNAMIC_PALETTES[currentPaletteIdx];
@@ -654,6 +655,7 @@ function showOnlyActiveGame(gameKey) {
   const isPoker = (gameKey === "poker");
   const isPattu = (gameKey === "pattu");
   const isSequence = (gameKey === "sequence");
+  const isPalace = (gameKey === "palace");
 
   // 1. TTT Board
   if (tttBoardEl) {

@@ -4394,185 +4394,212 @@ body.mini-window #scoreStatsBar {
    ========================================================================== */
 
 /* Left Vertical Sea Glass Arcade Dock */
-.sea-glass-dock {
+#arcadeDock.sea-glass-dock {
   position: fixed !important;
-  top: 14px !important;
-  left: 16px !important;
-  bottom: 14px !important;
-  width: 224px !important;
+  top: 18px !important;
+  left: 18px !important;
+  bottom: auto !important;
+  width: 216px !important;
+  max-height: calc(100vh - 36px) !important;
   z-index: 1000 !important;
   display: flex !important;
   flex-direction: column !important;
-  background: rgba(10, 42, 48, 0.62) !important;
-  backdrop-filter: blur(28px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
-  border: 1.5px solid rgba(94, 234, 212, 0.22) !important;
-  border-top: 2px solid rgba(255, 255, 255, 0.4) !important;
-  border-radius: 26px !important;
-  padding: 18px 12px !important;
-  box-shadow: 0 24px 60px rgba(1, 15, 18, 0.6), inset 0 1.5px 2px rgba(255, 255, 255, 0.3) !important;
-  gap: 14px !important;
+  background: rgba(10, 42, 48, 0.68) !important;
+  backdrop-filter: blur(32px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(200%) !important;
+  border: 1.5px solid rgba(94, 234, 212, 0.25) !important;
+  border-top: 2px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 28px !important;
+  padding: 16px 12px 14px 12px !important;
+  box-shadow: 0 24px 60px rgba(1, 15, 18, 0.65), inset 0 1.5px 2px rgba(255, 255, 255, 0.35) !important;
+  gap: 12px !important;
   box-sizing: border-box !important;
   user-select: none !important;
 }
 
-body[data-theme="light"] .sea-glass-dock {
-  background: rgba(240, 253, 250, 0.85) !important;
-  border-color: rgba(13, 148, 136, 0.2) !important;
+body[data-theme="light"] #arcadeDock.sea-glass-dock {
+  background: rgba(240, 253, 250, 0.88) !important;
+  border-color: rgba(13, 148, 136, 0.24) !important;
   border-top-color: #ffffff !important;
-  box-shadow: 0 16px 40px rgba(15, 118, 110, 0.12), inset 0 1.5px 1.5px #ffffff !important;
+  box-shadow: 0 16px 40px rgba(15, 118, 110, 0.14), inset 0 1.5px 1.5px #ffffff !important;
 }
 
-.dock-header {
+#arcadeDock .dock-header {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  padding: 0 6px 12px 6px !important;
+  padding: 2px 6px 12px 6px !important;
   border-bottom: 1px solid rgba(94, 234, 212, 0.16) !important;
   flex-shrink: 0 !important;
 }
 
-body[data-theme="light"] .dock-header {
+body[data-theme="light"] #arcadeDock .dock-header {
   border-bottom-color: rgba(13, 148, 136, 0.16) !important;
 }
 
-.dock-brand {
+#arcadeDock .dock-brand {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
+  cursor: pointer !important;
+  transition: transform 0.15s ease !important;
 }
 
-.dock-sea-orb {
-  width: 10px !important;
-  height: 10px !important;
+#arcadeDock .dock-brand:hover {
+  transform: scale(1.04) !important;
+}
+
+#arcadeDock .dock-brand:active {
+  transform: scale(0.96) !important;
+}
+
+#arcadeDock .dock-sea-orb {
+  width: 11px !important;
+  height: 11px !important;
   border-radius: 50% !important;
-  background: #2dd4bf !important;
-  box-shadow: 0 0 12px #2dd4bf, 0 0 20px #14b8a6 !important;
+  background: var(--dyn-brand, #2dd4bf) !important;
+  box-shadow: 0 0 14px var(--dyn-brand, #2dd4bf), 0 0 24px var(--dyn-glow, rgba(45, 212, 191, 0.6)) !important;
   animation: seaOrbPulse 3s ease-in-out infinite !important;
 }
 
 @keyframes seaOrbPulse {
   0%, 100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 18px #5eead4, 0 0 28px #2dd4bf; }
+  50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 18px var(--dyn-brand, #5eead4), 0 0 28px var(--dyn-glow, #2dd4bf); }
 }
 
-.dock-brand-title {
-  font-size: 1.55rem !important;
+#arcadeDock .dock-brand-title {
+  font-size: 1.65rem !important;
   font-weight: 900 !important;
   letter-spacing: 2px !important;
-  color: #5eead4 !important;
-  text-shadow: 0 0 20px rgba(45, 212, 191, 0.6) !important;
+  color: var(--dyn-brand, #5eead4) !important;
+  text-shadow: 0 0 22px var(--dyn-glow, rgba(45, 212, 191, 0.6)) !important;
   line-height: 1 !important;
+  transition: color 0.3s ease, text-shadow 0.3s ease !important;
 }
 
-body[data-theme="light"] .dock-brand-title {
-  color: #0f766e !important;
-  text-shadow: 0 0 14px rgba(13, 148, 136, 0.3) !important;
+body[data-theme="light"] #arcadeDock .dock-brand-title {
+  color: var(--dyn-brand, #0f766e) !important;
+  text-shadow: 0 0 14px var(--dyn-glow, rgba(13, 148, 136, 0.3)) !important;
 }
 
-.dock-brand-badge {
+#arcadeDock .dock-brand-badge {
   font-size: 0.62rem !important;
   font-weight: 800 !important;
-  letter-spacing: 0.12em !important;
-  color: #2dd4bf !important;
+  letter-spacing: 0.14em !important;
+  color: var(--dyn-brand, #2dd4bf) !important;
   background: rgba(45, 212, 191, 0.14) !important;
   border: 1px solid rgba(45, 212, 191, 0.32) !important;
-  padding: 3px 7px !important;
+  padding: 3px 8px !important;
   border-radius: 9999px !important;
 }
 
-body[data-theme="light"] .dock-brand-badge {
-  color: #0d9488 !important;
+body[data-theme="light"] #arcadeDock .dock-brand-badge {
+  color: var(--dyn-brand, #0d9488) !important;
   background: rgba(13, 148, 136, 0.1) !important;
   border-color: rgba(13, 148, 136, 0.25) !important;
 }
 
-.dock-nav {
+#arcadeDock .dock-nav {
   display: flex !important;
   flex-direction: column !important;
-  gap: 7px !important;
+  gap: 8px !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   flex: 1 !important;
   scrollbar-width: none !important;
 }
-.dock-nav::-webkit-scrollbar { display: none; }
+#arcadeDock .dock-nav::-webkit-scrollbar { display: none; }
 
-.dock-btn {
+/* High-End Sea Glass Button styling matching the mockup */
+#arcadeDock .dock-btn {
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
-  padding: 10px 12px !important;
-  border-radius: 14px !important;
-  background: rgba(14, 58, 66, 0.35) !important;
-  border: 1px solid rgba(94, 234, 212, 0.14) !important;
+  gap: 12px !important;
+  height: 46px !important;
+  padding: 0 14px !important;
+  border-radius: 9999px !important;
+  background: rgba(14, 58, 66, 0.42) !important;
+  border: 1.5px solid rgba(94, 234, 212, 0.2) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.3) !important;
   color: #ccfbf1 !important;
   font-family: inherit !important;
-  font-size: 0.84rem !important;
+  font-size: 0.88rem !important;
   font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
   cursor: pointer !important;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
   position: relative !important;
   text-decoration: none !important;
   box-sizing: border-box !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
 }
 
-body[data-theme="light"] .dock-btn {
-  background: rgba(255, 255, 255, 0.65) !important;
-  border-color: rgba(13, 148, 136, 0.14) !important;
+body[data-theme="light"] #arcadeDock .dock-btn {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(13, 148, 136, 0.18) !important;
   color: #134e4a !important;
 }
 
-.dock-btn:hover {
-  background: rgba(20, 80, 90, 0.55) !important;
-  border-color: rgba(94, 234, 212, 0.38) !important;
+#arcadeDock .dock-btn:hover {
+  background: rgba(20, 84, 96, 0.65) !important;
+  border-color: rgba(94, 234, 212, 0.45) !important;
+  border-top-color: rgba(255, 255, 255, 0.6) !important;
   color: #ffffff !important;
-  transform: translateX(3px) !important;
-  box-shadow: 0 4px 16px rgba(45, 212, 191, 0.2) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(45, 212, 191, 0.25), inset 0 1px 1.5px rgba(255, 255, 255, 0.3) !important;
 }
 
-body[data-theme="light"] .dock-btn:hover {
+body[data-theme="light"] #arcadeDock .dock-btn:hover {
   background: #ffffff !important;
   border-color: rgba(13, 148, 136, 0.35) !important;
   color: #042f2e !important;
   box-shadow: 0 4px 14px rgba(13, 148, 136, 0.15) !important;
 }
 
-.dock-btn.active {
-  background: linear-gradient(135deg, rgba(20, 140, 135, 0.82), rgba(13, 110, 110, 0.92)) !important;
-  border: 1.5px solid #2dd4bf !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 20px rgba(45, 212, 191, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.5) !important;
+#arcadeDock .dock-btn:active {
+  transform: translateY(1px) !important;
 }
 
-body[data-theme="light"] .dock-btn.active {
+#arcadeDock .dock-btn.active {
+  background: linear-gradient(135deg, rgba(20, 140, 135, 0.88), rgba(13, 110, 110, 0.96)) !important;
+  border: 2px solid var(--dyn-brand, #2dd4bf) !important;
+  border-top: 2px solid rgba(255, 255, 255, 0.85) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 22px var(--dyn-glow, rgba(45, 212, 191, 0.55)), inset 0 1px 2px rgba(255, 255, 255, 0.7) !important;
+}
+
+body[data-theme="light"] #arcadeDock .dock-btn.active {
   background: linear-gradient(135deg, #0d9488, #0f766e) !important;
   border-color: #0f766e !important;
   color: #ffffff !important;
   box-shadow: 0 4px 16px rgba(13, 148, 136, 0.35), inset 0 1px 1px #ffffff !important;
 }
 
-.dock-btn-icon {
+#arcadeDock .dock-btn-icon {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 22px !important;
-  height: 22px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 8px !important;
+  background: rgba(45, 212, 191, 0.12) !important;
+  color: var(--dyn-brand, #5eead4) !important;
   flex-shrink: 0 !important;
-  color: #5eead4 !important;
   transition: all 0.2s ease !important;
 }
 
-body[data-theme="light"] .dock-btn-icon {
+body[data-theme="light"] #arcadeDock .dock-btn-icon {
   color: #0d9488 !important;
 }
 
-.dock-btn.active .dock-btn-icon {
-  color: #ffffff !important;
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) !important;
+#arcadeDock .dock-btn.active .dock-btn-icon {
+  background: var(--dyn-brand, #2dd4bf) !important;
+  color: #06191f !important;
+  box-shadow: 0 0 10px var(--dyn-brand, #2dd4bf) !important;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8)) !important;
 }
 
-.dock-btn-label {
+#arcadeDock .dock-btn-label {
   flex: 1 !important;
   text-align: left !important;
   white-space: nowrap !important;
@@ -4580,51 +4607,55 @@ body[data-theme="light"] .dock-btn-icon {
   text-overflow: ellipsis !important;
 }
 
-.dock-btn-tag {
+#arcadeDock .dock-btn-tag {
   font-size: 0.72rem !important;
   font-weight: 800 !important;
-  color: #2dd4bf !important;
+  color: var(--dyn-brand, #2dd4bf) !important;
   margin-left: auto !important;
 }
 
-.dock-btn-palace {
+#arcadeDock .dock-btn-palace {
   border-color: rgba(245, 158, 11, 0.35) !important;
 }
 
-.dock-btn-palace:hover {
+#arcadeDock .dock-btn-palace:hover {
   border-color: #f59e0b !important;
-  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.3) !important;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3) !important;
 }
 
-/* Desktop Main Content Layout */
+#arcadeDock .dock-btn-palace .dock-btn-icon {
+  color: #fbbf24 !important;
+  background: rgba(245, 158, 11, 0.15) !important;
+}
+
+/* Desktop Main Content Layout: Balanced & Protected Against Overflow */
 @media (min-width: 900px) {
   .top-hud.sea-glass-top-hud {
-    margin-left: 256px !important;
-    margin-right: 20px !important;
-    width: calc(100% - 276px) !important;
-    max-width: 1200px !important;
-    margin-top: 14px !important;
+    margin: 14px 20px 0 calc(216px + 38px) !important;
+    width: calc(100% - 216px - 58px) !important;
+    max-width: 1080px !important;
     height: 58px !important;
     min-height: 58px !important;
-    background: rgba(10, 42, 48, 0.6) !important;
+    background: rgba(10, 42, 48, 0.65) !important;
     backdrop-filter: blur(28px) saturate(200%) !important;
     -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
     border: 1.5px solid rgba(94, 234, 212, 0.22) !important;
-    border-top: 2px solid rgba(255, 255, 255, 0.35) !important;
+    border-top: 2px solid rgba(255, 255, 255, 0.4) !important;
     border-radius: 9999px !important;
     box-shadow: 0 20px 50px rgba(1, 15, 18, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.3) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 0 24px !important;
+    padding: 0 22px !important;
+    box-sizing: border-box !important;
     gap: 16px !important;
   }
 
   body[data-theme="light"] .top-hud.sea-glass-top-hud {
-    background: rgba(240, 253, 250, 0.85) !important;
-    border-color: rgba(13, 148, 136, 0.2) !important;
+    background: rgba(240, 253, 250, 0.88) !important;
+    border-color: rgba(13, 148, 136, 0.22) !important;
     border-top-color: #ffffff !important;
-    box-shadow: 0 16px 40px rgba(15, 118, 110, 0.1), inset 0 1.5px 1.5px #ffffff !important;
+    box-shadow: 0 16px 40px rgba(15, 118, 110, 0.12), inset 0 1.5px 1.5px #ffffff !important;
   }
 
   .top-hud.sea-glass-top-hud .hud-center {
@@ -4636,31 +4667,42 @@ body[data-theme="light"] .dock-btn-icon {
   }
 
   .arena {
-    margin-left: 256px !important;
-    width: calc(100% - 256px) !important;
+    margin: 0 20px 0 calc(216px + 38px) !important;
+    width: calc(100% - 216px - 58px) !important;
     height: calc(100vh - 165px) !important;
     box-sizing: border-box !important;
   }
 
   .quick-dock {
-    left: calc(50% + 128px) !important;
-    width: min(calc(96vw - 276px), 1200px) !important;
-    background: rgba(10, 42, 48, 0.6) !important;
+    position: fixed !important;
+    bottom: 12px !important;
+    left: calc(216px + 38px + (100vw - 216px - 58px) / 2) !important;
+    transform: translateX(-50%) !important;
+    width: min(calc(100vw - 216px - 68px), 1080px) !important;
+    max-width: calc(100vw - 216px - 68px) !important;
+    height: 58px !important;
+    padding: 0 22px !important;
+    background: rgba(10, 42, 48, 0.65) !important;
+    backdrop-filter: blur(28px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
     border: 1.5px solid rgba(94, 234, 212, 0.22) !important;
-    border-top: 2px solid rgba(255, 255, 255, 0.35) !important;
+    border-top: 2px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 9999px !important;
     box-shadow: 0 20px 50px rgba(1, 15, 18, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.3) !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
   }
 
   body[data-theme="light"] .quick-dock {
-    background: rgba(240, 253, 250, 0.85) !important;
-    border-color: rgba(13, 148, 136, 0.2) !important;
+    background: rgba(240, 253, 250, 0.88) !important;
+    border-color: rgba(13, 148, 136, 0.22) !important;
     border-top-color: #ffffff !important;
   }
 }
 
 /* Mobile & Tablet Responsive */
 @media (max-width: 899px) {
-  .sea-glass-dock {
+  #arcadeDock.sea-glass-dock {
     position: sticky !important;
     top: 0 !important;
     left: 0 !important;
@@ -4677,21 +4719,22 @@ body[data-theme="light"] .dock-btn-icon {
     gap: 8px !important;
   }
 
-  .dock-header {
+  #arcadeDock .dock-header {
     border-bottom: none !important;
     border-right: 1px solid rgba(94, 234, 212, 0.16) !important;
     padding: 0 10px 0 0 !important;
     margin-right: 4px !important;
   }
 
-  .dock-nav {
+  #arcadeDock .dock-nav {
     flex-direction: row !important;
     overflow-x: auto !important;
     gap: 6px !important;
   }
 
-  .dock-btn {
-    padding: 6px 12px !important;
+  #arcadeDock .dock-btn {
+    height: 36px !important;
+    padding: 0 12px !important;
     font-size: 0.78rem !important;
     flex-shrink: 0 !important;
   }
@@ -4702,7 +4745,7 @@ body[data-theme="light"] .dock-btn-icon {
   }
 
   .arena {
-    margin-left: 0 !important;
+    margin: 0 !important;
     width: 100% !important;
     height: calc(100vh - 200px) !important;
   }
@@ -4737,14 +4780,14 @@ body[data-theme="light"] .board-shell {
 
 .ttt-cell:hover:not(.taken) {
   background: rgba(20, 80, 90, 0.6) !important;
-  border-color: #2dd4bf !important;
-  box-shadow: 0 0 20px rgba(45, 212, 191, 0.3), inset 0 1px 1.5px rgba(255, 255, 255, 0.35) !important;
+  border-color: var(--dyn-brand, #2dd4bf) !important;
+  box-shadow: 0 0 20px var(--dyn-glow, rgba(45, 212, 191, 0.3)), inset 0 1px 1.5px rgba(255, 255, 255, 0.35) !important;
   transform: scale(1.02) !important;
 }
 
 .cell-x {
-  color: #2dd4bf !important;
-  text-shadow: 0 0 22px rgba(45, 212, 191, 0.75), 0 0 40px rgba(20, 184, 166, 0.4) !important;
+  color: var(--dyn-brand, #2dd4bf) !important;
+  text-shadow: 0 0 22px var(--dyn-glow, rgba(45, 212, 191, 0.75)), 0 0 40px rgba(20, 184, 166, 0.4) !important;
 }
 
 .cell-o {
@@ -4767,13 +4810,13 @@ body[data-theme="light"] .board-shell {
 
 .seg-btn.active {
   background: linear-gradient(135deg, rgba(20, 140, 135, 0.85), rgba(13, 110, 110, 0.95)) !important;
-  border: 1px solid #2dd4bf !important;
+  border: 1px solid var(--dyn-brand, #2dd4bf) !important;
   color: #ffffff !important;
-  box-shadow: 0 0 16px rgba(45, 212, 191, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 16px var(--dyn-glow, rgba(45, 212, 191, 0.4)), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
 }
 
 .group-label, .dock-label {
-  color: #5eead4 !important;
+  color: var(--dyn-brand, #5eead4) !important;
   font-weight: 800 !important;
   letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
