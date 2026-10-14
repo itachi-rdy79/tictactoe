@@ -460,7 +460,7 @@ function applyRandomPalette(target = null) {
   }
 
   // Immediately update body background so double-clicking immediately transforms the page colors!
-  const currentTheme = hubState?.theme || document.body.getAttribute("data-theme") || "dark";
+  const currentTheme = (typeof document !== "undefined" && document.body && document.body.getAttribute) ? (document.body.getAttribute("data-theme") || "dark") : "dark";
   if (currentTheme === "dark") {
     document.body.style.setProperty("background", chosen.darkBg, "important");
     document.body.style.setProperty("--bg", chosen.darkBg);

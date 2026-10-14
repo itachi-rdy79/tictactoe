@@ -7192,3 +7192,6 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
 
 /* Clean Hero Elements */
 .hero-chip, .hero-features { display: none !important; }
+
+/* Remove names/UI descriptions under game cards */
+.game-card-desc { display: none !important; }
