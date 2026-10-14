@@ -6462,3 +6462,726 @@ body.mini-window .ludo-board-wrap {
 .game-match-bar.collapsed .active-game-badge:hover {
   color: #2dd4bf !important;
 }
+
+
+
+/* ==========================================================================
+   VIBRANT MULTICOLOR SEA GLASS UI & GLOBAL THEMES
+   ========================================================================== */
+
+/* 1. Global Themes: Ocean Prism, Pearl Rainbow, Crimson Moon, Sunset Flame, Aurora Glass */
+
+/* Ocean Prism (Deep Navy with Jewel-Glass Accents) */
+body[data-theme="dark"],
+body[data-theme="ocean-prism"] {
+  --bg: radial-gradient(circle at 18% 20%, rgba(56, 189, 248, 0.35) 0%, transparent 45%),
+        radial-gradient(circle at 82% 78%, rgba(139, 92, 246, 0.35) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.22) 0%, transparent 60%),
+        radial-gradient(circle at 85% 18%, rgba(244, 63, 94, 0.22) 0%, transparent 40%),
+        #050914;
+  --surface: rgba(15, 23, 42, 0.72);
+  --surface-border: rgba(56, 189, 248, 0.28);
+  --surface-specular: rgba(255, 255, 255, 0.45);
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --brand: #38bdf8;
+  --accent: #38bdf8;
+  --x: #38bdf8;
+  --o: #fbbf24;
+}
+
+body[data-theme="dark"],
+body[data-theme="ocean-prism"] {
+  background: var(--bg) !important;
+  background-attachment: fixed !important;
+}
+
+/* Pearl Rainbow (White Frosted Glass with Pastel-Colored Accents) */
+body[data-theme="light"],
+body[data-theme="pearl-rainbow"] {
+  --bg: radial-gradient(circle at 15% 20%, rgba(254, 205, 211, 0.55) 0%, transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(186, 230, 253, 0.6) 0%, transparent 45%),
+        radial-gradient(circle at 50% 85%, rgba(167, 243, 208, 0.5) 0%, transparent 50%),
+        radial-gradient(circle at 50% 30%, rgba(254, 240, 138, 0.45) 0%, transparent 55%),
+        #f8fafc;
+  --surface: rgba(255, 255, 255, 0.85);
+  --surface-border: rgba(15, 23, 42, 0.12);
+  --surface-specular: #ffffff;
+  --text: #0f172a;
+  --muted: #475569;
+  --brand: #0284c7;
+  --accent: #0284c7;
+  --x: #0284c7;
+  --o: #ea580c;
+}
+
+body[data-theme="light"],
+body[data-theme="pearl-rainbow"] {
+  background: var(--bg) !important;
+  background-attachment: fixed !important;
+}
+
+/* Crimson Moon (Dark Ruby, Violet, and Crimson Glass inspired by Itachi) */
+body[data-theme="itachi"],
+body[data-theme="crimson-moon"] {
+  --bg: radial-gradient(circle at 50% 35%, rgba(225, 29, 72, 0.45) 0%, rgba(136, 19, 55, 0.3) 40%, rgba(88, 28, 135, 0.22) 65%, #050004 95%);
+  --surface: rgba(18, 2, 8, 0.88);
+  --surface-border: rgba(225, 29, 72, 0.45);
+  --surface-specular: rgba(255, 180, 200, 0.55);
+  --text: #fff1f2;
+  --muted: #fb7185;
+  --brand: #ff0033;
+  --accent: #ff0033;
+  --x: #ff0033;
+  --o: #ffffff;
+}
+
+body[data-theme="itachi"],
+body[data-theme="crimson-moon"] {
+  background: var(--bg) !important;
+  background-attachment: fixed !important;
+}
+
+/* Sunset Flame (Orange, Gold, Red, and Electric Cyan Glass inspired by Naruto) */
+body[data-theme="naruto"],
+body[data-theme="sunset-flame"] {
+  --bg: radial-gradient(circle at 50% 30%, rgba(249, 115, 22, 0.42) 0%, rgba(234, 88, 12, 0.26) 35%, rgba(6, 182, 212, 0.2) 65%, #070c18 95%);
+  --surface: rgba(16, 22, 38, 0.88);
+  --surface-border: rgba(249, 115, 22, 0.45);
+  --surface-specular: rgba(254, 215, 170, 0.6);
+  --text: #f8fafc;
+  --muted: #fdba74;
+  --brand: #ea580c;
+  --accent: #f97316;
+  --x: #06b6d4;
+  --o: #ea580c;
+}
+
+body[data-theme="naruto"],
+body[data-theme="sunset-flame"] {
+  background: var(--bg) !important;
+  background-attachment: fixed !important;
+}
+
+/* Aurora Glass (Emerald, Teal, Violet, and Pink Translucent Glass) */
+body[data-theme="aurora"],
+body[data-theme="aurora-glass"] {
+  --bg: radial-gradient(circle at 20% 25%, rgba(16, 185, 129, 0.42) 0%, transparent 45%),
+        radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.42) 0%, transparent 50%),
+        radial-gradient(circle at 50% 70%, rgba(6, 182, 212, 0.35) 0%, transparent 55%),
+        radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.32) 0%, transparent 50%),
+        #040d16;
+  --surface: rgba(6, 22, 28, 0.82);
+  --surface-border: rgba(45, 212, 191, 0.45);
+  --surface-specular: rgba(255, 255, 255, 0.6);
+  --text: #f0fdfa;
+  --muted: #99f6e4;
+  --brand: #2dd4bf;
+  --accent: #2dd4bf;
+  --x: #2dd4bf;
+  --o: #f472b6;
+
+  --btn-bg: rgba(20, 184, 166, 0.14);
+  --btn-border: rgba(45, 212, 191, 0.32);
+  --btn-text: #ccfbf1;
+  --btn-active-bg: linear-gradient(135deg, rgba(45, 212, 191, 0.38) 0%, rgba(168, 85, 247, 0.38) 100%);
+  --btn-active-border: #2dd4bf;
+  --btn-active-text: #ffffff;
+  --btn-active-shadow: 0 6px 22px rgba(45, 212, 191, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.7);
+
+  --tile-bg: rgba(6, 32, 38, 0.85);
+  --tile-border: rgba(45, 212, 191, 0.35);
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(45, 212, 191, 0.25);
+
+  --turn-bg: rgba(6, 24, 30, 0.88);
+  --turn-border: rgba(45, 212, 191, 0.5);
+  --turn-text: #5eead4;
+
+  --chess-light: rgba(45, 212, 191, 0.25);
+  --chess-dark: rgba(15, 23, 42, 0.88);
+  --chess-piece-white: #ccfbf1;
+  --chess-piece-black: #c084fc;
+}
+
+body[data-theme="aurora"],
+body[data-theme="aurora-glass"] {
+  background: var(--bg) !important;
+  background-attachment: fixed !important;
+}
+
+/* 2. Theme Picker Menu Items Styling */
+.theme-menu {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  padding: 8px !important;
+  min-width: 190px !important;
+  border-radius: 18px !important;
+}
+
+.theme-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: var(--text) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  font-size: 0.82rem !important;
+  width: 100% !important;
+  text-align: left !important;
+}
+
+.theme-item:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  transform: translateX(3px) !important;
+}
+
+.theme-item.active {
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(45, 212, 191, 0.5) !important;
+  font-weight: 700 !important;
+}
+
+.theme-dot {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 0 8px currentColor !important;
+}
+
+.dot-ocean { background: #38bdf8 !important; color: #38bdf8 !important; }
+.dot-pearl { background: linear-gradient(135deg, #f472b6, #38bdf8, #10b981) !important; color: #38bdf8 !important; }
+.dot-crimson { background: #ef4444 !important; color: #ef4444 !important; }
+.dot-sunset { background: #f97316 !important; color: #f97316 !important; }
+.dot-aurora { background: #2dd4bf !important; color: #2dd4bf !important; }
+
+.theme-item-label {
+  display: flex !important;
+  flex-direction: column !important;
+  line-height: 1.2 !important;
+}
+
+.theme-name {
+  font-weight: 600 !important;
+  font-size: 0.82rem !important;
+}
+
+.theme-sub {
+  font-size: 0.68rem !important;
+  opacity: 0.65 !important;
+}
+
+/* 3. Hero Sea Glass Improvements */
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-top: 1px solid rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 5px 14px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #38bdf8;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.hero-title-accent {
+  background: linear-gradient(135deg, #38bdf8 0%, #a855f7 40%, #ec4899 75%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 14px rgba(56, 189, 248, 0.4));
+}
+
+.feature-badge {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.45) !important;
+}
+
+.feature-badge:hover {
+  transform: translateY(-3px) scale(1.04) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 18px rgba(45, 212, 191, 0.45) !important;
+  border-color: #2dd4bf !important;
+}
+
+/* 4. MULTICOLOR SEA GLASS GAME CARDS */
+
+.game-card {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 22px !important;
+  padding: 24px 18px 20px 18px !important;
+  backdrop-filter: blur(26px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(190%) !important;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.3s ease,
+              background 0.3s ease !important;
+}
+
+/* Diagonal Frosted Light Sheen Sweep Across Glass */
+.game-card::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.04) 35%, transparent 60%) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+.game-card:hover::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.08) 40%, transparent 65%) !important;
+}
+
+.game-card-icon-wrap {
+  width: 66px !important;
+  height: 66px !important;
+  border-radius: 18px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  backdrop-filter: blur(12px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.4), 0 6px 18px rgba(0, 0, 0, 0.25) !important;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease !important;
+  z-index: 2 !important;
+}
+
+.game-card:hover .game-card-icon-wrap {
+  transform: scale(1.08) translateY(-2px) !important;
+}
+
+.game-card-title {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  margin: 12px 0 4px 0 !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  z-index: 2 !important;
+  transition: color 0.25s ease, text-shadow 0.25s ease !important;
+}
+
+.game-card-desc {
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  opacity: 0.82 !important;
+  z-index: 2 !important;
+}
+
+/* Card 1: Tic Tac Toe — Red & Ruby Glass */
+.game-card[data-game="ttt"] {
+  background: linear-gradient(145deg, rgba(239, 68, 68, 0.18) 0%, rgba(185, 28, 28, 0.08) 50%, rgba(15, 23, 42, 0.72) 100%) !important;
+  border: 1.5px solid rgba(239, 68, 68, 0.42) !important;
+  border-top: 1.5px solid rgba(255, 180, 180, 0.75) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 4px 16px rgba(239, 68, 68, 0.22), inset 0 1px 1.5px rgba(255, 255, 255, 0.38) !important;
+}
+.game-card[data-game="ttt"]:hover {
+  background: linear-gradient(145deg, rgba(239, 68, 68, 0.3) 0%, rgba(185, 28, 28, 0.16) 50%, rgba(15, 23, 42, 0.8) 100%) !important;
+  border-color: rgba(239, 68, 68, 0.8) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(239, 68, 68, 0.55), inset 0 1.5px 2px rgba(255, 255, 255, 0.75) !important;
+  transform: translateY(-8px) scale(1.025) !important;
+}
+.game-card[data-game="ttt"]:hover .game-card-title {
+  color: #fecdd3 !important;
+  text-shadow: 0 0 14px rgba(239, 68, 68, 0.8) !important;
+}
+
+/* Card 2: Sequence — Sapphire Blue Glass */
+.game-card[data-game="sequence"] {
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.18) 0%, rgba(29, 78, 216, 0.08) 50%, rgba(15, 23, 42, 0.72) 100%) !important;
+  border: 1.5px solid rgba(59, 130, 246, 0.42) !important;
+  border-top: 1.5px solid rgba(191, 219, 254, 0.75) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 4px 16px rgba(59, 130, 246, 0.22), inset 0 1px 1.5px rgba(255, 255, 255, 0.38) !important;
+}
+.game-card[data-game="sequence"]:hover {
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.3) 0%, rgba(29, 78, 216, 0.16) 50%, rgba(15, 23, 42, 0.8) 100%) !important;
+  border-color: rgba(59, 130, 246, 0.8) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(59, 130, 246, 0.55), inset 0 1.5px 2px rgba(255, 255, 255, 0.75) !important;
+  transform: translateY(-8px) scale(1.025) !important;
+}
+.game-card[data-game="sequence"]:hover .game-card-title {
+  color: #bfdbfe !important;
+  text-shadow: 0 0 14px rgba(59, 130, 246, 0.8) !important;
+}
+
+/* Card 3: Chess — Royal Purple & Amethyst Glass */
+.game-card[data-game="chess"] {
+  background: linear-gradient(145deg, rgba(168, 85, 247, 0.2) 0%, rgba(124, 58, 237, 0.08) 50%, rgba(15, 23, 42, 0.72) 100%) !important;
+  border: 1.5px solid rgba(168, 85, 247, 0.42) !important;
+  border-top: 1.5px solid rgba(233, 213, 255, 0.75) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 4px 16px rgba(168, 85, 247, 0.24), inset 0 1px 1.5px rgba(255, 255, 255, 0.38) !important;
+}
+.game-card[data-game="chess"]:hover {
+  background: linear-gradient(145deg, rgba(168, 85, 247, 0.32) 0%, rgba(124, 58, 237, 0.16) 50%, rgba(15, 23, 42, 0.8) 100%) !important;
+  border-color: rgba(168, 85, 247, 0.8) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(168, 85, 247, 0.6), inset 0 1.5px 2px rgba(255, 255, 255, 0.75) !important;
+  transform: translateY(-8px) scale(1.025) !important;
+}
+.game-card[data-game="chess"]:hover .game-card-title {
+  color: #e9d5ff !important;
+  text-shadow: 0 0 14px rgba(168, 85, 247, 0.85) !important;
+}
+
+/* Card 4: Wordle — Emerald & Mint Glass */
+.game-card[data-game="wordle"] {
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.18) 0%, rgba(5, 150, 105, 0.08) 50%, rgba(15, 23, 42, 0.72) 100%) !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.42) !important;
+  border-top: 1.5px solid rgba(167, 243, 208, 0.75) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 4px 16px rgba(16, 185, 129, 0.22), inset 0 1px 1.5px rgba(255, 255, 255, 0.38) !important;
+}
+.game-card[data-game="wordle"]:hover {
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.16) 50%, rgba(15, 23, 42, 0.8) 100%) !important;
+  border-color: rgba(16, 185, 129, 0.8) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(16, 185, 129, 0.55), inset 0 1.5px 2px rgba(255, 255, 255, 0.75) !important;
+  transform: translateY(-8px) scale(1.025) !important;
+}
+.game-card[data-game="wordle"]:hover .game-card-title {
+  color: #a7f3d0 !important;
+  text-shadow: 0 0 14px rgba(16, 185, 129, 0.8) !important;
+}
+
+/* Card 5: Poker — Golden Amber Glass */
+.game-card[data-game="poker"] {
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.08) 50%, rgba(15, 23, 42, 0.72) 100%) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.42) !important;
+  border-top: 1.5px solid rgba(254, 240, 138, 0.75) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 4px 16px rgba(245, 158, 11, 0.22), inset 0 1px 1.5px rgba(255, 255, 255, 0.38) !important;
+}
+.game-card[data-game="poker"]:hover {
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.3) 0%, rgba(217, 119, 6, 0.16) 50%, rgba(15, 23, 42, 0.8) 100%) !important;
+  border-color: rgba(245, 158, 11, 0.8) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(245, 158, 11, 0.55), inset 0 1.5px 2px rgba(255, 255, 255, 0.75) !important;
+  transform: translateY(-8px) scale(1.025) !important;
+}
+.game-card[data-game="poker"]:hover .game-card-title {
+  color: #fef08a !important;
+  text-shadow: 0 0 14px rgba(245, 158, 11, 0.8) !important;
+}
+
+/* Card 6: PC Guesser — Ruby Red & Magenta Glass */
+.game-card[data-game="pattu"] {
+  background: linear-gradient(145deg, rgba(244, 63, 94, 0.18) 0%, rgba(219, 39, 119, 0.08) 50%, rgba(15, 23, 42, 0.72) 100%) !important;
+  border: 1.5px solid rgba(244, 63, 94, 0.42) !important;
+  border-top: 1.5px solid rgba(254, 205, 211, 0.75) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 4px 16px rgba(244, 63, 94, 0.22), inset 0 1px 1.5px rgba(255, 255, 255, 0.38) !important;
+}
+.game-card[data-game="pattu"]:hover {
+  background: linear-gradient(145deg, rgba(244, 63, 94, 0.3) 0%, rgba(219, 39, 119, 0.16) 50%, rgba(15, 23, 42, 0.8) 100%) !important;
+  border-color: rgba(244, 63, 94, 0.8) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(244, 63, 94, 0.55), inset 0 1.5px 2px rgba(255, 255, 255, 0.75) !important;
+  transform: translateY(-8px) scale(1.025) !important;
+}
+.game-card[data-game="pattu"]:hover .game-card-title {
+  color: #fbcfe8 !important;
+  text-shadow: 0 0 14px rgba(244, 63, 94, 0.8) !important;
+}
+
+/* Card 7: Palace Escape — Coral & Sunset Orange Glass */
+.game-card[data-game="palace"] {
+  background: linear-gradient(145deg, rgba(249, 115, 22, 0.18) 0%, rgba(234, 88, 12, 0.08) 50%, rgba(15, 23, 42, 0.72) 100%) !important;
+  border: 1.5px solid rgba(249, 115, 22, 0.42) !important;
+  border-top: 1.5px solid rgba(254, 215, 170, 0.75) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 4px 16px rgba(249, 115, 22, 0.22), inset 0 1px 1.5px rgba(255, 255, 255, 0.38) !important;
+}
+.game-card[data-game="palace"]:hover {
+  background: linear-gradient(145deg, rgba(249, 115, 22, 0.3) 0%, rgba(234, 88, 12, 0.16) 50%, rgba(15, 23, 42, 0.8) 100%) !important;
+  border-color: rgba(249, 115, 22, 0.8) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(249, 115, 22, 0.55), inset 0 1.5px 2px rgba(255, 255, 255, 0.75) !important;
+  transform: translateY(-8px) scale(1.025) !important;
+}
+.game-card[data-game="palace"]:hover .game-card-title {
+  color: #fed7aa !important;
+  text-shadow: 0 0 14px rgba(249, 115, 22, 0.8) !important;
+}
+
+/* Card 8: Pass It On — Iris Purple Glass */
+.game-card[data-game="passiton"] {
+  background: linear-gradient(145deg, rgba(99, 102, 241, 0.18) 0%, rgba(79, 70, 229, 0.08) 50%, rgba(15, 23, 42, 0.72) 100%) !important;
+  border: 1.5px solid rgba(99, 102, 241, 0.42) !important;
+  border-top: 1.5px solid rgba(199, 210, 254, 0.75) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 4px 16px rgba(99, 102, 241, 0.22), inset 0 1px 1.5px rgba(255, 255, 255, 0.38) !important;
+}
+.game-card[data-game="passiton"]:hover {
+  background: linear-gradient(145deg, rgba(99, 102, 241, 0.3) 0%, rgba(79, 70, 229, 0.16) 50%, rgba(15, 23, 42, 0.8) 100%) !important;
+  border-color: rgba(99, 102, 241, 0.8) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(99, 102, 241, 0.55), inset 0 1.5px 2px rgba(255, 255, 255, 0.75) !important;
+  transform: translateY(-8px) scale(1.025) !important;
+}
+.game-card[data-game="passiton"]:hover .game-card-title {
+  color: #c7d2fe !important;
+  text-shadow: 0 0 14px rgba(99, 102, 241, 0.8) !important;
+}
+
+/* Card 9: Ludo King — Multicolored Red, Green, Blue, and Yellow Glass */
+.game-card[data-game="ludo"] {
+  background: radial-gradient(circle at 20% 20%, rgba(239, 68, 68, 0.22) 0%, transparent 40%),
+              radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.22) 0%, transparent 40%),
+              radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.22) 0%, transparent 40%),
+              radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.22) 0%, transparent 40%),
+              rgba(15, 23, 42, 0.75) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45),
+              0 0 24px rgba(56, 189, 248, 0.22),
+              inset 0 1px 1.5px rgba(255, 255, 255, 0.42) !important;
+}
+.game-card[data-game="ludo"]:hover {
+  background: radial-gradient(circle at 20% 20%, rgba(239, 68, 68, 0.34) 0%, transparent 45%),
+              radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.34) 0%, transparent 45%),
+              radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.34) 0%, transparent 45%),
+              radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.34) 0%, transparent 45%),
+              rgba(15, 23, 42, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.75) !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55),
+              0 0 36px rgba(56, 189, 248, 0.45),
+              0 0 36px rgba(239, 68, 68, 0.35),
+              inset 0 1.5px 2px rgba(255, 255, 255, 0.75) !important;
+  transform: translateY(-8px) scale(1.025) !important;
+}
+.game-card[data-game="ludo"]:hover .game-card-title {
+  color: #ffffff !important;
+  text-shadow: 0 0 14px rgba(56, 189, 248, 0.85), 0 0 22px rgba(239, 68, 68, 0.6) !important;
+}
+
+/* Light Mode (Pearl Rainbow) Multicolor Card Overrides */
+body[data-theme="light"] .game-card,
+body[data-theme="pearl-rainbow"] .game-card {
+  border-top-color: #ffffff !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08), inset 0 1.5px 2px #ffffff !important;
+}
+
+body[data-theme="light"] .game-card .game-card-title,
+body[data-theme="pearl-rainbow"] .game-card .game-card-title {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+body[data-theme="light"] .game-card .game-card-desc,
+body[data-theme="pearl-rainbow"] .game-card .game-card-desc {
+  color: #475569 !important;
+}
+
+body[data-theme="light"] .game-card[data-game="ttt"],
+body[data-theme="pearl-rainbow"] .game-card[data-game="ttt"] {
+  background: linear-gradient(145deg, rgba(254, 205, 211, 0.45) 0%, rgba(255, 255, 255, 0.9) 60%, rgba(254, 205, 211, 0.25) 100%) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+body[data-theme="light"] .game-card[data-game="ttt"]:hover,
+body[data-theme="pearl-rainbow"] .game-card[data-game="ttt"]:hover {
+  background: linear-gradient(145deg, rgba(254, 205, 211, 0.7) 0%, #ffffff 60%, rgba(254, 205, 211, 0.45) 100%) !important;
+  border-color: rgba(239, 68, 68, 0.6) !important;
+  box-shadow: 0 18px 40px rgba(239, 68, 68, 0.2), inset 0 2px 3px #ffffff !important;
+}
+
+body[data-theme="light"] .game-card[data-game="sequence"],
+body[data-theme="pearl-rainbow"] .game-card[data-game="sequence"] {
+  background: linear-gradient(145deg, rgba(191, 219, 254, 0.45) 0%, rgba(255, 255, 255, 0.9) 60%, rgba(191, 219, 254, 0.25) 100%) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+body[data-theme="light"] .game-card[data-game="sequence"]:hover,
+body[data-theme="pearl-rainbow"] .game-card[data-game="sequence"]:hover {
+  background: linear-gradient(145deg, rgba(191, 219, 254, 0.7) 0%, #ffffff 60%, rgba(191, 219, 254, 0.45) 100%) !important;
+  border-color: rgba(59, 130, 246, 0.6) !important;
+  box-shadow: 0 18px 40px rgba(59, 130, 246, 0.2), inset 0 2px 3px #ffffff !important;
+}
+
+body[data-theme="light"] .game-card[data-game="chess"],
+body[data-theme="pearl-rainbow"] .game-card[data-game="chess"] {
+  background: linear-gradient(145deg, rgba(233, 213, 255, 0.45) 0%, rgba(255, 255, 255, 0.9) 60%, rgba(233, 213, 255, 0.25) 100%) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+body[data-theme="light"] .game-card[data-game="chess"]:hover,
+body[data-theme="pearl-rainbow"] .game-card[data-game="chess"]:hover {
+  background: linear-gradient(145deg, rgba(233, 213, 255, 0.7) 0%, #ffffff 60%, rgba(233, 213, 255, 0.45) 100%) !important;
+  border-color: rgba(168, 85, 247, 0.6) !important;
+  box-shadow: 0 18px 40px rgba(168, 85, 247, 0.2), inset 0 2px 3px #ffffff !important;
+}
+
+body[data-theme="light"] .game-card[data-game="wordle"],
+body[data-theme="pearl-rainbow"] .game-card[data-game="wordle"] {
+  background: linear-gradient(145deg, rgba(167, 243, 208, 0.45) 0%, rgba(255, 255, 255, 0.9) 60%, rgba(167, 243, 208, 0.25) 100%) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+body[data-theme="light"] .game-card[data-game="wordle"]:hover,
+body[data-theme="pearl-rainbow"] .game-card[data-game="wordle"]:hover {
+  background: linear-gradient(145deg, rgba(167, 243, 208, 0.7) 0%, #ffffff 60%, rgba(167, 243, 208, 0.45) 100%) !important;
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  box-shadow: 0 18px 40px rgba(16, 185, 129, 0.2), inset 0 2px 3px #ffffff !important;
+}
+
+body[data-theme="light"] .game-card[data-game="poker"],
+body[data-theme="pearl-rainbow"] .game-card[data-game="poker"] {
+  background: linear-gradient(145deg, rgba(254, 240, 138, 0.45) 0%, rgba(255, 255, 255, 0.9) 60%, rgba(254, 240, 138, 0.25) 100%) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+body[data-theme="light"] .game-card[data-game="poker"]:hover,
+body[data-theme="pearl-rainbow"] .game-card[data-game="poker"]:hover {
+  background: linear-gradient(145deg, rgba(254, 240, 138, 0.7) 0%, #ffffff 60%, rgba(254, 240, 138, 0.45) 100%) !important;
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 0 18px 40px rgba(245, 158, 11, 0.2), inset 0 2px 3px #ffffff !important;
+}
+
+body[data-theme="light"] .game-card[data-game="pattu"],
+body[data-theme="pearl-rainbow"] .game-card[data-game="pattu"] {
+  background: linear-gradient(145deg, rgba(254, 205, 211, 0.45) 0%, rgba(255, 255, 255, 0.9) 60%, rgba(251, 207, 232, 0.25) 100%) !important;
+  border-color: rgba(244, 63, 94, 0.3) !important;
+}
+body[data-theme="light"] .game-card[data-game="pattu"]:hover,
+body[data-theme="pearl-rainbow"] .game-card[data-game="pattu"]:hover {
+  background: linear-gradient(145deg, rgba(254, 205, 211, 0.7) 0%, #ffffff 60%, rgba(251, 207, 232, 0.45) 100%) !important;
+  border-color: rgba(244, 63, 94, 0.6) !important;
+  box-shadow: 0 18px 40px rgba(244, 63, 94, 0.2), inset 0 2px 3px #ffffff !important;
+}
+
+body[data-theme="light"] .game-card[data-game="palace"],
+body[data-theme="pearl-rainbow"] .game-card[data-game="palace"] {
+  background: linear-gradient(145deg, rgba(254, 215, 170, 0.45) 0%, rgba(255, 255, 255, 0.9) 60%, rgba(254, 215, 170, 0.25) 100%) !important;
+  border-color: rgba(249, 115, 22, 0.3) !important;
+}
+body[data-theme="light"] .game-card[data-game="palace"]:hover,
+body[data-theme="pearl-rainbow"] .game-card[data-game="palace"]:hover {
+  background: linear-gradient(145deg, rgba(254, 215, 170, 0.7) 0%, #ffffff 60%, rgba(254, 215, 170, 0.45) 100%) !important;
+  border-color: rgba(249, 115, 22, 0.6) !important;
+  box-shadow: 0 18px 40px rgba(249, 115, 22, 0.2), inset 0 2px 3px #ffffff !important;
+}
+
+body[data-theme="light"] .game-card[data-game="passiton"],
+body[data-theme="pearl-rainbow"] .game-card[data-game="passiton"] {
+  background: linear-gradient(145deg, rgba(199, 210, 254, 0.45) 0%, rgba(255, 255, 255, 0.9) 60%, rgba(199, 210, 254, 0.25) 100%) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+body[data-theme="light"] .game-card[data-game="passiton"]:hover,
+body[data-theme="pearl-rainbow"] .game-card[data-game="passiton"]:hover {
+  background: linear-gradient(145deg, rgba(199, 210, 254, 0.7) 0%, #ffffff 60%, rgba(199, 210, 254, 0.45) 100%) !important;
+  border-color: rgba(99, 102, 241, 0.6) !important;
+  box-shadow: 0 18px 40px rgba(99, 102, 241, 0.2), inset 0 2px 3px #ffffff !important;
+}
+
+body[data-theme="light"] .game-card[data-game="ludo"],
+body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"] {
+  background: radial-gradient(circle at 20% 20%, rgba(254, 205, 211, 0.4) 0%, transparent 40%),
+              radial-gradient(circle at 80% 20%, rgba(167, 243, 208, 0.4) 0%, transparent 40%),
+              radial-gradient(circle at 20% 80%, rgba(186, 230, 253, 0.4) 0%, transparent 40%),
+              radial-gradient(circle at 80% 80%, rgba(254, 240, 138, 0.4) 0%, transparent 40%),
+              rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(15, 23, 42, 0.2) !important;
+}
+body[data-theme="light"] .game-card[data-game="ludo"]:hover,
+body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
+  background: radial-gradient(circle at 20% 20%, rgba(254, 205, 211, 0.6) 0%, transparent 45%),
+              radial-gradient(circle at 80% 20%, rgba(167, 243, 208, 0.6) 0%, transparent 45%),
+              radial-gradient(circle at 20% 80%, rgba(186, 230, 253, 0.6) 0%, transparent 45%),
+              radial-gradient(circle at 80% 80%, rgba(254, 240, 138, 0.6) 0%, transparent 45%),
+              #ffffff !important;
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  box-shadow: 0 18px 40px rgba(56, 189, 248, 0.22), inset 0 2px 3px #ffffff !important;
+}
+
+/* 5. GAME ARENA ATMOSPHERIC LIGHTING */
+
+/* Tic Tac Toe Arena — Ruby Glass Atmosphere */
+#gameView[data-active-game^="ttt"] .board-shell {
+  background: radial-gradient(circle at 50% 30%, rgba(239, 68, 68, 0.12) 0%, rgba(15, 23, 42, 0.85) 75%) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(239, 68, 68, 0.25), inset 0 1.5px 2px rgba(255, 200, 200, 0.4) !important;
+}
+#gameView[data-active-game^="ttt"] .active-game-badge {
+  color: #fca5a5 !important;
+  text-shadow: 0 0 12px rgba(239, 68, 68, 0.8) !important;
+}
+
+/* Chess Arena — Royal Amethyst Glass Atmosphere */
+#gameView[data-active-game="chess"] .board-shell {
+  background: radial-gradient(circle at 50% 30%, rgba(168, 85, 247, 0.12) 0%, rgba(15, 23, 42, 0.85) 75%) !important;
+  border-color: rgba(168, 85, 247, 0.38) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(168, 85, 247, 0.28), inset 0 1.5px 2px rgba(233, 213, 255, 0.4) !important;
+}
+#gameView[data-active-game="chess"] .active-game-badge {
+  color: #d8b4fe !important;
+  text-shadow: 0 0 12px rgba(168, 85, 247, 0.8) !important;
+}
+
+/* Wordle Arena — Emerald & Mint Glass Atmosphere */
+#gameView[data-active-game="wordle"] .board-shell {
+  background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.12) 0%, rgba(15, 23, 42, 0.85) 75%) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(16, 185, 129, 0.25), inset 0 1.5px 2px rgba(167, 243, 208, 0.4) !important;
+}
+#gameView[data-active-game="wordle"] .active-game-badge {
+  color: #6ee7b7 !important;
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.8) !important;
+}
+
+/* Poker Arena — Golden Amber Glass Atmosphere */
+#gameView[data-active-game="poker"] .board-shell {
+  background: radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.12) 0%, rgba(15, 23, 42, 0.85) 75%) !important;
+  border-color: rgba(245, 158, 11, 0.38) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(245, 158, 11, 0.25), inset 0 1.5px 2px rgba(254, 240, 138, 0.4) !important;
+}
+#gameView[data-active-game="poker"] .active-game-badge {
+  color: #fde047 !important;
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.8) !important;
+}
+
+/* Sequence Arena — Sapphire Blue Glass Atmosphere */
+#gameView[data-active-game="sequence"] .board-shell {
+  background: radial-gradient(circle at 50% 30%, rgba(59, 130, 246, 0.12) 0%, rgba(15, 23, 42, 0.85) 75%) !important;
+  border-color: rgba(59, 130, 246, 0.38) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(59, 130, 246, 0.25), inset 0 1.5px 2px rgba(191, 219, 254, 0.4) !important;
+}
+#gameView[data-active-game="sequence"] .active-game-badge {
+  color: #93c5fd !important;
+  text-shadow: 0 0 12px rgba(59, 130, 246, 0.8) !important;
+}
+
+/* PC Guesser Arena — Magenta & Ruby Glass Atmosphere */
+#gameView[data-active-game="pattu"] .board-shell {
+  background: radial-gradient(circle at 50% 30%, rgba(244, 63, 94, 0.12) 0%, rgba(15, 23, 42, 0.85) 75%) !important;
+  border-color: rgba(244, 63, 94, 0.38) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(244, 63, 94, 0.25), inset 0 1.5px 2px rgba(254, 205, 211, 0.4) !important;
+}
+#gameView[data-active-game="pattu"] .active-game-badge {
+  color: #f472b6 !important;
+  text-shadow: 0 0 12px rgba(244, 63, 94, 0.8) !important;
+}
+
+/* Ludo King Arena — Iridescent Quad-Color Glass Atmosphere */
+#gameView[data-active-game="ludo"] .board-shell {
+  background: radial-gradient(circle at 20% 20%, rgba(239, 68, 68, 0.15) 0%, transparent 40%),
+              radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 40%),
+              radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
+              radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.15) 0%, transparent 40%),
+              rgba(14, 20, 35, 0.94) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(56, 189, 248, 0.25), inset 0 1.5px 2px rgba(255, 255, 255, 0.5) !important;
+}
+#gameView[data-active-game="ludo"] .active-game-badge {
+  background: linear-gradient(135deg, #ef4444, #10b981, #38bdf8, #fbbf24) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.7)) !important;
+}

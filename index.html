@@ -62,21 +62,40 @@
             <svg class="theme-chevron" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="theme-menu glass-panel" id="themeMenu">
-            <button class="theme-item active" data-theme="dark" type="button">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-              Dark
+            <button class="theme-item active" data-theme="dark" type="button" title="Ocean Prism (Deep navy with jewel-glass accents)">
+              <span class="theme-dot dot-ocean"></span>
+              <span class="theme-item-label">
+                <span class="theme-name">Ocean Prism</span>
+                <span class="theme-sub">Navy & Jewel</span>
+              </span>
             </button>
-            <button class="theme-item" data-theme="light" type="button">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-              Light
+            <button class="theme-item" data-theme="light" type="button" title="Pearl Rainbow (White frosted glass with pastel accents)">
+              <span class="theme-dot dot-pearl"></span>
+              <span class="theme-item-label">
+                <span class="theme-name">Pearl Rainbow</span>
+                <span class="theme-sub">Frosted Pastel</span>
+              </span>
             </button>
-            <button class="theme-item" data-theme="itachi" type="button">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>
-              Itachi
+            <button class="theme-item" data-theme="itachi" type="button" title="Crimson Moon (Ruby & crimson glass inspired by Itachi)">
+              <span class="theme-dot dot-crimson"></span>
+              <span class="theme-item-label">
+                <span class="theme-name">Crimson Moon</span>
+                <span class="theme-sub">Ruby Velvet</span>
+              </span>
             </button>
-            <button class="theme-item" data-theme="naruto" type="button">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/><circle cx="12" cy="13" r="2.5" fill="currentColor"/></svg>
-              Naruto
+            <button class="theme-item" data-theme="naruto" type="button" title="Sunset Flame (Gold, orange & cyan glass inspired by Naruto)">
+              <span class="theme-dot dot-sunset"></span>
+              <span class="theme-item-label">
+                <span class="theme-name">Sunset Flame</span>
+                <span class="theme-sub">Amber & Cyan</span>
+              </span>
+            </button>
+            <button class="theme-item" data-theme="aurora" type="button" title="Aurora Glass (Emerald, teal, violet & pink glass)">
+              <span class="theme-dot dot-aurora"></span>
+              <span class="theme-item-label">
+                <span class="theme-name">Aurora Glass</span>
+                <span class="theme-sub">Emerald & Violet</span>
+              </span>
             </button>
           </div>
         </div>
@@ -106,23 +125,40 @@
   <!-- ============================================================== -->
   <div class="landing-view" id="landingView">
     <!-- Hero Section -->
+        <!-- Hero Section -->
     <section class="hero-section" id="heroSection">
       <div class="hero-content">
+        <div class="hero-chip">
+          <span class="hero-chip-sparkle">✨</span>
+          <span>Vibrant Sea Glass Arcade</span>
+        </div>
         <h1 class="hero-title">
           Classic Games.<br />
-          Beautifully Reimagined.
+          <span class="hero-title-accent">Beautifully Reimagined.</span>
         </h1>
         <p class="hero-subtitle">
-          Play your favorite games with a modern, elegant experience.
+          Experience timeless classics rendered in luminous, handcrafted sea glass with offline play and adaptive AI.
         </p>
 
         <!-- 4 Translucent Feature Indicators -->
         <div class="hero-features" id="heroFeatures">
-          <div class="feature-badge glass-panel" id="featBadgeGames" role="button" tabindex="0" title="Explore all 9 games">
-            <span class="feat-icon">🏆</span>
-            <span class="feat-text">9 Games</span>
+          <div class="feature-badge glass-panel feat-badge-games" id="featBadgeGames" role="button" tabindex="0" title="Explore all 9 games">
+            <span class="feat-icon">🎮</span>
+            <span class="feat-text">9 Glass Games</span>
           </div>
+          <div class="feature-badge glass-panel feat-badge-opponent" id="featBadgeOpponent" role="button" tabindex="0" title="Toggle AI or Local 2-Player">
+            <span class="feat-icon">⚔️</span>
+            <span class="feat-text" id="featOpponentText">Play Local or AI</span>
           </div>
+          <div class="feature-badge glass-panel feat-badge-stats" id="featBadgeStats" role="button" tabindex="0" title="View Live Statistics">
+            <span class="feat-icon">📊</span>
+            <span class="feat-text">Live Stats</span>
+          </div>
+          <div class="feature-badge glass-panel feat-badge-themes" id="featBadgeThemes" role="button" tabindex="0" title="Cycle Sea Glass Themes">
+            <span class="feat-icon">✨</span>
+            <span class="feat-text">5 Sea Glass Themes</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -131,254 +167,254 @@
       <h2 class="section-title">Choose a Game</h2>
 
       <!-- Responsive 4 + 3 Centered Grid of Frosted Glass Cards -->
+            <!-- Responsive 4 + 3 Centered Grid of Frosted Glass Cards -->
       <div class="games-grid" id="gamesCardGrid">
-        <!-- 1. Tic Tac Toe -->
-        <div class="game-card glass-panel" data-game="ttt" role="button" tabindex="0" id="cardTTT" title="Play Tic-Tac-Toe">
+        <!-- 1. Tic Tac Toe (Red and Ruby Glass) -->
+        <div class="game-card glass-panel" data-game="ttt" role="button" tabindex="0" id="cardTTT" title="Play Tic-Tac-Toe (Ruby Glass)">
           <div class="game-card-icon-wrap ttt-icon-wrap">
             <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
-              <rect width="64" height="64" rx="16" fill="url(#tttCardBg)" />
-              <path d="M20 20 L44 44 M44 20 L20 44" stroke="#38bdf8" stroke-width="6.5" stroke-linecap="round" filter="drop-shadow(0 0 8px rgba(56, 189, 248, 0.9))" />
-              <circle cx="48" cy="48" r="4.5" fill="#f472b6" filter="drop-shadow(0 0 6px #f472b6)" />
               <defs>
-                <linearGradient id="tttCardBg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#1e1b4b"/>
-                  <stop offset="1" stop-color="#0f172a"/>
+                <linearGradient id="rubyGlassGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#ef4444"/>
+                  <stop offset="60%" stop-color="#dc2626"/>
+                  <stop offset="100%" stop-color="#991b1b"/>
                 </linearGradient>
+                <radialGradient id="rubyCoreGlow" cx="50%" cy="50%" r="50%">
+                  <stop stop-color="#ff758f"/>
+                  <stop offset="100%" stop-color="#be123c"/>
+                </radialGradient>
               </defs>
+              <rect width="64" height="64" rx="16" fill="url(#rubyGlassGrad)" filter="drop-shadow(0 4px 14px rgba(239, 68, 68, 0.45))" />
+              <!-- White specular light sweep on glass top -->
+              <path d="M4 18 C12 6 28 4 60 14" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <!-- Glowing Cross (X) -->
+              <path d="M18 18 L38 38 M38 18 L18 38" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round" filter="drop-shadow(0 0 6px #ffffff)" />
+              <path d="M18 18 L38 38 M38 18 L18 38" stroke="#fecdd3" stroke-width="3" stroke-linecap="round" />
+              <!-- Ruby Gemstone Ring (O) -->
+              <circle cx="44" cy="44" r="11" fill="none" stroke="#fecdd3" stroke-width="4.5" filter="drop-shadow(0 0 8px rgba(254, 205, 211, 0.9))"/>
+              <circle cx="44" cy="44" r="6" fill="url(#rubyCoreGlow)" opacity="0.85"/>
             </svg>
           </div>
           <h3 class="game-card-title">Tic Tac Toe</h3>
-          <p class="game-card-desc">Quick & fun</p>
+          <p class="game-card-desc">Red & ruby glass</p>
         </div>
 
-        <!-- 2. Sequence -->
-        <div class="game-card glass-panel" data-game="sequence" role="button" tabindex="0" id="cardSequence" title="Play Sequence">
+        <!-- 2. Sequence (Sapphire Blue Glass) -->
+        <div class="game-card glass-panel" data-game="sequence" role="button" tabindex="0" id="cardSequence" title="Play Sequence (Sapphire Glass)">
           <div class="game-card-icon-wrap seq-icon-wrap">
             <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
-              <!-- Top Left: Cyan 3D Sphere -->
-              <circle cx="23" cy="23" r="10.5" fill="url(#seqSphereCyan)" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.5))" />
-              <circle cx="20" cy="20" r="3.2" fill="white" opacity="0.75" />
-              <!-- Top Right: Gold 3D Sphere -->
-              <circle cx="41" cy="23" r="10.5" fill="url(#seqSphereGold)" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.5))" />
-              <circle cx="38" cy="20" r="3.2" fill="white" opacity="0.75" />
-              <!-- Bottom Left: Electric Blue 3D Sphere -->
-              <circle cx="23" cy="41" r="10.5" fill="url(#seqSphereBlue)" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.5))" />
-              <circle cx="20" cy="38" r="3.2" fill="white" opacity="0.75" />
-              <!-- Bottom Right: Coral/Ruby 3D Sphere -->
-              <circle cx="41" cy="41" r="10.5" fill="url(#seqSphereRuby)" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.5))" />
-              <circle cx="38" cy="38" r="3.2" fill="white" opacity="0.75" />
               <defs>
-                <radialGradient id="seqSphereCyan" cx="30%" cy="30%" r="70%">
-                  <stop stop-color="#67e8f9" />
-                  <stop offset="60%" stop-color="#06b6d4" />
-                  <stop offset="100%" stop-color="#0e7490" />
-                </radialGradient>
-                <radialGradient id="seqSphereGold" cx="30%" cy="30%" r="70%">
-                  <stop stop-color="#fde047" />
-                  <stop offset="60%" stop-color="#eab308" />
-                  <stop offset="100%" stop-color="#a16207" />
-                </radialGradient>
-                <radialGradient id="seqSphereBlue" cx="30%" cy="30%" r="70%">
+                <radialGradient id="sapphireSphere" cx="35%" cy="35%" r="65%">
                   <stop stop-color="#93c5fd" />
-                  <stop offset="60%" stop-color="#3b82f6" />
-                  <stop offset="100%" stop-color="#1d4ed8" />
+                  <stop offset="45%" stop-color="#3b82f6" />
+                  <stop offset="85%" stop-color="#1d4ed8" />
+                  <stop offset="100%" stop-color="#0f172a" />
                 </radialGradient>
-                <radialGradient id="seqSphereRuby" cx="30%" cy="30%" r="70%">
-                  <stop stop-color="#fda4af" />
-                  <stop offset="60%" stop-color="#f43f5e" />
-                  <stop offset="100%" stop-color="#be123c" />
-                </radialGradient>
+                <linearGradient id="sapphireGlassCard" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#2563eb" stop-opacity="0.9"/>
+                  <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95"/>
+                </linearGradient>
               </defs>
+              <rect width="64" height="64" rx="16" fill="url(#sapphireGlassCard)" filter="drop-shadow(0 4px 14px rgba(37, 99, 235, 0.45))" />
+              <!-- Crystalline Sapphire Chips -->
+              <circle cx="24" cy="24" r="11" fill="url(#sapphireSphere)" filter="drop-shadow(0 2px 6px rgba(0,0,0,0.5))" />
+              <circle cx="21" cy="21" r="3.5" fill="white" opacity="0.85" />
+              <circle cx="42" cy="24" r="11" fill="url(#sapphireSphere)" filter="drop-shadow(0 2px 6px rgba(0,0,0,0.5))" />
+              <circle cx="39" cy="21" r="3.5" fill="white" opacity="0.85" />
+              <circle cx="24" cy="42" r="11" fill="url(#sapphireSphere)" filter="drop-shadow(0 2px 6px rgba(0,0,0,0.5))" />
+              <circle cx="21" cy="39" r="3.5" fill="white" opacity="0.85" />
+              <!-- Golden Spade Accent on 4th chip -->
+              <circle cx="42" cy="42" r="11" fill="url(#sapphireSphere)" filter="drop-shadow(0 0 10px rgba(59, 130, 246, 0.8))" />
+              <path d="M42 36 C40 39 37 40 37 42 C37 44 39 45 41 45 L41 47 L43 47 L43 45 C45 45 47 44 47 42 C47 40 44 39 42 36 Z" fill="#fbbf24"/>
             </svg>
           </div>
           <h3 class="game-card-title">Sequence</h3>
-          <p class="game-card-desc">Strategy game</p>
+          <p class="game-card-desc">Sapphire blue glass</p>
         </div>
 
-        <!-- 3. Chess -->
-        <div class="game-card glass-panel" data-game="chess" role="button" tabindex="0" id="cardChess" title="Play Chess">
+        <!-- 3. Chess (Royal Purple and Amethyst Glass) -->
+        <div class="game-card glass-panel" data-game="chess" role="button" tabindex="0" id="cardChess" title="Play Chess (Amethyst Glass)">
           <div class="game-card-icon-wrap chess-icon-wrap">
             <svg viewBox="0 0 64 64" width="48" height="48" fill="none" class="chess-3d-svg">
               <defs>
-                <linearGradient id="chessGoldGrad" x1="16" y1="10" x2="48" y2="54" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#fffbeb"/>
-                  <stop offset="20%" stop-color="#fef08a"/>
-                  <stop offset="45%" stop-color="#facc15"/>
-                  <stop offset="75%" stop-color="#ca8a04"/>
-                  <stop offset="100%" stop-color="#854d0e"/>
+                <linearGradient id="amethystKnightGrad" x1="16" y1="10" x2="48" y2="54" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#f3e8ff"/>
+                  <stop offset="25%" stop-color="#d8b4fe"/>
+                  <stop offset="55%" stop-color="#a855f7"/>
+                  <stop offset="85%" stop-color="#7c3aed"/>
+                  <stop offset="100%" stop-color="#4c1d95"/>
                 </linearGradient>
-                <linearGradient id="chessManeShade" x1="30" y1="12" x2="46" y2="44" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#a16207"/>
-                  <stop offset="50%" stop-color="#713f12"/>
-                  <stop offset="100%" stop-color="#451a03"/>
+                <linearGradient id="amethystPedestalGold" x1="16" y1="43" x2="48" y2="55" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#fef08a"/>
+                  <stop offset="50%" stop-color="#eab308"/>
+                  <stop offset="100%" stop-color="#a16207"/>
                 </linearGradient>
-                <linearGradient id="chessBevelRim" x1="16" y1="16" x2="32" y2="40" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
-                  <stop offset="50%" stop-color="#fef08a" stop-opacity="0.5"/>
-                  <stop offset="100%" stop-color="#ca8a04" stop-opacity="0"/>
-                </linearGradient>
-                <linearGradient id="chessBaseGold" x1="16" y1="43" x2="48" y2="55" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#fef9c3"/>
-                  <stop offset="30%" stop-color="#facc15"/>
-                  <stop offset="70%" stop-color="#b45309"/>
-                  <stop offset="100%" stop-color="#78350f"/>
-                </linearGradient>
-                <filter id="chessGoldGlow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#ca8a04" flood-opacity="0.45"/>
+                <filter id="amethystGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#a855f7" flood-opacity="0.55"/>
                 </filter>
               </defs>
-              <g filter="url(#chessGoldGlow)">
+              <g filter="url(#amethystGlow)">
                 <!-- Pedestal Base Lower Tier -->
-                <ellipse cx="32" cy="52" rx="16" ry="3.5" fill="url(#chessBaseGold)"/>
-                <ellipse cx="32" cy="51" rx="14.5" ry="2.5" fill="none" stroke="#fffbeb" stroke-width="0.8" opacity="0.6"/>
-
+                <ellipse cx="32" cy="52" rx="16" ry="3.5" fill="url(#amethystPedestalGold)"/>
+                <ellipse cx="32" cy="51" rx="14.5" ry="2.5" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.7"/>
                 <!-- Pedestal Middle Collar Tier -->
-                <path d="M19 48.5 C19 46.8 24 45.5 32 45.5 C40 45.5 45 46.8 45 48.5 L46 51 C43 52.2 37.5 53 32 53 C26.5 53 21 52.2 18 51 Z" fill="url(#chessBaseGold)"/>
-
+                <path d="M19 48.5 C19 46.8 24 45.5 32 45.5 C40 45.5 45 46.8 45 48.5 L46 51 C43 52.2 37.5 53 32 53 C26.5 53 21 52.2 18 51 Z" fill="url(#amethystKnightGrad)"/>
                 <!-- Pedestal Upper Bevel Ring -->
-                <ellipse cx="32" cy="45.5" rx="11" ry="2.2" fill="url(#chessGoldGrad)"/>
-                <path d="M21 45.5 C21 44.5 25.5 43.5 32 43.5 C38.5 43.5 43 44.5 43 45.5 L42 47 C39 46.2 35.5 45.8 32 45.8 C28.5 45.8 25 46.2 22 47 Z" fill="#92400e" opacity="0.4"/>
-
-                <!-- Mane Backing Shadow Silhouette -->
-                <path d="M33 11 C36 10.5 38 12 39 15 C42 16.5 45 20 46 25 C47 29 46 34 44 39 C43 41.5 41 43.5 39 44 L31 44 C34 40 37 34 37 28 C37 22 34 16 33 11 Z" fill="url(#chessManeShade)"/>
-
-                <!-- Mane Sculpted Tufts (Ridges) -->
-                <path d="M38 13 C41 15 44 19 44 23 C42 22.5 40 21.5 38 21 Z" fill="url(#chessGoldGrad)"/>
-                <path d="M40 21 C43 23.5 45 27 45 31 C43 30.5 41 29.5 39 29 Z" fill="url(#chessGoldGrad)"/>
-                <path d="M41 29 C44 32 45 36 44 40 C42.5 39 41 38 39 37.5 Z" fill="url(#chessGoldGrad)"/>
-
-                <!-- Main Knight Sculpted Body & Neck -->
-                <path d="M37 10.5 C37.8 8.2 38.8 8 39 9.5 C39.5 13 36 14 34.5 13 C32 13 28 15 25 18 C22 21 17 24.5 17 26.5 C17 28 18.5 28.5 20 28 C21.5 27.5 22.5 26.5 24 26 C22.5 27.5 21 29.5 21.5 31 C22 32 23.5 32 25.5 31 C28 29.8 29.5 28.5 31 27 C29 30 27 33.5 26.5 36 C25.8 40 28 43 31 44 H38 C40 43 42 40 41 36 C40 32 40 27 39 23 C38 19 37.5 15 37 10.5 Z" fill="url(#chessGoldGrad)"/>
-
-                <!-- 3D Specular Light Edge on Neck & Chest Arch -->
-                <path d="M34 13 C31.5 13.2 27.8 15.2 25 18 C22.2 20.8 18 24.2 18 26 C19.5 25 22 24 24 24 C23 25.5 22 27.5 22.5 29 C24 28 26.5 27 28 26 C26.5 28.5 25.5 32 25.8 35.5 C26.2 39 28.5 42.5 31 43.5" fill="none" stroke="url(#chessBevelRim)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-
-                <!-- Sculpted Eye Socket and Specular Gleam -->
-                <ellipse cx="28.5" cy="18.5" rx="1.8" ry="1.2" transform="rotate(-20 28.5 18.5)" fill="#78350f"/>
-                <circle cx="28.2" cy="18.2" r="0.6" fill="#ffffff"/>
-
-                <!-- Muzzle / Nostril Contour -->
-                <path d="M19.5 26 C19 26.8 19.5 27.2 20.5 27" fill="none" stroke="#78350f" stroke-width="0.9" stroke-linecap="round"/>
-
-                <!-- Jaw Contour Shading -->
-                <path d="M25 31 C28 32.5 31 31.5 33 28.5" fill="none" stroke="#a16207" stroke-width="1.2" stroke-linecap="round" opacity="0.65"/>
+                <ellipse cx="32" cy="45.5" rx="11" ry="2.2" fill="url(#amethystPedestalGold)"/>
+                <!-- Mane Backing Silhouette -->
+                <path d="M33 11 C36 10.5 38 12 39 15 C42 16.5 45 20 46 25 C47 29 46 34 44 39 C43 41.5 41 43.5 39 44 L31 44 C34 40 37 34 37 28 C37 22 34 16 33 11 Z" fill="#3b0764"/>
+                <!-- Main Knight Sculpted Body in Amethyst Glass -->
+                <path d="M37 10.5 C37.8 8.2 38.8 8 39 9.5 C39.5 13 36 14 34.5 13 C32 13 28 15 25 18 C22 21 17 24.5 17 26.5 C17 28 18.5 28.5 20 28 C21.5 27.5 22.5 26.5 24 26 C22.5 27.5 21 29.5 21.5 31 C22 32 23.5 32 25.5 31 C28 29.8 29.5 28.5 31 27 C29 30 27 33.5 26.5 36 C25.8 40 28 43 31 44 H38 C40 43 42 40 41 36 C40 32 40 27 39 23 C38 19 37.5 15 37 10.5 Z" fill="url(#amethystKnightGrad)"/>
+                <!-- Specular White Bevel Rim Highlight -->
+                <path d="M34 13 C31.5 13.2 27.8 15.2 25 18 C22.2 20.8 18 24.2 18 26 C19.5 25 22 24 24 24 C23 25.5 22 27.5 22.5 29 C24 28 26.5 27 28 26 C26.5 28.5 25.5 32 25.8 35.5 C26.2 39 28.5 42.5 31 43.5" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/>
+                <circle cx="28.5" cy="18.5" r="1.2" fill="#fef08a"/>
               </g>
             </svg>
           </div>
           <h3 class="game-card-title">Chess</h3>
-          <p class="game-card-desc">Think ahead</p>
+          <p class="game-card-desc">Royal purple & amethyst</p>
         </div>
 
-        <!-- 4. Wordle -->
-        <div class="game-card glass-panel" data-game="wordle" role="button" tabindex="0" id="cardWordle" title="Play Wordle">
+        <!-- 4. Wordle (Emerald and Mint Glass) -->
+        <div class="game-card glass-panel" data-game="wordle" role="button" tabindex="0" id="cardWordle" title="Play Wordle (Emerald Glass)">
           <div class="game-card-icon-wrap wordle-icon-wrap">
             <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
               <defs>
-                <linearGradient id="wordleGreen" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#22c55e"/>
-                  <stop offset="100%" stop-color="#15803d"/>
+                <linearGradient id="emeraldMintGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#10b981"/>
+                  <stop offset="60%" stop-color="#059669"/>
+                  <stop offset="100%" stop-color="#047857"/>
+                </linearGradient>
+                <linearGradient id="mintSpecularRim" x1="0" y1="0" x2="64" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#a7f3d0"/>
+                  <stop offset="100%" stop-color="#34d399"/>
                 </linearGradient>
               </defs>
-              <rect width="64" height="64" rx="16" fill="url(#wordleGreen)" filter="drop-shadow(0 4px 10px rgba(22, 163, 74, 0.45))" />
-              <text x="32" y="44" font-family="'Outfit', -apple-system, sans-serif" font-size="33" font-weight="800" fill="white" text-anchor="middle">W</text>
+              <rect width="64" height="64" rx="16" fill="url(#emeraldMintGrad)" filter="drop-shadow(0 4px 14px rgba(16, 185, 129, 0.5))" />
+              <!-- Frosted Glass Rim Reflection -->
+              <rect x="2" y="2" width="60" height="60" rx="14" fill="none" stroke="url(#mintSpecularRim)" stroke-width="1.8" opacity="0.6"/>
+              <!-- Bold Luminous W -->
+              <text x="32" y="44" font-family="'Outfit', -apple-system, sans-serif" font-size="33" font-weight="900" fill="#ffffff" text-anchor="middle" filter="drop-shadow(0 2px 6px rgba(0,0,0,0.3))">W</text>
             </svg>
           </div>
           <h3 class="game-card-title">Wordle</h3>
-          <p class="game-card-desc">Daily word challenge</p>
+          <p class="game-card-desc">Emerald & mint glass</p>
         </div>
 
-        <!-- 5. Poker (Centered in second row) -->
-        <div class="game-card glass-panel" data-game="poker" role="button" tabindex="0" id="cardPoker" title="Play Poker">
+        <!-- 5. Poker (Golden Amber Glass) -->
+        <div class="game-card glass-panel" data-game="poker" role="button" tabindex="0" id="cardPoker" title="Play Poker (Golden Amber Glass)">
           <div class="game-card-icon-wrap poker-icon-wrap">
             <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
-              <!-- Back Card (Tilted) -->
+              <defs>
+                <linearGradient id="amberGoldCard" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#fbbf24"/>
+                  <stop offset="60%" stop-color="#d97706"/>
+                  <stop offset="100%" stop-color="#78350f"/>
+                </linearGradient>
+              </defs>
+              <!-- Back Amber Glass Card -->
               <g transform="rotate(-14 26 36)">
-                <rect x="14" y="14" width="26" height="38" rx="3.5" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.2" filter="drop-shadow(0 2px 5px rgba(0,0,0,0.3))"/>
-                <rect x="17" y="17" width="20" height="32" rx="2" fill="#3b82f6" opacity="0.35"/>
+                <rect x="14" y="14" width="26" height="38" rx="4" fill="url(#amberGoldCard)" stroke="#fef08a" stroke-width="1.2" filter="drop-shadow(0 2px 6px rgba(0,0,0,0.4))"/>
+                <rect x="17" y="17" width="20" height="32" rx="2" fill="#78350f" opacity="0.4"/>
               </g>
               <!-- Front Card (Ace of Hearts) -->
               <g transform="rotate(6 36 34)">
-                <rect x="22" y="12" width="27" height="40" rx="3.5" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.2" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.45))"/>
-                <path d="M35.5 28 C35.5 25.5 33 24 31 25.5 C29 27 29 29.5 35.5 36 C42 29.5 42 27 40 25.5 C38 24 35.5 25.5 35.5 28 Z" fill="#ef4444"/>
-                <text x="25.5" y="21" font-family="sans-serif" font-size="7.5" font-weight="bold" fill="#ef4444">A</text>
+                <rect x="22" y="12" width="27" height="40" rx="4" fill="#fffbeb" stroke="#facc15" stroke-width="1.5" filter="drop-shadow(0 4px 10px rgba(245, 158, 11, 0.45))"/>
+                <path d="M35.5 28 C35.5 25.5 33 24 31 25.5 C29 27 29 29.5 35.5 36 C42 29.5 42 27 40 25.5 C38 24 35.5 25.5 35.5 28 Z" fill="#dc2626"/>
+                <text x="25.5" y="21" font-family="sans-serif" font-size="8" font-weight="900" fill="#dc2626">A</text>
               </g>
             </svg>
           </div>
           <h3 class="game-card-title">Poker</h3>
-          <p class="game-card-desc">Play your hand</p>
+          <p class="game-card-desc">Golden amber glass</p>
         </div>
 
-        <!-- 6. PC Guesser (Centered in second row) -->
-        <div class="game-card glass-panel" data-game="pattu" role="button" tabindex="0" id="cardPattu" title="Play PC Guesser (Pattukunte Pattucheera)">
+        <!-- 6. PC Guesser (Ruby Red & Magenta Glass) -->
+        <div class="game-card glass-panel" data-game="pattu" role="button" tabindex="0" id="cardPattu" title="Play PC Guesser (Ruby & Magenta Glass)">
           <div class="game-card-icon-wrap pc-icon-wrap">
             <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
-              <rect x="11" y="13" width="42" height="28" rx="3.5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.4))"/>
-              <rect x="14" y="16" width="36" height="22" rx="2" fill="#0284c7"/>
-              <path d="M30 41 H34 V48 H30 Z" fill="#94a3b8"/>
-              <rect x="21" y="47" width="22" height="3" rx="1.5" fill="#cbd5e1"/>
+              <defs>
+                <linearGradient id="cinemaMagentaGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#f43f5e"/>
+                  <stop offset="50%" stop-color="#e11d48"/>
+                  <stop offset="100%" stop-color="#be123c"/>
+                </linearGradient>
+              </defs>
+              <rect x="11" y="13" width="42" height="28" rx="4" fill="#1e1b4b" stroke="#f43f5e" stroke-width="1.8" filter="drop-shadow(0 4px 12px rgba(244, 63, 94, 0.5))"/>
+              <rect x="14" y="16" width="36" height="22" rx="2" fill="url(#cinemaMagentaGrad)"/>
+              <!-- Glowing Film Reel Clapper Icon -->
+              <circle cx="24" cy="27" r="4.5" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+              <circle cx="36" cy="27" r="4.5" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+              <path d="M24 27 L36 27" stroke="#ffffff" stroke-width="1.5"/>
+              <path d="M30 41 H34 V48 H30 Z" fill="#f43f5e"/>
+              <rect x="20" y="47" width="24" height="3" rx="1.5" fill="#fbcfe8"/>
             </svg>
           </div>
           <h3 class="game-card-title">PC Guesser</h3>
-          <p class="game-card-desc">Guess the movie</p>
+          <p class="game-card-desc">Ruby & magenta glass</p>
         </div>
 
-        <!-- 7. Palace Escape (Centered in second row) -->
-        <a href="palace-escape/" class="game-card glass-panel" data-game="palace" id="cardPalace" title="Play Palace Escape Fullscreen" style="text-decoration:none;">
+        <!-- 7. Palace Escape (Coral & Sunset Orange Glass) -->
+        <a href="palace-escape/" class="game-card glass-panel" data-game="palace" id="cardPalace" title="Play Palace Escape (Coral & Sunset Glass)" style="text-decoration:none;">
           <div class="game-card-icon-wrap palace-icon-wrap">
             <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
               <defs>
-                <linearGradient id="palaceGold" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#f59e0b"/>
-                  <stop offset="100%" stop-color="#d97706"/>
+                <linearGradient id="coralSunsetGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#fb923c"/>
+                  <stop offset="50%" stop-color="#f97316"/>
+                  <stop offset="100%" stop-color="#c2410c"/>
                 </linearGradient>
               </defs>
-              <path d="M12 28 L32 14 L52 28 Z" fill="url(#palaceGold)" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.4))" />
-              <circle cx="32" cy="22" r="2.8" fill="#fef3c7"/>
-              <rect x="12" y="27" width="40" height="4" rx="1" fill="#b45309"/>
-              <rect x="15" y="31" width="5" height="18" rx="1" fill="url(#palaceGold)"/>
-              <rect x="24" y="31" width="5" height="18" rx="1" fill="url(#palaceGold)"/>
-              <rect x="35" y="31" width="5" height="18" rx="1" fill="url(#palaceGold)"/>
-              <rect x="44" y="31" width="5" height="18" rx="1" fill="url(#palaceGold)"/>
+              <!-- Sunset Sun Disc Behind Palace -->
+              <circle cx="32" cy="22" r="10" fill="#fef08a" opacity="0.85" filter="drop-shadow(0 0 10px #f97316)"/>
+              <path d="M12 28 L32 14 L52 28 Z" fill="url(#coralSunsetGrad)" filter="drop-shadow(0 3px 8px rgba(234, 88, 12, 0.45))" />
+              <rect x="12" y="27" width="40" height="4" rx="1" fill="#ea580c"/>
+              <rect x="15" y="31" width="5" height="18" rx="1" fill="url(#coralSunsetGrad)"/>
+              <rect x="24" y="31" width="5" height="18" rx="1" fill="url(#coralSunsetGrad)"/>
+              <rect x="35" y="31" width="5" height="18" rx="1" fill="url(#coralSunsetGrad)"/>
+              <rect x="44" y="31" width="5" height="18" rx="1" fill="url(#coralSunsetGrad)"/>
               <path d="M29 49 V39 C29 36 35 36 35 39 V49 Z" fill="#451a03"/>
-              <rect x="10" y="48" width="44" height="4" rx="1" fill="#92400e"/>
+              <rect x="10" y="48" width="44" height="4" rx="1" fill="#9a3412"/>
             </svg>
           </div>
           <h3 class="game-card-title">Palace Escape</h3>
-          <p class="game-card-desc">Puzzle adventure</p>
+          <p class="game-card-desc">Coral & sunset glass</p>
         </a>
-        <!-- 8. Pass It On (Fullscreen Action Runner Chase) -->
-        <a href="pass-it-on/" class="game-card glass-panel" data-game="passiton" id="cardPassItOn" title="Play Pass It On Fullscreen" style="text-decoration:none;">
+
+        <!-- 8. Pass It On (Iris Purple Glass) -->
+        <a href="pass-it-on/" class="game-card glass-panel" data-game="passiton" id="cardPassItOn" title="Play Pass It On (Iris Purple Glass)" style="text-decoration:none;">
           <div class="game-card-icon-wrap passiton-icon-wrap">
             <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
               <defs>
-                <linearGradient id="passitonGlow" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#38bdf8"/>
-                  <stop offset="50%" stop-color="#0284c7"/>
-                  <stop offset="100%" stop-color="#0369a1"/>
+                <linearGradient id="irisPurpleGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#818cf8"/>
+                  <stop offset="50%" stop-color="#6366f1"/>
+                  <stop offset="100%" stop-color="#4338ca"/>
                 </linearGradient>
                 <linearGradient id="babySkin" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
                   <stop offset="0%" stop-color="#ffedd5"/>
                   <stop offset="100%" stop-color="#fb923c"/>
                 </linearGradient>
               </defs>
-              <!-- Motion Trails -->
-              <path d="M8 24 L18 24 M4 32 L20 32 M10 40 L16 40" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+              <!-- Dynamic Motion Blur Trails in Electric Iris -->
+              <path d="M6 24 L18 24 M2 32 L20 32 M8 40 L16 40" stroke="#a5b4fc" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
               <!-- Baby Face -->
               <circle cx="34" cy="24" r="13" fill="url(#babySkin)"/>
               <circle cx="30" cy="22" r="2" fill="#1e293b"/>
               <circle cx="38" cy="22" r="2" fill="#1e293b"/>
               <path d="M31 27 Q34 30 37 27" stroke="#1e293b" stroke-width="1.8" stroke-linecap="round" fill="none"/>
               <!-- Swaddle Blanket / Runner -->
-              <path d="M22 34 C22 30 46 30 46 34 C46 45 38 52 34 52 C30 52 22 45 22 34 Z" fill="url(#passitonGlow)"/>
-              <path d="M24 38 L44 38" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-              <path d="M26 44 L42 44" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+              <path d="M22 34 C22 30 46 30 46 34 C46 45 38 52 34 52 C30 52 22 45 22 34 Z" fill="url(#irisPurpleGrad)" filter="drop-shadow(0 4px 12px rgba(99, 102, 241, 0.5))"/>
+              <path d="M24 38 L44 38" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/>
+              <path d="M26 44 L42 44" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/>
             </svg>
           </div>
           <h3 class="game-card-title">Pass It On</h3>
-          <p class="game-card-desc">Run, dodge & pass</p>
+          <p class="game-card-desc">Iris purple glass</p>
         </a>
-        <!-- 9. Ludo King (Offline Pass & Play & vs AI) -->
-        <div class="game-card glass-panel" data-game="ludo" role="button" tabindex="0" id="cardLudo" title="Play Ludo (Offline & vs AI)">
+
+        <!-- 9. Ludo King (Multicolored Red, Green, Blue, and Yellow Glass) -->
+        <div class="game-card glass-panel" data-game="ludo" role="button" tabindex="0" id="cardLudo" title="Play Ludo King (Multicolored Sea Glass)">
           <div class="game-card-icon-wrap ludo-icon-wrap">
             <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
               <defs>
@@ -399,25 +435,26 @@
                   <stop offset="100%" stop-color="#0284c7"/>
                 </linearGradient>
               </defs>
-              <rect x="8" y="8" width="48" height="48" rx="8" fill="#0f172a" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" filter="drop-shadow(0 4px 10px rgba(0,0,0,0.5))"/>
+              <rect x="8" y="8" width="48" height="48" rx="8" fill="#0f172a" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" filter="drop-shadow(0 4px 12px rgba(56, 189, 248, 0.4))"/>
               <rect x="11" y="11" width="18" height="18" rx="4" fill="url(#ludoRed)"/>
-              <circle cx="20" cy="20" r="3.5" fill="#ffffff" opacity="0.9"/>
+              <circle cx="20" cy="20" r="3.5" fill="#ffffff" opacity="0.95"/>
               <rect x="35" y="11" width="18" height="18" rx="4" fill="url(#ludoGreen)"/>
-              <circle cx="44" cy="20" r="3.5" fill="#ffffff" opacity="0.9"/>
+              <circle cx="44" cy="20" r="3.5" fill="#ffffff" opacity="0.95"/>
               <rect x="11" y="35" width="18" height="18" rx="4" fill="url(#ludoBlue)"/>
-              <circle cx="20" cy="44" r="3.5" fill="#ffffff" opacity="0.9"/>
+              <circle cx="20" cy="44" r="3.5" fill="#ffffff" opacity="0.95"/>
               <rect x="35" y="35" width="18" height="18" rx="4" fill="url(#ludoYellow)"/>
-              <circle cx="44" cy="44" r="3.5" fill="#ffffff" opacity="0.9"/>
-              <rect x="25" y="25" width="14" height="14" rx="3" fill="#ffffff" stroke="#94a3b8" stroke-width="0.8" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.4))"/>
-              <circle cx="28.5" cy="28.5" r="1.2" fill="#ef4444"/>
-              <circle cx="32" cy="32" r="1.4" fill="#0f172a"/>
-              <circle cx="35.5" cy="35.5" r="1.2" fill="#ef4444"/>
-              <circle cx="28.5" cy="35.5" r="1.2" fill="#0f172a"/>
-              <circle cx="35.5" cy="28.5" r="1.2" fill="#0f172a"/>
+              <circle cx="44" cy="44" r="3.5" fill="#ffffff" opacity="0.95"/>
+              <!-- Central 3D Die in White Pearl -->
+              <rect x="25" y="25" width="14" height="14" rx="3.5" fill="#ffffff" stroke="#94a3b8" stroke-width="0.8" filter="drop-shadow(0 2px 6px rgba(0,0,0,0.5))"/>
+              <circle cx="28.5" cy="28.5" r="1.3" fill="#ef4444"/>
+              <circle cx="32" cy="32" r="1.5" fill="#0f172a"/>
+              <circle cx="35.5" cy="35.5" r="1.3" fill="#ef4444"/>
+              <circle cx="28.5" cy="35.5" r="1.3" fill="#0f172a"/>
+              <circle cx="35.5" cy="28.5" r="1.3" fill="#0f172a"/>
             </svg>
           </div>
           <h3 class="game-card-title">Ludo King</h3>
-          <p class="game-card-desc">Roll, race & conquer</p>
+          <p class="game-card-desc">Multicolored quad-glass</p>
         </div>
       </div>
     </section>
@@ -1156,11 +1193,12 @@
         </div>
         <div class="settings-row">
           <label class="settings-label">Visual Theme</label>
-          <div class="seg" id="modalThemePills">
-            <button class="seg-btn active" data-theme="dark" type="button">Dark</button>
-            <button class="seg-btn" data-theme="light" type="button">Light</button>
-            <button class="seg-btn" data-theme="itachi" type="button">Itachi</button>
-            <button class="seg-btn" data-theme="naruto" type="button">Naruto</button>
+          <div class="seg seg-theme-picker" id="modalThemePills">
+            <button class="seg-btn active" data-theme="dark" type="button">Ocean Prism</button>
+            <button class="seg-btn" data-theme="light" type="button">Pearl Rainbow</button>
+            <button class="seg-btn" data-theme="itachi" type="button">Crimson Moon</button>
+            <button class="seg-btn" data-theme="naruto" type="button">Sunset Flame</button>
+            <button class="seg-btn" data-theme="aurora" type="button">Aurora Glass</button>
           </div>
         </div>
       </div>

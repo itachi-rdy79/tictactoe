@@ -1001,32 +1001,51 @@ function showOnlyActiveGame(gameKey) {
 
 /* ---------- Theme Handling ---------- */
 function themeMeta(theme) {
-  if (theme === "light") return {
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
-    text: "Light"
+  if (theme === "light" || theme === "pearl-rainbow") return {
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="8.5" fill="url(#pearlGrad)" stroke="#cbd5e1" stroke-width="1.5"/><path d="M8 12a4 4 0 0 1 8 0" stroke="#f43f5e" stroke-width="1.5" stroke-linecap="round"/><path d="M9.5 14a2.5 2.5 0 0 1 5 0" stroke="#10b981" stroke-width="1.5" stroke-linecap="round"/><defs><linearGradient id="pearlGrad" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#ffffff"/><stop offset="100%" stop-color="#e0f2fe"/></linearGradient></defs></svg>`,
+    text: "Pearl Rainbow"
   };
-  if (theme === "itachi") return {
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>`,
-    text: "Itachi"
+  if (theme === "itachi" || theme === "crimson-moon") return {
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" color="#ef4444"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>`,
+    text: "Crimson Moon"
   };
-  if (theme === "naruto") return {
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/><circle cx="12" cy="13" r="2.5" fill="currentColor"/></svg>`,
-    text: "Naruto"
+  if (theme === "naruto" || theme === "sunset-flame") return {
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/><circle cx="12" cy="13" r="2.5" fill="#f97316"/></svg>`,
+    text: "Sunset Flame"
+  };
+  if (theme === "aurora" || theme === "aurora-glass") return {
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke-width="2.2"><path d="M3 15C7 11 11 17 15 13C18 10 20 12 21 11" stroke="#2dd4bf" stroke-linecap="round"/><path d="M3 9C7 5 11 11 15 7C18 4 20 6 21 5" stroke="#c084fc" stroke-linecap="round"/></svg>`,
+    text: "Aurora Glass"
   };
   return {
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
-    text: "Dark"
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke="#38bdf8"/><path d="M12 3v18M3 12h18" stroke="#818cf8" stroke-dasharray="2 2"/><circle cx="12" cy="12" r="4" fill="#38bdf8" opacity="0.8"/></svg>`,
+    text: "Ocean Prism"
   };
 }
 
 function setTheme(theme) {
+  // Support aliases seamlessly
+  if (theme === "ocean-prism") theme = "dark";
+  if (theme === "pearl-rainbow") theme = "light";
+  if (theme === "crimson-moon") theme = "itachi";
+  if (theme === "sunset-flame") theme = "naruto";
+  if (theme === "aurora-glass") theme = "aurora";
+
   hubState.theme = theme;
   if (themeSelect) themeSelect.value = theme;
   document.body.setAttribute("data-theme", theme);
   const m = themeMeta(theme);
   if (themeCurrentIcon) themeCurrentIcon.innerHTML = m.icon;
   if (themeCurrentText) themeCurrentText.textContent = m.text;
-  themeMenu?.querySelectorAll(".theme-item").forEach(b => b.classList.toggle("active", b.dataset.theme === theme));
+  themeMenu?.querySelectorAll(".theme-item").forEach(b => {
+    b.classList.toggle("active", b.dataset.theme === theme);
+  });
+  const modalPills = document.getElementById("modalThemePills");
+  if (modalPills) {
+    modalPills.querySelectorAll(".seg-btn").forEach(b => {
+      b.classList.toggle("active", b.dataset.theme === theme);
+    });
+  }
   persistHub();
 
   if (hubState.game.startsWith("ttt")) renderTTT();
@@ -6489,6 +6508,7 @@ function showGameView(gameKey) {
   }
   if (playBtn) playBtn.classList.remove("active");
   const targetKey = gameKey || hubState.game;
+  if (gameView) gameView.setAttribute("data-active-game", targetKey);
   if (badge) badge.textContent = getGameDisplayName(targetKey);
   try {
     sessionStorage.setItem("gap_view_mode", "game");
@@ -6744,7 +6764,7 @@ function initScenicLandingAndNav() {
   document.getElementById("featBadgeStats")?.addEventListener("click", triggerStats);
 
   document.getElementById("featBadgeThemes")?.addEventListener("click", () => {
-    const themes = ["dark", "light", "itachi", "naruto"];
+    const themes = ["dark", "light", "itachi", "naruto", "aurora"];
     const nextIdx = (themes.indexOf(hubState.theme) + 1) % themes.length;
     setTheme(themes[nextIdx]);
   });
