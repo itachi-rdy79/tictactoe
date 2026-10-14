@@ -5348,3 +5348,15 @@ body[data-theme="light"] .settings-label {
   display: block;
   overflow: visible;
 }
+
+
+/* Pass It On Card Highlights */
+.passiton-icon-wrap {
+  filter: drop-shadow(0 4px 14px rgba(56, 189, 248, 0.45));
+  transition: filter 0.25s ease, transform 0.25s ease;
+}
+
+.game-card:hover .passiton-icon-wrap {
+  filter: drop-shadow(0 6px 20px rgba(56, 189, 248, 0.7));
+  transform: scale(1.1) translateY(-2px);
+}

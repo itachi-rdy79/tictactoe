@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=46.0" />
+  <link rel="stylesheet" href="style.css?v=47.0" />
 </head>
 <body data-theme="dark">
   <!-- Dynamic Color Background (Adapts to GAP Palette in Dark & White Theme) -->
@@ -118,9 +118,9 @@
 
         <!-- 4 Translucent Feature Indicators -->
         <div class="hero-features" id="heroFeatures">
-          <div class="feature-badge glass-panel" id="featBadgeGames" role="button" tabindex="0" title="Explore all 7 games">
+          <div class="feature-badge glass-panel" id="featBadgeGames" role="button" tabindex="0" title="Explore all 8 games">
             <span class="feat-icon">🏆</span>
-            <span class="feat-text">7 Games</span>
+            <span class="feat-text">8 Games</span>
           </div>
           </div>
       </div>
@@ -345,6 +345,37 @@
           </div>
           <h3 class="game-card-title">Palace Escape</h3>
           <p class="game-card-desc">Puzzle adventure</p>
+        </a>
+        <!-- 8. Pass It On (Fullscreen Action Runner Chase) -->
+        <a href="pass-it-on/" class="game-card glass-panel" data-game="passiton" id="cardPassItOn" title="Play Pass It On Fullscreen" style="text-decoration:none;">
+          <div class="game-card-icon-wrap passiton-icon-wrap">
+            <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+              <defs>
+                <linearGradient id="passitonGlow" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#38bdf8"/>
+                  <stop offset="50%" stop-color="#0284c7"/>
+                  <stop offset="100%" stop-color="#0369a1"/>
+                </linearGradient>
+                <linearGradient id="babySkin" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#ffedd5"/>
+                  <stop offset="100%" stop-color="#fb923c"/>
+                </linearGradient>
+              </defs>
+              <!-- Motion Trails -->
+              <path d="M8 24 L18 24 M4 32 L20 32 M10 40 L16 40" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+              <!-- Baby Face -->
+              <circle cx="34" cy="24" r="13" fill="url(#babySkin)"/>
+              <circle cx="30" cy="22" r="2" fill="#1e293b"/>
+              <circle cx="38" cy="22" r="2" fill="#1e293b"/>
+              <path d="M31 27 Q34 30 37 27" stroke="#1e293b" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+              <!-- Swaddle Blanket / Runner -->
+              <path d="M22 34 C22 30 46 30 46 34 C46 45 38 52 34 52 C30 52 22 45 22 34 Z" fill="url(#passitonGlow)"/>
+              <path d="M24 38 L44 38" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+              <path d="M26 44 L42 44" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+            </svg>
+          </div>
+          <h3 class="game-card-title">Pass It On</h3>
+          <p class="game-card-desc">Run, dodge & pass</p>
         </a>
       </div>
     </section>
@@ -836,6 +867,7 @@
       <button class="dock-btn" data-game="poker" id="btnGamePoker" type="button">Poker</button>
       <button class="dock-btn" data-game="pattu" id="btnGamePattu" type="button">Pattu</button>
       <a href="palace-escape/" class="dock-btn" id="btnGamePalace" data-game="palace">Palace</a>
+      <a href="pass-it-on/" class="dock-btn" id="btnGamePassItOn" data-game="passiton">Pass</a>
     </nav>
   </aside>
 
@@ -936,6 +968,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=46.0"></script>
+  <script src="script.js?v=47.0"></script>
 </body>
 </html>

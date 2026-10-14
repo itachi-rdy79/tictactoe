@@ -6281,6 +6281,10 @@ function initScenicLandingAndNav() {
       window.location.href = "palace-escape/";
       return;
     }
+    if (targetGame === "passiton" || targetGame === "pass-it-on") {
+      window.location.href = "pass-it-on/";
+      return;
+    }
     hubState.game = targetGame;
     if (targetGame.startsWith("ttt")) hubState.lastTttMode = targetGame;
     if (modeSelect) modeSelect.value = modeFromHub();
