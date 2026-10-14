@@ -6264,7 +6264,7 @@ function initStageDragger() {
 
   stage.addEventListener("pointerdown", (e) => {
     // Ignore drag start on buttons, links, inputs, game board cells, interactive modals, or cards
-    if (e.target.closest("button, input, textarea, select, a, .chess-cell, .chess-board, .ttt-cell, .ttt-board, .seq-cell, .sequence-board, .seq-hand-card, .sequence-hand-shelf, .win-overlay, #pattuResultBanner, .poker-action-btn, #pattuDropdown, .pattu-drop-item, .pc-search-pill-wrap, .pc-modern-dropdown, .pattu-orig-dropdown, .pattu-num-btn, .pattu-orig-btn, .poker-bet-slider")) {
+    if (e.target.closest("button, input, textarea, select, a, .chess-cell, .chess-board, .ttt-cell, .ttt-board, .seq-cell, .sequence-board, .seq-hand-card, .sequence-hand-shelf, .win-overlay, #pattuResultBanner, .poker-action-btn, #pattuDropdown, .pattu-drop-item, .pc-search-pill-wrap, .pc-modern-dropdown, .pattu-orig-dropdown, .pattu-num-btn, .pattu-orig-btn, .poker-bet-slider, .ludo-arena, #ludoGame, .ludo-board-wrap, #ludoBoardSvg, .ludo-token, .ludo-yard-group, .ludo-dice-box, .ludo-dice, .ludo-control-bar")) {
       return;
     }
 
@@ -6999,7 +6999,7 @@ function initLudo(forceFresh = false) {
     diceEl.setAttribute("data-val", "6");
     diceEl.setAttribute("data-face", "6");
   }
-  const rollBtn = document.getElementById("ludoRollBtn");
+  const rollBtn = document.getElementById("ludoRollBtn") || document.getElementById("ludoDiceBadge");
   if (rollBtn) rollBtn.textContent = "ROLL";
 
   updateLudoControlsUI();
@@ -7210,7 +7210,9 @@ function renderLudoTokens(CELL) {
            style="cursor: ${isMovable ? 'pointer' : 'default'}">
           ${isMovable ? `<circle cx="${tx}" cy="${ty}" r="21" fill="none" stroke="#fbbf24" stroke-width="3" stroke-dasharray="4,2" class="ludo-pulse-ring"/>` : ''}
           <!-- 3D Glossy Token Body -->
-          <circle cx="${tx}" cy="${ty}" r="15" fill="url(#ludoTokenGrad_${item.color})" stroke="#111111" stroke-width="1.8" filter="drop-shadow(0 3px 5px rgba(0,0,0,0.5))"/>
+          <!-- Generous click hit target for mouse cursor & touch -->
+            <circle cx="${tx}" cy="${ty}" r="22" fill="transparent" pointer-events="all" style="cursor: ${isMovable ? 'pointer' : 'default'}"/>
+            <circle cx="${tx}" cy="${ty}" r="15" fill="url(#ludoTokenGrad_${item.color})" stroke="#111111" stroke-width="1.8" filter="drop-shadow(0 3px 5px rgba(0,0,0,0.5))" pointer-events="all"/>
           <!-- Inner Specular & Pawn Ring -->
           <circle cx="${tx}" cy="${ty}" r="7" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.2"/>
           <ellipse cx="${tx - 4}" cy="${ty - 4}" rx="4" ry="2.2" fill="rgba(255,255,255,0.7)"/>
@@ -7251,7 +7253,7 @@ function rollLudoDice() {
 
   const diceEl = document.getElementById("ludoDice");
   const diceBox = document.getElementById("ludoDiceBox");
-  const rollBtn = document.getElementById("ludoRollBtn");
+  const rollBtn = document.getElementById("ludoRollBtn") || document.getElementById("ludoDiceBadge");
 
   if (diceBox) diceBox.classList.remove("ready-to-roll");
   if (rollBtn) rollBtn.textContent = "ROLLING...";
@@ -7281,7 +7283,7 @@ function rollLudoDice() {
 function finalizeLudoDiceRoll() {
   ludoState.isRolling = false;
   const diceEl = document.getElementById("ludoDice");
-  const rollBtn = document.getElementById("ludoRollBtn");
+  const rollBtn = document.getElementById("ludoRollBtn") || document.getElementById("ludoDiceBadge");
   if (diceEl) diceEl.classList.remove("rolling");
 
   const activeColor = ludoState.players[ludoState.currentTurn];
@@ -7471,7 +7473,7 @@ function moveLudoToken(color, tokenIdx) {
     updateLudoTurnText(true, bonusReason);
 
     const diceBox = document.getElementById("ludoDiceBox");
-    const rollBtn = document.getElementById("ludoRollBtn");
+    const rollBtn = document.getElementById("ludoRollBtn") || document.getElementById("ludoDiceBadge");
     const isHuman = (ludoState.mode === "local" || activeColor === ludoState.humanPlayer);
     if (isHuman) {
       if (diceBox) {
@@ -7479,11 +7481,25 @@ function moveLudoToken(color, tokenIdx) {
         diceBox.classList.remove("disabled");
       }
       if (rollBtn) rollBtn.textContent = "ROLL";
+      checkAndTriggerLudoBot();
+    } else {
+      // AI Bot bonus roll: wait 3.5 seconds so user observes where token moved and that bot earned bonus roll!
+      updateLudoTurnText(true, "Bonus Roll (3s)");
+      setTimeout(() => {
+        checkAndTriggerLudoBot();
+      }, 3500);
     }
-
-    checkAndTriggerLudoBot();
   } else {
-    advanceLudoTurn();
+    const isHuman = (ludoState.mode === "local" || activeColor === ludoState.humanPlayer);
+    if (isHuman) {
+      advanceLudoTurn();
+    } else {
+      // AI Bot turn finished: wait 3.5 seconds so user observes where token landed before next turn!
+      updateLudoTurnText(false, "Turn complete (3s)");
+      setTimeout(() => {
+        advanceLudoTurn();
+      }, 3500);
+    }
   }
 }
 
@@ -7507,7 +7523,7 @@ function updateLudoTurnUI(extraMsg) {
   const activeColor = ludoState.players[ludoState.currentTurn];
   const dot = document.getElementById("ludoTurnDot");
   const diceBox = document.getElementById("ludoDiceBox");
-  const rollBtn = document.getElementById("ludoRollBtn");
+  const rollBtn = document.getElementById("ludoRollBtn") || document.getElementById("ludoDiceBadge");
 
   if (dot) {
     dot.className = `ludo-turn-dot ${activeColor}-dot`;
@@ -7539,18 +7555,17 @@ function updateLudoTurnText(isBonus = false, extraMsg = null) {
 
   let label = "";
   if (ludoState.mode === "ai") {
-    label = (activeColor === ludoState.humanPlayer) ? `Your Turn (${colorName})` : `${colorName} Bot's Turn`;
+    label = isHuman ? "Your Turn" : `${colorName} Bot`;
   } else {
-    let pNum = ludoState.currentTurn + 1;
-    label = `P${pNum} (${colorName})'s Turn`;
+    label = `P${ludoState.currentTurn + 1} (${colorName})`;
   }
 
   if (extraMsg) {
-    label += ` — ${extraMsg}`;
+    label += ` • ${extraMsg}`;
   } else if (isBonus) {
-    label += " — 🎲 Bonus Roll!";
+    label += " • Bonus Roll!";
   } else if (isHuman && ludoState.canRoll) {
-    label += " — Tap ROLL 🎲";
+    label += " • Roll Dice";
   }
 
   text.textContent = label;
@@ -7725,7 +7740,8 @@ function checkLudoPlayerWin(color) {
 /* --- Event Listeners for Ludo Controls --- */
 function initLudoEvents() {
   const diceBox = document.getElementById("ludoDiceBox");
-  const rollBtn = document.getElementById("ludoRollBtn");
+  const diceEl = document.getElementById("ludoDice");
+  const rollBtn = document.getElementById("ludoRollBtn") || document.getElementById("ludoDiceBadge");
   const resetBtn = document.getElementById("ludoResetBtn");
   const rulesBtn = document.getElementById("ludoRulesBtn");
   const closeRulesBtn = document.getElementById("closeLudoRulesBtn");
@@ -7742,11 +7758,29 @@ function initLudoEvents() {
     }
   };
 
-  diceBox?.addEventListener("click", doRoll);
+  // Click on dice itself or dice box rolls immediately
+  diceEl?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    doRoll();
+  });
+  diceEl?.addEventListener("pointerdown", (e) => e.stopPropagation());
+  diceEl?.addEventListener("mousedown", (e) => e.stopPropagation());
+
+  diceBox?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    doRoll();
+  });
+  diceBox?.addEventListener("pointerdown", (e) => e.stopPropagation());
+  diceBox?.addEventListener("mousedown", (e) => e.stopPropagation());
+
   rollBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
     doRoll();
   });
+
+  // Stop pointerdown and mousedown on boardSvg so stage drag capture never intercepts mouse clicks
+  boardSvg?.addEventListener("pointerdown", (e) => e.stopPropagation());
+  boardSvg?.addEventListener("mousedown", (e) => e.stopPropagation());
 
   resetBtn?.addEventListener("click", () => { initLudo(true); });
   playAgainBtn?.addEventListener("click", () => { initLudo(true); });

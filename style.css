@@ -6023,32 +6023,41 @@ body[data-theme="light"] .game-match-bar {
 .ludo-turn-indicator {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 9999px;
-  padding: 5px 14px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  padding: 4px 10px;
+  font-weight: 700;
+  font-size: 0.76rem;
+  color: #f8fafc;
+  letter-spacing: 0.02em;
+  max-width: 175px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
 }
 
 .ludo-turn-dot {
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  box-shadow: 0 0 10px currentColor;
-  transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
-.ludo-turn-dot.red-dot { background: #ef4444; color: #ef4444; }
-.ludo-turn-dot.green-dot { background: #10b981; color: #10b981; }
-.ludo-turn-dot.yellow-dot { background: #fbbf24; color: #fbbf24; }
-.ludo-turn-dot.blue-dot { background: #38bdf8; color: #38bdf8; }
-
 .ludo-turn-text {
-  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ludo-dice-badge {
+  font-size: 0.72rem;
   font-weight: 800;
-  color: #f8fafc;
-  letter-spacing: 0.02em;
+  color: #2dd4bf;
+  letter-spacing: 0.04em;
+  pointer-events: none;
 }
 
 /* 3D Interactive Ludo Dice Box */
@@ -6238,29 +6247,7 @@ body[data-theme="light"] .game-match-bar {
   transform: translateY(-1px);
 }
 
-/* Ludo Objective / Instructions Banner */
-.ludo-objective-banner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(251, 191, 36, 0.35);
-  border-radius: 12px;
-  padding: 8px 16px;
-  margin-bottom: 12px;
-  font-size: 0.85rem;
-  color: #f1f5f9;
-  text-align: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-}
-.ludo-objective-banner b {
-  color: #fbbf24;
-}
-.ludo-obj-icon {
-  font-size: 1.15rem;
-}
+
 
 /* ----------------- Ludo Vector Board Wrap ----------------- */
 .ludo-board-wrap {
