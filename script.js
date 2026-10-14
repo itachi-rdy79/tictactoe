@@ -466,7 +466,7 @@ function applyRandomPalette(target = null) {
 applyRandomPalette(currentPaletteIdx);
 
 document.addEventListener("DOMContentLoaded", () => {
-  const brandEls = document.querySelectorAll(".brand, .dock-brand, #arcadeDock .dock-brand, #gapBrand, .nav-brand");
+  const brandEls = document.querySelectorAll(".dock-brand, #arcadeDock .dock-brand");
   brandEls.forEach(el => {
     el.style.cursor = "pointer";
     const chosen = DYNAMIC_PALETTES[currentPaletteIdx];
@@ -6309,17 +6309,70 @@ function initScenicLandingAndNav() {
     }
   });
 
-  // 4. Header Brand Logo
-  brand?.addEventListener("click", () => {
+  // 4. Floating Dynamic Island Pill Logic
+  const floatingPill = document.getElementById("floatingPill") || document.querySelector(".floating-pill, .scenic-nav-content");
+  let pillClickTimer = null;
+
+  const expandPill = () => {
+    if (floatingPill && !floatingPill.classList.contains("expanded")) {
+      floatingPill.classList.add("expanded");
+    }
+  };
+
+  const collapsePill = () => {
+    if (floatingPill && floatingPill.classList.contains("expanded")) {
+      floatingPill.classList.remove("expanded");
+    }
+    document.getElementById("themePicker")?.classList.remove("open");
+  };
+
+  // Single click on GAP / Pill Trigger:
+  // - If collapsed: expands the pill to reveal theme, avatar, mini window
+  // - If already expanded: collapses back
+  brand?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isExpanded = floatingPill?.classList.contains("expanded");
+
+    if (!isExpanded) {
+      expandPill();
+    } else {
+      if (pillClickTimer) clearTimeout(pillClickTimer);
+      pillClickTimer = setTimeout(() => {
+        collapsePill();
+        pillClickTimer = null;
+      }, 250);
+    }
+  });
+
+  // Double click on GAP / Pill: Changes color AND automatically closes!
+  brand?.addEventListener("dblclick", (e) => {
+    e.stopPropagation();
+    if (pillClickTimer) {
+      clearTimeout(pillClickTimer);
+      pillClickTimer = null;
+    }
+
+    // Change color!
     applyRandomPalette();
     brand.classList.add("brand-click-pulse");
     setTimeout(() => brand.classList.remove("brand-click-pulse"), 400);
 
-    const landing = document.getElementById("landingView");
-    if (landing && landing.classList.contains("hidden")) {
-      showLandingView();
-      location.hash = "#/";
+    // Automatically close after double clicking!
+    setTimeout(() => {
+      collapsePill();
+    }, 120);
+  });
+
+  // Clicking anywhere outside the floating pill automatically collapses it
+  document.addEventListener("click", (e) => {
+    if (floatingPill && !floatingPill.contains(e.target)) {
+      collapsePill();
     }
+  });
+
+  // Keep clicks inside the actions drawer interactive without collapsing
+  document.getElementById("pillActions")?.addEventListener("click", (e) => {
+    e.stopPropagation();
   });
 
   // 5. Header Stats, Avatar, & Leaderboard

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=45.0" />
+  <link rel="stylesheet" href="style.css?v=46.0" />
 </head>
 <body data-theme="dark">
   <!-- Dynamic Color Background (Adapts to GAP Palette in Dark & White Theme) -->
@@ -42,21 +42,16 @@
   </div>
 
   <!-- Floating Translucent Top Navigation Header -->
-  <header class="scenic-nav" id="scenicNav">
-    <div class="scenic-nav-content glass-panel">
-      <!-- Left: GAP Brand Logo -->
-      <div class="nav-brand brand" id="gapBrand" role="button" tabindex="0" title="GAP • Click to refresh colors & cycle theme">
+  <header class="floating-pill-container" id="scenicNav">
+    <div class="floating-pill glass-panel" id="floatingPill">
+      <!-- Left: GAP Brand Logo / Main Trigger -->
+      <div class="nav-brand brand pill-brand" id="gapBrand" role="button" tabindex="0" title="GAP • Click to expand | Double-click to cycle color & close">
         <span class="logo-text" id="gapLogoText">GAP</span>
+        <svg class="pill-chevron" id="pillChevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
 
-      <!-- Center: Main Navigation Links -->
-      <nav class="nav-links" id="mainNavLinks" aria-label="Main Navigation">
-        <button class="nav-pill-btn active" id="navPlayBtn" type="button">Play</button>
-        <button class="nav-pill-btn" id="navSettingsBtn" type="button">Settings</button>
-      </nav>
-
-      <!-- Right: Theme Switcher & Utility Actions -->
-      <div class="nav-right">
+      <!-- Expandable Actions Drawer (Reveals Theme, Profile Avatar & Mini Window on Click) -->
+      <div class="pill-expand-actions" id="pillActions">
         <!-- Theme Picker -->
         <div class="theme-picker" id="themePicker">
           <button class="theme-trigger theme-pill-btn" id="themeTrigger" type="button" aria-expanded="false" title="Switch Theme">
@@ -86,9 +81,9 @@
           </div>
         </div>
 
-        <!-- Avatar / Player Stats Action -->
-        <button class="nav-icon-btn" id="navAvatarBtn" type="button" title="Player Profile & Arcade Stats">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Profile / Avatar Action -->
+        <button class="nav-icon-btn" id="navAvatarBtn" type="button" title="Player Profile & Stats">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
@@ -96,7 +91,7 @@
 
         <!-- Mini Window Toggle -->
         <button class="nav-icon-btn mini-window-btn" id="miniWindowBtn" type="button" title="Toggle Compact Mode" aria-label="Toggle Compact Mode">
-          <svg id="miniWindowIcon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg id="miniWindowIcon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M15 3h6v6"/>
             <path d="M10 14L21 3"/>
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -941,6 +936,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=45.0"></script>
+  <script src="script.js?v=46.0"></script>
 </body>
 </html>

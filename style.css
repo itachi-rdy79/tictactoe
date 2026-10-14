@@ -4432,51 +4432,124 @@ body[data-theme="light"] .glass-panel {
   color: #0f172a !important;
 }
 
-/* Floating Translucent Top Navigation Header */
-.scenic-nav {
+/* ==========================================================================
+   Floating Dynamic Island Glass Pill Header
+   ========================================================================== */
+.scenic-nav,
+.floating-pill-container {
   position: fixed;
-  top: 14px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(calc(100% - 32px), 1100px);
   z-index: 1000;
-  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  pointer-events: none;
 }
 
+.floating-pill,
 .scenic-nav-content {
-  display: flex;
+  pointer-events: auto;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  height: 58px;
-  padding: 0 20px;
+  height: 48px;
+  padding: 0 22px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(18, 24, 38, 0.78);
   backdrop-filter: blur(28px) saturate(190%);
   -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
-  border-top: 1.5px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.3);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.32);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: max-width 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+              padding 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: visible;
+  max-width: 140px;
+  gap: 0;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
+body[data-theme="light"] .floating-pill,
 body[data-theme="light"] .scenic-nav-content {
-  background: rgba(255, 255, 255, 0.82);
-  border-color: rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(15, 23, 42, 0.14);
   border-top-color: #ffffff;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), inset 0 1px 1px #ffffff;
 }
 
-/* Brand Logo with Dynamic Pulsing Orb */
-.nav-brand {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+/* Expanded Dynamic Pill State */
+.floating-pill.expanded,
+.scenic-nav-content.expanded {
+  max-width: 480px;
+  padding: 0 14px 0 20px;
+  gap: 12px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65), 0 0 28px var(--dyn-glow, rgba(168, 85, 247, 0.35)), inset 0 1px 1.5px rgba(255, 255, 255, 0.3);
 }
 
+body[data-theme="light"] .floating-pill.expanded,
+body[data-theme="light"] .scenic-nav-content.expanded {
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.12), 0 0 24px var(--dyn-glow, rgba(14, 165, 233, 0.25)), inset 0 1px 1px #ffffff;
+}
+
+/* Pill Brand (GAP) */
+.pill-brand,
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.pill-brand:hover,
 .nav-brand:hover {
-  transform: scale(1.06);
+  transform: scale(1.05);
+}
+
+.pill-chevron {
+  color: var(--dyn-brand, rgba(255, 255, 255, 0.6));
+  opacity: 0.65;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.floating-pill.expanded .pill-chevron,
+.scenic-nav-content.expanded .pill-chevron {
+  transform: rotate(180deg);
+  opacity: 0.95;
+}
+
+/* Actions Drawer Inside Pill */
+.pill-expand-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 0;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  transform: scale(0.92) translateX(-6px);
+  transition: max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.25s ease,
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              gap 0.35s ease;
+  white-space: nowrap;
+}
+
+.floating-pill.expanded .pill-expand-actions,
+.scenic-nav-content.expanded .pill-expand-actions {
+  max-width: 340px;
+  opacity: 1;
+  pointer-events: auto;
+  overflow: visible;
+  transform: scale(1) translateX(0);
 }
 
 .nav-sea-orb {
