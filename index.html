@@ -118,9 +118,9 @@
 
         <!-- 4 Translucent Feature Indicators -->
         <div class="hero-features" id="heroFeatures">
-          <div class="feature-badge glass-panel" id="featBadgeGames" role="button" tabindex="0" title="Explore all 8 games">
+          <div class="feature-badge glass-panel" id="featBadgeGames" role="button" tabindex="0" title="Explore all 9 games">
             <span class="feat-icon">🏆</span>
-            <span class="feat-text">8 Games</span>
+            <span class="feat-text">9 Games</span>
           </div>
           </div>
       </div>
@@ -527,7 +527,7 @@
         <!-- Ludo Top Dashboard Dynamic Controls -->
         <div class="group hidden" id="ludoMatchGroup">
           <div class="seg" id="ludoModePills">
-            <button class="seg-btn ludo-mode-btn active" data-ludomode="ai" type="button" title="Play vs Smart AI Bots">
+            <button class="seg-btn ludo-mode-btn active" data-ludomode="ai" type="button" title="Play vs Smart AI Bots (AI vs Me)">
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
                 <rect x="3" y="11" width="18" height="10" rx="3"></rect>
                 <circle cx="12" cy="5" r="2"></circle>
@@ -535,7 +535,7 @@
               </svg>
               <span>vs AI</span>
             </button>
-            <button class="seg-btn ludo-mode-btn" data-ludomode="local" type="button" title="Local Pass & Play (2P, 3P, 4P)">
+            <button class="seg-btn ludo-mode-btn" data-ludomode="local" type="button" title="Offline Pass & Play (Local Multiplayer)">
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
@@ -546,11 +546,11 @@
             </button>
           </div>
 
-          <span class="hud-label" style="margin-left: 6px; font-size: 0.68rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Players</span>
+          <span class="hud-label" id="ludoPlayersLabel" style="margin-left: 6px; font-size: 0.68rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Bots:</span>
           <div class="seg" id="ludoPlayersPills">
-            <button class="seg-btn" data-players="2" type="button" title="2 Players (Red vs Yellow)">2P</button>
-            <button class="seg-btn" data-players="3" type="button" title="3 Players (Red, Green, Yellow)">3P</button>
-            <button class="seg-btn active" data-players="4" type="button" title="4 Players (All Colors)">4P</button>
+            <button class="seg-btn" data-players="2" type="button" title="2 Players (You vs 1 Bot)">1 Bot</button>
+            <button class="seg-btn" data-players="3" type="button" title="3 Players (You vs 2 Bots)">2 Bots</button>
+            <button class="seg-btn active" data-players="4" type="button" title="4 Players (You vs 3 Bots)">3 Bots</button>
           </div>
         </div>
 
@@ -903,17 +903,20 @@
               <div class="ludo-control-bar">
                 <div class="ludo-turn-indicator" id="ludoTurnIndicator">
                   <span class="ludo-turn-dot red-dot" id="ludoTurnDot"></span>
-                  <span class="ludo-turn-text" id="ludoTurnText">Red's Turn</span>
+                  <span class="ludo-turn-text" id="ludoTurnText">Red's Turn — Tap ROLL</span>
                 </div>
 
-                <div class="ludo-dice-box" id="ludoDiceBox" role="button" tabindex="0" title="Click to Roll Dice (or press Space)">
-                  <div class="ludo-dice" id="ludoDice">
+                <div class="ludo-dice-box ready-to-roll" id="ludoDiceBox" role="button" tabindex="0" title="Click to Roll Dice (or press Space)">
+                  <div class="ludo-dice" id="ludoDice" data-val="6" data-face="6">
                     <span class="dice-pip p1"></span>
                     <span class="dice-pip p2"></span>
                     <span class="dice-pip p3"></span>
                     <span class="dice-pip p4"></span>
                     <span class="dice-pip p5"></span>
                     <span class="dice-pip p6"></span>
+                    <span class="dice-pip p7"></span>
+                    <span class="dice-pip p8"></span>
+                    <span class="dice-pip p9"></span>
                   </div>
                   <button type="button" class="ludo-roll-btn" id="ludoRollBtn">ROLL</button>
                 </div>
@@ -928,6 +931,12 @@
                     <span>Rules</span>
                   </button>
                 </div>
+              </div>
+
+              <!-- Ludo Objective Banner -->
+              <div class="ludo-objective-banner" id="ludoObjectiveBanner">
+                <span class="ludo-obj-icon">👑</span>
+                <span class="ludo-obj-text" id="ludoObjText"><b>Objective:</b> Race all 4 tokens around the board to the center Home (👑). <b>Roll a 6</b> to unlock a token from base!</span>
               </div>
 
               <!-- Interactive Vector Ludo Board -->
@@ -951,18 +960,18 @@
               <!-- Ludo Rules Modal -->
               <div id="ludoRulesModal" class="win-overlay hidden">
                 <div class="win-modal glass-island ludo-modal-box">
-                  <h2>🎲 How to Play Ludo King</h2>
-                  <div class="pattu-modal-body" style="text-align:left; font-size:0.86rem; line-height:1.55;">
-                    <p>&bull; <b>Roll a 6</b> to bring a token out of your Home Yard to your starting square.</p>
-                    <p>&bull; Rolling a 6 awards an <b>extra turn</b>! (Max 3 consecutive sixes).</p>
-                    <p>&bull; Land on an opponent's token to <b>capture</b> it and send it back to their yard, earning a bonus turn!</p>
-                    <p>&bull; <b>Star squares ⭐️</b> and starting squares are Safe Zones where tokens cannot be captured.</p>
-                    <p>&bull; Guide all 4 tokens into the central Home triangle to win!</p>
+                  <h2>👑 How to Play Ludo King</h2>
+                  <div class="pattu-modal-body" style="text-align:left; font-size:0.86rem; line-height:1.6;">
+                    <p>🎯 <b>Game Objective:</b> Be the first player to race all 4 tokens around the 52-square track and into your center Home (👑).</p>
+                    <p>🎲 <b>Unlocking Pieces:</b> You MUST <b>roll a 6</b> to bring a token out of your yard onto your starting square.</p>
+                    <p>🔁 <b>Bonus Roll:</b> Rolling a 6, capturing an opponent piece, or reaching center Home awards a <b>bonus roll</b>! (Max 3 consecutive sixes).</p>
+                    <p>⚔️ <b>Capturing:</b> Land on an opponent's token to send it back to their yard, earning an immediate bonus roll!</p>
+                    <p>⭐️ <b>Safe Zones:</b> Star squares (★) and starting squares are safe—tokens cannot be captured there.</p>
+                    <p>🤖 <b>Modes:</b> Play <b>AI vs Me</b> with 1, 2, or 3 bots, or play offline <b>Local Pass &amp; Play</b> with friends!</p>
                   </div>
-                  <button id="closeLudoRulesBtn" class="pattu-orig-submit-btn" style="margin-top:14px;" type="button">Got it!</button>
+                  <button id="closeLudoRulesBtn" class="pattu-orig-submit-btn" style="margin-top:14px;" type="button">Got it! Let's Play</button>
                 </div>
               </div>
-            </div>
 </section>
 
           <!-- Right Side: Black Captured -->
