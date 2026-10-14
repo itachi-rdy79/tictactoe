@@ -199,28 +199,141 @@ body[data-theme="dark"] .follow-link:hover {
   box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
 }
 
-/* Dark Buttons */
+/* =========================================================================
+   PALACE ESCAPE ADAPTIVE BUTTONS & LINKS (DARK THEME)
+   ========================================================================= */
+
+/* Primary Action Buttons (CONTINUE, PLAY, RESUME, START, NEXT LEVEL) */
 body[data-theme="dark"] .btn.primary,
-body[data-theme="dark"] button.primary {
-  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-  color: #0f172a !important;
+body[data-theme="dark"] button.primary,
+body[data-theme="dark"] button[data-primary] {
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%) !important;
+  color: #1e1302 !important;
   border: 2px solid #fbbf24 !important;
-  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4) !important;
-  font-weight: 800 !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 5px 0 #92400e, 0 8px 24px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.05em !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.15s ease !important;
 }
 
-body[data-theme="dark"] .btn.primary:hover {
-  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+body[data-theme="dark"] .btn.primary:hover,
+body[data-theme="dark"] button.primary:hover,
+body[data-theme="dark"] button[data-primary]:hover {
+  background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%) !important;
   color: #000000 !important;
+  box-shadow: 0 6px 0 #92400e, 0 12px 28px rgba(245, 158, 11, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+  transform: translateY(-2px) !important;
 }
 
+body[data-theme="dark"] .btn.primary:active,
+body[data-theme="dark"] button.primary:active,
+body[data-theme="dark"] button[data-primary]:active {
+  transform: translateY(3px) !important;
+  box-shadow: 0 2px 0 #92400e, 0 4px 12px rgba(245, 158, 11, 0.35) !important;
+}
+
+/* Secondary & Ghost Buttons (How to play, Legend, Restart Level, Share) */
+body[data-theme="dark"] .btn,
+body[data-theme="dark"] .btn.ghost,
+body[data-theme="dark"] button.ghost,
+body[data-theme="dark"] #btn-howto,
+body[data-theme="dark"] #btn-menu-legend,
+body[data-theme="dark"] #btn-pause-restart,
+body[data-theme="dark"] #btn-share {
+  background: rgba(30, 41, 59, 0.85) !important;
+  color: #f8fafc !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.45) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease !important;
+}
+
+body[data-theme="dark"] .btn .btn-ico,
+body[data-theme="dark"] .btn.ghost .btn-ico,
+body[data-theme="dark"] #btn-howto .btn-ico,
+body[data-theme="dark"] #btn-menu-legend .btn-ico {
+  color: #fbbf24 !important;
+}
+
+body[data-theme="dark"] .btn:not(.primary):hover,
+body[data-theme="dark"] .btn.ghost:hover,
+body[data-theme="dark"] button.ghost:hover,
+body[data-theme="dark"] #btn-howto:hover,
+body[data-theme="dark"] #btn-menu-legend:hover,
+body[data-theme="dark"] #btn-pause-restart:hover,
+body[data-theme="dark"] #btn-share:hover {
+  background: rgba(245, 158, 11, 0.22) !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.35), 0 6px 18px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-2px) !important;
+}
+
+body[data-theme="dark"] .btn:not(.primary):active,
+body[data-theme="dark"] .btn.ghost:active,
+body[data-theme="dark"] #btn-howto:active,
+body[data-theme="dark"] #btn-menu-legend:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Secondary Action Links */
 body[data-theme="dark"] .link,
 body[data-theme="dark"] button.link {
   color: #94a3b8 !important;
+  transition: color 0.15s ease, text-shadow 0.15s ease !important;
 }
 
-body[data-theme="dark"] .link:hover {
+body[data-theme="dark"] .link:hover,
+body[data-theme="dark"] button.link:hover {
   color: #fbbf24 !important;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.4) !important;
+}
+
+body[data-theme="dark"] #btn-menu-back-gap {
+  color: #38bdf8 !important;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.4) !important;
+}
+
+body[data-theme="dark"] #btn-menu-back-gap:hover {
+  color: #7dd3fc !important;
+  text-decoration: underline !important;
+}
+
+body[data-theme="dark"] #btn-start-over {
+  color: #94a3b8 !important;
+}
+
+body[data-theme="dark"] #btn-start-over:hover {
+  color: #f59e0b !important;
+}
+
+body[data-theme="dark"] #btn-mute-menu,
+body[data-theme="dark"] .mute-toggle {
+  color: #cbd5e1 !important;
+}
+
+body[data-theme="dark"] #btn-mute-menu:hover,
+body[data-theme="dark"] .mute-toggle:hover {
+  color: #ffffff !important;
+}
+
+body[data-theme="dark"] .tagline {
+  color: #94a3b8 !important;
+}
+
+body[data-theme="dark"] .tagline-strong {
+  color: #f8fafc !important;
+}
+
+body[data-theme="dark"] .menu-help {
+  color: #e2e8f0 !important;
 }
 
 /* Dark Main Menu & Overlays */
@@ -390,19 +503,81 @@ body[data-theme="light"] .follow-link:hover {
   box-shadow: 0 4px 12px rgba(212, 169, 63, 0.2) !important;
 }
 
-/* Light Buttons */
+/* =========================================================================
+   PALACE ESCAPE ADAPTIVE BUTTONS & LINKS (LIGHT THEME)
+   ========================================================================= */
+
 body[data-theme="light"] .btn.primary,
-body[data-theme="light"] button.primary {
-  background: linear-gradient(135deg, #d4a93f, #b45309) !important;
+body[data-theme="light"] button.primary,
+body[data-theme="light"] button[data-primary] {
+  background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%) !important;
   color: #ffffff !important;
-  border: 2px solid #d4a93f !important;
-  box-shadow: 0 4px 16px rgba(212, 169, 63, 0.35) !important;
-  font-weight: 800 !important;
+  border: 2px solid #f59e0b !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 5px 0 #78350f, 0 6px 20px rgba(212, 169, 63, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.05em !important;
 }
 
-body[data-theme="light"] .btn.primary:hover {
-  background: linear-gradient(135deg, #e3b448, #d4a93f) !important;
-  color: #ffffff !important;
+body[data-theme="light"] .btn.primary:hover,
+body[data-theme="light"] button.primary:hover,
+body[data-theme="light"] button[data-primary]:hover {
+  background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%) !important;
+  box-shadow: 0 6px 0 #78350f, 0 10px 24px rgba(212, 169, 63, 0.45) !important;
+  transform: translateY(-2px) !important;
+}
+
+body[data-theme="light"] .btn.primary:active,
+body[data-theme="light"] button.primary:active,
+body[data-theme="light"] button[data-primary]:active {
+  transform: translateY(3px) !important;
+  box-shadow: 0 2px 0 #78350f, 0 4px 10px rgba(212, 169, 63, 0.3) !important;
+}
+
+body[data-theme="light"] .btn,
+body[data-theme="light"] .btn.ghost,
+body[data-theme="light"] button.ghost,
+body[data-theme="light"] #btn-howto,
+body[data-theme="light"] #btn-menu-legend,
+body[data-theme="light"] #btn-pause-restart,
+body[data-theme="light"] #btn-share {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 2px solid #d4a93f !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 4px 12px rgba(212, 169, 63, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease !important;
+}
+
+body[data-theme="light"] .btn .btn-ico,
+body[data-theme="light"] .btn.ghost .btn-ico,
+body[data-theme="light"] #btn-howto .btn-ico,
+body[data-theme="light"] #btn-menu-legend .btn-ico {
+  color: #d97706 !important;
+}
+
+body[data-theme="light"] .btn:not(.primary):hover,
+body[data-theme="light"] .btn.ghost:hover,
+body[data-theme="light"] button.ghost:hover,
+body[data-theme="light"] #btn-howto:hover,
+body[data-theme="light"] #btn-menu-legend:hover,
+body[data-theme="light"] #btn-pause-restart:hover,
+body[data-theme="light"] #btn-share:hover {
+  background: #fefce8 !important;
+  border-color: #b45309 !important;
+  color: #b45309 !important;
+  box-shadow: 0 0 16px rgba(212, 169, 63, 0.3), 0 4px 14px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+body[data-theme="light"] .btn:not(.primary):active,
+body[data-theme="light"] .btn.ghost:active,
+body[data-theme="light"] #btn-howto:active,
+body[data-theme="light"] #btn-menu-legend:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
 }
 
 body[data-theme="light"] .link,
@@ -410,8 +585,47 @@ body[data-theme="light"] button.link {
   color: #475569 !important;
 }
 
-body[data-theme="light"] .link:hover {
+body[data-theme="light"] .link:hover,
+body[data-theme="light"] button.link:hover {
   color: #b45309 !important;
+}
+
+body[data-theme="light"] #btn-menu-back-gap {
+  color: #0284c7 !important;
+}
+
+body[data-theme="light"] #btn-menu-back-gap:hover {
+  color: #0369a1 !important;
+}
+
+body[data-theme="light"] #btn-start-over {
+  color: #64748b !important;
+}
+
+body[data-theme="light"] #btn-start-over:hover {
+  color: #b45309 !important;
+}
+
+body[data-theme="light"] #btn-mute-menu,
+body[data-theme="light"] .mute-toggle {
+  color: #475569 !important;
+}
+
+body[data-theme="light"] #btn-mute-menu:hover,
+body[data-theme="light"] .mute-toggle:hover {
+  color: #0f172a !important;
+}
+
+body[data-theme="light"] .tagline {
+  color: #64748b !important;
+}
+
+body[data-theme="light"] .tagline-strong {
+  color: #0f172a !important;
+}
+
+body[data-theme="light"] .menu-help {
+  color: #1e293b !important;
 }
 
 /* Light Main Menu & Overlays */
