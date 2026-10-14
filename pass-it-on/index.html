@@ -1273,5 +1273,94 @@ requestAnimationFrame(frame);
 })();
 </script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4bc70e2c01a94c73b74392e4234840661791215815920" integrity="sha512-L0ha0OXavK/8okipN9F8BtP84dg9DUhPERbBXzwI6dgTA55d2+yweo3pn5CSFYs45/r8md2+xvUPtTdvTNRfjA==" data-cf-beacon='{"version":"2024.11.0","token":"69629d0157f248e9ab53a1c82be094ee","r":1,"spa":2}' crossorigin="anonymous"></script>
+
+<!-- Side Disclaimer Banner (Displays for 5s on start without disturbing gameplay) -->
+<div id="passitonDisclaimerSide" class="passiton-side-banner">
+  <div class="passiton-side-content">
+    <div class="passiton-side-top">
+      <span class="passiton-side-tag">Fan-Made Tribute</span>
+      <button type="button" id="closePassitonSideBtn" class="passiton-side-x" title="Dismiss">&times;</button>
+    </div>
+    <p class="passiton-side-text">Fan-made games. Not affiliated with any film, studio or production house. All film names, characters, music, and audio clips belong to their respective owners, and all rights remain with them. Taken from X.</p>
+  </div>
+</div>
+
+<style>
+.passiton-side-banner {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+  max-width: 320px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  color: #e2e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  animation: passitonSideSlideIn 0.5s ease-out;
+}
+@keyframes passitonSideSlideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.passiton-side-banner.fade-out {
+  opacity: 0;
+  transform: translateX(30px);
+  pointer-events: none;
+}
+.passiton-side-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+.passiton-side-tag {
+  font-size: 0.70rem;
+  font-weight: 800;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.passiton-side-x {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+.passiton-side-x:hover { color: #ffffff; }
+.passiton-side-text {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+</style>
+
+<script>
+(function() {
+  const sideBanner = document.getElementById("passitonDisclaimerSide");
+  const closeBtn = document.getElementById("closePassitonSideBtn");
+  
+  const dismiss = () => {
+    if (sideBanner) {
+      sideBanner.classList.add("fade-out");
+      setTimeout(() => { sideBanner.style.display = "none"; }, 650);
+    }
+  };
+
+  closeBtn?.addEventListener("click", dismiss);
+
+  // Automatically fade out after 5 seconds as requested!
+  setTimeout(dismiss, 5000);
+})();
+</script>
+
 </body>
 </html>

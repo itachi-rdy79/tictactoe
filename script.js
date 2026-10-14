@@ -7483,22 +7483,22 @@ function moveLudoToken(color, tokenIdx) {
       if (rollBtn) rollBtn.textContent = "ROLL";
       checkAndTriggerLudoBot();
     } else {
-      // AI Bot bonus roll: wait 3.5 seconds so user observes where token moved and that bot earned bonus roll!
-      updateLudoTurnText(true, "Bonus Roll (3s)");
+      // AI Bot bonus roll: crisp 900ms pause so move is seen, then rolls again briskly
+      updateLudoTurnText(true, "Bonus Roll!");
       setTimeout(() => {
         checkAndTriggerLudoBot();
-      }, 3500);
+      }, 900);
     }
   } else {
     const isHuman = (ludoState.mode === "local" || activeColor === ludoState.humanPlayer);
     if (isHuman) {
       advanceLudoTurn();
     } else {
-      // AI Bot turn finished: wait 3.5 seconds so user observes where token landed before next turn!
-      updateLudoTurnText(false, "Turn complete (3s)");
+      // AI Bot turn finished: crisp 900ms pause to observe where token landed
+      updateLudoTurnText(false, `Moved ${roll}!`);
       setTimeout(() => {
         advanceLudoTurn();
-      }, 3500);
+      }, 900);
     }
   }
 }
@@ -7554,18 +7554,14 @@ function updateLudoTurnText(isBonus = false, extraMsg = null) {
   const colorName = LUDO_COLORS[activeColor].name;
 
   let label = "";
-  if (ludoState.mode === "ai") {
-    label = isHuman ? "Your Turn" : `${colorName} Bot`;
-  } else {
-    label = `P${ludoState.currentTurn + 1} (${colorName})`;
-  }
-
   if (extraMsg) {
-    label += ` • ${extraMsg}`;
+    label = extraMsg;
   } else if (isBonus) {
-    label += " • Bonus Roll!";
-  } else if (isHuman && ludoState.canRoll) {
-    label += " • Roll Dice";
+    label = "Bonus Roll!";
+  } else if (isHuman) {
+    label = ludoState.canRoll ? "Your Turn • Roll" : "Your Turn";
+  } else {
+    label = `${colorName} Bot`;
   }
 
   text.textContent = label;

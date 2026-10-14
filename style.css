@@ -6023,20 +6023,25 @@ body[data-theme="light"] .game-match-bar {
 .ludo-turn-indicator {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  background: rgba(15, 23, 42, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 9999px;
-  padding: 4px 10px;
+  padding: 0 12px;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
   font-weight: 700;
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   color: #f8fafc;
   letter-spacing: 0.02em;
-  max-width: 175px;
-  white-space: nowrap;
+  max-width: 150px;
+  white-space: nowrap !important;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-shrink: 1;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .ludo-turn-dot {
@@ -6345,3 +6350,30 @@ body[data-theme="light"] .game-match-bar {
   filter: drop-shadow(0 0 14px #fbbf24);
 }
 
+
+
+/* Ludo Mobile Responsive Bar */
+@media (max-width: 600px) {
+  .ludo-control-bar {
+    gap: 4px !important;
+    padding: 0 2px !important;
+  }
+  .ludo-turn-indicator {
+    max-width: 120px !important;
+    padding: 0 8px !important;
+    font-size: 0.70rem !important;
+  }
+  .ludo-dice-box {
+    padding: 2px 10px 2px 4px !important;
+    gap: 6px !important;
+  }
+  .ludo-dice {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .ludo-action-pill {
+    height: 28px !important;
+    padding: 0 6px !important;
+    font-size: 0.72rem !important;
+  }
+}
