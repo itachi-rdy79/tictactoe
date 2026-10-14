@@ -522,7 +522,8 @@
               <span>Help</span>
             </button>
           </div>
-        
+        </div>
+
         <!-- Ludo Top Dashboard Dynamic Controls -->
         <div class="group hidden" id="ludoMatchGroup">
           <div class="seg" id="ludoModePills">
@@ -534,21 +535,24 @@
               </svg>
               <span>vs AI</span>
             </button>
-            <button class="seg-btn ludo-mode-btn" data-ludomode="local" type="button" title="Pass & Play (Local Multiplayer)">
+            <button class="seg-btn ludo-mode-btn" data-ludomode="local" type="button" title="Local Pass & Play (2P, 3P, 4P)">
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
-              <span>Pass & Play</span>
+              <span>Local</span>
             </button>
           </div>
-          <span class="group-label" style="margin-left:4px;">Players</span>
+
+          <span class="hud-label" style="margin-left: 6px; font-size: 0.68rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Players</span>
           <div class="seg" id="ludoPlayersPills">
             <button class="seg-btn" data-players="2" type="button" title="2 Players (Red vs Yellow)">2P</button>
             <button class="seg-btn" data-players="3" type="button" title="3 Players (Red, Green, Yellow)">3P</button>
             <button class="seg-btn active" data-players="4" type="button" title="4 Players (All Colors)">4P</button>
           </div>
-        </div></div>
+        </div>
 
       </div>
     </div>

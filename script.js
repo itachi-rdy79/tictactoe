@@ -693,7 +693,7 @@ function loadHub() {
   if (!["dark", "light", "itachi", "naruto"].includes(hubState.theme)) hubState.theme = "dark";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
-  if (!["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu"].includes(hubState.game)) hubState.game = "ttt3";
+  if (!["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu", "ludo"].includes(hubState.game)) hubState.game = "ttt3";
 
   if (hubState.game === "wordle" || hubState.game === "pattu") hubState.opponent = "local";
 }
@@ -748,27 +748,18 @@ function syncHud() {
   }
 
   // Match Bar Optimization: Show Opponent selector for games supporting 2P vs AI (TTT, Chess, Sequence & Poker)
+  const isLudo = (hubState.game === "ludo");
   const supportsOpponent = isTTT || isChess || isSequence || isPoker;
   if (opponentGroup) {
-    if (supportsOpponent) {
+    if (supportsOpponent && !isLudo) {
       opponentGroup.style.display = "flex";
+      opponentGroup.classList.remove("hidden");
     } else {
       opponentGroup.style.setProperty("display", "none", "important");
+      opponentGroup.classList.add("hidden");
     }
   }
 
-  // Only show Difficulty selector for AI-supporting games when vs AI is active
-  const supportsAi = isTTT || isChess || isSequence || isPoker;
-  if (difficultyGroup) {
-    if (supportsAi) {
-      difficultyGroup.style.display = "flex";
-      difficultyGroup.classList.toggle("disabled", hubState.opponent !== "ai");
-    } else {
-      difficultyGroup.style.setProperty("display", "none", "important");
-    }
-  }
-
-  const isLudo = (hubState.game === "ludo");
   const ludoMatchGroup = document.getElementById("ludoMatchGroup");
   if (ludoMatchGroup) {
     if (isLudo) {
@@ -779,6 +770,25 @@ function syncHud() {
     } else {
       ludoMatchGroup.style.setProperty("display", "none", "important");
       ludoMatchGroup.classList.add("hidden");
+    }
+  }
+
+  // Difficulty selector for AI-supporting games: TTT, Chess, Sequence, Poker & Ludo King (when vs AI is active)
+  const supportsAi = isTTT || isChess || isSequence || isPoker || isLudo;
+  if (difficultyGroup) {
+    if (supportsAi) {
+      const isAiActive = isLudo ? (ludoState.mode === "ai") : (hubState.opponent === "ai");
+      if (isAiActive) {
+        difficultyGroup.style.display = "flex";
+        difficultyGroup.classList.remove("disabled", "hidden");
+        difficultyGroup.style.removeProperty("display");
+      } else {
+        difficultyGroup.style.setProperty("display", "none", "important");
+        difficultyGroup.classList.add("hidden");
+      }
+    } else {
+      difficultyGroup.style.setProperty("display", "none", "important");
+      difficultyGroup.classList.add("hidden");
     }
   }
 }
@@ -6152,8 +6162,10 @@ difficultyPills?.addEventListener("click", (e) => {
   syncHud();
   persistHub();
   loadScores();
-  if (hubState.game === "ludo") initLudo(forceFresh);
-  else if (hubState.game === "wordle") initWordle();
+  if (hubState.game === "ludo") {
+    ludoState.difficulty = hubState.difficulty;
+    updateLudoTurnUI(`Difficulty: ${hubState.difficulty.toUpperCase()}`);
+  } else if (hubState.game === "wordle") initWordle();
   if (hubState.game === "sequence") renderSequenceHUD();
   persistLiveState();
 });
@@ -6776,22 +6788,25 @@ initScenicLandingAndNav();
 
 
 /* ==========================================================================
-   LUDO KING ENGINE — AUTHENTIC CLASSIC BOARD (OFFLINE & SMART AI)
+   LUDO KING ENGINE — REAL LUDO KING ALGORITHM (OFFLINE, LOCAL & AI)
    ========================================================================== */
 
-ludoState = ludoState || {
+var ludoState = ludoState || {
   mode: "ai",           // "local" (Pass & Play) or "ai" (1 Human vs AI Bots)
   playerCount: 4,       // 2, 3, or 4
+  difficulty: "medium", // "easy", "medium", "hard"
   players: ["red", "green", "yellow", "blue"],
   humanPlayer: "red",
-  currentTurn: 0,       // index in players
+  currentTurn: 0,
   diceValue: 1,
   consecutiveSixes: 0,
+  turnsSinceSix: { red: 0, green: 0, yellow: 0, blue: 0 },
   canRoll: true,
   mustMove: false,
   isRolling: false,
   gameOver: false,
   rankings: [],
+  statusMessage: "Tap ROLL to roll the dice",
   tokens: {
     red: [-1, -1, -1, -1],
     green: [-1, -1, -1, -1],
@@ -6800,9 +6815,8 @@ ludoState = ludoState || {
   }
 };
 
-
 /* --- 100% Offline Procedural Web Audio Sound Synthesizers --- */
-let ludoAudioCtx = null;
+var ludoAudioCtx = null;
 function getLudoAudioCtx() {
   if (!ludoAudioCtx) {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -6819,13 +6833,12 @@ function playLudoDiceSound() {
     const ctx = getLudoAudioCtx();
     if (!ctx) return;
     const now = ctx.currentTime;
-    // Rhythmic rolling clicks
     for (let i = 0; i < 4; i++) {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "triangle";
-      osc.frequency.setValueAtTime(180 + Math.random() * 80, now + i * 0.05);
-      gain.gain.setValueAtTime(0.2, now + i * 0.05);
+      osc.frequency.setValueAtTime(180 + Math.random() * 90, now + i * 0.05);
+      gain.gain.setValueAtTime(0.22, now + i * 0.05);
       gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.04);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -6843,14 +6856,14 @@ function playLudoStepSound() {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = "sine";
-    osc.frequency.setValueAtTime(520, now);
-    osc.frequency.exponentialRampToValueAtTime(380, now + 0.08);
+    osc.frequency.setValueAtTime(540, now);
+    osc.frequency.exponentialRampToValueAtTime(360, now + 0.09);
     gain.gain.setValueAtTime(0.25, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start(now);
-    osc.stop(now + 0.09);
+    osc.stop(now + 0.1);
   } catch {}
 }
 
@@ -6862,14 +6875,14 @@ function playLudoCaptureSound() {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = "sawtooth";
-    osc.frequency.setValueAtTime(400, now);
-    osc.frequency.exponentialRampToValueAtTime(150, now + 0.25);
-    gain.gain.setValueAtTime(0.3, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    osc.frequency.setValueAtTime(450, now);
+    osc.frequency.exponentialRampToValueAtTime(130, now + 0.28);
+    gain.gain.setValueAtTime(0.32, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start(now);
-    osc.stop(now + 0.26);
+    osc.stop(now + 0.29);
   } catch {}
 }
 
@@ -6894,7 +6907,7 @@ function playLudoWinSound() {
   } catch {}
 }
 
-/* --- Initialization & Reset --- */
+/* --- Initialization & Game Mode Setup --- */
 function initLudo(forceFresh = false) {
   const count = ludoState.playerCount || 4;
   if (count === 2) {
@@ -6906,14 +6919,17 @@ function initLudo(forceFresh = false) {
     ludoState.players = ["red", "green", "yellow", "blue"];
   }
 
+  ludoState.difficulty = hubState.difficulty || "medium";
   ludoState.currentTurn = 0;
   ludoState.diceValue = 1;
   ludoState.consecutiveSixes = 0;
+  ludoState.turnsSinceSix = { red: 0, green: 0, yellow: 0, blue: 0 };
   ludoState.canRoll = true;
   ludoState.mustMove = false;
   ludoState.isRolling = false;
   ludoState.gameOver = false;
   ludoState.rankings = [];
+  ludoState.statusMessage = "Tap ROLL to roll the dice";
 
   ludoState.tokens = {
     red: [-1, -1, -1, -1],
@@ -6928,7 +6944,7 @@ function initLudo(forceFresh = false) {
   renderLudoBoard();
   updateLudoTurnUI();
 
-  // If first turn is an AI bot, trigger after a friendly delay
+  // If first turn is an AI bot (e.g. if human is not red), trigger bot
   checkAndTriggerLudoBot();
 }
 
@@ -6970,9 +6986,9 @@ function renderLudoBoard() {
   const drawCornerYard = (colorKey, x, y) => {
     const colData = LUDO_COLORS[colorKey];
     const isPlaying = ludoState.players.includes(colorKey);
-    const opacity = isPlaying ? "1" : "0.38";
+    const opacity = isPlaying ? "1" : "0.35";
 
-    let yardSvg = `<g class="ludo-yard-group ${colorKey}" opacity="${opacity}">`;
+    let yardSvg = `<g class="ludo-yard-group ${colorKey}" data-color="${colorKey}" opacity="${opacity}" style="cursor: ${isPlaying ? 'pointer' : 'default'}">`;
     // Outer colored frame
     yardSvg += `<rect x="${x}" y="${y}" width="240" height="240" fill="${colData.hex}" rx="24"/>`;
     // Inner white container
@@ -6980,7 +6996,7 @@ function renderLudoBoard() {
     
     // 4 Colored circular seats inside white box
     const pockets = LUDO_YARD_POCKETS[colorKey];
-    pockets.forEach(pt => {
+    pockets.forEach((pt, pIdx) => {
       yardSvg += `<circle cx="${pt[0]}" cy="${pt[1]}" r="26" fill="${colData.hex}" stroke="${colData.border}" stroke-width="3"/>`;
       yardSvg += `<circle cx="${pt[0]}" cy="${pt[1]}" r="16" fill="${colData.light}" opacity="0.65"/>`;
     });
@@ -7012,16 +7028,12 @@ function renderLudoBoard() {
 
     // Draw the 4 colored stars matching the authentic board
     if (idx === 8) {
-      // (6, 2): Green Star
       svgHtml += makeStarSvg(cx + 20, cy + 20, 14, LUDO_COLORS.green.hex, LUDO_COLORS.green.border);
     } else if (idx === 21) {
-      // (12, 6): Yellow Star
       svgHtml += makeStarSvg(cx + 20, cy + 20, 14, LUDO_COLORS.yellow.hex, LUDO_COLORS.yellow.border);
     } else if (idx === 34) {
-      // (8, 12): Blue Star
       svgHtml += makeStarSvg(cx + 20, cy + 20, 14, LUDO_COLORS.blue.hex, LUDO_COLORS.blue.border);
     } else if (idx === 47) {
-      // (2, 8): Red Star
       svgHtml += makeStarSvg(cx + 20, cy + 20, 14, LUDO_COLORS.red.hex, LUDO_COLORS.red.border);
     }
   });
@@ -7133,13 +7145,13 @@ function renderLudoTokens(CELL) {
         <g class="ludo-token ${item.color}-token ${isMovable ? 'can-move' : ''}" 
            data-color="${item.color}" 
            data-token="${item.tokenIdx}" 
-           onclick="handleLudoTokenClick('${item.color}', ${item.tokenIdx})">
-          ${isMovable ? `<circle cx="${tx}" cy="${ty}" r="20" fill="none" stroke="#fbbf24" stroke-width="3" stroke-dasharray="4,2" class="ludo-pulse-ring"/>` : ''}
+           style="cursor: ${isMovable ? 'pointer' : 'default'}">
+          ${isMovable ? `<circle cx="${tx}" cy="${ty}" r="21" fill="none" stroke="#fbbf24" stroke-width="3" stroke-dasharray="4,2" class="ludo-pulse-ring"/>` : ''}
           <!-- 3D Glossy Token Body -->
-          <circle cx="${tx}" cy="${ty}" r="14.5" fill="url(#ludoTokenGrad_${item.color})" stroke="#111111" stroke-width="1.6" filter="drop-shadow(0 3px 5px rgba(0,0,0,0.45))"/>
+          <circle cx="${tx}" cy="${ty}" r="15" fill="url(#ludoTokenGrad_${item.color})" stroke="#111111" stroke-width="1.8" filter="drop-shadow(0 3px 5px rgba(0,0,0,0.5))"/>
           <!-- Inner Specular & Pawn Ring -->
-          <circle cx="${tx}" cy="${ty}" r="7" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="1.2"/>
-          <ellipse cx="${tx - 4}" cy="${ty - 4}" rx="4" ry="2.2" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="${tx}" cy="${ty}" r="7" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.2"/>
+          <ellipse cx="${tx - 4}" cy="${ty - 4}" rx="4" ry="2.2" fill="rgba(255,255,255,0.7)"/>
         </g>
       `;
     });
@@ -7166,7 +7178,7 @@ function getLegalLudoTokens(color, roll) {
   return legal;
 }
 
-/* --- Dice Rolling Mechanism --- */
+/* --- Real Ludo King Dice Rolling Mechanism --- */
 function rollLudoDice() {
   if (!ludoState.canRoll || ludoState.isRolling || ludoState.gameOver) return;
 
@@ -7175,13 +7187,19 @@ function rollLudoDice() {
   playLudoDiceSound();
 
   const diceEl = document.getElementById("ludoDice");
+  const diceBox = document.getElementById("ludoDiceBox");
+  const rollBtn = document.getElementById("ludoRollBtn");
+
+  if (diceBox) diceBox.classList.remove("ready-to-roll");
+  if (rollBtn) rollBtn.textContent = "ROLLING...";
+
   if (diceEl) {
     diceEl.classList.remove("rolling");
     void diceEl.offsetWidth;
     diceEl.classList.add("rolling");
   }
 
-  // Animate random dice faces rapidly
+  // Animate rapid dice face turnover
   let rolls = 0;
   const rollInterval = setInterval(() => {
     const tempVal = Math.floor(Math.random() * 6) + 1;
@@ -7197,45 +7215,81 @@ function rollLudoDice() {
 function finalizeLudoDiceRoll() {
   ludoState.isRolling = false;
   const diceEl = document.getElementById("ludoDice");
+  const rollBtn = document.getElementById("ludoRollBtn");
   if (diceEl) diceEl.classList.remove("rolling");
 
-  const val = Math.floor(Math.random() * 6) + 1;
+  const activeColor = ludoState.players[ludoState.currentTurn];
+  const diff = ludoState.difficulty || hubState.difficulty || "medium";
+
+  // Real Ludo King RNG Algorithm with Sympathy Logic:
+  let val = Math.floor(Math.random() * 6) + 1;
+
+  // On Easy or Medium, if all pieces are locked in base for 4+ turns, grant a gentle sympathy boost
+  const allInBase = ludoState.tokens[activeColor].every(p => p === -1);
+  if ((diff === "easy" || diff === "medium") && allInBase && (ludoState.turnsSinceSix[activeColor] || 0) >= 3) {
+    if (Math.random() < 0.6) {
+      val = 6;
+    }
+  }
+
   ludoState.diceValue = val;
   if (diceEl) diceEl.setAttribute("data-face", val);
+  if (rollBtn) rollBtn.textContent = `ROLLED ${val}`;
 
-  // Consecutive sixes check: 3 consecutive 6s penalties turn passing
+  // Consecutive sixes check
   if (val === 6) {
     ludoState.consecutiveSixes++;
+    ludoState.turnsSinceSix[activeColor] = 0;
     if (ludoState.consecutiveSixes === 3) {
       ludoState.consecutiveSixes = 0;
-      advanceLudoTurn("Three 6s in a row! Turn forfeited.");
+      advanceLudoTurn("Three 6s! Turn forfeited.");
       return;
     }
   } else {
     ludoState.consecutiveSixes = 0;
+    ludoState.turnsSinceSix[activeColor] = (ludoState.turnsSinceSix[activeColor] || 0) + 1;
   }
 
-  const activeColor = ludoState.players[ludoState.currentTurn];
   const legalMoves = getLegalLudoTokens(activeColor, val);
 
   if (legalMoves.length === 0) {
     // No legal moves
     ludoState.mustMove = false;
     renderLudoBoard();
+    updateLudoTurnText(false, `Rolled ${val} — No moves possible`);
     setTimeout(() => {
-      advanceLudoTurn(`No legal move for ${LUDO_COLORS[activeColor].name}`);
-    }, 700);
+      advanceLudoTurn();
+    }, 850);
   } else {
     ludoState.mustMove = true;
     renderLudoBoard();
 
     const isHuman = (ludoState.mode === "local" || activeColor === ludoState.humanPlayer);
-    if (!isHuman) {
-      // AI automatically chooses best move
+
+    if (isHuman) {
+      // If only 1 move is possible (or all movable pieces are in yard on a 6):
+      // Highlight and provide automatic assist or clear tap instruction
+      const allMovableAreInYard = legalMoves.every(t => ludoState.tokens[activeColor][t] === -1);
+      if (allMovableAreInYard) {
+        updateLudoTurnText(false, "Rolled 6! Tap base or piece to enter!");
+      } else if (legalMoves.length === 1) {
+        updateLudoTurnText(false, `Moving piece (${val} steps)...`);
+        // Auto-move after brief delay so player sees result without getting stuck
+        setTimeout(() => {
+          if (ludoState.mustMove) {
+            moveLudoToken(activeColor, legalMoves[0]);
+          }
+        }, 380);
+      } else {
+        updateLudoTurnText(false, `Tap glowing piece to move ${val} steps`);
+      }
+    } else {
+      // AI Bot Turn: calculates move with real Ludo King algorithm
+      updateLudoTurnText(false, `${LUDO_COLORS[activeColor].name} Bot rolled ${val}...`);
       setTimeout(() => {
         const bestToken = chooseBestLudoBotMove(activeColor, val, legalMoves);
         moveLudoToken(activeColor, bestToken);
-      }, 750);
+      }, 700);
     }
   }
 }
@@ -7253,7 +7307,7 @@ function moveLudoToken(color, tokenIdx) {
 
   if (currentPos === -1) {
     if (roll === 6) {
-      newPos = 0; // Enter start square
+      newPos = 0; // Enter starting square
       isUnlock = true;
     } else {
       return;
@@ -7280,7 +7334,7 @@ function moveLudoToken(color, tokenIdx) {
             if (otherPos >= 0 && otherPos <= 50) {
               const otherTrackIdx = (LUDO_START_OFFSETS[otherColor] + otherPos) % 52;
               if (otherTrackIdx === landingTrackIdx) {
-                // CAPTURE! Send opponent token back to yard
+                // CAPTURE! Send opponent piece back to yard!
                 ludoState.tokens[otherColor][oIdx] = -1;
                 captured = true;
                 playLudoCaptureSound();
@@ -7298,19 +7352,33 @@ function moveLudoToken(color, tokenIdx) {
 
   renderLudoBoard();
 
-  // Rules: Rolling a 6, capturing an opponent, or reaching home grants an extra roll!
+  // Rules: Rolling a 6, capturing an opponent, or scoring home grants a BONUS ROLL!
   const earnedBonus = (roll === 6 || captured || newPos === 56);
 
   if (earnedBonus) {
     ludoState.canRoll = true;
-    updateLudoTurnText(true);
+    let bonusReason = "Bonus Roll!";
+    if (captured) bonusReason = "Captured piece! Bonus roll!";
+    else if (newPos === 56) bonusReason = "Piece reached Home! Bonus roll!";
+    else if (roll === 6) bonusReason = "Rolled a 6! Roll again!";
+
+    updateLudoTurnText(true, bonusReason);
+
+    const diceBox = document.getElementById("ludoDiceBox");
+    const rollBtn = document.getElementById("ludoRollBtn");
+    const isHuman = (ludoState.mode === "local" || activeColor === ludoState.humanPlayer);
+    if (isHuman) {
+      if (diceBox) diceBox.classList.add("ready-to-roll");
+      if (rollBtn) rollBtn.textContent = "ROLL";
+    }
+
     checkAndTriggerLudoBot();
   } else {
     advanceLudoTurn();
   }
 }
 
-/* --- Click Handler for Tokens --- */
+/* --- Click Handler for Tokens and Yard --- */
 function handleLudoTokenClick(color, tokenIdx) {
   const activeColor = ludoState.players[ludoState.currentTurn];
   const isHuman = (ludoState.mode === "local" || activeColor === ludoState.humanPlayer);
@@ -7323,6 +7391,7 @@ function handleLudoTokenClick(color, tokenIdx) {
     }
   }
 }
+window.handleLudoTokenClick = handleLudoTokenClick;
 
 /* --- Advance Turn --- */
 function advanceLudoTurn(msg) {
@@ -7343,11 +7412,24 @@ function advanceLudoTurn(msg) {
 function updateLudoTurnUI(extraMsg) {
   const activeColor = ludoState.players[ludoState.currentTurn];
   const dot = document.getElementById("ludoTurnDot");
-  const text = document.getElementById("ludoTurnText");
+  const diceBox = document.getElementById("ludoDiceBox");
+  const rollBtn = document.getElementById("ludoRollBtn");
 
   if (dot) {
     dot.className = `ludo-turn-dot ${activeColor}-dot`;
     dot.style.backgroundColor = LUDO_COLORS[activeColor].hex;
+  }
+
+  const isHuman = (ludoState.mode === "local" || activeColor === ludoState.humanPlayer);
+  if (diceBox) {
+    if (isHuman && ludoState.canRoll && !ludoState.isRolling) {
+      diceBox.classList.add("ready-to-roll");
+      diceBox.classList.remove("disabled");
+      if (rollBtn) rollBtn.textContent = "ROLL";
+    } else {
+      diceBox.classList.remove("ready-to-roll");
+      if (!isHuman) diceBox.classList.add("disabled");
+    }
   }
 
   updateLudoTurnText(false, extraMsg);
@@ -7365,54 +7447,73 @@ function updateLudoTurnText(isBonus = false, extraMsg = null) {
   if (ludoState.mode === "ai") {
     label = (activeColor === ludoState.humanPlayer) ? `Your Turn (${colorName})` : `${colorName} Bot's Turn`;
   } else {
-    const pNum = ludoState.currentTurn + 1;
+    let pNum = ludoState.currentTurn + 1;
     label = `P${pNum} (${colorName})'s Turn`;
   }
 
-  if (isBonus) {
-    label += " (Bonus Roll!)";
-  } else if (extraMsg) {
+  if (extraMsg) {
     label += ` — ${extraMsg}`;
+  } else if (isBonus) {
+    label += " — Bonus Roll!";
+  } else if (isHuman && ludoState.canRoll) {
+    label += " — Tap ROLL";
   }
 
   text.textContent = label;
 }
 
-/* --- Smart AI Bot Heuristics --- */
+/* --- Real Ludo King AI Algorithm (Easy, Medium, Hard) --- */
 function chooseBestLudoBotMove(color, roll, legalMoves) {
+  const diff = ludoState.difficulty || hubState.difficulty || "medium";
+
+  // 1. EASY MODE: Casual Novice
+  if (diff === "easy") {
+    // 40% chance pure random choice
+    if (Math.random() < 0.4) {
+      return legalMoves[Math.floor(Math.random() * legalMoves.length)];
+    }
+  }
+
+  // 2. MEDIUM & HARD: Real Ludo King Matrix
   let bestToken = legalMoves[0];
-  let highestScore = -999;
+  let highestScore = -9999;
 
   legalMoves.forEach(tIdx => {
     const curPos = ludoState.tokens[color][tIdx];
     let score = 0;
 
-    // 1. Prioritize unlocking from yard on rolling a 6
+    // A. Unlocking from base on a 6
     if (curPos === -1 && roll === 6) {
-      score += 45;
+      const tokensOnBoard = ludoState.tokens[color].filter(p => p >= 0 && p < 56).length;
+      if (tokensOnBoard === 0) score += 300; // MUST unlock if 0 pieces on board
+      else if (tokensOnBoard <= 2) score += (diff === "hard" ? 95 : 75);
+      else score += (diff === "hard" ? 55 : 35);
     } else {
       const nextPos = curPos + roll;
 
-      // 2. Prioritize reaching home goal
+      // B. Scoring into the Home Goal (Winning square pos 56)
       if (nextPos === 56) {
-        score += 100;
+        score += 350; // Guaranteed win progress + bonus roll!
       }
-      // 3. Advancing into safe home straight
-      else if (nextPos >= 51) {
-        score += 35;
+      // C. Entering protected Home Corridor (pos 51-55)
+      else if (nextPos >= 51 && curPos < 51) {
+        score += (diff === "hard" ? 140 : 90);
       } else {
         const nextTrackIdx = (LUDO_START_OFFSETS[color] + nextPos) % 52;
-        const isSafe = LUDO_SAFE_TRACK_INDICES.includes(nextTrackIdx);
+        const curTrackIdx = (LUDO_START_OFFSETS[color] + curPos) % 52;
+        const isNextSafe = LUDO_SAFE_TRACK_INDICES.includes(nextTrackIdx);
+        const isCurSafe = LUDO_SAFE_TRACK_INDICES.includes(curTrackIdx);
 
-        // 4. CAPTURE OPPORTUNITY (Highest priority in game)
-        if (!isSafe) {
+        // D. CAPTURE CHECK (Signature Ludo King heuristic)
+        let canCapture = false;
+        if (!isNextSafe) {
           ludoState.players.forEach(otherColor => {
             if (otherColor !== color) {
-              ludoState.tokens[otherColor].forEach(otherPos => {
-                if (otherPos >= 0 && otherPos <= 50) {
-                  const otherTrackIdx = (LUDO_START_OFFSETS[otherColor] + otherPos) % 52;
-                  if (otherTrackIdx === nextTrackIdx) {
-                    score += 90; // Big bonus for capturing opponent!
+              ludoState.tokens[otherColor].forEach(oPos => {
+                if (oPos >= 0 && oPos <= 50) {
+                  const oTrackIdx = (LUDO_START_OFFSETS[otherColor] + oPos) % 52;
+                  if (oTrackIdx === nextTrackIdx) {
+                    canCapture = true;
                   }
                 }
               });
@@ -7420,11 +7521,59 @@ function chooseBestLudoBotMove(color, roll, legalMoves) {
           });
         }
 
-        // 5. Landing on a safe square
-        if (isSafe) score += 25;
+        if (canCapture) {
+          // Captures destroy enemy progress & grant extra roll!
+          score += (diff === "hard" ? 280 : 160);
+        }
 
-        // 6. Prefer moving tokens that are furthest along
-        score += (nextPos * 0.8);
+        // E. Landing on Safe Stars (indices 8, 21, 34, 47)
+        if (isNextSafe && !isCurSafe) {
+          score += (diff === "hard" ? 90 : 55);
+        }
+
+        // F. DANGER RADAR & AMBUSH (HARD MODE EXCLUSIVE)
+        if (diff === "hard") {
+          // Check if current position has an enemy 1-6 squares behind us
+          if (!isCurSafe && curPos >= 0 && curPos <= 50) {
+            let inDanger = false;
+            ludoState.players.forEach(otherColor => {
+              if (otherColor !== color) {
+                ludoState.tokens[otherColor].forEach(oPos => {
+                  if (oPos >= 0 && oPos <= 50) {
+                    const oTrackIdx = (LUDO_START_OFFSETS[otherColor] + oPos) % 52;
+                    const distBehind = (curTrackIdx - oTrackIdx + 52) % 52;
+                    if (distBehind >= 1 && distBehind <= 6) {
+                      inDanger = true;
+                    }
+                  }
+                });
+              }
+            });
+            if (inDanger) {
+              score += 120; // RUN AWAY TO ESCAPE CAPTURE!
+            }
+          }
+
+          // Check if moving lands into enemy attack range (1-6 squares ahead of an enemy)
+          if (!isNextSafe) {
+            ludoState.players.forEach(otherColor => {
+              if (otherColor !== color) {
+                ludoState.tokens[otherColor].forEach(oPos => {
+                  if (oPos >= 0 && oPos <= 50) {
+                    const oTrackIdx = (LUDO_START_OFFSETS[otherColor] + oPos) % 52;
+                    const enemyDistBehind = (nextTrackIdx - oTrackIdx + 52) % 52;
+                    if (enemyDistBehind >= 1 && enemyDistBehind <= 6) {
+                      score -= 70; // Penalize walking into enemy ambush!
+                    }
+                  }
+                });
+              }
+            });
+          }
+        }
+
+        // G. Progress reward: favors advancing pieces closest to goal
+        score += (nextPos * 1.2);
       }
     }
 
@@ -7463,7 +7612,7 @@ function checkLudoPlayerWin(color) {
     if (title) title.textContent = `${LUDO_COLORS[color].name} Wins!`;
     if (desc) {
       if (ludoState.mode === "ai") {
-        desc.textContent = (color === ludoState.humanPlayer) ? "Champion! You conquered the board!" : `${LUDO_COLORS[color].name} AI claimed victory!`;
+        desc.textContent = (color === ludoState.humanPlayer) ? "Victory! You conquered the Ludo King board!" : `${LUDO_COLORS[color].name} Bot claimed 1st Place!`;
       } else {
         desc.textContent = `Player ${LUDO_COLORS[color].name} finished in 1st Place!`;
       }
@@ -7489,6 +7638,7 @@ function initLudoEvents() {
   const playAgainBtn = document.getElementById("ludoPlayAgainBtn");
   const modePills = document.getElementById("ludoModePills");
   const playersPills = document.getElementById("ludoPlayersPills");
+  const boardSvg = document.getElementById("ludoBoardSvg");
 
   const doRoll = () => {
     const currColor = ludoState.players[ludoState.currentTurn];
@@ -7520,6 +7670,35 @@ function initLudoEvents() {
     if (modal) modal.classList.add("hidden");
   });
 
+  // Direct Click Delegation on Ludo Board SVG:
+  // Allows clicking anywhere on tokens or player's yard base to unlock/move
+  boardSvg?.addEventListener("click", (e) => {
+    const activeColor = ludoState.players[ludoState.currentTurn];
+    const isHuman = (ludoState.mode === "local" || activeColor === ludoState.humanPlayer);
+    if (!isHuman || !ludoState.mustMove) return;
+
+    // 1. Check if clicked a specific token
+    const tokenEl = e.target.closest(".ludo-token");
+    if (tokenEl) {
+      const color = tokenEl.dataset.color;
+      const tIdx = parseInt(tokenEl.dataset.token, 10);
+      handleLudoTokenClick(color, tIdx);
+      return;
+    }
+
+    // 2. Check if clicked active player's Yard Base on a 6 to unlock!
+    if (ludoState.diceValue === 6) {
+      const yardEl = e.target.closest(".ludo-yard-group");
+      if (yardEl && yardEl.dataset.color === activeColor) {
+        const legal = getLegalLudoTokens(activeColor, 6);
+        const yardToken = legal.find(idx => ludoState.tokens[activeColor][idx] === -1);
+        if (yardToken !== undefined) {
+          moveLudoToken(activeColor, yardToken);
+        }
+      }
+    }
+  });
+
   // Spacebar to roll dice
   window.addEventListener("keydown", (e) => {
     if (e.code === "Space" && hubState.game === "ludo") {
@@ -7530,12 +7709,12 @@ function initLudoEvents() {
     }
   });
 
-  // Top Match Bar Mode (vs AI vs Pass & Play)
+  // Top Match Bar Mode (vs AI vs Local Pass & Play)
   modePills?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-ludomode]");
     if (!btn) return;
     ludoState.mode = btn.dataset.ludomode;
-    setActive(modePills, "ludomode", ludoState.mode);
+    syncHud();
     initLudo(true);
   });
 
@@ -7544,7 +7723,7 @@ function initLudoEvents() {
     const btn = e.target.closest("[data-players]");
     if (!btn) return;
     ludoState.playerCount = parseInt(btn.dataset.players, 10) || 4;
-    setActive(playersPills, "players", String(ludoState.playerCount));
+    syncHud();
     initLudo(true);
   });
 }
