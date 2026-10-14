@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=47.0" />
+  <link rel="stylesheet" href="style.css?v=48.0" />
 </head>
 <body data-theme="dark">
   <!-- Dynamic Color Background (Adapts to GAP Palette in Dark & White Theme) -->
@@ -411,8 +411,25 @@
         <div class="group" id="opponentGroup">
           <span class="group-label">Opponent</span>
           <div class="seg" id="opponentPills">
-            <button class="seg-btn" data-opponent="local" type="button">Local 2P</button>
-            <button class="seg-btn active" data-opponent="ai" type="button">vs AI</button>
+            <button class="seg-btn opponent-btn" data-opponent="local" type="button" title="Local 2-Player (Pass & Play)">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Local 2P</span>
+            </button>
+            <button class="seg-btn active opponent-btn opponent-ai" data-opponent="ai" type="button" title="Challenge the Adaptive AI Core">
+              <svg class="ai-bot-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="10" rx="3"></rect>
+                <circle cx="12" cy="5" r="2"></circle>
+                <path d="M12 7v4"></path>
+                <line x1="8" y1="16" x2="8.01" y2="16" stroke-width="3"></line>
+                <line x1="16" y1="16" x2="16.01" y2="16" stroke-width="3"></line>
+              </svg>
+              <span>vs AI</span>
+            </button>
           </div>
         </div>
 
@@ -420,9 +437,18 @@
         <div class="group" id="difficultyGroup">
           <span class="group-label">Difficulty</span>
           <div class="seg" id="difficultyPills">
-            <button class="seg-btn" data-difficulty="easy" type="button">Easy</button>
-            <button class="seg-btn active" data-difficulty="medium" type="button">Medium</button>
-            <button class="seg-btn" data-difficulty="hard" type="button">Hard</button>
+            <button class="seg-btn diff-btn diff-easy" data-difficulty="easy" type="button" title="Easy (Novice AI)">
+              <span class="diff-pip pip-easy">•</span>
+              <span>Easy</span>
+            </button>
+            <button class="seg-btn active diff-btn diff-medium" data-difficulty="medium" type="button" title="Medium (Balanced AI)">
+              <span class="diff-pip pip-medium">••</span>
+              <span>Medium</span>
+            </button>
+            <button class="seg-btn diff-btn diff-hard" data-difficulty="hard" type="button" title="Hard (Unbeatable Minimax AI)">
+              <span class="diff-pip pip-hard">•••</span>
+              <span>Hard</span>
+            </button>
           </div>
         </div>
       </div>
@@ -807,8 +833,9 @@
     </main>
 
     <!-- Bottom Floating Quick-Dock -->
-    <footer class="quick-dock glass-island" id="quickDock">
-      <div class="dock-block" id="timerGroup">
+    <footer class="quick-dock sea-glass-deck" id="quickDock">
+      <!-- Island 1: Timer Controls -->
+      <div class="dock-island dock-island-timer" id="timerGroup">
         <span class="dock-label">Timer</span>
         <div class="seg" id="timerPills">
           <button class="seg-btn active" data-timer="off" type="button">Off</button>
@@ -818,19 +845,20 @@
         </div>
       </div>
 
-      <div class="dock-block">
+      <!-- Island 2: Game Actions -->
+      <div class="dock-island dock-island-actions" id="actionsGroup">
         <span class="dock-label">Actions</span>
         <div class="seg">
           <button id="resetScoreBtn" class="seg-btn icon-btn" type="button" title="Reset Score">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
             <span>Reset</span>
           </button>
           <button id="undoBtn" class="seg-btn icon-btn" type="button" title="Undo (Z)">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
             <span>Undo</span>
           </button>
           <button id="chessHintsBtn" class="seg-btn icon-btn hidden" type="button" title="Toggle Move Possibilities (OFF by default)" aria-pressed="false">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <circle cx="12" cy="12" r="3"></circle>
               <line x1="12" y1="2" x2="12" y2="5"></line>
@@ -841,18 +869,24 @@
             <span>Hints</span>
           </button>
           <button id="newGameBtn" class="seg-btn icon-btn" type="button" title="New Game (R)">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
             <span>New Game</span>
           </button>
         </div>
       </div>
 
-      <div class="score-ticker clickable-ticker" id="scoreTickerBtn" title="Click for Detailed Statistics">
-        You: <b id="scoreA">0</b> |
-        Opponent: <b id="scoreB">0</b> |
-        Draws: <b id="scoreD">0</b> |
-        <b id="streakBadge">🔥 Streak: 0</b>
-        <span class="stats-hint">📊 Stats</span>
+      <!-- Island 3: Live Scoreboard & Hot Streak -->
+      <div class="dock-island dock-island-stats score-ticker clickable-ticker" id="scoreTickerBtn" title="Click for Detailed Statistics">
+        <span class="dock-label">Scores</span>
+        <div class="score-chips-wrap">
+          <span class="score-chip">You: <b id="scoreA">0</b></span>
+          <span class="score-divider">|</span>
+          <span class="score-chip">Opp: <b id="scoreB">0</b></span>
+          <span class="score-divider">|</span>
+          <span class="score-chip">Draws: <b id="scoreD">0</b></span>
+          <b class="streak-chip" id="streakBadge">🔥 Streak: 0</b>
+          <span class="stats-hint-badge">📊 Stats</span>
+        </div>
       </div>
     </footer>
   </div>
@@ -968,6 +1002,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=47.0"></script>
+  <script src="script.js?v=48.0"></script>
 </body>
 </html>
