@@ -50,34 +50,7 @@ export class UIManager {
   }
 
   /** The quiet "follow the makers" row that sits under the buttons on the caught and level-complete cards. */
-  buildFollow() {
-    document.querySelectorAll("[data-follow]").forEach((box) => {
-      const caption = document.createElement("p");
-      caption.className = "follow-caption";
-      caption.textContent = "Follow the makers";
-      const links = document.createElement("div");
-      links.className = "follow-links";
-      for (const { name, url } of FOLLOW_LINKS) {
-        const a = document.createElement("a");
-        a.className = "follow-link";
-        a.href = url;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        a.setAttribute("aria-label", `Follow ${name} on X (opens in a new tab)`);
-        a.innerHTML = icon("x");
-        const label = document.createElement("span");
-        label.textContent = name;
-        a.appendChild(label);
-        links.appendChild(a);
-      }
-      box.append(caption, links);
-    });
-  }
-
-  /**
-   * Shows or hides the follow rows. When they appear their links stay inert for a moment, so a stray tap from
-   * someone who was still swiping or tapping Restart can never fling them off to X.
-   */
+  buildFollow() {}
   setFollow(show) {
     clearTimeout(this.followTimer);
     document.querySelectorAll("[data-follow]").forEach((box) => {

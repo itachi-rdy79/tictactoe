@@ -422,7 +422,7 @@ a.follow:active{transform:translate(1px,1px)}
         <button class="primary" id="oBtn">Start</button>
         <button id="oBtn2" type="button" hidden>Skip, go to level 11</button>
         <button id="oCard" type="button" hidden>My Gurthimpu Card</button>
-        <a class="btn follow" id="popFollow" hidden href="https://x.com/pizzadelivryboy" target="_blank" rel="noopener noreferrer" aria-label="Follow @pizzadelivryboy on X (opens in a new tab)"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>Follow</span></a>
+        
       </div>
       </div>
   </div>
@@ -437,7 +437,7 @@ a.follow:active{transform:translate(1px,1px)}
     <button id="sheetBack" type="button">Back</button>
     <button id="sheetRetry" type="button" hidden>Try again</button>
     <button id="sheetGo" type="button" hidden>Continue to level 11</button>
-    <a class="btn follow" id="sheetFollow" href="https://x.com/pizzadelivryboy" target="_blank" rel="noopener noreferrer" aria-label="Follow @pizzadelivryboy on X (opens in a new tab)"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>Follow</span></a>
+    
   </div>
 </div>
 
@@ -1112,12 +1112,8 @@ function updateHud(){
   elLevel.textContent=level; elVill.textContent=a+'/'+totalVill; elPass.textContent=passes;
 }
 var cardMode=false, cardStore=null, reward=null, kitP=null, restoring=false;
-var FOLLOW_LEVEL=4, followOn=false, popFollow=document.getElementById('popFollow');
-try{followOn=localStorage.getItem('paradise.follow.v1')==='1';}catch(e){}
-popFollow.hidden=!followOn;
-function unlockFollow(){
-  if(followOn)return; followOn=true; popFollow.hidden=false;
-  try{localStorage.setItem('paradise.follow.v1','1');}catch(e){}
+var FOLLOW_LEVEL=999, followOn=false, popFollow=null;
+function unlockFollow(){}catch(e){}
 }
 var KIT_SRC='a-tfi-reward.1954e6dd.js';
 var CHARS={woman:{n:'Chukka alias Subbu',f:'a-doodle-woman.bcec6bd8.webp'},man:{n:'Jadal',f:'a-doodle-man.39a2e526.webp'},dog:{n:'Diamond',f:'a-doodle-dog.29b8a6d2.webp'},mach:{n:'Biryani',f:'a-doodle-mach.b418cc1d.webp'},crow:{n:'Thu anipinchukunna Kaki',f:'a-doodle-crow.6f5296e9.webp'},tribal:{n:'Sammakka',f:'a-doodle-tribal.be8cbcc5.webp'}};
@@ -1223,7 +1219,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitAll);
 fitAll();
 function showOverlay(t,txt,btn,small){
   oTitle.textContent=t; oText.textContent=txt; oText.hidden=!txt; oSmall.textContent=small||''; oBtn.textContent=btn; oBtn.setAttribute('data-full',btn);
-  oBtn2.hidden=!cardMode; oCard.hidden=!(cardStore&&!cardMode); popFollow.hidden=!followOn;
+  oBtn2.hidden=!cardMode; oCard.hidden=!(cardStore&&!cardMode); if(popFollow) popFollow.hidden=true;
   overlay.hidden=false; oBtn.focus(); fitAll();
 }
 function advance(){
@@ -1260,19 +1256,8 @@ function frame(now){
 requestAnimationFrame(frame);
 })();
 </script>
-<!-- Cloudflare Web Analytics (cookieless). Loads only on the live site and its test addresses. -->
-<script>
-(function(){
-  var h=location.hostname;
-  if(h==='theparadiseclimax.pages.dev'||/\.theparadiseclimax\.pages\.dev$/.test(h)){
-    var s=document.createElement('script'); s.defer=true;
-    s.src='https://static.cloudflareinsights.com/beacon.min.js';
-    s.setAttribute('data-cf-beacon','{"token": "a1386e6baaf2464d92bd69b5cbfa59d2"}');
-    document.body.appendChild(s);
-  }
-})();
-</script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4bc70e2c01a94c73b74392e4234840661791215815920" integrity="sha512-L0ha0OXavK/8okipN9F8BtP84dg9DUhPERbBXzwI6dgTA55d2+yweo3pn5CSFYs45/r8md2+xvUPtTdvTNRfjA==" data-cf-beacon='{"version":"2024.11.0","token":"69629d0157f248e9ab53a1c82be094ee","r":1,"spa":2}' crossorigin="anonymous"></script>
+
+
 
 <!-- Side Disclaimer Banner (Displays for 5s on start without disturbing gameplay) -->
 <div id="passitonDisclaimerSide" class="passiton-side-banner">

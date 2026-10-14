@@ -210,7 +210,4 @@ export const STORAGE_KEY = "palaceEscape.v1";
 
 /** "Follow the makers" links on the caught / level-complete cards, shown from this level onward. */
 export const FOLLOW_FROM_LEVEL = 3;
-export const FOLLOW_LINKS = [
-  { name: "PizzaDeliveryBoy", url: "https://x.com/pizzadelivryboy" },
-  { name: "CeoSonicSolutions", url: "https://x.com/wontreplyy" },
-];
+export const FOLLOW_LINKS = [];
