@@ -6092,60 +6092,79 @@ function initStageDragger() {
   let isPointerDown = false;
   let dragActive = false;
   let startX = 0;
+  let startY = 0;
   let currentStageX = 0;
+  let currentStageY = 0;
   let initialStageX = 0;
-  const DRAG_THRESHOLD = 6;
+  let initialStageY = 0;
+  const DRAG_THRESHOLD = 5;
 
-  // Restore saved horizontal offset if any
+  // Restore saved 2D offset (X and Y) if any
   try {
     const savedX = parseFloat(sessionStorage.getItem("gap_stage_x"));
-    if (!isNaN(savedX)) {
-      currentStageX = savedX;
-      stage.style.transform = `translateX(${currentStageX}px)`;
+    const savedY = parseFloat(sessionStorage.getItem("gap_stage_y"));
+    if (!isNaN(savedX)) currentStageX = savedX;
+    if (!isNaN(savedY)) currentStageY = savedY;
+    if (currentStageX !== 0 || currentStageY !== 0) {
+      stage.style.transform = `translate(${currentStageX}px, ${currentStageY}px)`;
     }
   } catch {}
 
-  function getMaxDrag() {
+  function getMaxDragX() {
     if (document.body.classList.contains("mini-window")) {
-      return 35;
+      return 80;
     }
-    // Limit to 35% of window width, max 400px on wide monitors
-    return Math.min(window.innerWidth * 0.35, 400);
+    // Allow dragging freely across the screen without artificial blocks
+    return Math.max(220, (window.innerWidth - 180) / 2);
+  }
+
+  function getMaxDragY() {
+    if (document.body.classList.contains("mini-window")) {
+      return 60;
+    }
+    // Allow dragging upwards and downwards comfortably
+    return Math.max(160, (window.innerHeight - 220) / 2);
+  }
+
+  function applyRubberBand(val, maxVal) {
+    if (Math.abs(val) <= maxVal) return val;
+    const over = Math.abs(val) - maxVal;
+    return Math.sign(val) * (maxVal + over * 0.25);
   }
 
   stage.addEventListener("pointerdown", (e) => {
-    // Ignore drag start on buttons, links, inputs, game board cells, or interactive modals / dropdowns
-    if (e.target.closest("button, input, textarea, select, a, .chess-cell, .chess-board, .ttt-cell, .ttt-board, .seq-cell, .sequence-board, .seq-hand-card, .sequence-hand-shelf, .win-overlay, #pattuResultBanner, .poker-action-btn, #pattuDropdown, .pattu-drop-item, .pc-search-pill-wrap, .pc-modern-dropdown, .pattu-orig-dropdown")) {
+    // Ignore drag start on buttons, links, inputs, game board cells, interactive modals, or cards
+    if (e.target.closest("button, input, textarea, select, a, .chess-cell, .chess-board, .ttt-cell, .ttt-board, .seq-cell, .sequence-board, .seq-hand-card, .sequence-hand-shelf, .win-overlay, #pattuResultBanner, .poker-action-btn, #pattuDropdown, .pattu-drop-item, .pc-search-pill-wrap, .pc-modern-dropdown, .pattu-orig-dropdown, .pattu-num-btn, .pattu-orig-btn, .poker-bet-slider")) {
       return;
     }
 
     isPointerDown = true;
     dragActive = false;
     startX = e.clientX;
+    startY = e.clientY;
     initialStageX = currentStageX;
+    initialStageY = currentStageY;
     try { stage.setPointerCapture(e.pointerId); } catch {}
   });
 
   stage.addEventListener("pointermove", (e) => {
     if (!isPointerDown) return;
     const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
 
-    if (!dragActive && Math.abs(dx) >= DRAG_THRESHOLD) {
+    if (!dragActive && Math.hypot(dx, dy) >= DRAG_THRESHOLD) {
       dragActive = true;
       document.body.classList.add("stage-dragging");
     }
 
     if (dragActive) {
-      const maxDrag = getMaxDrag();
-      let targetX = initialStageX + dx;
+      const maxDragX = getMaxDragX();
+      const maxDragY = getMaxDragY();
 
-      // Soft rubber-band resistance beyond maxDrag
-      if (Math.abs(targetX) > maxDrag) {
-        const over = Math.abs(targetX) - maxDrag;
-        targetX = Math.sign(targetX) * (maxDrag + over * 0.25);
-      }
+      let targetX = applyRubberBand(initialStageX + dx, maxDragX);
+      let targetY = applyRubberBand(initialStageY + dy, maxDragY);
 
-      stage.style.transform = `translateX(${targetX}px)`;
+      stage.style.transform = `translate(${targetX}px, ${targetY}px)`;
     }
   });
 
@@ -6155,19 +6174,24 @@ function initStageDragger() {
     try { stage.releasePointerCapture(e.pointerId); } catch {}
 
     if (dragActive) {
-      const maxDrag = getMaxDrag();
+      const maxDragX = getMaxDragX();
+      const maxDragY = getMaxDragY();
       const dx = e.clientX - startX;
-      currentStageX = Math.max(-maxDrag, Math.min(maxDrag, initialStageX + dx));
+      const dy = e.clientY - startY;
 
-      stage.style.transition = "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)";
-      stage.style.transform = `translateX(${currentStageX}px)`;
-      setTimeout(() => { stage.style.transition = ""; }, 250);
+      currentStageX = Math.max(-maxDragX, Math.min(maxDragX, initialStageX + dx));
+      currentStageY = Math.max(-maxDragY, Math.min(maxDragY, initialStageY + dy));
+
+      stage.style.transition = "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)";
+      stage.style.transform = `translate(${currentStageX}px, ${currentStageY}px)`;
+      setTimeout(() => { stage.style.transition = ""; }, 280);
 
       try {
         sessionStorage.setItem("gap_stage_x", currentStageX);
+        sessionStorage.setItem("gap_stage_y", currentStageY);
       } catch {}
 
-      // Suppress the click event generated by the browser at the end of the drag
+      // Suppress synthetic click after dragging
       const preventNextClick = (ev) => {
         ev.stopPropagation();
         ev.preventDefault();
@@ -6183,21 +6207,34 @@ function initStageDragger() {
   stage.addEventListener("pointerup", endDrag);
   stage.addEventListener("pointercancel", endDrag);
 
-  // Double click anywhere on board frame or status bar snaps back to center
+  // Double click anywhere on board frame or status bar snaps back to center (0, 0)
   stage.addEventListener("dblclick", (e) => {
-    if (e.target.closest("button, input, textarea, a")) return;
+    if (e.target.closest("button, input, textarea, a, .seg-btn, .pattu-num-btn")) return;
     currentStageX = 0;
-    try { sessionStorage.removeItem("gap_stage_x"); } catch {}
+    currentStageY = 0;
+    try {
+      sessionStorage.removeItem("gap_stage_x");
+      sessionStorage.removeItem("gap_stage_y");
+    } catch {}
     stage.style.transition = "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)";
-    stage.style.transform = "translateX(0px)";
+    stage.style.transform = "translate(0px, 0px)";
     setTimeout(() => { stage.style.transition = ""; }, 350);
   });
 
   window.addEventListener("resize", () => {
-    const maxDrag = getMaxDrag();
-    if (Math.abs(currentStageX) > maxDrag) {
-      currentStageX = Math.sign(currentStageX) * maxDrag;
-      stage.style.transform = `translateX(${currentStageX}px)`;
+    const maxDragX = getMaxDragX();
+    const maxDragY = getMaxDragY();
+    let clamped = false;
+    if (Math.abs(currentStageX) > maxDragX) {
+      currentStageX = Math.sign(currentStageX) * maxDragX;
+      clamped = true;
+    }
+    if (Math.abs(currentStageY) > maxDragY) {
+      currentStageY = Math.sign(currentStageY) * maxDragY;
+      clamped = true;
+    }
+    if (clamped) {
+      stage.style.transform = `translate(${currentStageX}px, ${currentStageY}px)`;
     }
   });
 }
