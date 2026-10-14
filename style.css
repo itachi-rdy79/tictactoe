@@ -5636,3 +5636,108 @@ body[data-theme="light"] .score-divider {
     padding: 0 12px !important;
   }
 }
+
+
+/* ==========================================================================
+   COOL COLLAPSIBLE DOCK & NON-DISTURBING LAYOUT FIXES
+   ========================================================================== */
+
+/* Minimize / Collapse Button on Dock */
+.dock-toggle-btn {
+  background: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
+  color: #94a3b8 !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.dock-toggle-btn:hover {
+  color: #ffffff !important;
+  border-color: #2dd4bf !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 0 12px rgba(45, 212, 191, 0.5) !important;
+}
+
+body[data-theme="light"] .dock-toggle-btn {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(45, 212, 191, 0.35) !important;
+  color: #475569 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+body[data-theme="light"] .dock-toggle-btn:hover {
+  color: #0f172a !important;
+  border-color: #0d9488 !important;
+}
+
+/* Mini Pill Shown When Collapsed */
+.dock-mini-pill {
+  display: none !important;
+  align-items: center !important;
+  gap: 8px !important;
+  height: 34px !important;
+  padding: 0 14px !important;
+  border-radius: 9999px !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 14px rgba(45, 212, 191, 0.2) !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  color: #f1f5f9 !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+.dock-mini-pill:hover {
+  transform: translateY(-2px) !important;
+  border-color: #2dd4bf !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.55), 0 0 20px rgba(45, 212, 191, 0.35) !important;
+}
+
+.mini-pill-badge {
+  color: #2dd4bf !important;
+  font-weight: 700 !important;
+}
+
+.mini-pill-sub {
+  color: #94a3b8 !important;
+}
+
+body[data-theme="light"] .dock-mini-pill {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(45, 212, 191, 0.35) !important;
+  color: #0f172a !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08) !important;
+}
+
+body[data-theme="light"] .mini-pill-sub {
+  color: #64748b !important;
+}
+
+/* Collapsed State for Quick Dock */
+.quick-dock.sea-glass-deck.collapsed {
+  bottom: 8px !important;
+}
+
+.quick-dock.sea-glass-deck.collapsed .dock-island,
+.quick-dock.sea-glass-deck.collapsed .dock-toggle-btn {
+  display: none !important;
+}
+
+.quick-dock.sea-glass-deck.collapsed .dock-mini-pill {
+  display: inline-flex !important;
+}

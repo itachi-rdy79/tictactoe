@@ -485,3 +485,9 @@ body[data-theme="light"] .legend-trap {
 body[data-theme="light"] .legend-item b {
   color: #b45309 !important;
 }
+
+
+/* Prevent floating nav overlap with game HUD */
+#hud {
+  margin-top: 48px !important;
+}

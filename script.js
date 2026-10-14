@@ -648,17 +648,23 @@ function syncHud() {
     }
   }
 
+  // Match Bar Optimization: Keep header clean and game-appropriate!
+  // Only show Opponent selector for games supporting 2P vs AI (Tic-Tac-Toe & Chess)
   if (opponentGroup) {
-    if (isSolo) opponentGroup.style.setProperty("display", "none", "important");
-    else opponentGroup.style.display = "flex";
+    if (isTTT || isChess) {
+      opponentGroup.style.display = "flex";
+    } else {
+      opponentGroup.style.setProperty("display", "none", "important");
+    }
   }
 
+  // Only show Difficulty selector for Tic-Tac-Toe & Chess when vs AI is active
   if (difficultyGroup) {
-    if (isPattu) {
-      difficultyGroup.style.setProperty("display", "none", "important");
-    } else {
+    if (isTTT || isChess) {
       difficultyGroup.style.display = "flex";
-      difficultyGroup.classList.toggle("disabled", !isWordle && hubState.opponent !== "ai");
+      difficultyGroup.classList.toggle("disabled", hubState.opponent !== "ai");
+    } else {
+      difficultyGroup.style.setProperty("display", "none", "important");
     }
   }
 }
@@ -737,6 +743,21 @@ function showOnlyActiveGame(gameKey) {
     } else {
       sequenceGameEl.classList.add("hidden");
       sequenceGameEl.style.setProperty("display", "none", "important");
+    }
+  }
+
+  // 7. Intelligent Game-Specific Bottom Dock Visibility Guard:
+  // ONLY show bottom quickDock (Timer/Actions/Scores) for Tic-Tac-Toe & Chess!
+  // For Sequence, Pattukunte, Wordle, Poker, completely hide it so it NEVER covers or obstructs the game board/cards!
+  const quickDockEl = document.getElementById("quickDock");
+  const needsQuickDock = (isTTT || isChess);
+  if (quickDockEl) {
+    if (needsQuickDock) {
+      quickDockEl.classList.remove("hidden");
+      quickDockEl.style.removeProperty("display");
+    } else {
+      quickDockEl.classList.add("hidden");
+      quickDockEl.style.setProperty("display", "none", "important");
     }
   }
 
@@ -6478,3 +6499,36 @@ function initScenicLandingAndNav() {
 
 // Ensure initScenicLandingAndNav runs on boot
 initScenicLandingAndNav();
+
+
+// Collapsible Quick-Dock Logic
+(function() {
+  const dock = document.getElementById('quickDock');
+  const toggleBtn = document.getElementById('quickDockToggleBtn');
+  const miniPill = document.getElementById('dockMiniPill');
+
+  function updateDockState(collapsed) {
+    if (!dock) return;
+    dock.classList.toggle('collapsed', collapsed);
+    try {
+      localStorage.setItem('gap_dock_collapsed', collapsed ? 'true' : 'false');
+    } catch(e) {}
+  }
+
+  try {
+    const saved = localStorage.getItem('gap_dock_collapsed');
+    if (saved === 'true') {
+      dock?.classList.add('collapsed');
+    }
+  } catch(e) {}
+
+  toggleBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isCollapsed = dock?.classList.contains('collapsed');
+    updateDockState(!isCollapsed);
+  });
+
+  miniPill?.addEventListener('click', () => {
+    updateDockState(false);
+  });
+})();
