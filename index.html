@@ -10,13 +10,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=44.0" />
+  <link rel="stylesheet" href="style.css?v=45.0" />
 </head>
 <body data-theme="dark">
-  <!-- Scenic Mountain-Lake Sunset Background -->
-  <div class="scenic-background" id="scenicBg" aria-hidden="true">
-    <div class="scenic-overlay"></div>
-  </div>
+  <!-- Dynamic Color Background (Adapts to GAP Palette in Dark & White Theme) -->
 
   <!-- Thematic Anime Background Overlays (Preserved for Itachi & Naruto themes) -->
   <div class="itachi-bg-art" aria-hidden="true" style="display:none;">
@@ -47,17 +44,14 @@
   <!-- Floating Translucent Top Navigation Header -->
   <header class="scenic-nav" id="scenicNav">
     <div class="scenic-nav-content glass-panel">
-      <!-- Left: GAP Brand Logo with Dynamic Pulsing Orb -->
+      <!-- Left: GAP Brand Logo -->
       <div class="nav-brand brand" id="gapBrand" role="button" tabindex="0" title="GAP • Click to refresh colors & cycle theme">
-        <span class="nav-sea-orb" id="gapOrb" aria-hidden="true"></span>
         <span class="logo-text" id="gapLogoText">GAP</span>
       </div>
 
       <!-- Center: Main Navigation Links -->
       <nav class="nav-links" id="mainNavLinks" aria-label="Main Navigation">
         <button class="nav-pill-btn active" id="navPlayBtn" type="button">Play</button>
-        <button class="nav-pill-btn" id="navStatsBtn" type="button">Stats</button>
-        <button class="nav-pill-btn" id="navLeaderboardBtn" type="button">Leaderboard</button>
         <button class="nav-pill-btn" id="navSettingsBtn" type="button">Settings</button>
       </nav>
 
@@ -133,16 +127,7 @@
             <span class="feat-icon">🏆</span>
             <span class="feat-text">7 Games</span>
           </div>
-          <div class="feature-badge glass-panel" id="featBadgeOpponent" role="button" tabindex="0" title="Click to toggle Local 2P / AI">
-            <span class="feat-icon">👥</span>
-            <span class="feat-text" id="featOpponentText">Play Local or AI</span>
           </div>
-          <div class="feature-badge glass-panel" id="featBadgeStats" role="button" tabindex="0" title="View Arcade Statistics">
-            <span class="feat-icon">📊</span>
-            <span class="feat-text">Track Progress</span>
-          </div>
-
-        </div>
       </div>
     </section>
 
@@ -956,6 +941,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=44.0"></script>
+  <script src="script.js?v=45.0"></script>
 </body>
 </html>

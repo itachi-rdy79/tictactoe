@@ -4393,43 +4393,43 @@ body.mini-window #scoreStatsBar {
    GAP Games â€” Scenic Sunset Mountain-Lake Glassmorphism UI Redesign
    ========================================================================== */
 
-/* Scenic Sunset Mountain-Lake Backdrop */
-.scenic-background {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background: url('assets/scenic_bg.jpg') center center / cover no-repeat;
-  background-attachment: fixed;
-  pointer-events: none;
-}
-
+/* Dynamic Palette Background Backdrop (Adapts to GAP in Dark & White Theme) */
+.scenic-background,
 .scenic-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(11, 16, 38, 0.45) 0%,
-    rgba(11, 16, 38, 0.58) 45%,
-    rgba(11, 16, 38, 0.82) 100%
-  );
-  backdrop-filter: blur(0px);
+  display: none !important;
 }
 
-body[data-theme="light"] .scenic-overlay {
-  background: linear-gradient(
-    180deg,
-    rgba(240, 249, 255, 0.58) 0%,
-    rgba(224, 242, 254, 0.72) 45%,
-    rgba(240, 249, 255, 0.88) 100%
-  );
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  background-attachment: fixed;
+  position: relative;
+  min-height: 100vh;
+  transition: background 0.4s ease, color 0.3s ease;
 }
 
-body[data-theme="itachi"] .scenic-background {
-  opacity: 0.18;
+body[data-theme="dark"] {
+  background: var(--dyn-bg-dark, #09031d) !important;
+  background-attachment: fixed !important;
+  color: #ffffff !important;
 }
 
-body[data-theme="naruto"] .scenic-background {
-  opacity: 0.28;
+body[data-theme="light"] {
+  background: var(--dyn-bg-light, #f8fafc) !important;
+  background-attachment: fixed !important;
+  color: #0f172a !important;
+}
+
+/* Light Theme Glass Panel Overrides */
+body[data-theme="light"] .glass-panel {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-top: 1px solid #ffffff !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), inset 0 1px 1px #ffffff !important;
+  color: #0f172a !important;
 }
 
 /* Floating Translucent Top Navigation Header */
@@ -4469,7 +4469,6 @@ body[data-theme="light"] .scenic-nav-content {
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
