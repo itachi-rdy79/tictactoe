@@ -6754,6 +6754,45 @@ function initScenicLandingAndNav() {
 initScenicLandingAndNav();
 
 
+
+// Collapsible Upper Match Bar Logic (Mirroring Bottom Dock)
+(function() {
+  const bar = document.getElementById('gameMatchBar');
+  const toggleBtn = document.getElementById('matchBarToggleBtn');
+  const activeBadge = document.getElementById('activeGameBadge');
+
+  function updateMatchBarState(collapsed) {
+    if (!bar) return;
+    bar.classList.toggle('collapsed', collapsed);
+    if (toggleBtn) {
+      toggleBtn.title = collapsed ? "Expand Match Controls" : "Minimize Controls for clean view";
+      toggleBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+    try {
+      localStorage.setItem('gap_matchbar_collapsed', collapsed ? 'true' : 'false');
+    } catch(e) {}
+  }
+
+  try {
+    const saved = localStorage.getItem('gap_matchbar_collapsed');
+    if (saved === 'true') {
+      updateMatchBarState(true);
+    }
+  } catch(e) {}
+
+  toggleBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isCollapsed = bar?.classList.contains('collapsed');
+    updateMatchBarState(!isCollapsed);
+  });
+
+  activeBadge?.addEventListener('click', (e) => {
+    if (bar?.classList.contains('collapsed')) {
+      updateMatchBarState(false);
+    }
+  });
+})();
+
 // Collapsible Quick-Dock Logic
 (function() {
   const dock = document.getElementById('quickDock');

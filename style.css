@@ -4080,7 +4080,7 @@ body[data-theme="light"] .seq-curtain-msg {
 }
 
 /* Constant Size Boards in Mini-Window (Identical for 5x5, 3x3, and Chess) */
-body.mini-window .board-shell:not(.wordle-mode):not(.poker-mode):not(.pattu-mode):not(.sequence-mode),
+body.mini-window .board-shell:not(.wordle-mode):not(.poker-mode):not(.pattu-mode):not(.sequence-mode):not(.ludo-mode),
 body.mini-window .board-shell.chess-mode {
   width: min(78vmin, 310px) !important;
   height: min(78vmin, 310px) !important;
@@ -6016,8 +6016,10 @@ body[data-theme="light"] .game-match-bar {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 4px 6px;
+  padding: 4px 8px;
+  gap: 6px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .ludo-turn-indicator {
@@ -6073,7 +6075,9 @@ body[data-theme="light"] .game-match-bar {
   background: rgba(15, 23, 42, 0.9);
   border: 1.5px solid rgba(45, 212, 191, 0.35);
   border-radius: 9999px;
-  padding: 4px 14px 4px 6px;
+  padding: 6px 18px 6px 8px;
+  box-sizing: border-box;
+  flex-shrink: 0;
   cursor: pointer;
   user-select: none;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), 0 0 14px rgba(45, 212, 191, 0.15);
@@ -6129,15 +6133,21 @@ body[data-theme="light"] .game-match-bar {
 }
 
 .ludo-dice {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
+  margin: 1px 2px;
   background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 60%, #e2e8f0 100%);
-  border-radius: 9px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 1.5px #ffffff, inset 0 -1.5px 3px rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35), inset 0 1px 1.5px #ffffff, inset 0 -1.5px 3px rgba(0, 0, 0, 0.22);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  padding: 4px;
+  padding: 3.5px;
+  box-sizing: border-box;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease;
+  position: relative;
+  flex-shrink: 0;
   box-sizing: border-box;
   transform-style: preserve-3d;
   transition: transform 0.15s ease;
@@ -6159,8 +6169,8 @@ body[data-theme="light"] .game-match-bar {
 .dice-pip {
   background: #0f172a;
   border-radius: 50%;
-  width: 6.5px;
-  height: 6.5px;
+  width: 5.5px;
+  height: 5.5px;
   margin: auto;
   opacity: 0;
   transition: opacity 0.08s ease, transform 0.08s ease;
@@ -6352,28 +6362,103 @@ body[data-theme="light"] .game-match-bar {
 
 
 
-/* Ludo Mobile Responsive Bar */
-@media (max-width: 600px) {
+/* Ludo Mobile Responsive Bar & Mini Window Zero Overflow */
+@media (max-width: 600px), body.mini-window {
   .ludo-control-bar {
     gap: 4px !important;
-    padding: 0 2px !important;
+    padding: 2px 4px !important;
   }
   .ludo-turn-indicator {
-    max-width: 120px !important;
+    max-width: 110px !important;
     padding: 0 8px !important;
     font-size: 0.70rem !important;
+    flex-shrink: 1 !important;
   }
   .ludo-dice-box {
-    padding: 2px 10px 2px 4px !important;
+    padding: 4px 12px 4px 6px !important;
     gap: 6px !important;
   }
   .ludo-dice {
-    width: 34px !important;
-    height: 34px !important;
+    width: 30px !important;
+    height: 30px !important;
+    padding: 3px !important;
+    margin: 1px !important;
+  }
+  .dice-pip {
+    width: 4.8px !important;
+    height: 4.8px !important;
+  }
+  .ludo-action-btns {
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+  }
+  .ludo-action-pill span {
+    display: none !important;
   }
   .ludo-action-pill {
-    height: 28px !important;
-    padding: 0 6px !important;
-    font-size: 0.72rem !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
   }
+}
+
+body.mini-window .board-shell.ludo-mode {
+  width: min(96vw, 360px) !important;
+  max-width: 360px !important;
+  min-height: auto !important;
+  height: auto !important;
+  padding: 8px !important;
+  overflow: hidden !important;
+}
+
+body.mini-window .ludo-board-wrap {
+  width: min(90vw, 310px) !important;
+  height: min(90vw, 310px) !important;
+  max-width: 310px !important;
+  max-height: 310px !important;
+}
+
+/* ==========================================================================
+   UPPER MATCH BAR COLLAPSIBLE CONTROLS (MIRRORING BOTTOM DOCK DESIGN)
+   ========================================================================== */
+
+.match-bar-toggle-btn {
+  width: 30px !important;
+  height: 30px !important;
+  margin-left: 2px !important;
+}
+
+.match-bar-toggle-btn .match-toggle-icon {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transform: rotate(180deg);
+}
+
+.game-match-bar.collapsed {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: fit-content !important;
+  padding: 6px 14px !important;
+  height: auto !important;
+  border-radius: 9999px !important;
+  margin: 6px auto !important;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45), 0 0 16px rgba(45, 212, 191, 0.16) !important;
+}
+
+.game-match-bar.collapsed #hudCenterGroup {
+  display: none !important;
+}
+
+.game-match-bar.collapsed .match-bar-toggle-btn .match-toggle-icon {
+  transform: rotate(0deg) !important;
+}
+
+.game-match-bar.collapsed .active-game-badge {
+  cursor: pointer !important;
+}
+
+.game-match-bar.collapsed .active-game-badge:hover {
+  color: #2dd4bf !important;
 }

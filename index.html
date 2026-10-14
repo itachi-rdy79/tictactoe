@@ -437,7 +437,12 @@
           </svg>
           <span>All Games</span>
         </button>
-        <span class="active-game-badge" id="activeGameBadge">Tic-Tac-Toe</span>
+        <span class="active-game-badge" id="activeGameBadge" role="button" tabindex="0" title="Click to Expand Match Controls">Tic-Tac-Toe</span>
+        <button id="matchBarToggleBtn" class="dock-toggle-btn match-bar-toggle-btn" type="button" title="Minimize Controls for clean view" aria-label="Toggle match controls">
+          <svg class="dock-toggle-icon match-toggle-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
       </div>
 
       <div class="match-bar-center" id="hudCenterGroup">
