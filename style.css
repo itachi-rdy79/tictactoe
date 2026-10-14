@@ -7198,3 +7198,79 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
 
 /* Hide theme subtitles in dropdown */
 .theme-sub { display: none !important; }
+
+
+/* =========================================================================
+   COMPACT GAP PILL & UPPER MATCH BAR (Sleek Space-Saving Layout)
+   ========================================================================= */
+.floating-pill-container {
+  top: 8px !important;
+}
+
+.floating-pill {
+  height: 36px !important;
+  padding: 0 14px !important;
+  max-width: 110px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+.floating-pill.expanded {
+  max-width: 480px !important;
+  padding: 0 10px 0 14px !important;
+  gap: 8px !important;
+}
+
+.pill-brand .logo-text {
+  font-size: 1.15rem !important;
+  letter-spacing: 0.06em !important;
+}
+
+.pill-chevron {
+  width: 11px !important;
+  height: 11px !important;
+}
+
+.gap-pill-link {
+  height: 28px !important;
+  padding: 0 10px !important;
+  font-size: 0.74rem !important;
+  gap: 4px !important;
+}
+
+.gap-icon-pill-btn {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.theme-trigger {
+  height: 28px !important;
+  padding: 0 10px !important;
+  font-size: 0.76rem !important;
+  gap: 5px !important;
+}
+
+.game-match-bar {
+  height: 38px !important;
+  min-height: 38px !important;
+  margin: 4px auto !important;
+  padding: 0 16px !important;
+  gap: 8px !important;
+}
+
+.match-bar-left .hub-pill-btn,
+.match-bar-left .hub-select-btn {
+  height: 26px !important;
+  padding: 0 10px !important;
+  font-size: 0.74rem !important;
+}
+
+.match-bar-center .seg-btn,
+.match-bar-center .opponent-btn {
+  height: 26px !important;
+  padding: 0 8px !important;
+  font-size: 0.72rem !important;
+}
+
+.active-game-badge {
+  font-size: 0.8rem !important;
+}

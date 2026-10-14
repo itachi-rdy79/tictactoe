@@ -1,3 +1,5 @@
+var ludoActiveTimers = [];
+var ludoRollInterval = null;
 const modeSelect = document.getElementById("modeSelect");
 const difficultySelect = document.getElementById("difficultySelect");
 const themeSelect = document.getElementById("themeSelect");
@@ -7371,8 +7373,7 @@ function getLegalLudoTokens(color, roll) {
 /* --- Real Ludo King Dice Rolling Mechanism --- */
 /* --- Real Ludo King Dice Rolling Mechanism --- */
 /* --- Ludo King Timer and Audio Stop Controls --- */
-let ludoActiveTimers = [];
-let ludoRollInterval = null;
+// ludo timers hoisted to top
 
 function setLudoTimeout(fn, delay) {
   if (hubState.game !== "ludo" || (document.getElementById("landingView") && !document.getElementById("landingView").classList.contains("hidden"))) {
@@ -7391,12 +7392,14 @@ function setLudoTimeout(fn, delay) {
 }
 
 function stopLudo() {
-  if (ludoRollInterval) {
+  if (typeof ludoRollInterval !== "undefined" && ludoRollInterval) {
     clearInterval(ludoRollInterval);
     ludoRollInterval = null;
   }
-  ludoActiveTimers.forEach(id => clearTimeout(id));
-  ludoActiveTimers = [];
+  if (typeof ludoActiveTimers !== "undefined" && Array.isArray(ludoActiveTimers)) {
+    ludoActiveTimers.forEach(id => clearTimeout(id));
+    ludoActiveTimers = [];
+  }
   if (typeof ludoState !== "undefined" && ludoState) {
     ludoState.isRolling = false;
   }
