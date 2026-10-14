@@ -377,6 +377,48 @@
           <h3 class="game-card-title">Pass It On</h3>
           <p class="game-card-desc">Run, dodge & pass</p>
         </a>
+        <!-- 9. Ludo King (Offline Pass & Play & vs AI) -->
+        <div class="game-card glass-panel" data-game="ludo" role="button" tabindex="0" id="cardLudo" title="Play Ludo (Offline & vs AI)">
+          <div class="game-card-icon-wrap ludo-icon-wrap">
+            <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+              <defs>
+                <linearGradient id="ludoRed" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#ef4444"/>
+                  <stop offset="100%" stop-color="#b91c1c"/>
+                </linearGradient>
+                <linearGradient id="ludoGreen" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#10b981"/>
+                  <stop offset="100%" stop-color="#047857"/>
+                </linearGradient>
+                <linearGradient id="ludoYellow" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#fbbf24"/>
+                  <stop offset="100%" stop-color="#d97706"/>
+                </linearGradient>
+                <linearGradient id="ludoBlue" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#38bdf8"/>
+                  <stop offset="100%" stop-color="#0284c7"/>
+                </linearGradient>
+              </defs>
+              <rect x="8" y="8" width="48" height="48" rx="8" fill="#0f172a" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" filter="drop-shadow(0 4px 10px rgba(0,0,0,0.5))"/>
+              <rect x="11" y="11" width="18" height="18" rx="4" fill="url(#ludoRed)"/>
+              <circle cx="20" cy="20" r="3.5" fill="#ffffff" opacity="0.9"/>
+              <rect x="35" y="11" width="18" height="18" rx="4" fill="url(#ludoGreen)"/>
+              <circle cx="44" cy="20" r="3.5" fill="#ffffff" opacity="0.9"/>
+              <rect x="11" y="35" width="18" height="18" rx="4" fill="url(#ludoBlue)"/>
+              <circle cx="20" cy="44" r="3.5" fill="#ffffff" opacity="0.9"/>
+              <rect x="35" y="35" width="18" height="18" rx="4" fill="url(#ludoYellow)"/>
+              <circle cx="44" cy="44" r="3.5" fill="#ffffff" opacity="0.9"/>
+              <rect x="25" y="25" width="14" height="14" rx="3" fill="#ffffff" stroke="#94a3b8" stroke-width="0.8" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.4))"/>
+              <circle cx="28.5" cy="28.5" r="1.2" fill="#ef4444"/>
+              <circle cx="32" cy="32" r="1.4" fill="#0f172a"/>
+              <circle cx="35.5" cy="35.5" r="1.2" fill="#ef4444"/>
+              <circle cx="28.5" cy="35.5" r="1.2" fill="#0f172a"/>
+              <circle cx="35.5" cy="28.5" r="1.2" fill="#0f172a"/>
+            </svg>
+          </div>
+          <h3 class="game-card-title">Ludo King</h3>
+          <p class="game-card-desc">Roll, race & conquer</p>
+        </div>
       </div>
     </section>
   </div>
@@ -480,7 +522,33 @@
               <span>Help</span>
             </button>
           </div>
-        </div>
+        
+        <!-- Ludo Top Dashboard Dynamic Controls -->
+        <div class="group hidden" id="ludoMatchGroup">
+          <div class="seg" id="ludoModePills">
+            <button class="seg-btn ludo-mode-btn active" data-ludomode="ai" type="button" title="Play vs Smart AI Bots">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="3" y="11" width="18" height="10" rx="3"></rect>
+                <circle cx="12" cy="5" r="2"></circle>
+                <path d="M12 7v4"></path>
+              </svg>
+              <span>vs AI</span>
+            </button>
+            <button class="seg-btn ludo-mode-btn" data-ludomode="local" type="button" title="Pass & Play (Local Multiplayer)">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+              </svg>
+              <span>Pass & Play</span>
+            </button>
+          </div>
+          <span class="group-label" style="margin-left:4px;">Players</span>
+          <div class="seg" id="ludoPlayersPills">
+            <button class="seg-btn" data-players="2" type="button" title="2 Players (Red vs Yellow)">2P</button>
+            <button class="seg-btn" data-players="3" type="button" title="3 Players (Red, Green, Yellow)">3P</button>
+            <button class="seg-btn active" data-players="4" type="button" title="4 Players (All Colors)">4P</button>
+          </div>
+        </div></div>
 
       </div>
     </div>
@@ -824,7 +892,74 @@
               </div>
             </div>
 
-          </section>
+          
+            <!-- Ludo Arena (Offline & AI Mode) -->
+            <div id="ludoGame" class="ludo-arena hidden">
+              <!-- Top Ludo Turn & Dice Control Bar -->
+              <div class="ludo-control-bar">
+                <div class="ludo-turn-indicator" id="ludoTurnIndicator">
+                  <span class="ludo-turn-dot red-dot" id="ludoTurnDot"></span>
+                  <span class="ludo-turn-text" id="ludoTurnText">Red's Turn</span>
+                </div>
+
+                <div class="ludo-dice-box" id="ludoDiceBox" role="button" tabindex="0" title="Click to Roll Dice (or press Space)">
+                  <div class="ludo-dice" id="ludoDice">
+                    <span class="dice-pip p1"></span>
+                    <span class="dice-pip p2"></span>
+                    <span class="dice-pip p3"></span>
+                    <span class="dice-pip p4"></span>
+                    <span class="dice-pip p5"></span>
+                    <span class="dice-pip p6"></span>
+                  </div>
+                  <button type="button" class="ludo-roll-btn" id="ludoRollBtn">ROLL</button>
+                </div>
+
+                <div class="ludo-action-btns">
+                  <button type="button" class="ludo-action-pill" id="ludoResetBtn" title="Restart Ludo Match">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    <span>Reset</span>
+                  </button>
+                  <button type="button" class="ludo-action-pill" id="ludoRulesBtn" title="How to Play Ludo">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span>Rules</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Interactive Vector Ludo Board -->
+              <div class="ludo-board-wrap" id="ludoBoardWrap">
+                <svg id="ludoBoardSvg" viewBox="0 0 600 600" class="ludo-board-svg">
+                  <!-- Generated dynamically via JS with crisp vector graphics -->
+                </svg>
+              </div>
+
+              <!-- Ludo Winner Overlay Modal -->
+              <div id="ludoWinnerOverlay" class="win-overlay hidden">
+                <div class="win-modal glass-island ludo-win-modal">
+                  <div class="ludo-trophy-icon">🏆</div>
+                  <h2 id="ludoWinTitle">Victory!</h2>
+                  <p id="ludoWinDesc">Red player has conquered the kingdom!</p>
+                  <div class="ludo-rankings-table" id="ludoRankingsTable"></div>
+                  <button id="ludoPlayAgainBtn" class="pattu-orig-submit-btn" style="margin-top:14px;" type="button">Play Again 🎲</button>
+                </div>
+              </div>
+
+              <!-- Ludo Rules Modal -->
+              <div id="ludoRulesModal" class="win-overlay hidden">
+                <div class="win-modal glass-island ludo-modal-box">
+                  <h2>🎲 How to Play Ludo King</h2>
+                  <div class="pattu-modal-body" style="text-align:left; font-size:0.86rem; line-height:1.55;">
+                    <p>&bull; <b>Roll a 6</b> to bring a token out of your Home Yard to your starting square.</p>
+                    <p>&bull; Rolling a 6 awards an <b>extra turn</b>! (Max 3 consecutive sixes).</p>
+                    <p>&bull; Land on an opponent's token to <b>capture</b> it and send it back to their yard, earning a bonus turn!</p>
+                    <p>&bull; <b>Star squares ⭐️</b> and starting squares are Safe Zones where tokens cannot be captured.</p>
+                    <p>&bull; Guide all 4 tokens into the central Home triangle to win!</p>
+                  </div>
+                  <button id="closeLudoRulesBtn" class="pattu-orig-submit-btn" style="margin-top:14px;" type="button">Got it!</button>
+                </div>
+              </div>
+            </div>
+</section>
 
           <!-- Right Side: Black Captured -->
           <div class="captured-sidebar glass-panel hidden" id="capturedRight">

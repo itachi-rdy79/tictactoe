@@ -5933,3 +5933,322 @@ body[data-theme="light"] .game-match-bar {
   }
 }
 
+
+
+/* ==========================================================================
+   LUDO KING & REFINED MATCH CAPSULE (ZERO OVERFLOW & HIGH CONTRAST)
+   ========================================================================== */
+
+/* Enhanced Match Capsule Padding to Prevent Content Zoned Out / Endcap Clipping */
+.game-match-bar {
+  padding: 0 clamp(22px, 2.6vw, 34px) !important;
+  gap: clamp(8px, 1.4vw, 16px) !important;
+}
+
+.match-bar-left {
+  gap: 8px !important;
+}
+
+.match-bar-center {
+  gap: clamp(6px, 1vw, 10px) !important;
+}
+
+.match-bar-center .group {
+  gap: 5px !important;
+}
+
+.match-bar-center .group-label {
+  font-size: 0.68rem !important;
+  margin-right: 2px !important;
+}
+
+.match-bar-center .seg-btn {
+  height: 30px !important;
+  padding: 0 9px !important;
+  font-size: 0.76rem !important;
+}
+
+@media (max-width: 980px) {
+  .game-match-bar {
+    border-radius: 24px !important;
+    height: auto !important;
+    padding: 8px 18px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+}
+
+/* ----------------- Ludo Arena & Shell ----------------- */
+.board-shell.ludo-mode {
+  position: relative !important;
+  width: min(94vw, calc(100vh - 150px), 590px) !important;
+  height: auto !important;
+  min-height: 560px !important;
+  max-width: 590px !important;
+  aspect-ratio: auto !important;
+  padding: 12px 14px !important;
+  background: rgba(14, 20, 35, 0.94) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(45, 212, 191, 0.15) !important;
+  margin: 4px auto 0 auto !important;
+  overflow: visible !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+
+.ludo-arena {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+/* Ludo Top Turn & Dice Bar */
+.ludo-control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 6px;
+  box-sizing: border-box;
+}
+
+.ludo-turn-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  padding: 5px 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.ludo-turn-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px currentColor;
+  transition: all 0.3s ease;
+}
+
+.ludo-turn-dot.red-dot { background: #ef4444; color: #ef4444; }
+.ludo-turn-dot.green-dot { background: #10b981; color: #10b981; }
+.ludo-turn-dot.yellow-dot { background: #fbbf24; color: #fbbf24; }
+.ludo-turn-dot.blue-dot { background: #38bdf8; color: #38bdf8; }
+
+.ludo-turn-text {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: 0.02em;
+}
+
+/* 3D Interactive Ludo Dice Box */
+.ludo-dice-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid rgba(45, 212, 191, 0.35);
+  border-radius: 9999px;
+  padding: 4px 14px 4px 6px;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), 0 0 14px rgba(45, 212, 191, 0.15);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ludo-dice-box:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: #2dd4bf;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(45, 212, 191, 0.35);
+}
+
+.ludo-dice-box.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.ludo-dice {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(145deg, #ffffff 0%, #e2e8f0 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 1px 1px #ffffff, inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  padding: 4px;
+  box-sizing: border-box;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease;
+}
+
+.ludo-dice.rolling {
+  animation: diceRollSpin 0.5s ease-in-out;
+}
+
+@keyframes diceRollSpin {
+  0% { transform: rotate(0deg) scale(0.9); }
+  25% { transform: rotate(180deg) scale(1.15); }
+  50% { transform: rotate(360deg) scale(0.95); }
+  75% { transform: rotate(540deg) scale(1.1); }
+  100% { transform: rotate(720deg) scale(1); }
+}
+
+.dice-pip {
+  background: #0f172a;
+  border-radius: 50%;
+  width: 6px;
+  height: 6px;
+  margin: auto;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+/* Dice Pips layout for values 1 to 6 */
+.ludo-dice[data-val="1"] .p5 { opacity: 1; background: #ef4444; width: 7px; height: 7px; }
+
+.ludo-dice[data-val="2"] .p1,
+.ludo-dice[data-val="2"] .p9 { opacity: 1; }
+
+.ludo-dice[data-val="3"] .p1,
+.ludo-dice[data-val="3"] .p5,
+.ludo-dice[data-val="3"] .p9 { opacity: 1; }
+
+.ludo-dice[data-val="4"] .p1,
+.ludo-dice[data-val="4"] .p3,
+.ludo-dice[data-val="4"] .p7,
+.ludo-dice[data-val="4"] .p9 { opacity: 1; }
+
+.ludo-dice[data-val="5"] .p1,
+.ludo-dice[data-val="5"] .p3,
+.ludo-dice[data-val="5"] .p5,
+.ludo-dice[data-val="5"] .p7,
+.ludo-dice[data-val="5"] .p9 { opacity: 1; }
+
+.ludo-dice[data-val="6"] .p1,
+.ludo-dice[data-val="6"] .p3,
+.ludo-dice[data-val="6"] .p4,
+.ludo-dice[data-val="6"] .p6,
+.ludo-dice[data-val="6"] .p7,
+.ludo-dice[data-val="6"] .p9 { opacity: 1; }
+
+.ludo-roll-btn {
+  background: transparent;
+  border: none;
+  color: #2dd4bf;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Ludo Reset & Rules Buttons */
+.ludo-action-btns {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ludo-action-pill {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ludo-action-pill:hover {
+  background: rgba(45, 212, 191, 0.2);
+  border-color: #2dd4bf;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* ----------------- Ludo Vector Board Wrap ----------------- */
+.ludo-board-wrap {
+  width: 100%;
+  max-width: 540px;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  background: #090d16;
+}
+
+.ludo-board-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Interactive Glowing Tokens */
+.ludo-token {
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+}
+
+.ludo-token:hover {
+  filter: brightness(1.25) drop-shadow(0 0 12px currentColor);
+  transform: scale(1.18);
+  transform-origin: center;
+}
+
+.ludo-token.can-move {
+  animation: tokenPulseReady 1.2s infinite ease-in-out;
+  cursor: pointer;
+}
+
+@keyframes tokenPulseReady {
+  0% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 5px currentColor); }
+  50% { transform: scale(1.22); filter: brightness(1.35) drop-shadow(0 0 16px currentColor); }
+  100% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 5px currentColor); }
+}
+
+/* Winner Table */
+.ludo-rankings-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+  margin: 12px auto;
+}
+
+.ludo-rank-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.ludo-trophy-icon {
+  font-size: 3rem;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 0 14px #fbbf24);
+}
+

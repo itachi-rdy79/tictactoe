@@ -692,6 +692,20 @@ function syncHud() {
       difficultyGroup.style.setProperty("display", "none", "important");
     }
   }
+
+  const isLudo = (hubState.game === "ludo");
+  const ludoMatchGroup = document.getElementById("ludoMatchGroup");
+  if (ludoMatchGroup) {
+    if (isLudo) {
+      ludoMatchGroup.style.display = "flex";
+      ludoMatchGroup.classList.remove("hidden");
+      setActive(document.getElementById("ludoModePills"), "ludomode", (typeof ludoState !== "undefined" && ludoState.mode) || "ai");
+      setActive(document.getElementById("ludoPlayersPills"), "players", String((typeof ludoState !== "undefined" && ludoState.playerCount) || 4));
+    } else {
+      ludoMatchGroup.style.setProperty("display", "none", "important");
+      ludoMatchGroup.classList.add("hidden");
+    }
+  }
 }
 
 /* ---------- Exclusive Single-Game Matrix Display Guard ---------- */
@@ -771,7 +785,20 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
-  // 7. Intelligent Game-Specific Bottom Dock Visibility Guard:
+  // 7. Ludo Arena
+  const isLudo = (gameKey === "ludo");
+  const ludoGameEl = document.getElementById("ludoGame");
+  if (ludoGameEl) {
+    if (isLudo) {
+      ludoGameEl.classList.remove("hidden");
+      ludoGameEl.style.removeProperty("display");
+    } else {
+      ludoGameEl.classList.add("hidden");
+      ludoGameEl.style.setProperty("display", "none", "important");
+    }
+  }
+
+  // 8. Intelligent Game-Specific Bottom Dock Visibility Guard:
   // ONLY show bottom quickDock (Timer/Actions/Scores) for Tic-Tac-Toe & Chess!
   // For Sequence, Pattukunte, Wordle, Poker, completely hide it so it NEVER covers or obstructs the game board/cards!
   const quickDockEl = document.getElementById("quickDock");
@@ -789,7 +816,7 @@ function showOnlyActiveGame(gameKey) {
   // Hide TTT HUD turn status pill & adjust arena when playing Pattu or Sequence
   const statusWrapEl = document.querySelector(".status-wrap");
   const arenaEl = document.querySelector(".arena");
-  if (isPalace) {
+  if (isPalace || isSequence || isLudo) {
     arenaEl?.classList.remove("pattu-arena-mode");
     statusWrapEl?.classList.add("hidden");
     statusWrapEl?.style.setProperty("display", "none", "important");
@@ -806,14 +833,6 @@ function showOnlyActiveGame(gameKey) {
     moveCounterPill?.classList.add("hidden");
     moveCounterPill?.style.setProperty("display", "none", "important");
     updatePattuConnectionBadge();
-  } else if (isSequence) {
-    arenaEl?.classList.remove("pattu-arena-mode");
-    statusWrapEl?.classList.add("hidden");
-    statusWrapEl?.style.setProperty("display", "none", "important");
-    statusPill?.classList.add("hidden");
-    statusPill?.style.setProperty("display", "none", "important");
-    moveCounterPill?.classList.add("hidden");
-    moveCounterPill?.style.setProperty("display", "none", "important");
   } else {
     arenaEl?.classList.remove("pattu-arena-mode");
     statusWrapEl?.classList.remove("hidden");
@@ -839,12 +858,13 @@ function showOnlyActiveGame(gameKey) {
   }
 
   // Board wrap shell classes
-  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode", "pattu-mode", "sequence-mode");
+  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode", "pattu-mode", "sequence-mode", "ludo-mode");
   if (isChess) boardWrap?.classList.add("chess-mode");
   else if (isWordle) boardWrap?.classList.add("wordle-mode");
   else if (isPoker) boardWrap?.classList.add("poker-mode");
   else if (isPattu) boardWrap?.classList.add("pattu-mode");
   else if (isSequence) boardWrap?.classList.add("sequence-mode");
+  else if (isLudo) boardWrap?.classList.add("ludo-mode");
 
   // Sidebars (Chess captured only)
   const isMini = isMiniWindow();
@@ -6053,7 +6073,8 @@ difficultyPills?.addEventListener("click", (e) => {
   syncHud();
   persistHub();
   loadScores();
-  if (hubState.game === "wordle") initWordle();
+  if (hubState.game === "ludo") initLudo(forceFresh);
+  else if (hubState.game === "wordle") initWordle();
   if (hubState.game === "sequence") renderSequenceHUD();
   persistLiveState();
 });
@@ -6290,6 +6311,7 @@ function initStageDragger() {
   });
 
 function boot() {
+  initLudoEvents();
   loadHub();
   updateMiniWindowUI();
 
@@ -6324,8 +6346,8 @@ if (document.readyState === "loading") {
    ========================================================================== */
 
 function getGameDisplayName(gameKey) {
-  if (gameKey === "ttt3") return "Tic-Tac-Toe (3×3)";
-  if (gameKey === "ttt5") return "Tic-Tac-Toe (5×5)";
+  if (gameKey === "ttt3" || gameKey === "ttt5" || gameKey === "ttt") return "Tic-Tac-Toe";
+  if (gameKey === "ludo") return "Ludo King";
   if (gameKey === "chess") return "Chess";
   if (gameKey === "sequence") return "Sequence";
   if (gameKey === "wordle") return "Wordle";
@@ -6409,7 +6431,7 @@ function initScenicLandingAndNav() {
         window.location.href = "pass-it-on/";
         return;
       }
-      const validGames = ["ttt3", "ttt5", "ttt", "chess", "sequence", "wordle", "poker", "pattu"];
+      const validGames = ["ttt3", "ttt5", "ttt", "chess", "sequence", "wordle", "poker", "pattu", "ludo"];
       if (validGames.includes(routeGame)) {
         const actualGame = routeGame === "ttt" ? (hubState.lastTttMode || "ttt3") : routeGame;
         hubState.game = actualGame;
@@ -6671,3 +6693,791 @@ initScenicLandingAndNav();
     updateDockState(false);
   });
 })();
+
+
+/* ==========================================================================
+   LUDO KING ENGINE — 100% OFFLINE, PASS & PLAY + SMART AI BOT
+   ========================================================================== */
+
+let ludoState = {
+  mode: "ai",           // "local" (Pass & Play) or "ai" (1 Human vs AI Bots)
+  playerCount: 4,       // 2, 3, or 4
+  players: ["red", "green", "yellow", "blue"],
+  humanPlayer: "red",
+  currentTurn: 0,       // index in players
+  diceValue: 1,
+  consecutiveSixes: 0,
+  canRoll: true,
+  mustMove: false,
+  isRolling: false,
+  gameOver: false,
+  rankings: [],
+  tokens: {
+    red: [-1, -1, -1, -1],
+    green: [-1, -1, -1, -1],
+    yellow: [-1, -1, -1, -1],
+    blue: [-1, -1, -1, -1]
+  }
+};
+
+// 52 common loop track grid coordinates (x, y on 15x15 board)
+const LUDO_TRACK = [
+  [1, 6], [2, 6], [3, 6], [4, 6], [5, 6],
+  [6, 5], [6, 4], [6, 3], [6, 2], [6, 1], [6, 0],
+  [7, 0], [8, 0],
+  [8, 1], [8, 2], [8, 3], [8, 4], [8, 5],
+  [9, 6], [10, 6], [11, 6], [12, 6], [13, 6], [14, 6],
+  [14, 7], [14, 8],
+  [13, 8], [12, 8], [11, 8], [10, 8], [9, 8],
+  [8, 9], [8, 10], [8, 11], [8, 12], [8, 13], [8, 14],
+  [7, 14], [6, 14],
+  [6, 13], [6, 12], [6, 11], [6, 10], [6, 9],
+  [5, 8], [4, 8], [3, 8], [2, 8], [1, 8], [0, 8],
+  [0, 7], [0, 6]
+];
+
+// Home straight paths (5 squares leading into center home)
+const LUDO_HOME_PATHS = {
+  red:    [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7]],
+  green:  [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5]],
+  yellow: [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7]],
+  blue:   [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9]]
+};
+
+// Yard positions for tokens in the 4 bases
+const LUDO_YARDS = {
+  red:    [[1.5, 1.5], [3.5, 1.5], [1.5, 3.5], [3.5, 3.5]],
+  green:  [[10.5, 1.5], [12.5, 1.5], [10.5, 3.5], [12.5, 3.5]],
+  yellow: [[10.5, 10.5], [12.5, 10.5], [10.5, 12.5], [12.5, 12.5]],
+  blue:   [[1.5, 10.5], [3.5, 10.5], [1.5, 12.5], [3.5, 12.5]]
+};
+
+// Starting offsets on the 52-square track
+const LUDO_START_OFFSETS = {
+  red: 0,
+  green: 13,
+  yellow: 26,
+  blue: 39
+};
+
+// Safe squares on the 52-track where captures cannot happen
+const LUDO_SAFE_TRACK_INDICES = [0, 8, 13, 21, 26, 34, 39, 47];
+
+// Color definitions
+const LUDO_COLORS = {
+  red:    { name: "Red", hex: "#ef4444", dark: "#991b1b", light: "#fca5a5" },
+  green:  { name: "Green", hex: "#10b981", dark: "#065f46", light: "#6ee7b7" },
+  yellow: { name: "Yellow", hex: "#fbbf24", dark: "#92400e", light: "#fde68a" },
+  blue:   { name: "Blue", hex: "#38bdf8", dark: "#0369a1", light: "#bae6fd" }
+};
+
+/* --- Procedural Web Audio Sound Synthesizer (100% Offline) --- */
+let ludoAudioCtx = null;
+function getLudoAudioCtx() {
+  if (!ludoAudioCtx) {
+    const AudioCtor = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtor) ludoAudioCtx = new AudioCtor();
+  }
+  if (ludoAudioCtx && ludoAudioCtx.state === "suspended") {
+    ludoAudioCtx.resume().catch(() => {});
+  }
+  return ludoAudioCtx;
+}
+
+function playLudoDiceSound() {
+  try {
+    const ctx = getLudoAudioCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    for (let i = 0; i < 5; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(140 + Math.random() * 260, now + i * 0.05);
+      gain.gain.setValueAtTime(0.12, now + i * 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.04);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + i * 0.05);
+      osc.stop(now + i * 0.05 + 0.05);
+    }
+  } catch {}
+}
+
+function playLudoStepSound() {
+  try {
+    const ctx = getLudoAudioCtx();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.09);
+  } catch {}
+}
+
+function playLudoCaptureSound() {
+  try {
+    const ctx = getLudoAudioCtx();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(320, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.22);
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.23);
+  } catch {}
+}
+
+function playLudoWinSound() {
+  try {
+    const ctx = getLudoAudioCtx();
+    if (!ctx) return;
+    const notes = [440, 554, 659, 880];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.12);
+      osc.stop(ctx.currentTime + i * 0.12 + 0.36);
+    });
+  } catch {}
+}
+
+/* --- Initialization & Reset --- */
+function initLudo(forceFresh = false) {
+  const count = ludoState.playerCount || 4;
+  if (count === 2) {
+    ludoState.players = ["red", "yellow"];
+  } else if (count === 3) {
+    ludoState.players = ["red", "green", "yellow"];
+  } else {
+    ludoState.players = ["red", "green", "yellow", "blue"];
+  }
+
+  ludoState.currentTurn = 0;
+  ludoState.diceValue = 1;
+  ludoState.consecutiveSixes = 0;
+  ludoState.canRoll = true;
+  ludoState.mustMove = false;
+  ludoState.isRolling = false;
+  ludoState.gameOver = false;
+  ludoState.rankings = [];
+
+  ludoState.tokens = {
+    red: [-1, -1, -1, -1],
+    green: [-1, -1, -1, -1],
+    yellow: [-1, -1, -1, -1],
+    blue: [-1, -1, -1, -1]
+  };
+
+  const overlay = document.getElementById("ludoWinnerOverlay");
+  if (overlay) overlay.classList.add("hidden");
+
+  renderLudoBoard();
+  updateLudoTurnUI();
+
+  // If first turn is an AI bot, trigger after a delay
+  checkAndTriggerLudoBot();
+}
+
+/* --- Render Vector Ludo Board (SVG) --- */
+function renderLudoBoard() {
+  const svg = document.getElementById("ludoBoardSvg");
+  if (!svg) return;
+
+  const CELL = 40; // 600px / 15 cells = 40px each
+
+  let svgHtml = `
+    <defs>
+      <!-- Gradients -->
+      <linearGradient id="ludoGradRed" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#ef4444"/>
+        <stop offset="100%" stop-color="#b91c1c"/>
+      </linearGradient>
+      <linearGradient id="ludoGradGreen" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#10b981"/>
+        <stop offset="100%" stop-color="#047857"/>
+      </linearGradient>
+      <linearGradient id="ludoGradYellow" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#fbbf24"/>
+        <stop offset="100%" stop-color="#d97706"/>
+      </linearGradient>
+      <linearGradient id="ludoGradBlue" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#38bdf8"/>
+        <stop offset="100%" stop-color="#0284c7"/>
+      </linearGradient>
+      <!-- Gold Star Marker -->
+      <g id="ludoStarSvg">
+        <polygon points="20,7 23.5,15.5 32,16 25.5,21.5 27.5,30 20,25 12.5,30 14.5,21.5 8,16 16.5,15.5" fill="#fbbf24" stroke="#78350f" stroke-width="1.2" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.4))"/>
+      </g>
+    </defs>
+    <!-- Background Board -->
+    <rect width="600" height="600" fill="#0b1329" rx="16"/>
+  `;
+
+  // Draw 4 Large Corner Yards (6x6 cells each)
+  const drawYard = (x, y, colorGrad, innerColor, label) => {
+    return `
+      <rect x="${x * CELL}" y="${y * CELL}" width="${6 * CELL}" height="${6 * CELL}" fill="url(#${colorGrad})" rx="14" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+      <rect x="${(x + 1) * CELL}" y="${(y + 1) * CELL}" width="${4 * CELL}" height="${4 * CELL}" fill="#080e1d" rx="10" stroke="${innerColor}" stroke-width="1.5"/>
+    `;
+  };
+
+  svgHtml += drawYard(0, 0, "ludoGradRed", "#ef4444", "Red");
+  svgHtml += drawYard(9, 0, "ludoGradGreen", "#10b981", "Green");
+  svgHtml += drawYard(0, 9, "ludoGradBlue", "#38bdf8", "Blue");
+  svgHtml += drawYard(9, 9, "ludoGradYellow", "#fbbf24", "Yellow");
+
+  // Draw 52 Path Cells
+  LUDO_TRACK.forEach((pos, idx) => {
+    const cx = pos[0] * CELL;
+    const cy = pos[1] * CELL;
+    let fill = "rgba(15, 23, 42, 0.85)";
+    let stroke = "rgba(255, 255, 255, 0.12)";
+
+    // Color starting squares
+    if (idx === 0) fill = "#ef4444";
+    else if (idx === 13) fill = "#10b981";
+    else if (idx === 26) fill = "#fbbf24";
+    else if (idx === 39) fill = "#38bdf8";
+
+    svgHtml += `<rect x="${cx}" y="${cy}" width="${CELL}" height="${CELL}" fill="${fill}" stroke="${stroke}" stroke-width="1" rx="4"/>`;
+
+    // Add safe star icons
+    if (LUDO_SAFE_TRACK_INDICES.includes(idx)) {
+      svgHtml += `<use href="#ludoStarSvg" x="${cx}" y="${cy}"/>`;
+    }
+  });
+
+  // Draw Home Straights (5 cells per color)
+  const drawHomeStraight = (cells, colorHex) => {
+    let out = "";
+    cells.forEach(pos => {
+      const cx = pos[0] * CELL;
+      const cy = pos[1] * CELL;
+      out += `<rect x="${cx}" y="${cy}" width="${CELL}" height="${CELL}" fill="${colorHex}" stroke="rgba(255,255,255,0.2)" stroke-width="1.2" rx="4"/>`;
+    });
+    return out;
+  };
+
+  svgHtml += drawHomeStraight(LUDO_HOME_PATHS.red, "#ef4444");
+  svgHtml += drawHomeStraight(LUDO_HOME_PATHS.green, "#10b981");
+  svgHtml += drawHomeStraight(LUDO_HOME_PATHS.yellow, "#fbbf24");
+  svgHtml += drawHomeStraight(LUDO_HOME_PATHS.blue, "#38bdf8");
+
+  // Center Home Triangle Zone (6..8, 6..8: 3x3 cells = 120x120px)
+  const cx = 6 * CELL;
+  const cy = 6 * CELL;
+  const midX = 7.5 * CELL;
+  const midY = 7.5 * CELL;
+
+  svgHtml += `
+    <g id="ludoCenterZone">
+      <!-- Red Left Triangle -->
+      <polygon points="${cx},${cy} ${cx},${cy + 3 * CELL} ${midX},${midY}" fill="#ef4444"/>
+      <!-- Green Top Triangle -->
+      <polygon points="${cx},${cy} ${cx + 3 * CELL},${cy} ${midX},${midY}" fill="#10b981"/>
+      <!-- Yellow Right Triangle -->
+      <polygon points="${cx + 3 * CELL},${cy} ${cx + 3 * CELL},${cy + 3 * CELL} ${midX},${midY}" fill="#fbbf24"/>
+      <!-- Blue Bottom Triangle -->
+      <polygon points="${cx},${cy + 3 * CELL} ${cx + 3 * CELL},${cy + 3 * CELL} ${midX},${midY}" fill="#38bdf8"/>
+      <!-- Golden Center Crown -->
+      <circle cx="${midX}" cy="${midY}" r="18" fill="#0f172a" stroke="#fbbf24" stroke-width="2.5"/>
+      <text x="${midX}" y="${midY + 6}" font-size="16" text-anchor="middle" fill="#fbbf24">👑</text>
+    </g>
+  `;
+
+  // Draw Yard Token Pedestals
+  ["red", "green", "yellow", "blue"].forEach(color => {
+    LUDO_YARDS[color].forEach((yPos, tIdx) => {
+      const px = yPos[0] * CELL;
+      const py = yPos[1] * CELL;
+      svgHtml += `<circle cx="${px}" cy="${py}" r="16" fill="rgba(255,255,255,0.06)" stroke="${LUDO_COLORS[color].hex}" stroke-width="1.5" stroke-dasharray="3,3"/>`;
+    });
+  });
+
+  // Draw Tokens
+  svgHtml += renderLudoTokens(CELL);
+
+  svg.innerHTML = svgHtml;
+}
+
+/* --- Render Tokens with Collision Offsets & Selection --- */
+function renderLudoTokens(CELL) {
+  let tokensHtml = "";
+
+  // Group tokens by grid position to calculate gentle offsets when sharing squares
+  const posMap = {};
+
+  ludoState.players.forEach(color => {
+    ludoState.tokens[color].forEach((pos, tokenIdx) => {
+      let coords = null;
+      if (pos === -1) {
+        // In yard
+        const yPos = LUDO_YARDS[color][tokenIdx];
+        coords = { x: yPos[0] * CELL, y: yPos[1] * CELL, isYard: true };
+      } else if (pos >= 0 && pos <= 50) {
+        // On 52-square track
+        const trackIdx = (LUDO_START_OFFSETS[color] + pos) % 52;
+        const gridPos = LUDO_TRACK[trackIdx];
+        coords = { x: (gridPos[0] + 0.5) * CELL, y: (gridPos[1] + 0.5) * CELL, key: `${gridPos[0]},${gridPos[1]}` };
+      } else if (pos >= 51 && pos <= 55) {
+        // In home straight
+        const straightIdx = pos - 51;
+        const gridPos = LUDO_HOME_PATHS[color][straightIdx];
+        coords = { x: (gridPos[0] + 0.5) * CELL, y: (gridPos[1] + 0.5) * CELL, key: `h_${color}_${straightIdx}` };
+      } else if (pos === 56) {
+        // Reached home center!
+        const offsets = {
+          red:    { x: 6.8 * CELL, y: 7.5 * CELL },
+          green:  { x: 7.5 * CELL, y: 6.8 * CELL },
+          yellow: { x: 8.2 * CELL, y: 7.5 * CELL },
+          blue:   { x: 7.5 * CELL, y: 8.2 * CELL }
+        };
+        coords = { x: offsets[color].x, y: offsets[color].y, isHome: true };
+      }
+
+      if (coords) {
+        const k = coords.key || `${coords.x},${coords.y}`;
+        if (!posMap[k]) posMap[k] = [];
+        posMap[k].push({ color, tokenIdx, pos, coords });
+      }
+    });
+  });
+
+  // Calculate legal moves for current turn player
+  const currColor = ludoState.players[ludoState.currentTurn];
+  const legalTokens = (ludoState.mustMove && !ludoState.gameOver) ? getLegalLudoTokens(currColor, ludoState.diceValue) : [];
+
+  Object.values(posMap).forEach(group => {
+    const multi = group.length > 1;
+    group.forEach((item, idxInGroup) => {
+      let offsetX = 0;
+      let offsetY = 0;
+      if (multi && !item.coords.isYard && !item.coords.isHome) {
+        const angle = (idxInGroup / group.length) * 2 * Math.PI;
+        offsetX = Math.cos(angle) * 9;
+        offsetY = Math.sin(angle) * 9;
+      }
+
+      const tx = item.coords.x + offsetX;
+      const ty = item.coords.y + offsetY;
+      const c = LUDO_COLORS[item.color];
+      const isLegal = legalTokens.includes(item.tokenIdx) && item.color === currColor;
+      const isCurrentPlayer = (item.color === currColor);
+      const isHuman = (ludoState.mode === "local" || currColor === ludoState.humanPlayer);
+
+      tokensHtml += `
+        <g class="ludo-token ${isLegal ? "can-move" : ""}"
+           data-color="${item.color}"
+           data-token="${item.tokenIdx}"
+           onclick="handleLudoTokenClick('${item.color}', ${item.tokenIdx})"
+           style="color:${c.hex};">
+          <!-- Token Base Shadow -->
+          <circle cx="${tx}" cy="${ty + 3}" r="13" fill="rgba(0,0,0,0.5)"/>
+          <!-- Token Outer Glowing Rim -->
+          <circle cx="${tx}" cy="${ty}" r="12" fill="${c.hex}" stroke="#ffffff" stroke-width="1.8" filter="drop-shadow(0 0 6px ${c.hex})"/>
+          <!-- Token Inner Acrylic Dome -->
+          <circle cx="${tx}" cy="${ty}" r="7" fill="${c.dark}" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+          <!-- Specular Highlight -->
+          <circle cx="${tx - 3.5}" cy="${ty - 3.5}" r="2.2" fill="#ffffff" opacity="0.8"/>
+        </g>
+      `;
+    });
+  });
+
+  return tokensHtml;
+}
+
+/* --- Move Legality & Engine Rules --- */
+function getLegalLudoTokens(color, diceVal) {
+  const legal = [];
+  const tokens = ludoState.tokens[color];
+
+  tokens.forEach((pos, idx) => {
+    if (pos === -1) {
+      // Token in yard: can only exit if die is 6
+      if (diceVal === 6) legal.push(idx);
+    } else if (pos >= 0 && pos + diceVal <= 56) {
+      // Token on track or home straight: cannot overshoot 56
+      legal.push(idx);
+    }
+  });
+
+  return legal;
+}
+
+/* --- Dice Rolling Logic --- */
+function rollLudoDice() {
+  if (!ludoState.canRoll || ludoState.isRolling || ludoState.gameOver) return;
+
+  const currColor = ludoState.players[ludoState.currentTurn];
+  const isHuman = (ludoState.mode === "local" || currColor === ludoState.humanPlayer);
+
+  ludoState.isRolling = true;
+  ludoState.canRoll = false;
+
+  const diceEl = document.getElementById("ludoDice");
+  if (diceEl) diceEl.classList.add("rolling");
+
+  playLudoDiceSound();
+
+  setTimeout(() => {
+    if (diceEl) diceEl.classList.remove("rolling");
+
+    const val = Math.floor(Math.random() * 6) + 1;
+    ludoState.diceValue = val;
+    ludoState.isRolling = false;
+
+    if (diceEl) diceEl.setAttribute("data-val", String(val));
+
+    if (val === 6) {
+      ludoState.consecutiveSixes++;
+    } else {
+      ludoState.consecutiveSixes = 0;
+    }
+
+    // Three consecutive 6s penalty: skip turn
+    if (ludoState.consecutiveSixes >= 3) {
+      ludoState.consecutiveSixes = 0;
+      updateLudoTurnText(`${LUDO_COLORS[currColor].name} rolled three 6s! Turn skipped.`);
+      setTimeout(advanceLudoTurn, 1000);
+      return;
+    }
+
+    const legal = getLegalLudoTokens(currColor, val);
+
+    if (legal.length === 0) {
+      // No moves possible with this roll
+      updateLudoTurnText(`${LUDO_COLORS[currColor].name} rolled a ${val}. No moves possible!`);
+      renderLudoBoard();
+      setTimeout(advanceLudoTurn, 1100);
+    } else if (legal.length === 1 && !isHuman) {
+      // AI only has 1 legal move: auto move immediately
+      ludoState.mustMove = true;
+      renderLudoBoard();
+      setTimeout(() => { moveLudoToken(currColor, legal[0], val); }, 450);
+    } else if (!isHuman) {
+      // AI has multiple moves: use smart bot heuristic
+      ludoState.mustMove = true;
+      renderLudoBoard();
+      setTimeout(() => {
+        const bestTokenIdx = chooseBestLudoBotMove(currColor, legal, val);
+        moveLudoToken(currColor, bestTokenIdx, val);
+      }, 550);
+    } else {
+      // Human turn: highlight valid tokens for user to click
+      ludoState.mustMove = true;
+      updateLudoTurnText(`You rolled a ${val}! Select a glowing token to move.`);
+      renderLudoBoard();
+    }
+  }, 480);
+}
+
+/* --- Token Movement & Capture Logic --- */
+function moveLudoToken(color, tokenIdx, diceVal) {
+  if (!ludoState.mustMove) return;
+
+  const currentPos = ludoState.tokens[color][tokenIdx];
+  let newPos = currentPos;
+  let bonusTurn = (diceVal === 6);
+
+  if (currentPos === -1) {
+    if (diceVal !== 6) return;
+    newPos = 0; // enter starting square
+  } else {
+    newPos = currentPos + diceVal;
+    if (newPos > 56) return; // cannot overshoot home
+  }
+
+  playLudoStepSound();
+  ludoState.tokens[color][tokenIdx] = newPos;
+  ludoState.mustMove = false;
+
+  // Reached Center Home!
+  if (newPos === 56) {
+    bonusTurn = true; // Extra roll for reaching Home!
+    playLudoWinSound();
+  }
+
+  // Check Captures on the 52 common track squares
+  if (newPos >= 0 && newPos <= 50) {
+    const globalIdx = (LUDO_START_OFFSETS[color] + newPos) % 52;
+    const isSafeSquare = LUDO_SAFE_TRACK_INDICES.includes(globalIdx);
+
+    if (!isSafeSquare) {
+      // Check if any opponent token is on this same global square
+      ludoState.players.forEach(oppColor => {
+        if (oppColor !== color) {
+          ludoState.tokens[oppColor].forEach((oppPos, oppTIdx) => {
+            if (oppPos >= 0 && oppPos <= 50) {
+              const oppGlobalIdx = (LUDO_START_OFFSETS[oppColor] + oppPos) % 52;
+              if (oppGlobalIdx === globalIdx) {
+                // CAPTURE!
+                ludoState.tokens[oppColor][oppTIdx] = -1; // Send back to yard
+                bonusTurn = true; // Award extra turn for capture!
+                playLudoCaptureSound();
+                updateLudoTurnText(`💥 ${LUDO_COLORS[color].name} captured ${LUDO_COLORS[oppColor].name}! Bonus Roll awarded!`);
+              }
+            }
+          });
+        }
+      });
+    }
+  }
+
+  renderLudoBoard();
+
+  // Check if player has finished all 4 tokens
+  checkLudoPlayerWin(color);
+
+  if (ludoState.gameOver) return;
+
+  if (bonusTurn) {
+    ludoState.canRoll = true;
+    updateLudoTurnUI(true);
+    checkAndTriggerLudoBot();
+  } else {
+    advanceLudoTurn();
+  }
+}
+
+/* --- Human Token Click Handler --- */
+function handleLudoTokenClick(color, tokenIdx) {
+  const currColor = ludoState.players[ludoState.currentTurn];
+  const isHuman = (ludoState.mode === "local" || currColor === ludoState.humanPlayer);
+
+  if (!isHuman || !ludoState.mustMove) return;
+  if (color !== currColor) return;
+
+  const legal = getLegalLudoTokens(currColor, ludoState.diceValue);
+  if (!legal.includes(tokenIdx)) return;
+
+  moveLudoToken(currColor, tokenIdx, ludoState.diceValue);
+}
+
+/* --- Turn Advancement --- */
+function advanceLudoTurn() {
+  if (ludoState.gameOver) return;
+
+  ludoState.consecutiveSixes = 0;
+  ludoState.mustMove = false;
+  ludoState.canRoll = true;
+
+  // Move to next player in active players
+  ludoState.currentTurn = (ludoState.currentTurn + 1) % ludoState.players.length;
+
+  updateLudoTurnUI();
+  checkAndTriggerLudoBot();
+}
+
+function updateLudoTurnUI(isBonus = false) {
+  const currColor = ludoState.players[ludoState.currentTurn];
+  const c = LUDO_COLORS[currColor];
+  const isHuman = (ludoState.mode === "local" || currColor === ludoState.humanPlayer);
+
+  const dot = document.getElementById("ludoTurnDot");
+  if (dot) {
+    dot.className = `ludo-turn-dot ${currColor}-dot`;
+  }
+
+  const msg = isBonus ? `${c.name}'s Bonus Roll! 🎲` : (isHuman ? `Your Turn (${c.name}) — Roll Dice!` : `${c.name} (AI Bot) is rolling...`);
+  updateLudoTurnText(msg);
+
+  const diceBox = document.getElementById("ludoDiceBox");
+  if (diceBox) {
+    diceBox.classList.toggle("disabled", !isHuman || !ludoState.canRoll);
+  }
+}
+
+function updateLudoTurnText(text) {
+  const el = document.getElementById("ludoTurnText");
+  if (el) el.textContent = text;
+}
+
+/* --- Smart AI Bot Heuristics --- */
+function chooseBestLudoBotMove(color, legalTokens, diceVal) {
+  let bestToken = legalTokens[0];
+  let maxScore = -9999;
+
+  legalTokens.forEach(tIdx => {
+    const pos = ludoState.tokens[color][tIdx];
+    let score = 0;
+
+    // 1. Move into home!
+    if (pos + diceVal === 56) {
+      score += 2000;
+    }
+    // 2. Capture an opponent!
+    else if (pos >= 0 && pos + diceVal <= 50) {
+      const nextGlobal = (LUDO_START_OFFSETS[color] + pos + diceVal) % 52;
+      const isSafe = LUDO_SAFE_TRACK_INDICES.includes(nextGlobal);
+      if (!isSafe) {
+        ludoState.players.forEach(opp => {
+          if (opp !== color) {
+            ludoState.tokens[opp].forEach(oppPos => {
+              if (oppPos >= 0 && oppPos <= 50) {
+                const oppGlobal = (LUDO_START_OFFSETS[opp] + oppPos) % 52;
+                if (oppGlobal === nextGlobal) score += 1200;
+              }
+            });
+          }
+        });
+      }
+    }
+    // 3. Exit yard when 6 is rolled
+    else if (pos === -1 && diceVal === 6) {
+      score += 800;
+    }
+    // 4. Reach safe star square
+    else if (pos >= 0 && pos + diceVal <= 50) {
+      const nextGlobal = (LUDO_START_OFFSETS[color] + pos + diceVal) % 52;
+      if (LUDO_SAFE_TRACK_INDICES.includes(nextGlobal)) score += 350;
+      score += (pos * 5); // advance tokens closer to home
+    } else {
+      score += (pos * 4);
+    }
+
+    if (score > maxScore) {
+      maxScore = score;
+      bestToken = tIdx;
+    }
+  });
+
+  return bestToken;
+}
+
+function checkAndTriggerLudoBot() {
+  if (ludoState.gameOver) return;
+  const currColor = ludoState.players[ludoState.currentTurn];
+  const isHuman = (ludoState.mode === "local" || currColor === ludoState.humanPlayer);
+
+  if (!isHuman && ludoState.canRoll) {
+    setTimeout(rollLudoDice, 700);
+  }
+}
+
+/* --- Win / Game Over Detection --- */
+function checkLudoPlayerWin(color) {
+  const allHome = ludoState.tokens[color].every(p => p === 56);
+  if (allHome && !ludoState.rankings.includes(color)) {
+    ludoState.rankings.push(color);
+    ludoState.gameOver = true;
+
+    playLudoWinSound();
+
+    const overlay = document.getElementById("ludoWinnerOverlay");
+    const title = document.getElementById("ludoWinTitle");
+    const desc = document.getElementById("ludoWinDesc");
+    const table = document.getElementById("ludoRankingsTable");
+
+    if (overlay && title && desc) {
+      title.textContent = `🏆 ${LUDO_COLORS[color].name} Player Wins!`;
+      desc.textContent = (color === ludoState.humanPlayer)
+        ? "Spectacular Victory! You have conquered the Ludo kingdom!"
+        : `${LUDO_COLORS[color].name} (AI Bot) has triumphed and claimed 1st Place!`;
+
+      if (table) {
+        let rows = "";
+        ludoState.rankings.forEach((rColor, i) => {
+          rows += `<div class="ludo-rank-row" style="border-left: 4px solid ${LUDO_COLORS[rColor].hex}">
+            <span>#${i + 1} ${LUDO_COLORS[rColor].name}</span>
+            <span>All 4 Tokens Home ⭐️</span>
+          </div>`;
+        });
+        table.innerHTML = rows;
+      }
+
+      overlay.classList.remove("hidden");
+      overlay.style.removeProperty("display");
+    }
+  }
+}
+
+/* --- Event Wiring for Ludo --- */
+function initLudoEvents() {
+  const diceBox = document.getElementById("ludoDiceBox");
+  const rollBtn = document.getElementById("ludoRollBtn");
+  const resetBtn = document.getElementById("ludoResetBtn");
+  const rulesBtn = document.getElementById("ludoRulesBtn");
+  const closeRulesBtn = document.getElementById("closeLudoRulesBtn");
+  const playAgainBtn = document.getElementById("ludoPlayAgainBtn");
+  const modePills = document.getElementById("ludoModePills");
+  const playersPills = document.getElementById("ludoPlayersPills");
+
+  const doRoll = () => {
+    const currColor = ludoState.players[ludoState.currentTurn];
+    const isHuman = (ludoState.mode === "local" || currColor === ludoState.humanPlayer);
+    if (isHuman && ludoState.canRoll) {
+      rollLudoDice();
+    }
+  };
+
+  diceBox?.addEventListener("click", doRoll);
+  rollBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    doRoll();
+  });
+
+  resetBtn?.addEventListener("click", () => { initLudo(true); });
+  playAgainBtn?.addEventListener("click", () => { initLudo(true); });
+
+  rulesBtn?.addEventListener("click", () => {
+    const modal = document.getElementById("ludoRulesModal");
+    if (modal) {
+      modal.classList.remove("hidden");
+      modal.style.removeProperty("display");
+    }
+  });
+
+  closeRulesBtn?.addEventListener("click", () => {
+    const modal = document.getElementById("ludoRulesModal");
+    if (modal) modal.classList.add("hidden");
+  });
+
+  // Spacebar to roll dice
+  window.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && hubState.game === "ludo") {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA")) return;
+      e.preventDefault();
+      doRoll();
+    }
+  });
+
+  // Top Match Bar Mode (vs AI vs Pass & Play)
+  modePills?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-ludomode]");
+    if (!btn) return;
+    ludoState.mode = btn.dataset.ludomode;
+    setActive(modePills, "ludomode", ludoState.mode);
+    initLudo(true);
+  });
+
+  // Top Match Bar Players Count (2P, 3P, 4P)
+  playersPills?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-players]");
+    if (!btn) return;
+    ludoState.playerCount = parseInt(btn.dataset.players, 10) || 4;
+    setActive(playersPills, "players", String(ludoState.playerCount));
+    initLudo(true);
+  });
+}
+
