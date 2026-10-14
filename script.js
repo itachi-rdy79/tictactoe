@@ -459,6 +459,17 @@ function applyRandomPalette(target = null) {
     gapOrb.style.boxShadow = `0 0 14px ${chosen.glow}, 0 0 22px ${chosen.brand}`;
   }
 
+  // Immediately update body background so double-clicking immediately transforms the page colors!
+  const currentTheme = hubState?.theme || document.body.getAttribute("data-theme") || "dark";
+  if (currentTheme === "dark") {
+    document.body.style.setProperty("background", chosen.darkBg, "important");
+    document.body.style.setProperty("--bg", chosen.darkBg);
+  } else if (currentTheme === "light" || currentTheme === "white") {
+    document.body.style.setProperty("background", chosen.lightBg, "important");
+    document.body.style.setProperty("--bg", chosen.lightBg);
+  }
+  document.body.style.backgroundAttachment = "fixed";
+
   try {
     localStorage.setItem("gap_palette_idx", currentPaletteIdx);
   } catch {}
@@ -1001,35 +1012,38 @@ function showOnlyActiveGame(gameKey) {
 
 /* ---------- Theme Handling ---------- */
 function themeMeta(theme) {
-  if (theme === "light" || theme === "pearl-rainbow") return {
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="8.5" fill="url(#pearlGrad)" stroke="#cbd5e1" stroke-width="1.5"/><path d="M8 12a4 4 0 0 1 8 0" stroke="#f43f5e" stroke-width="1.5" stroke-linecap="round"/><path d="M9.5 14a2.5 2.5 0 0 1 5 0" stroke="#10b981" stroke-width="1.5" stroke-linecap="round"/><defs><linearGradient id="pearlGrad" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#ffffff"/><stop offset="100%" stop-color="#e0f2fe"/></linearGradient></defs></svg>`,
-    text: "Pearl Rainbow"
-  };
-  if (theme === "itachi" || theme === "crimson-moon") return {
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" color="#ef4444"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>`,
-    text: "Crimson Moon"
-  };
-  if (theme === "naruto" || theme === "sunset-flame") return {
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/><circle cx="12" cy="13" r="2.5" fill="#f97316"/></svg>`,
-    text: "Sunset Flame"
-  };
-  if (theme === "aurora" || theme === "aurora-glass") return {
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke-width="2.2"><path d="M3 15C7 11 11 17 15 13C18 10 20 12 21 11" stroke="#2dd4bf" stroke-linecap="round"/><path d="M3 9C7 5 11 11 15 7C18 4 20 6 21 5" stroke="#c084fc" stroke-linecap="round"/></svg>`,
-    text: "Aurora Glass"
-  };
+  if (theme === "light" || theme === "white" || theme === "pearl-rainbow") {
+    return {
+      icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
+      text: "White"
+    };
+  }
+  if (theme === "itachi" || theme === "crimson-moon") {
+    return {
+      icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" color="#ef4444"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>`,
+      text: "Itachi"
+    };
+  }
+  if (theme === "naruto" || theme === "sunset-flame") {
+    return {
+      icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/><circle cx="12" cy="13" r="2.5" fill="#f97316"/></svg>`,
+      text: "Naruto"
+    };
+  }
   return {
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke="#38bdf8"/><path d="M12 3v18M3 12h18" stroke="#818cf8" stroke-dasharray="2 2"/><circle cx="12" cy="12" r="4" fill="#38bdf8" opacity="0.8"/></svg>`,
-    text: "Ocean Prism"
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
+    text: "Dark"
   };
 }
 
 function setTheme(theme) {
   // Support aliases seamlessly
+  if (theme === "white" || theme === "pearl-rainbow") theme = "light";
   if (theme === "ocean-prism") theme = "dark";
-  if (theme === "pearl-rainbow") theme = "light";
   if (theme === "crimson-moon") theme = "itachi";
   if (theme === "sunset-flame") theme = "naruto";
-  if (theme === "aurora-glass") theme = "aurora";
+  if (theme === "aurora-glass" || theme === "aurora") theme = "dark";
+  if (!["dark", "light", "itachi", "naruto"].includes(theme)) theme = "dark";
 
   hubState.theme = theme;
   if (themeSelect) themeSelect.value = theme;
@@ -1038,15 +1052,29 @@ function setTheme(theme) {
   if (themeCurrentIcon) themeCurrentIcon.innerHTML = m.icon;
   if (themeCurrentText) themeCurrentText.textContent = m.text;
   themeMenu?.querySelectorAll(".theme-item").forEach(b => {
-    b.classList.toggle("active", b.dataset.theme === theme);
+    b.classList.toggle("active", b.dataset.theme === theme || (theme === "light" && b.dataset.theme === "white"));
   });
   const modalPills = document.getElementById("modalThemePills");
   if (modalPills) {
     modalPills.querySelectorAll(".seg-btn").forEach(b => {
-      b.classList.toggle("active", b.dataset.theme === theme);
+      b.classList.toggle("active", b.dataset.theme === theme || (theme === "light" && b.dataset.theme === "white"));
     });
   }
   persistHub();
+
+  // If in dark or white/light theme, apply active dynamic palette background immediately
+  if (typeof currentPaletteIdx !== "undefined" && DYNAMIC_PALETTES[currentPaletteIdx]) {
+    const chosen = DYNAMIC_PALETTES[currentPaletteIdx];
+    if (theme === "dark") {
+      document.body.style.setProperty("background", chosen.darkBg, "important");
+      document.body.style.setProperty("--bg", chosen.darkBg);
+    } else if (theme === "light") {
+      document.body.style.setProperty("background", chosen.lightBg, "important");
+      document.body.style.setProperty("--bg", chosen.lightBg);
+    } else {
+      document.body.style.removeProperty("background");
+    }
+  }
 
   if (hubState.game.startsWith("ttt")) renderTTT();
   if (hubState.game === "chess") {
@@ -1059,7 +1087,14 @@ function setTheme(theme) {
 
 themeTrigger?.addEventListener("click", (e) => {
   e.stopPropagation();
-  themePicker?.classList.toggle("open");
+  const isOpen = themePicker?.classList.contains("open");
+  if (isOpen) {
+    themePicker?.classList.remove("open");
+    themeTrigger?.setAttribute("aria-expanded", "false");
+  } else {
+    themePicker?.classList.add("open");
+    themeTrigger?.setAttribute("aria-expanded", "true");
+  }
 });
 
 themeMenu?.addEventListener("click", (e) => {
@@ -1068,9 +1103,24 @@ themeMenu?.addEventListener("click", (e) => {
   if (!b) return;
   setTheme(b.dataset.theme);
   themePicker?.classList.remove("open");
+  themeTrigger?.setAttribute("aria-expanded", "false");
 });
 
-document.addEventListener("click", () => themePicker?.classList.remove("open"));
+// Robust outside-click closing listener
+document.addEventListener("click", (e) => {
+  if (themePicker && !themePicker.contains(e.target)) {
+    themePicker.classList.remove("open");
+    themeTrigger?.setAttribute("aria-expanded", "false");
+  }
+});
+
+// Close theme dropdown on Escape key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && themePicker?.classList.contains("open")) {
+    themePicker.classList.remove("open");
+    themeTrigger?.setAttribute("aria-expanded", "false");
+  }
+});
 
 /* ---------- Mini-Window (Pop-Out / Floating Mode) ---------- */
 function isMiniWindow() {
@@ -6642,24 +6692,27 @@ function initScenicLandingAndNav() {
     }
   });
 
-  // Double click on GAP / Pill: Changes color AND automatically closes!
-  brand?.addEventListener("dblclick", (e) => {
+  // Double click on GAP / Brand / Logo: Cycles color palette AND auto-collapses pill
+  const handleGapDblClick = (e) => {
     e.stopPropagation();
     if (pillClickTimer) {
       clearTimeout(pillClickTimer);
       pillClickTimer = null;
     }
 
-    // Change color!
+    // Cycle to next vibrant color palette!
     applyRandomPalette();
-    brand.classList.add("brand-click-pulse");
-    setTimeout(() => brand.classList.remove("brand-click-pulse"), 400);
+    brand?.classList.add("brand-click-pulse");
+    setTimeout(() => brand?.classList.remove("brand-click-pulse"), 400);
 
-    // Automatically close after double clicking!
+    // Auto close pill after double clicking
     setTimeout(() => {
       collapsePill();
-    }, 120);
-  });
+    }, 150);
+  };
+
+  brand?.addEventListener("dblclick", handleGapDblClick);
+  document.getElementById("gapLogoText")?.addEventListener("dblclick", handleGapDblClick);
 
   // Clicking anywhere outside the floating pill automatically collapses it
   document.addEventListener("click", (e) => {
@@ -6668,8 +6721,12 @@ function initScenicLandingAndNav() {
     }
   });
 
-  // Keep clicks inside the actions drawer interactive without collapsing
+  // Keep clicks inside the actions drawer interactive without collapsing, but close theme dropdown if clicked outside of it
   document.getElementById("pillActions")?.addEventListener("click", (e) => {
+    if (themePicker && !themePicker.contains(e.target)) {
+      themePicker.classList.remove("open");
+      themeTrigger?.setAttribute("aria-expanded", "false");
+    }
     e.stopPropagation();
   });
 

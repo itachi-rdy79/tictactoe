@@ -6471,53 +6471,45 @@ body.mini-window .ludo-board-wrap {
 
 /* 1. Global Themes: Ocean Prism, Pearl Rainbow, Crimson Moon, Sunset Flame, Aurora Glass */
 
-/* Ocean Prism (Deep Navy with Jewel-Glass Accents) */
+/* Dark Theme (Rich Sea Glass UI with Dynamic Hex Palettes) */
 body[data-theme="dark"],
 body[data-theme="ocean-prism"] {
-  --bg: radial-gradient(circle at 18% 20%, rgba(56, 189, 248, 0.35) 0%, transparent 45%),
-        radial-gradient(circle at 82% 78%, rgba(139, 92, 246, 0.35) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.22) 0%, transparent 60%),
-        radial-gradient(circle at 85% 18%, rgba(244, 63, 94, 0.22) 0%, transparent 40%),
-        #050914;
+  --bg: var(--dyn-bg-dark, #050914);
   --surface: rgba(15, 23, 42, 0.72);
   --surface-border: rgba(56, 189, 248, 0.28);
   --surface-specular: rgba(255, 255, 255, 0.45);
   --text: #f8fafc;
   --muted: #94a3b8;
-  --brand: #38bdf8;
-  --accent: #38bdf8;
-  --x: #38bdf8;
+  --brand: var(--dyn-brand, #38bdf8);
+  --accent: var(--dyn-brand, #38bdf8);
+  --x: var(--dyn-brand, #38bdf8);
   --o: #fbbf24;
 }
 
 body[data-theme="dark"],
 body[data-theme="ocean-prism"] {
-  background: var(--bg) !important;
+  background: var(--dyn-bg-dark, #050914) !important;
   background-attachment: fixed !important;
 }
 
 /* Pearl Rainbow (White Frosted Glass with Pastel-Colored Accents) */
 body[data-theme="light"],
 body[data-theme="pearl-rainbow"] {
-  --bg: radial-gradient(circle at 15% 20%, rgba(254, 205, 211, 0.55) 0%, transparent 45%),
-        radial-gradient(circle at 85% 20%, rgba(186, 230, 253, 0.6) 0%, transparent 45%),
-        radial-gradient(circle at 50% 85%, rgba(167, 243, 208, 0.5) 0%, transparent 50%),
-        radial-gradient(circle at 50% 30%, rgba(254, 240, 138, 0.45) 0%, transparent 55%),
-        #f8fafc;
-  --surface: rgba(255, 255, 255, 0.85);
+  --bg: var(--dyn-bg-light, #f8fafc);
+  --surface: rgba(255, 255, 255, 0.88);
   --surface-border: rgba(15, 23, 42, 0.12);
   --surface-specular: #ffffff;
   --text: #0f172a;
   --muted: #475569;
-  --brand: #0284c7;
-  --accent: #0284c7;
-  --x: #0284c7;
+  --brand: var(--dyn-brand, #0284c7);
+  --accent: var(--dyn-brand, #0284c7);
+  --x: var(--dyn-brand, #0284c7);
   --o: #ea580c;
 }
 
 body[data-theme="light"],
 body[data-theme="pearl-rainbow"] {
-  background: var(--bg) !important;
+  background: var(--dyn-bg-light, #f8fafc) !important;
   background-attachment: fixed !important;
 }
 
@@ -6609,14 +6601,22 @@ body[data-theme="aurora-glass"] {
   background-attachment: fixed !important;
 }
 
-/* 2. Theme Picker Menu Items Styling */
+/* 2. Theme Picker Menu Items Styling (Hidden by default, shown on .theme-picker.open) */
 .theme-menu {
-  display: flex !important;
+  display: none !important;
   flex-direction: column !important;
   gap: 4px !important;
   padding: 8px !important;
-  min-width: 190px !important;
+  min-width: 175px !important;
   border-radius: 18px !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: calc(100% + 8px) !important;
+  z-index: 99999 !important;
+}
+
+.theme-picker.open .theme-menu {
+  display: flex !important;
 }
 
 .theme-item {
@@ -6655,11 +6655,14 @@ body[data-theme="aurora-glass"] {
   box-shadow: 0 0 8px currentColor !important;
 }
 
+.dot-dark { background: #38bdf8 !important; color: #38bdf8 !important; }
+.dot-white { background: #ffffff !important; border: 1.5px solid #94a3b8 !important; color: #ffffff !important; box-shadow: 0 0 8px rgba(255,255,255,0.8) !important; }
+.dot-itachi { background: #ef4444 !important; color: #ef4444 !important; }
+.dot-naruto { background: #f97316 !important; color: #f97316 !important; }
 .dot-ocean { background: #38bdf8 !important; color: #38bdf8 !important; }
-.dot-pearl { background: linear-gradient(135deg, #f472b6, #38bdf8, #10b981) !important; color: #38bdf8 !important; }
+.dot-pearl { background: #ffffff !important; color: #ffffff !important; }
 .dot-crimson { background: #ef4444 !important; color: #ef4444 !important; }
 .dot-sunset { background: #f97316 !important; color: #f97316 !important; }
-.dot-aurora { background: #2dd4bf !important; color: #2dd4bf !important; }
 
 .theme-item-label {
   display: flex !important;
@@ -7185,3 +7188,7 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
   -webkit-text-fill-color: transparent !important;
   filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.7)) !important;
 }
+
+
+/* Clean Hero Elements */
+.hero-chip, .hero-features { display: none !important; }

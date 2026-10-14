@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GAP - Classic Games Beautifully Reimagined</title>
+  <title>GAP</title>
   <!-- Konoha Leaf Glow Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffb703'/%3E%3Cstop offset='50%25' stop-color='%23fb8500'/%3E%3Cstop offset='100%25' stop-color='%23d00000'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='%23050002'/%3E%3Cpath d='M 86 26 L 76 33 C 65 26 44 26 31 43 L 18 68 L 62 68 C 76 68 83 55 80 43 C 77 31 63 25 49 28 C 35 32 30 46 34 58 C 39 68 53 71 64 67 C 72 62 74 51 68 44 C 62 37 51 40 47 48 C 45 54 49 60 55 58 C 59 56 60 52 58 49' fill='none' stroke='url(%23g)' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
   <!-- Google Fonts Outfit & Inter -->
@@ -62,39 +62,32 @@
             <svg class="theme-chevron" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="theme-menu glass-panel" id="themeMenu">
-            <button class="theme-item active" data-theme="dark" type="button" title="Ocean Prism (Deep navy with jewel-glass accents)">
-              <span class="theme-dot dot-ocean"></span>
+            <button class="theme-item active" data-theme="dark" type="button" title="Dark Theme">
+              <span class="theme-dot dot-dark"></span>
               <span class="theme-item-label">
-                <span class="theme-name">Ocean Prism</span>
-                <span class="theme-sub">Navy & Jewel</span>
+                <span class="theme-name">Dark</span>
+                <span class="theme-sub">Rich Sea Glass</span>
               </span>
             </button>
-            <button class="theme-item" data-theme="light" type="button" title="Pearl Rainbow (White frosted glass with pastel accents)">
-              <span class="theme-dot dot-pearl"></span>
+            <button class="theme-item" data-theme="light" type="button" title="White Theme">
+              <span class="theme-dot dot-white"></span>
               <span class="theme-item-label">
-                <span class="theme-name">Pearl Rainbow</span>
-                <span class="theme-sub">Frosted Pastel</span>
+                <span class="theme-name">White</span>
+                <span class="theme-sub">Frosted Sea Glass</span>
               </span>
             </button>
-            <button class="theme-item" data-theme="itachi" type="button" title="Crimson Moon (Ruby & crimson glass inspired by Itachi)">
-              <span class="theme-dot dot-crimson"></span>
+            <button class="theme-item" data-theme="itachi" type="button" title="Itachi Theme">
+              <span class="theme-dot dot-itachi"></span>
               <span class="theme-item-label">
-                <span class="theme-name">Crimson Moon</span>
-                <span class="theme-sub">Ruby Velvet</span>
+                <span class="theme-name">Itachi</span>
+                <span class="theme-sub">Crimson Glass</span>
               </span>
             </button>
-            <button class="theme-item" data-theme="naruto" type="button" title="Sunset Flame (Gold, orange & cyan glass inspired by Naruto)">
-              <span class="theme-dot dot-sunset"></span>
+            <button class="theme-item" data-theme="naruto" type="button" title="Naruto Theme">
+              <span class="theme-dot dot-naruto"></span>
               <span class="theme-item-label">
-                <span class="theme-name">Sunset Flame</span>
-                <span class="theme-sub">Amber & Cyan</span>
-              </span>
-            </button>
-            <button class="theme-item" data-theme="aurora" type="button" title="Aurora Glass (Emerald, teal, violet & pink glass)">
-              <span class="theme-dot dot-aurora"></span>
-              <span class="theme-item-label">
-                <span class="theme-name">Aurora Glass</span>
-                <span class="theme-sub">Emerald & Violet</span>
+                <span class="theme-name">Naruto</span>
+                <span class="theme-sub">Sunset Glass</span>
               </span>
             </button>
           </div>
@@ -128,10 +121,6 @@
         <!-- Hero Section -->
     <section class="hero-section" id="heroSection">
       <div class="hero-content">
-        <div class="hero-chip">
-          <span class="hero-chip-sparkle">✨</span>
-          <span>Vibrant Sea Glass Arcade</span>
-        </div>
         <h1 class="hero-title">
           Classic Games.<br />
           <span class="hero-title-accent">Beautifully Reimagined.</span>
@@ -139,26 +128,6 @@
         <p class="hero-subtitle">
           Experience timeless classics rendered in luminous, handcrafted sea glass with offline play and adaptive AI.
         </p>
-
-        <!-- 4 Translucent Feature Indicators -->
-        <div class="hero-features" id="heroFeatures">
-          <div class="feature-badge glass-panel feat-badge-games" id="featBadgeGames" role="button" tabindex="0" title="Explore all 9 games">
-            <span class="feat-icon">🎮</span>
-            <span class="feat-text">9 Glass Games</span>
-          </div>
-          <div class="feature-badge glass-panel feat-badge-opponent" id="featBadgeOpponent" role="button" tabindex="0" title="Toggle AI or Local 2-Player">
-            <span class="feat-icon">⚔️</span>
-            <span class="feat-text" id="featOpponentText">Play Local or AI</span>
-          </div>
-          <div class="feature-badge glass-panel feat-badge-stats" id="featBadgeStats" role="button" tabindex="0" title="View Live Statistics">
-            <span class="feat-icon">📊</span>
-            <span class="feat-text">Live Stats</span>
-          </div>
-          <div class="feature-badge glass-panel feat-badge-themes" id="featBadgeThemes" role="button" tabindex="0" title="Cycle Sea Glass Themes">
-            <span class="feat-icon">✨</span>
-            <span class="feat-text">5 Sea Glass Themes</span>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -1194,11 +1163,10 @@
         <div class="settings-row">
           <label class="settings-label">Visual Theme</label>
           <div class="seg seg-theme-picker" id="modalThemePills">
-            <button class="seg-btn active" data-theme="dark" type="button">Ocean Prism</button>
-            <button class="seg-btn" data-theme="light" type="button">Pearl Rainbow</button>
-            <button class="seg-btn" data-theme="itachi" type="button">Crimson Moon</button>
-            <button class="seg-btn" data-theme="naruto" type="button">Sunset Flame</button>
-            <button class="seg-btn" data-theme="aurora" type="button">Aurora Glass</button>
+            <button class="seg-btn active" data-theme="dark" type="button">Dark</button>
+            <button class="seg-btn" data-theme="light" type="button">White</button>
+            <button class="seg-btn" data-theme="itachi" type="button">Itachi</button>
+            <button class="seg-btn" data-theme="naruto" type="button">Naruto</button>
           </div>
         </div>
       </div>
