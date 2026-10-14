@@ -93,6 +93,70 @@ a.follow svg{width:.85em;height:.85em;flex:none}
 a.follow:active{transform:translate(1px,1px)}
 #sheetBar>a.follow{margin-left:auto}
 #sheetInner{padding-bottom:12px}
+
+  /* Responsive Fullscreen & Theme Adaptations */
+  body[data-theme="dark"] {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+  }
+  body[data-theme="dark"] #hud {
+    color: #f1f5f9 !important;
+  }
+  body[data-theme="dark"] #hud b {
+    color: #f87171 !important;
+  }
+  body[data-theme="dark"] canvas {
+    border: 2px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
+  }
+  body[data-theme="dark"] #card {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+    border-color: #f87171 !important;
+    box-shadow: 5px 6px 0 rgba(0, 0, 0, 0.5) !important;
+  }
+  body[data-theme="dark"] button,
+  body[data-theme="dark"] .btn {
+    border-color: #94a3b8 !important;
+    color: #f1f5f9 !important;
+  }
+  body[data-theme="dark"] button.primary {
+    background: #ef4444 !important;
+    border-color: #ef4444 !important;
+    color: #ffffff !important;
+  }
+
+  body[data-theme="light"] {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+  }
+  body[data-theme="light"] #hud {
+    color: #0f172a !important;
+  }
+  body[data-theme="light"] #hud b {
+    color: #dc2626 !important;
+  }
+  body[data-theme="light"] canvas {
+    border: 2px solid #cbd5e1 !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1) !important;
+  }
+  body[data-theme="light"] #card {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #1e293b !important;
+    box-shadow: 5px 6px 0 rgba(0, 0, 0, 0.15) !important;
+  }
+  body[data-theme="light"] button,
+  body[data-theme="light"] .btn {
+    border-color: #334155 !important;
+    color: #0f172a !important;
+  }
+  body[data-theme="light"] button.primary {
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: #ffffff !important;
+  }
+
 </style>
 
 <style>
@@ -171,7 +235,7 @@ a.follow:active{transform:translate(1px,1px)}
 </head>
 <body>
 
-  <!-- GAP Floating Fullscreen & Back Bar -->
+    <!-- GAP Floating Fullscreen & Theme Bar -->
   <div id="gapPassitonNav" style="
     position: fixed;
     top: 12px;
@@ -180,17 +244,15 @@ a.follow:active{transform:translate(1px,1px)}
     z-index: 999999;
     display: inline-flex;
     align-items: center;
-    gap: 12px;
-    background: rgba(18, 24, 38, 0.85);
+    gap: 10px;
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 9999px;
     padding: 6px 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     user-select: none;
     -webkit-user-select: none;
+    transition: all 0.25s ease;
   ">
     <a href="../" id="gapBackBtn" style="
       display: inline-flex;
@@ -206,13 +268,12 @@ a.follow:active{transform:translate(1px,1px)}
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       GAP Hub
     </a>
-    <span style="width: 1px; height: 14px; background: rgba(255, 255, 255, 0.25);"></span>
-    <span style="font-size: 13px; font-weight: 800; color: #f1f5f9; letter-spacing: 0.04em;">Pass It On</span>
-    <span style="width: 1px; height: 14px; background: rgba(255, 255, 255, 0.25);"></span>
-    <button id="gapFsBtn" type="button" style="
+    <span class="gap-nav-divider" style="width: 1px; height: 14px; background: rgba(255, 255, 255, 0.22);"></span>
+    <span id="gapPassitonTitle" style="font-size: 13px; font-weight: 800; letter-spacing: 0.04em;">Pass It On</span>
+    <span class="gap-nav-divider" style="width: 1px; height: 14px; background: rgba(255, 255, 255, 0.22);"></span>
+    <button id="gapThemeBtn" type="button" style="
       background: transparent;
       border: none;
-      color: rgba(255, 255, 255, 0.85);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -221,7 +282,23 @@ a.follow:active{transform:translate(1px,1px)}
       font-weight: 600;
       padding: 0;
       transition: color 0.2s ease;
-    " onmouseover="this.style.color='#ffffff';" onmouseout="this.style.color='rgba(255, 255, 255, 0.85)';">
+    ">
+      <span id="gapThemeIcon">🌙</span>
+      <span id="gapThemeText">Dark</span>
+    </button>
+    <span class="gap-nav-divider" style="width: 1px; height: 14px; background: rgba(255, 255, 255, 0.22);"></span>
+    <button id="gapFsBtn" type="button" style="
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 0;
+      transition: color 0.2s ease;
+    ">
       <svg id="gapFsIcon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
       <span id="gapFsText">Fullscreen</span>
     </button>
@@ -229,28 +306,87 @@ a.follow:active{transform:translate(1px,1px)}
 
   <script>
     (function() {
-      const fsBtn = document.getElementById('gapFsBtn');
-      const fsText = document.getElementById('gapFsText');
+      function getSavedTheme() {
+        try {
+          var hub = JSON.parse(localStorage.getItem('hubState') || '{}');
+          if (hub.theme === 'light' || hub.theme === 'dark') return hub.theme;
+        } catch(e) {}
+        var direct = localStorage.getItem('gap_theme');
+        if (direct === 'light' || direct === 'dark') return direct;
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      }
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        document.body.setAttribute('data-theme', theme);
+        var nav = document.getElementById('gapPassitonNav');
+        var iconEl = document.getElementById('gapThemeIcon');
+        var textEl = document.getElementById('gapThemeText');
+        var themeBtn = document.getElementById('gapThemeBtn');
+        var fsBtn = document.getElementById('gapFsBtn');
+        var titleEl = document.getElementById('gapPassitonTitle');
+        var dividers = document.querySelectorAll('.gap-nav-divider');
+
+        if (theme === 'dark') {
+          if (nav) {
+            nav.style.background = 'rgba(15, 23, 42, 0.88)';
+            nav.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+            nav.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
+          }
+          if (titleEl) titleEl.style.color = '#f1f5f9';
+          if (themeBtn) themeBtn.style.color = 'rgba(255, 255, 255, 0.85)';
+          if (fsBtn) fsBtn.style.color = 'rgba(255, 255, 255, 0.85)';
+          if (iconEl) iconEl.textContent = '🌙';
+          if (textEl) textEl.textContent = 'Dark';
+          dividers.forEach(function(d){ d.style.background = 'rgba(255, 255, 255, 0.22)'; });
+        } else {
+          if (nav) {
+            nav.style.background = 'rgba(255, 255, 255, 0.92)';
+            nav.style.border = '1px solid rgba(0, 0, 0, 0.12)';
+            nav.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.08)';
+          }
+          if (titleEl) titleEl.style.color = '#0f172a';
+          if (themeBtn) themeBtn.style.color = '#334155';
+          if (fsBtn) fsBtn.style.color = '#334155';
+          if (iconEl) iconEl.textContent = '☀️';
+          if (textEl) textEl.textContent = 'White';
+          dividers.forEach(function(d){ d.style.background = 'rgba(0, 0, 0, 0.15)'; });
+        }
+      }
+
+      var currentTheme = getSavedTheme();
+      applyTheme(currentTheme);
+
+      var themeBtn = document.getElementById('gapThemeBtn');
+      if (themeBtn) {
+        themeBtn.addEventListener('click', function() {
+          currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+          applyTheme(currentTheme);
+          try {
+            var hub = JSON.parse(localStorage.getItem('hubState') || '{}');
+            hub.theme = currentTheme;
+            localStorage.setItem('hubState', JSON.stringify(hub));
+          } catch(e) {}
+          localStorage.setItem('gap_theme', currentTheme);
+        });
+      }
+
+      var fsBtn = document.getElementById('gapFsBtn');
+      var fsText = document.getElementById('gapFsText');
       if (fsBtn) {
         fsBtn.addEventListener('click', function() {
           if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(() => {});
+            document.documentElement.requestFullscreen().catch(function(){});
           } else {
-            document.exitFullscreen().catch(() => {});
+            document.exitFullscreen().catch(function(){});
           }
         });
         document.addEventListener('fullscreenchange', function() {
-          if (document.fullscreenElement) {
-            fsText.textContent = 'Exit';
-          } else {
-            fsText.textContent = 'Fullscreen';
-          }
+          if (fsText) fsText.textContent = document.fullscreenElement ? 'Exit' : 'Fullscreen';
         });
       }
     })();
-  </script>
-
-<div id="hud" aria-live="polite">
+  </script><div id="hud" aria-live="polite">
   <span>Level <b id="hLevel">1</b></span>
   <span>Villagers <b id="hVill">6</b></span>
   <span>Passes <b id="hPass">0</b></span>

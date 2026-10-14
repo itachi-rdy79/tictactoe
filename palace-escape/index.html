@@ -45,8 +45,90 @@
     <link rel="modulepreload" href="js/walk.js" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/v1x.css" />
+    <link rel="stylesheet" href="css/theme-adapter.css" />
   </head>
   <body>
+    <!-- Floating GAP Navigation & Theme Bar -->
+    <div id="gapPalaceNav" class="gap-game-nav">
+      <a href="../" id="gapBackBtn" class="gap-nav-btn gap-hub-link" title="Return to GAP Hub">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        GAP Hub
+      </a>
+      <span class="gap-nav-divider"></span>
+      <span class="gap-nav-title">Palace Escape</span>
+      <span class="gap-nav-divider"></span>
+      <button id="gapThemeBtn" class="gap-nav-btn" type="button" title="Toggle Dark / White Theme">
+        <span id="gapThemeIcon">🌙</span>
+        <span id="gapThemeText">Dark</span>
+      </button>
+      <span class="gap-nav-divider"></span>
+      <button id="gapFsBtn" class="gap-nav-btn" type="button" title="Toggle Fullscreen">
+        <svg id="gapFsIcon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        <span id="gapFsText">Fullscreen</span>
+      </button>
+    </div>
+
+    <script>
+      (function() {
+        function getSavedTheme() {
+          try {
+            var hub = JSON.parse(localStorage.getItem('hubState') || '{}');
+            if (hub.theme === 'light' || hub.theme === 'dark') return hub.theme;
+          } catch(e) {}
+          var direct = localStorage.getItem('gap_theme');
+          if (direct === 'light' || direct === 'dark') return direct;
+          return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+        }
+
+        function applyTheme(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          document.body.setAttribute('data-theme', theme);
+          var iconEl = document.getElementById('gapThemeIcon');
+          var textEl = document.getElementById('gapThemeText');
+          if (iconEl && textEl) {
+            if (theme === 'dark') {
+              iconEl.textContent = '🌙';
+              textEl.textContent = 'Dark';
+            } else {
+              iconEl.textContent = '☀️';
+              textEl.textContent = 'White';
+            }
+          }
+        }
+
+        var currentTheme = getSavedTheme();
+        applyTheme(currentTheme);
+
+        var themeBtn = document.getElementById('gapThemeBtn');
+        if (themeBtn) {
+          themeBtn.addEventListener('click', function() {
+            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            try {
+              var hub = JSON.parse(localStorage.getItem('hubState') || '{}');
+              hub.theme = currentTheme;
+              localStorage.setItem('hubState', JSON.stringify(hub));
+            } catch(e) {}
+            localStorage.setItem('gap_theme', currentTheme);
+          });
+        }
+
+        var fsBtn = document.getElementById('gapFsBtn');
+        var fsText = document.getElementById('gapFsText');
+        if (fsBtn) {
+          fsBtn.addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+              document.documentElement.requestFullscreen().catch(function(){});
+            } else {
+              document.exitFullscreen().catch(function(){});
+            }
+          });
+          document.addEventListener('fullscreenchange', function() {
+            if (fsText) fsText.textContent = document.fullscreenElement ? 'Exit' : 'Fullscreen';
+          });
+        }
+      })();
+    </script>
     <div id="app">
       <header id="hud" class="hidden">
         <div class="hud-left">
