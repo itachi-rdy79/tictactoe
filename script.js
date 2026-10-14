@@ -440,9 +440,23 @@ function applyRandomPalette(target = null) {
   root.style.setProperty("--dyn-bg-dark", chosen.darkBg);
   root.style.setProperty("--dyn-bg-light", chosen.lightBg);
 
-  const brandEl = document.querySelector(".brand, .dock-brand, #arcadeDock .dock-brand");
-  if (brandEl) {
-    brandEl.title = `GAP • Hex: ${chosen.name} (Click to cycle colors)`;
+  const brandEls = document.querySelectorAll(".brand, .dock-brand, #arcadeDock .dock-brand, #gapBrand, .nav-brand");
+  brandEls.forEach(el => {
+    el.title = `GAP • Palette: ${chosen.name} (Click to refresh colors)`;
+  });
+
+  const gapText = document.getElementById("gapLogoText") || document.querySelector(".nav-brand .logo-text");
+  if (gapText) {
+    gapText.style.background = `linear-gradient(135deg, ${chosen.brand} 0%, ${chosen.flame} 50%, #ffffff 100%)`;
+    gapText.style.webkitBackgroundClip = "text";
+    gapText.style.webkitTextFillColor = "transparent";
+    gapText.style.filter = `drop-shadow(0 0 16px ${chosen.glow})`;
+  }
+
+  const gapOrb = document.getElementById("gapOrb") || document.querySelector(".nav-sea-orb");
+  if (gapOrb) {
+    gapOrb.style.background = `radial-gradient(circle at 35% 35%, #ffffff 0%, ${chosen.brand} 45%, ${chosen.flame} 100%)`;
+    gapOrb.style.boxShadow = `0 0 14px ${chosen.glow}, 0 0 22px ${chosen.brand}`;
   }
 
   try {
@@ -452,15 +466,17 @@ function applyRandomPalette(target = null) {
 applyRandomPalette(currentPaletteIdx);
 
 document.addEventListener("DOMContentLoaded", () => {
-  const brandEl = document.querySelector(".brand, .dock-brand, #arcadeDock .dock-brand");
-  if (brandEl) {
-    brandEl.style.cursor = "pointer";
+  const brandEls = document.querySelectorAll(".brand, .dock-brand, #arcadeDock .dock-brand, #gapBrand, .nav-brand");
+  brandEls.forEach(el => {
+    el.style.cursor = "pointer";
     const chosen = DYNAMIC_PALETTES[currentPaletteIdx];
-    brandEl.title = `GAP • Hex: ${chosen.name} (Click to cycle colors)`;
-    brandEl.addEventListener("click", () => {
+    el.title = `GAP • Palette: ${chosen.name} (Click to refresh colors)`;
+    el.addEventListener("click", () => {
       applyRandomPalette();
+      el.classList.add("brand-click-pulse");
+      setTimeout(() => el.classList.remove("brand-click-pulse"), 400);
     });
-  }
+  });
 });
 
 
@@ -6295,12 +6311,14 @@ function initScenicLandingAndNav() {
 
   // 4. Header Brand Logo
   brand?.addEventListener("click", () => {
+    applyRandomPalette();
+    brand.classList.add("brand-click-pulse");
+    setTimeout(() => brand.classList.remove("brand-click-pulse"), 400);
+
     const landing = document.getElementById("landingView");
     if (landing && landing.classList.contains("hidden")) {
       showLandingView();
       location.hash = "#/";
-    } else {
-      applyRandomPalette();
     }
   });
 
