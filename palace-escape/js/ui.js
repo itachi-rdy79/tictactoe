@@ -51,15 +51,6 @@ export class UIManager {
 
   /** The quiet "follow the makers" row that sits under the buttons on the caught and level-complete cards. */
   buildFollow() {}
-  setFollow(show) {
-    clearTimeout(this.followTimer);
-    document.querySelectorAll("[data-follow]").forEach((box) => {
-      box.classList.toggle("hidden", !show);
-      box.classList.remove("armed");
-    });
-    if (show) this.followTimer = setTimeout(() => document.querySelectorAll("[data-follow]").forEach((box) => box.classList.add("armed")), 800);
-  }
-
   /** Fills every [data-icon] hook with its line icon (so the HTML carries no emoji). */
   bindIcons(root = document) {
     root.querySelectorAll("[data-icon]").forEach((el) => {

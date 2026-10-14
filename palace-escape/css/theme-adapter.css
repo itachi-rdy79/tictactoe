@@ -705,3 +705,59 @@ body[data-theme="light"] .legend-item b {
 #hud {
   margin-top: 48px !important;
 }
+
+
+/* =========================================================================
+   GAP THEME MATCH: REMOVE FOLLOW LINKS & FIX BUTTON OUTLINES
+   ========================================================================= */
+
+/* Completely hide all "FOLLOW THE MAKERS" rows and external hyperlinks */
+.follow,
+[data-follow],
+.follow-caption,
+.follow-links,
+.follow-link {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Fix focus outlines so buttons NEVER show clashing cyan/blue outlines! */
+.btn:focus,
+.btn:focus-visible,
+.link:focus,
+.link:focus-visible,
+.icon-btn:focus,
+.icon-btn:focus-visible,
+button:focus,
+button:focus-visible {
+  outline: 2.5px solid #fbbf24 !important; /* Royal warm gold matching palace theme */
+  outline-offset: 2px !important;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.6) !important;
+}
+
+/* Primary Level Complete & Action Buttons matching palace theme */
+body[data-theme="dark"] .btn.primary,
+body[data-theme="dark"] button.primary,
+.btn.primary,
+#btn-next-level,
+#btn-caught-retry {
+  border: 2px solid #fbbf24 !important;
+  outline: none !important;
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%) !important;
+  box-shadow: 0 5px 0 #92400e, 0 8px 24px rgba(245, 158, 11, 0.45) !important;
+}
+
+body[data-theme="dark"] .btn.primary:focus-visible,
+body[data-theme="dark"] button.primary:focus-visible,
+.btn.primary:focus-visible {
+  outline: 2px solid #fbbf24 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 5px 0 #92400e, 0 0 20px rgba(251, 191, 36, 0.75) !important;
+}
