@@ -625,8 +625,11 @@ function loadHub() {
 
 function syncHud() {
   const isTTT = hubState.game.startsWith("ttt");
+  const isChess = hubState.game === "chess";
+  const isSequence = hubState.game === "sequence";
   const isWordle = hubState.game === "wordle";
   const isPattu = hubState.game === "pattu";
+  const isPoker = hubState.game === "poker";
   const isSolo = isWordle || isPattu;
   if (isSolo) hubState.opponent = "local";
 
@@ -639,6 +642,10 @@ function syncHud() {
   if (difficultySelect && hubState.difficulty) difficultySelect.value = hubState.difficulty;
   if (modeSelect) modeSelect.value = modeFromHub();
 
+  // Keep active game header badge in perfect sync with current game
+  const activeBadge = document.getElementById("activeGameBadge");
+  if (activeBadge) activeBadge.textContent = getGameDisplayName(hubState.game);
+
   if (tttModeGroup) {
     if (isTTT) {
       tttModeGroup.style.display = "flex";
@@ -648,19 +655,20 @@ function syncHud() {
     }
   }
 
-  // Match Bar Optimization: Keep header clean and game-appropriate!
-  // Only show Opponent selector for games supporting 2P vs AI (Tic-Tac-Toe & Chess)
+  // Match Bar Optimization: Show Opponent selector for games supporting 2P vs AI (TTT, Chess, Sequence & Poker)
+  const supportsOpponent = isTTT || isChess || isSequence || isPoker;
   if (opponentGroup) {
-    if (isTTT || isChess) {
+    if (supportsOpponent) {
       opponentGroup.style.display = "flex";
     } else {
       opponentGroup.style.setProperty("display", "none", "important");
     }
   }
 
-  // Only show Difficulty selector for Tic-Tac-Toe & Chess when vs AI is active
+  // Only show Difficulty selector for AI-supporting games when vs AI is active
+  const supportsAi = isTTT || isChess || isSequence || isPoker;
   if (difficultyGroup) {
-    if (isTTT || isChess) {
+    if (supportsAi) {
       difficultyGroup.style.display = "flex";
       difficultyGroup.classList.toggle("disabled", hubState.opponent !== "ai");
     } else {
@@ -1496,6 +1504,7 @@ function renderTTT() {
   showOnlyActiveGame("ttt" + tttSize);
 
   if (!tttBoardEl) return;
+  tttBoardEl.classList.toggle("grid-5x5", tttSize === 5);
   tttBoardEl.innerHTML = "";
   tttBoardEl.style.gridTemplateColumns = `repeat(${tttSize}, 1fr)`;
   tttBoardEl.style.gridTemplateRows = `repeat(${tttSize}, 1fr)`;
@@ -5972,21 +5981,26 @@ gameTypePills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-game]");
   if (!btn) return;
   const targetGame = btn.dataset.game;
-    if (targetGame === "palace") {
-      window.location.href = "palace-escape/";
-      return;
-    }
+  if (targetGame === "palace") {
+    window.location.href = "palace-escape/";
+    return;
+  }
+  if (targetGame === "passiton" || targetGame === "pass-it-on") {
+    window.location.href = "pass-it-on/";
+    return;
+  }
   if (targetGame === "ttt") {
-    if (!hubState.game.startsWith("ttt")) {
-      hubState.game = hubState.lastTttMode || "ttt3";
-    }
+    hubState.game = hubState.lastTttMode || "ttt3";
   } else {
     hubState.game = targetGame;
   }
+  if (hubState.game.startsWith("ttt")) hubState.lastTttMode = hubState.game;
   modeSelect.value = modeFromHub();
   syncHud();
   persistHub();
   initBoard(true);
+  showGameView(hubState.game);
+  location.hash = "#/" + hubState.game;
 });
 
 tttModePills?.addEventListener("click", (e) => {
@@ -6000,6 +6014,8 @@ tttModePills?.addEventListener("click", (e) => {
   syncHud();
   persistHub();
   initBoard(true);
+  showGameView(targetGame);
+  location.hash = "#/" + targetGame;
 });
 
 opponentPills?.addEventListener("click", (e) => {
@@ -6244,6 +6260,7 @@ function showLandingView() {
   }
   if (gameView) {
     gameView.classList.add("hidden");
+    gameView.style.setProperty("display", "none", "important");
   }
   if (playBtn) playBtn.classList.add("active");
   try {
@@ -6258,13 +6275,15 @@ function showGameView(gameKey) {
   const badge = document.getElementById("activeGameBadge");
   if (landing) {
     landing.classList.add("hidden");
+    landing.style.setProperty("display", "none", "important");
   }
   if (gameView) {
     gameView.classList.remove("hidden");
     gameView.style.removeProperty("display");
   }
   if (playBtn) playBtn.classList.remove("active");
-  if (badge) badge.textContent = getGameDisplayName(gameKey || hubState.game);
+  const targetKey = gameKey || hubState.game;
+  if (badge) badge.textContent = getGameDisplayName(targetKey);
   try {
     sessionStorage.setItem("gap_view_mode", "game");
   } catch {}
@@ -6283,21 +6302,46 @@ function initScenicLandingAndNav() {
   const closeSettingsBtn = document.getElementById("closeSettingsBtn");
   const closeSettingsXBtn = document.getElementById("closeSettingsXBtn");
 
-  // Determine starting view based on URL hash
-  const rawHash = location.hash || "";
-  const hasGameHash = rawHash.startsWith("#/") && rawHash.length > 2 && rawHash !== "#/" && rawHash !== "#/hub";
+  // Hash routing handler with support for direct links and back/forward navigation
+  function handleRoute() {
+    const rawHash = location.hash || "";
+    const hasGameHash = rawHash.startsWith("#/") && rawHash.length > 2 && rawHash !== "#/" && rawHash !== "#/hub";
 
-  if (hasGameHash) {
-    showGameView(hubState.game);
-  } else {
-    showLandingView();
+    if (hasGameHash) {
+      const routeGame = rawHash.slice(2).split("?")[0].trim();
+      if (routeGame === "palace") {
+        window.location.href = "palace-escape/";
+        return;
+      }
+      if (routeGame === "passiton" || routeGame === "pass-it-on") {
+        window.location.href = "pass-it-on/";
+        return;
+      }
+      const validGames = ["ttt3", "ttt5", "ttt", "chess", "sequence", "wordle", "poker", "pattu"];
+      if (validGames.includes(routeGame)) {
+        const actualGame = routeGame === "ttt" ? (hubState.lastTttMode || "ttt3") : routeGame;
+        hubState.game = actualGame;
+        if (actualGame.startsWith("ttt")) hubState.lastTttMode = actualGame;
+        if (modeSelect) modeSelect.value = modeFromHub();
+        syncHud();
+        initBoard(false);
+        showGameView(actualGame);
+        return;
+      }
+      showGameView(hubState.game);
+    } else {
+      showLandingView();
+    }
   }
+
+  handleRoute();
+  window.addEventListener("hashchange", handleRoute);
 
   // 1. Game Selection Cards
   cardGrid?.addEventListener("click", (e) => {
     const card = e.target.closest("[data-game]");
     if (!card) return;
-    const targetGame = card.dataset.game;
+    let targetGame = card.dataset.game;
     if (targetGame === "palace") {
       window.location.href = "palace-escape/";
       return;
@@ -6305,6 +6349,9 @@ function initScenicLandingAndNav() {
     if (targetGame === "passiton" || targetGame === "pass-it-on") {
       window.location.href = "pass-it-on/";
       return;
+    }
+    if (targetGame === "ttt" || targetGame === "ttt3") {
+      targetGame = hubState.lastTttMode || "ttt3";
     }
     hubState.game = targetGame;
     if (targetGame.startsWith("ttt")) hubState.lastTttMode = targetGame;

@@ -5741,3 +5741,16 @@ body[data-theme="light"] .mini-pill-sub {
 .quick-dock.sea-glass-deck.collapsed .dock-mini-pill {
   display: inline-flex !important;
 }
+
+/* 5x5 Tic-Tac-Toe Grid Refinements */
+.ttt-board.grid-5x5 {
+  gap: 6px !important;
+}
+.ttt-board.grid-5x5 .ttt-cell {
+  font-size: clamp(16px, 3.8vmin, 28px) !important;
+  border-radius: 10px !important;
+}
+.ttt-board.grid-5x5 .ttt-cell svg {
+  width: 52% !important;
+  height: 52% !important;
+}
