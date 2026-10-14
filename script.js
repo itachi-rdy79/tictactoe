@@ -646,6 +646,23 @@ function syncHud() {
   const activeBadge = document.getElementById("activeGameBadge");
   if (activeBadge) activeBadge.textContent = getGameDisplayName(hubState.game);
 
+  // Dynamic PC Guesser Controls in Top Match Bar
+  const pattuMatchGroup = document.getElementById("pattuMatchGroup");
+  const pattuHudDayText = document.getElementById("pattuHudDayText");
+  if (pattuMatchGroup) {
+    if (isPattu) {
+      pattuMatchGroup.style.display = "flex";
+      pattuMatchGroup.classList.remove("hidden");
+      if (pattuHudDayText) {
+        const dNum = (typeof pcCurrentTargetDayIndex === "number") ? pcCurrentTargetDayIndex : 1570;
+        pattuHudDayText.textContent = `Day #${dNum}`;
+      }
+    } else {
+      pattuMatchGroup.style.setProperty("display", "none", "important");
+      pattuMatchGroup.classList.add("hidden");
+    }
+  }
+
   if (tttModeGroup) {
     if (isTTT) {
       tttModeGroup.style.display = "flex";
@@ -6241,6 +6258,37 @@ function initStageDragger() {
 
 /* ---------- App Boot ---------- */
 
+
+  // Dynamic PC Guesser Top HUD Button Bindings
+  const pattuHudTtBtn = document.getElementById("pattuHudTtBtn");
+  const pattuHudStatsBtn = document.getElementById("pattuHudStatsBtn");
+  const pattuHudHelpBtn = document.getElementById("pattuHudHelpBtn");
+
+  pattuHudTtBtn?.addEventListener("click", () => {
+    const ttModal = document.getElementById("pattuTimeTravelModal");
+    if (ttModal) {
+      ttModal.classList.remove("hidden");
+      ttModal.style.removeProperty("display");
+    }
+  });
+
+  pattuHudStatsBtn?.addEventListener("click", () => {
+    const statsModal = document.getElementById("pattuStatsCustomModal");
+    if (statsModal) {
+      renderPattuStatsChart();
+      statsModal.classList.remove("hidden");
+      statsModal.style.removeProperty("display");
+    }
+  });
+
+  pattuHudHelpBtn?.addEventListener("click", () => {
+    const helpModal = document.getElementById("pattuInstructionsModal");
+    if (helpModal) {
+      helpModal.classList.remove("hidden");
+      helpModal.style.removeProperty("display");
+    }
+  });
+
 function boot() {
   loadHub();
   updateMiniWindowUI();
@@ -6306,6 +6354,13 @@ function showLandingView() {
 }
 
 function showGameView(gameKey) {
+  // Trigger dynamic expanding growth animation on the top match bar
+  const matchBar = document.getElementById("gameMatchBar");
+  if (matchBar) {
+    matchBar.classList.remove("growing");
+    void matchBar.offsetWidth; // force browser reflow
+    matchBar.classList.add("growing");
+  }
   const landing = document.getElementById("landingView");
   const gameView = document.getElementById("gameView");
   const playBtn = document.getElementById("navPlayBtn");
