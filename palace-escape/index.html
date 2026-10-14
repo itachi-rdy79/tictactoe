@@ -48,87 +48,214 @@
     <link rel="stylesheet" href="css/theme-adapter.css" />
   </head>
   <body>
-    <!-- Floating GAP Navigation & Theme Bar -->
-    <div id="gapPalaceNav" class="gap-game-nav">
-      <a href="../" id="gapBackBtn" class="gap-nav-btn gap-hub-link" title="Return to GAP Hub">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        GAP Hub
-      </a>
-      <span class="gap-nav-divider"></span>
-      <span class="gap-nav-title">Palace Escape</span>
-      <span class="gap-nav-divider"></span>
-      <button id="gapThemeBtn" class="gap-nav-btn" type="button" title="Toggle Dark / White Theme">
-        <span id="gapThemeIcon">🌙</span>
-        <span id="gapThemeText">Dark</span>
-      </button>
-      <span class="gap-nav-divider"></span>
-      <button id="gapFsBtn" class="gap-nav-btn" type="button" title="Toggle Fullscreen">
-        <svg id="gapFsIcon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-        <span id="gapFsText">Fullscreen</span>
-      </button>
+    <!-- Standard GAP Floating Nav Pill Container -->
+  <header class="floating-pill-container" id="scenicNav">
+    <div class="floating-pill glass-panel" id="floatingPill">
+      <!-- Left: GAP Brand Logo / Main Trigger -->
+      <div class="nav-brand brand pill-brand" id="gapBrand" role="button" tabindex="0" title="GAP • Tap to open/close | Double-click to cycle color">
+        <span class="logo-text" id="gapLogoText">GAP</span>
+        <svg class="pill-chevron" id="pillChevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+
+      <!-- Expandable Actions Drawer -->
+      <div class="pill-expand-actions" id="pillActions">
+        <!-- Return to All Games Action -->
+        <a href="../#/" class="gap-pill-link" id="gapBackBtn" title="Back to All Games">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span>All Games</span>
+        </a>
+
+        <!-- Theme Picker -->
+        <div class="theme-picker" id="themePicker">
+          <button class="theme-trigger theme-pill-btn" id="themeTrigger" type="button" aria-expanded="false" title="Switch Theme">
+            <span id="themeCurrentIcon">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </span>
+            <span id="themeCurrentText">Dark</span>
+            <svg class="theme-chevron" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="theme-menu glass-panel" id="themeMenu">
+            <button class="theme-item active" data-theme="dark" type="button" title="Dark Theme">
+              <span class="theme-dot dot-dark"></span>
+              <span class="theme-name">Dark</span>
+            </button>
+            <button class="theme-item" data-theme="light" type="button" title="White Theme">
+              <span class="theme-dot dot-white"></span>
+              <span class="theme-name">White</span>
+            </button>
+            <button class="theme-item" data-theme="itachi" type="button" title="Itachi Theme">
+              <span class="theme-dot dot-itachi"></span>
+              <span class="theme-name">Itachi</span>
+            </button>
+            <button class="theme-item" data-theme="naruto" type="button" title="Naruto Theme">
+              <span class="theme-dot dot-naruto"></span>
+              <span class="theme-name">Naruto</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Fullscreen Button -->
+        <button class="gap-icon-pill-btn" id="gapFsBtn" type="button" title="Toggle Fullscreen">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
+      </div>
     </div>
+  </header>
 
-    <script>
-      (function() {
-        function getSavedTheme() {
-          try {
-            var hub = JSON.parse(localStorage.getItem('hubState') || '{}');
-            if (hub.theme === 'light' || hub.theme === 'dark') return hub.theme;
-          } catch(e) {}
-          var direct = localStorage.getItem('gap_theme');
-          if (direct === 'light' || direct === 'dark') return direct;
-          return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  <!-- Upper Match Bar with All Games Back Pill -->
+  <div class="game-match-bar glass-panel" id="gameMatchBar">
+    <a href="../#/" class="hub-pill-btn" title="Back to All Games">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span>All Games</span>
+    </a>
+    <span class="active-game-badge">Palace Escape</span>
+  </div>
+
+  <script>
+    (function() {
+      const brand = document.getElementById("gapBrand");
+      const floatingPill = document.getElementById("floatingPill");
+      const themePicker = document.getElementById("themePicker");
+      const themeTrigger = document.getElementById("themeTrigger");
+      const themeMenu = document.getElementById("themeMenu");
+      const themeCurrentText = document.getElementById("themeCurrentText");
+      const themeCurrentIcon = document.getElementById("themeCurrentIcon");
+      const fsBtn = document.getElementById("gapFsBtn");
+
+      const DYNAMIC_PALETTES = [
+        { id: "crimson", name: "Crimson (#DC143C)", brand: "#DC143C", flame: "#B22222", glow: "rgba(220, 20, 60, 0.5)" },
+        { id: "sapphire", name: "Sapphire (#0F52BA)", brand: "#38bdf8", flame: "#0284c7", glow: "rgba(56, 189, 248, 0.5)" },
+        { id: "emerald", name: "Emerald (#50C878)", brand: "#10b981", flame: "#059669", glow: "rgba(16, 185, 129, 0.5)" },
+        { id: "amber", name: "Amber (#FFBF00)", brand: "#f59e0b", flame: "#d97706", glow: "rgba(245, 158, 11, 0.5)" },
+        { id: "amethyst", name: "Amethyst (#9966CC)", brand: "#a855f7", flame: "#7e22ce", glow: "rgba(168, 85, 247, 0.5)" }
+      ];
+
+      let currentPaletteIdx = 0;
+      try {
+        const savedPal = localStorage.getItem("gap_palette_idx");
+        if (savedPal !== null && !isNaN(Number(savedPal))) currentPaletteIdx = Number(savedPal) % DYNAMIC_PALETTES.length;
+      } catch {}
+
+      function applyPalette(idx) {
+        currentPaletteIdx = idx % DYNAMIC_PALETTES.length;
+        const p = DYNAMIC_PALETTES[currentPaletteIdx];
+        document.documentElement.style.setProperty("--dyn-brand", p.brand);
+        document.documentElement.style.setProperty("--dyn-flame", p.flame);
+        document.documentElement.style.setProperty("--dyn-glow", p.glow);
+        const gapText = document.getElementById("gapLogoText");
+        if (gapText) {
+          gapText.style.background = `linear-gradient(135deg, ${p.brand} 0%, ${p.flame} 50%, #ffffff 100%)`;
+          gapText.style.webkitBackgroundClip = "text";
+          gapText.style.webkitTextFillColor = "transparent";
         }
+        try { localStorage.setItem("gap_palette_idx", currentPaletteIdx); } catch {}
+      }
+      applyPalette(currentPaletteIdx);
 
-        function applyTheme(theme) {
-          document.documentElement.setAttribute('data-theme', theme);
-          document.body.setAttribute('data-theme', theme);
-          var iconEl = document.getElementById('gapThemeIcon');
-          var textEl = document.getElementById('gapThemeText');
-          if (iconEl && textEl) {
-            if (theme === 'dark') {
-              iconEl.textContent = '🌙';
-              textEl.textContent = 'Dark';
-            } else {
-              iconEl.textContent = '☀️';
-              textEl.textContent = 'White';
-            }
-          }
+      // Pill expand / collapse (close on tap)
+      function expandPill() {
+        floatingPill?.classList.add("expanded");
+      }
+      function collapsePill() {
+        floatingPill?.classList.remove("expanded");
+        themePicker?.classList.remove("open");
+        themeTrigger?.setAttribute("aria-expanded", "false");
+      }
+
+      floatingPill?.addEventListener("click", function(e) {
+        if (!floatingPill.classList.contains("expanded")) {
+          e.stopPropagation();
+          expandPill();
+          return;
         }
-
-        var currentTheme = getSavedTheme();
-        applyTheme(currentTheme);
-
-        var themeBtn = document.getElementById('gapThemeBtn');
-        if (themeBtn) {
-          themeBtn.addEventListener('click', function() {
-            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
-            applyTheme(currentTheme);
-            try {
-              var hub = JSON.parse(localStorage.getItem('hubState') || '{}');
-              hub.theme = currentTheme;
-              localStorage.setItem('hubState', JSON.stringify(hub));
-            } catch(e) {}
-            localStorage.setItem('gap_theme', currentTheme);
-          });
+        if (e.target === floatingPill || e.target.closest("#gapBrand")) {
+          e.stopPropagation();
+          collapsePill();
         }
+      });
 
-        var fsBtn = document.getElementById('gapFsBtn');
-        var fsText = document.getElementById('gapFsText');
-        if (fsBtn) {
-          fsBtn.addEventListener('click', function() {
-            if (!document.fullscreenElement) {
-              document.documentElement.requestFullscreen().catch(function(){});
-            } else {
-              document.exitFullscreen().catch(function(){});
-            }
-          });
-          document.addEventListener('fullscreenchange', function() {
-            if (fsText) fsText.textContent = document.fullscreenElement ? 'Exit' : 'Fullscreen';
-          });
+      brand?.addEventListener("click", function(e) {
+        e.stopPropagation();
+        const isExpanded = floatingPill?.classList.contains("expanded");
+        if (!isExpanded) {
+          expandPill();
+        } else {
+          collapsePill();
         }
-      })();
-    </script>
+      });
+
+      brand?.addEventListener("dblclick", function(e) {
+        e.stopPropagation();
+        if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+        applyPalette(currentPaletteIdx + 1);
+        brand.classList.add("brand-click-pulse");
+        setTimeout(() => brand.classList.remove("brand-click-pulse"), 400);
+        setTimeout(collapsePill, 150);
+      });
+
+      document.addEventListener("click", function(e) {
+        if (floatingPill && !floatingPill.contains(e.target)) {
+          collapsePill();
+        }
+      });
+
+      // Theme logic
+      function getSavedTheme() {
+        try {
+          const hub = JSON.parse(localStorage.getItem('hubState') || '{}');
+          if (hub.theme) return hub.theme;
+        } catch {}
+        return localStorage.getItem('gap_theme') || 'dark';
+      }
+
+      function applyTheme(t) {
+        if (t === 'white') t = 'light';
+        document.documentElement.setAttribute('data-theme', t);
+        document.body.setAttribute('data-theme', t);
+        if (themeCurrentText) {
+          const nameMap = { dark: 'Dark', light: 'White', itachi: 'Itachi', naruto: 'Naruto' };
+          themeCurrentText.textContent = nameMap[t] || 'Dark';
+        }
+        themeMenu?.querySelectorAll('.theme-item').forEach(b => {
+          b.classList.toggle('active', b.dataset.theme === t || (t === 'light' && b.dataset.theme === 'white'));
+        });
+        try {
+          const hub = JSON.parse(localStorage.getItem('hubState') || '{}');
+          hub.theme = t;
+          localStorage.setItem('hubState', JSON.stringify(hub));
+        } catch {}
+        localStorage.setItem('gap_theme', t);
+      }
+
+      applyTheme(getSavedTheme());
+
+      themeTrigger?.addEventListener("click", function(e) {
+        e.stopPropagation();
+        themePicker?.classList.toggle("open");
+        const isOpen = themePicker?.classList.contains("open");
+        themeTrigger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+
+      themeMenu?.addEventListener("click", function(e) {
+        e.stopPropagation();
+        const b = e.target.closest(".theme-item");
+        if (!b) return;
+        applyTheme(b.dataset.theme);
+        themePicker?.classList.remove("open");
+        themeTrigger?.setAttribute("aria-expanded", "false");
+      });
+
+      // Fullscreen
+      fsBtn?.addEventListener("click", function(e) {
+        e.stopPropagation();
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+    })();
+  </script>
     <div id="app">
       <header id="hud" class="hidden">
         <div class="hud-left">

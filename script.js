@@ -6519,6 +6519,7 @@ function getGameDisplayName(gameKey) {
 }
 
 function showLandingView() {
+  stopLudo();
   const landing = document.getElementById("landingView");
   const gameView = document.getElementById("gameView");
   const playBtn = document.getElementById("navPlayBtn");
@@ -6537,6 +6538,7 @@ function showLandingView() {
 }
 
 function showGameView(gameKey) {
+  if (gameKey !== "ludo") stopLudo();
   // Trigger dynamic expanding growth animation on the top match bar
   const matchBar = document.getElementById("gameMatchBar");
   if (matchBar) {
@@ -6641,6 +6643,7 @@ function initScenicLandingAndNav() {
 
   // 2. Return to All Games Button
   backBtn?.addEventListener("click", () => {
+    stopLudo();
     showLandingView();
     location.hash = "#/";
   });
@@ -6674,21 +6677,28 @@ function initScenicLandingAndNav() {
     document.getElementById("themePicker")?.classList.remove("open");
   };
 
-  // Single click on GAP / Pill Trigger:
-  // - If collapsed: expands the pill to reveal theme, avatar, mini window
-  // - If already expanded: collapses back
+  // Single click / tap on GAP Pill or Trigger:
+  // - If collapsed: expands the pill to reveal actions drawer
+  // - If already expanded: collapses back immediately on tap
+  floatingPill?.addEventListener("click", (e) => {
+    if (!floatingPill.classList.contains("expanded")) {
+      e.stopPropagation();
+      expandPill();
+      return;
+    }
+    if (e.target === floatingPill || e.target.closest("#gapBrand")) {
+      e.stopPropagation();
+      collapsePill();
+    }
+  });
+
   brand?.addEventListener("click", (e) => {
     e.stopPropagation();
     const isExpanded = floatingPill?.classList.contains("expanded");
-
     if (!isExpanded) {
       expandPill();
     } else {
-      if (pillClickTimer) clearTimeout(pillClickTimer);
-      pillClickTimer = setTimeout(() => {
-        collapsePill();
-        pillClickTimer = null;
-      }, 250);
+      collapsePill();
     }
   });
 
@@ -6706,9 +6716,7 @@ function initScenicLandingAndNav() {
     setTimeout(() => brand?.classList.remove("brand-click-pulse"), 400);
 
     // Auto close pill after double clicking
-    setTimeout(() => {
-      collapsePill();
-    }, 150);
+    collapsePill();
   };
 
   brand?.addEventListener("dblclick", handleGapDblClick);
@@ -6945,6 +6953,7 @@ function getLudoAudioCtx() {
 }
 
 function playLudoDiceSound() {
+  if (hubState.game !== "ludo" || (document.getElementById("landingView") && !document.getElementById("landingView").classList.contains("hidden"))) return;
   try {
     const ctx = getLudoAudioCtx();
     if (!ctx) return;
@@ -6965,6 +6974,7 @@ function playLudoDiceSound() {
 }
 
 function playLudoStepSound() {
+  if (hubState.game !== "ludo" || (document.getElementById("landingView") && !document.getElementById("landingView").classList.contains("hidden"))) return;
   try {
     const ctx = getLudoAudioCtx();
     if (!ctx) return;
@@ -7360,7 +7370,43 @@ function getLegalLudoTokens(color, roll) {
 
 /* --- Real Ludo King Dice Rolling Mechanism --- */
 /* --- Real Ludo King Dice Rolling Mechanism --- */
+/* --- Ludo King Timer and Audio Stop Controls --- */
+let ludoActiveTimers = [];
+let ludoRollInterval = null;
+
+function setLudoTimeout(fn, delay) {
+  if (hubState.game !== "ludo" || (document.getElementById("landingView") && !document.getElementById("landingView").classList.contains("hidden"))) {
+    return null;
+  }
+  const id = setTimeout(() => {
+    const idx = ludoActiveTimers.indexOf(id);
+    if (idx !== -1) ludoActiveTimers.splice(idx, 1);
+    if (hubState.game !== "ludo" || (document.getElementById("landingView") && !document.getElementById("landingView").classList.contains("hidden"))) {
+      return;
+    }
+    fn();
+  }, delay);
+  ludoActiveTimers.push(id);
+  return id;
+}
+
+function stopLudo() {
+  if (ludoRollInterval) {
+    clearInterval(ludoRollInterval);
+    ludoRollInterval = null;
+  }
+  ludoActiveTimers.forEach(id => clearTimeout(id));
+  ludoActiveTimers = [];
+  if (typeof ludoState !== "undefined" && ludoState) {
+    ludoState.isRolling = false;
+  }
+  if (typeof ludoAudioCtx !== "undefined" && ludoAudioCtx && ludoAudioCtx.state === "running") {
+    try { ludoAudioCtx.suspend(); } catch {}
+  }
+}
+
 function rollLudoDice() {
+  if (hubState.game !== "ludo" || (document.getElementById("landingView") && !document.getElementById("landingView").classList.contains("hidden"))) return;
   if (!ludoState.canRoll || ludoState.isRolling || ludoState.gameOver) return;
 
   ludoState.canRoll = false;
@@ -7382,7 +7428,8 @@ function rollLudoDice() {
 
   // Animate rapid dice face turnover with authentic spinning dots
   let rolls = 0;
-  const rollInterval = setInterval(() => {
+  if (ludoRollInterval) clearInterval(ludoRollInterval);
+  ludoRollInterval = setInterval(() => {
     const tempVal = Math.floor(Math.random() * 6) + 1;
     if (diceEl) {
       diceEl.setAttribute("data-val", tempVal);
@@ -7390,7 +7437,7 @@ function rollLudoDice() {
     }
     rolls++;
     if (rolls > 8) {
-      clearInterval(rollInterval);
+      clearInterval(ludoRollInterval); ludoRollInterval = null;
       finalizeLudoDiceRoll();
     }
   }, 45);
@@ -7430,7 +7477,7 @@ function finalizeLudoDiceRoll() {
     if (ludoState.consecutiveSixes === 3) {
       ludoState.consecutiveSixes = 0;
       updateLudoTurnText(false, "Three 6s! Turn forfeited.");
-      setTimeout(() => {
+      setLudoTimeout(() => {
         advanceLudoTurn();
       }, 950);
       return;
@@ -7451,7 +7498,7 @@ function finalizeLudoDiceRoll() {
     } else {
       updateLudoTurnText(false, `Rolled ${val} • No legal moves • Passing turn...`);
     }
-    setTimeout(() => {
+    setLudoTimeout(() => {
       advanceLudoTurn();
     }, 950);
   } else {
@@ -7467,7 +7514,7 @@ function finalizeLudoDiceRoll() {
       } else if (legalMoves.length === 1) {
         updateLudoTurnText(false, `Moving piece (${val} steps)...`);
         // Auto-move after brief delay so player sees result without getting stuck
-        setTimeout(() => {
+        setLudoTimeout(() => {
           if (ludoState.mustMove && ludoState.players[ludoState.currentTurn] === activeColor) {
             moveLudoToken(activeColor, legalMoves[0]);
           }
@@ -7478,7 +7525,7 @@ function finalizeLudoDiceRoll() {
     } else {
       // AI Bot Turn: calculates move with real Ludo King algorithm
       updateLudoTurnText(false, `${LUDO_COLORS[activeColor].name} Bot rolled ${val}...`);
-      setTimeout(() => {
+      setLudoTimeout(() => {
         const bestToken = chooseBestLudoBotMove(activeColor, val, legalMoves);
         moveLudoToken(activeColor, bestToken);
       }, 700);
@@ -7601,7 +7648,7 @@ function moveLudoToken(color, tokenIdx) {
     } else {
       // AI Bot bonus roll: crisp 900ms pause so move is seen, then rolls again briskly
       updateLudoTurnText(true, "Bonus Roll!");
-      setTimeout(() => {
+      setLudoTimeout(() => {
         checkAndTriggerLudoBot();
       }, 900);
     }
@@ -7612,7 +7659,7 @@ function moveLudoToken(color, tokenIdx) {
     } else {
       // AI Bot turn finished: crisp 900ms pause to observe where token landed
       updateLudoTurnText(false, `Moved ${roll}!`);
-      setTimeout(() => {
+      setLudoTimeout(() => {
         advanceLudoTurn();
       }, 900);
     }
@@ -7813,7 +7860,7 @@ function checkAndTriggerLudoBot() {
   const isHuman = (ludoState.mode === "local" || currColor === ludoState.humanPlayer);
 
   if (!isHuman && ludoState.canRoll) {
-    setTimeout(rollLudoDice, 650);
+    setLudoTimeout(rollLudoDice, 650);
   }
 }
 

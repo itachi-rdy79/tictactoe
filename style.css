@@ -7195,3 +7195,6 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
 
 /* Remove names/UI descriptions under game cards */
 .game-card-desc { display: none !important; }
+
+/* Hide theme subtitles in dropdown */
+.theme-sub { display: none !important; }
