@@ -2288,31 +2288,197 @@ function getPseudoMoves(board, r, c) {
   const p = board[r][c];
   if (!p) return [];
   const out = [];
-  const add = (nr, nc) => { if (!inBounds(nr, nc)) return; const t = board[nr][nc]; if (!t || t.color !== p.color) out.push({ r: nr, c: nc }); };
+  const add = (nr, nc) => {
+    if (!inBounds(nr, nc)) return;
+    const t = board[nr][nc];
+    if (!t || t.color !== p.color) out.push({ r: nr, c: nc });
+  };
 
   if (p.type === "p") {
-    const dir = p.color === "w" ? -1 : 1, start = p.color === "w" ? 6 : 1;
-    if (inBounds(r + dir, c) && !board[r + dir][c]) out.push({ r: r + dir, c });
-    if (r === start && !board[r + dir][c] && !board[r + 2 * dir][c]) out.push({ r: r + 2 * dir, c });
-    for (const dc of [-1, 1]) { const nr = r + dir, nc = c + dc; if (inBounds(nr, nc) && board[nr][nc] && board[nr][nc].color !== p.color) out.push({ r: nr, c: nc }); }
+    const dir = p.color === "w" ? -1 : 1;
+    const start = p.color === "w" ? 6 : 1;
+    if (inBounds(r + dir, c) && !board[r + dir][c]) {
+      out.push({ r: r + dir, c });
+      if (r === start && !board[r + 2 * dir][c]) {
+        out.push({ r: r + 2 * dir, c });
+      }
+    }
+    for (const dc of [-1, 1]) {
+      const nr = r + dir, nc = c + dc;
+      if (inBounds(nr, nc) && board[nr][nc] && board[nr][nc].color !== p.color) {
+        out.push({ r: nr, c: nc });
+      }
+    }
   } else if (p.type === "n") {
-    [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => add(r + dr, c + dc));
+    const jumps = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+    for (let i = 0; i < jumps.length; i++) add(r + jumps[i][0], c + jumps[i][1]);
   } else if (p.type === "k") {
-    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) if (dr || dc) add(r + dr, c + dc);
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (dr || dc) add(r + dr, c + dc);
+      }
+    }
   } else {
     const dirs = [];
     if (p.type === "b" || p.type === "q") dirs.push([-1, -1], [-1, 1], [1, -1], [1, 1]);
     if (p.type === "r" || p.type === "q") dirs.push([-1, 0], [1, 0], [0, -1], [0, 1]);
-    for (const [dr, dc] of dirs) {
+    for (let d = 0; d < dirs.length; d++) {
+      const dr = dirs[d][0], dc = dirs[d][1];
       let nr = r + dr, nc = c + dc;
       while (inBounds(nr, nc)) {
-        if (!board[nr][nc]) out.push({ r: nr, c: nc });
-        else { if (board[nr][nc].color !== p.color) out.push({ r: nr, c: nc }); break; }
+        if (!board[nr][nc]) {
+          out.push({ r: nr, c: nc });
+        } else {
+          if (board[nr][nc].color !== p.color) out.push({ r: nr, c: nc });
+          break;
+        }
         nr += dr; nc += dc;
       }
     }
   }
   return out;
+}
+
+// Fast square attack detector for king safety and check detection
+function isSquareAttacked(board, r, c, attackingColor) {
+  // Pawns
+  const pDir = attackingColor === "w" ? 1 : -1;
+  for (const dc of [-1, 1]) {
+    const pr = r + pDir, pc = c + dc;
+    if (inBounds(pr, pc)) {
+      const p = board[pr][pc];
+      if (p && p.color === attackingColor && p.type === "p") return true;
+    }
+  }
+
+  // Knights
+  const jumps = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+  for (let i = 0; i < jumps.length; i++) {
+    const nr = r + jumps[i][0], nc = c + jumps[i][1];
+    if (inBounds(nr, nc)) {
+      const p = board[nr][nc];
+      if (p && p.color === attackingColor && p.type === "n") return true;
+    }
+  }
+
+  // King
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (!dr && !dc) continue;
+      const nr = r + dr, nc = c + dc;
+      if (inBounds(nr, nc)) {
+        const p = board[nr][nc];
+        if (p && p.color === attackingColor && p.type === "k") return true;
+      }
+    }
+  }
+
+  // Orthogonal (Rook / Queen)
+  const orthDirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+  for (let d = 0; d < orthDirs.length; d++) {
+    let nr = r + orthDirs[d][0], nc = c + orthDirs[d][1];
+    while (inBounds(nr, nc)) {
+      const p = board[nr][nc];
+      if (p) {
+        if (p.color === attackingColor && (p.type === "r" || p.type === "q")) return true;
+        break;
+      }
+      nr += orthDirs[d][0]; nc += orthDirs[d][1];
+    }
+  }
+
+  // Diagonal (Bishop / Queen)
+  const diagDirs = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+  for (let d = 0; d < diagDirs.length; d++) {
+    let nr = r + diagDirs[d][0], nc = c + diagDirs[d][1];
+    while (inBounds(nr, nc)) {
+      const p = board[nr][nc];
+      if (p) {
+        if (p.color === attackingColor && (p.type === "b" || p.type === "q")) return true;
+        break;
+      }
+      nr += diagDirs[d][0]; nc += diagDirs[d][1];
+    }
+  }
+
+  return false;
+}
+
+function findChessKing(board, color) {
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = board[r][c];
+      if (p && p.type === "k" && p.color === color) return { r, c };
+    }
+  }
+  return null;
+}
+
+function isKingInCheck(board, color) {
+  const kPos = findChessKing(board, color);
+  if (!kPos) return true;
+  const oppColor = color === "w" ? "b" : "w";
+  return isSquareAttacked(board, kPos.r, kPos.c, oppColor);
+}
+
+// Generate legal moves for a specific selected piece (guarantees King safety)
+function getLegalMovesForPiece(board, r, c) {
+  const p = board[r][c];
+  if (!p) return [];
+  const pms = getPseudoMoves(board, r, c);
+  const legal = [];
+  for (let i = 0; i < pms.length; i++) {
+    const m = pms[i];
+    const b2 = cloneBoard(board);
+    moveChess(b2, { fr: r, fc: c, tr: m.r, tc: m.c }, false);
+    if (!isKingInCheck(b2, p.color)) {
+      legal.push(m);
+    }
+  }
+  return legal;
+}
+
+// Generate all legal moves for a color, with intelligent MVV-LVA move ordering
+function getLegalMovesForColor(board, color, capturesOnly = false) {
+  const legal = [];
+  const oppColor = color === "w" ? "b" : "w";
+
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = board[r][c];
+      if (!p || p.color !== color) continue;
+
+      const pms = getPseudoMoves(board, r, c);
+      for (let i = 0; i < pms.length; i++) {
+        const m = pms[i];
+        const target = board[m.r][m.c];
+        if (capturesOnly && !target) continue;
+
+        const b2 = cloneBoard(board);
+        moveChess(b2, { fr: r, fc: c, tr: m.r, tc: m.c }, false);
+
+        if (!isKingInCheck(b2, color)) {
+          let score = 0;
+          if (target) {
+            // MVV-LVA: Most Valuable Victim - Least Valuable Attacker
+            score = 10000 + (PIECE_VAL[target.type] || 0) * 10 - (PIECE_VAL[p.type] || 0);
+          }
+          if (p.type === "p" && (m.r === 0 || m.r === 7)) score += 8000;
+          if (isKingInCheck(b2, oppColor)) score += 1500;
+          if ((m.r === 3 || m.r === 4) && (m.c === 3 || m.c === 4)) score += 200;
+
+          legal.push({ fr: r, fc: c, tr: m.r, tc: m.c, score });
+        }
+      }
+    }
+  }
+
+  legal.sort((a, b) => b.score - a.score);
+  return legal;
+}
+
+function allMovesForColor(board, color) {
+  return getLegalMovesForColor(board, color, false);
 }
 
 function renderChess() {
@@ -2323,13 +2489,13 @@ function renderChess() {
   if (!chessBoardEl || !Array.isArray(chessBoard) || !chessBoard.length) return;
   chessBoardEl.innerHTML = "";
 
-  // Precompute legal moves for selected piece only if move hints option is explicitly toggled ON
+  // Precompute genuine legal moves for selected piece only if move hints are enabled
   const legalMoveSet = new Set();
   const captureMoveSet = new Set();
   if (chessShowMoveHints && chessSelected && inBounds(chessSelected.r, chessSelected.c)) {
-    const legalMoves = getPseudoMoves(chessBoard, chessSelected.r, chessSelected.c);
+    const legalMoves = getLegalMovesForPiece(chessBoard, chessSelected.r, chessSelected.c);
     legalMoves.forEach(m => {
-      const key = `${m.r},${m.c}`;
+      const key = m.r + "," + m.c;
       legalMoveSet.add(key);
       const targetPiece = chessBoard[m.r][m.c];
       if (targetPiece && targetPiece.color !== chessTurn) {
@@ -2337,6 +2503,9 @@ function renderChess() {
       }
     });
   }
+
+  const whiteInCheck = isKingInCheck(chessBoard, "w");
+  const blackInCheck = isKingInCheck(chessBoard, "b");
 
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
     const cell = document.createElement("button");
@@ -2346,12 +2515,12 @@ function renderChess() {
     cell.dataset.col = c;
     const colName = String.fromCharCode(97 + c);
     const rowName = (8 - r).toString();
-    const squareName = `${colName}${rowName}`;
+    const squareName = colName + rowName;
 
     const isSelected = !!(chessSelected && chessSelected.r === r && chessSelected.c === c);
     if (isSelected) cell.classList.add("selected");
 
-    const cellKey = `${r},${c}`;
+    const cellKey = r + "," + c;
     if (chessShowMoveHints && legalMoveSet.has(cellKey)) {
       if (captureMoveSet.has(cellKey)) {
         cell.classList.add("capture-target");
@@ -2364,12 +2533,16 @@ function renderChess() {
     if (p) {
       cell.innerHTML = getPieceSvgHtml(p.color, p.type);
       cell.classList.add(p.color === "w" ? "white-piece" : "black-piece");
-      cell.setAttribute("aria-label", `${p.color === 'w' ? 'White' : 'Black'} ${p.type.toUpperCase()} at ${squareName}`);
+      cell.setAttribute("aria-label", (p.color === 'w' ? 'White' : 'Black') + " " + p.type.toUpperCase() + " at " + squareName);
+
+      // Check Indicator: highlight king when in check
+      if (p.type === "k" && ((p.color === "w" && whiteInCheck) || (p.color === "b" && blackInCheck))) {
+        cell.classList.add("in-check");
+      }
     } else {
-      cell.setAttribute("aria-label", `Square ${squareName}`);
+      cell.setAttribute("aria-label", "Square " + squareName);
     }
 
-    // Stop pointerdown propagation so parent drag capture never intercepts chess clicks
     cell.addEventListener("pointerdown", (e) => e.stopPropagation());
     cell.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -2379,12 +2552,17 @@ function renderChess() {
   }
 
   if (hubState.timer === "off" && statusPill) {
-    if (hubState.theme === "naruto") {
-      statusPill.textContent = chessOver ? "Shinobi War Concluded" : `${chessTurn === "w" ? "Leaf Shinobi" : "Akatsuki"}'s Turn`;
+    const activeInCheck = (chessTurn === "w" && whiteInCheck) || (chessTurn === "b" && blackInCheck);
+    if (chessOver) {
+      statusPill.textContent = "Game Over";
+    } else if (activeInCheck) {
+      statusPill.textContent = "⚠️ " + (chessTurn === "w" ? "White" : "Black") + " in Check!";
+    } else if (hubState.theme === "naruto") {
+      statusPill.textContent = (chessTurn === "w" ? "Leaf Shinobi" : "Akatsuki") + "'s Turn";
     } else if (hubState.theme === "itachi") {
-      statusPill.textContent = chessOver ? "Tsukuyomi Shattered" : `${chessTurn === "w" ? "White" : "Black"}'s Turn`;
+      statusPill.textContent = (chessTurn === "w" ? "White" : "Black") + "'s Turn";
     } else {
-      statusPill.textContent = chessOver ? "Game Over" : `${chessTurn === "w" ? "White" : "Black"}'s Turn`;
+      statusPill.textContent = (chessTurn === "w" ? "White" : "Black") + "'s Turn";
     }
   }
 }
@@ -2393,91 +2571,65 @@ function moveChess(board, mv, real = false) {
   const piece = board[mv.fr][mv.fc], target = board[mv.tr][mv.tc];
   if (target && real) {
     if (target.color === "w") whiteCaptured.push(target); else blackCaptured.push(target);
-    if (target.type === "k") {
-      chessOver = true;
-      if (piece.color === "w") {
-        scoreA++;
-        updateStreak(modeSelect.value === "chess-ai");
-        let winTxt = "White Wins";
-        if (hubState.theme === "naruto") winTxt = "Will of Fire Prevails!";
-        else if (hubState.theme === "itachi") winTxt = "Tsukuyomi Ascendant!";
-        showWinScreen(winTxt);
-      } else {
-        scoreB++;
-        updateStreak(false);
-        let winTxt = "Black Wins";
-        if (hubState.theme === "naruto") winTxt = "Akatsuki Rules the World!";
-        else if (hubState.theme === "itachi") winTxt = "Crow Flight Victorious!";
-        showWinScreen(winTxt);
-      }
-      persistScores(); renderScores();
-    }
     renderCaptured();
   }
-  board[mv.tr][mv.tc] = piece; board[mv.fr][mv.fc] = null;
-  if (piece.type === "p" && (mv.tr === 0 || mv.tr === 7)) piece.type = "q";
-}
-
-function allMovesForColor(board, color) {
-  const out = [];
-  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
-    const p = board[r][c];
-    if (!p || p.color !== color) continue;
-    getPseudoMoves(board, r, c).forEach(m => out.push({ fr: r, fc: c, tr: m.r, tc: m.c }));
+  board[mv.tr][mv.tc] = piece;
+  board[mv.fr][mv.fc] = null;
+  if (piece && piece.type === "p" && (mv.tr === 0 || mv.tr === 7)) {
+    piece.type = "q";
   }
-  return out;
 }
 
 /* ---------- Chess Positional Tables (PST) & Move Ordering ---------- */
 const PST_W = {
   p: [
-    [ 0,  0,  0,  0,  0,  0,  0,  0],
-    [50, 50, 50, 50, 50, 50, 50, 50],
-    [10, 10, 20, 30, 30, 20, 10, 10],
-    [ 5,  5, 10, 25, 25, 10,  5,  5],
-    [ 0,  0,  0, 20, 20,  0,  0,  0],
-    [ 5, -5,-10,  0,  0,-10, -5,  5],
-    [ 5, 10, 10,-20,-20, 10, 10,  5],
-    [ 0,  0,  0,  0,  0,  0,  0,  0]
+    [  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 50, 50, 50, 50, 50, 50, 50, 50],
+    [ 10, 10, 20, 30, 30, 20, 10, 10],
+    [  5,  5, 10, 27, 27, 10,  5,  5],
+    [  0,  0,  0, 25, 25,  0,  0,  0],
+    [  5, -5,-10,  0,  0,-10, -5,  5],
+    [  5, 10, 10,-20,-20, 10, 10,  5],
+    [  0,  0,  0,  0,  0,  0,  0,  0]
   ],
   n: [
     [-50,-40,-30,-30,-30,-30,-40,-50],
     [-40,-20,  0,  5,  5,  0,-20,-40],
-    [-30,  5, 10, 15, 15, 10,  5,-30],
-    [-30,  0, 15, 20, 20, 15,  0,-30],
     [-30,  5, 15, 20, 20, 15,  5,-30],
-    [-30,  0, 10, 15, 15, 10,  0,-30],
-    [-40,-20,  0,  0,  0,  0,-20,-40],
+    [-30,  0, 20, 25, 25, 20,  0,-30],
+    [-30,  5, 20, 25, 25, 20,  5,-30],
+    [-30,  0, 15, 20, 20, 15,  0,-30],
+    [-40,-20,  0,  5,  5,  0,-20,-40],
     [-50,-40,-30,-30,-30,-30,-40,-50]
   ],
   b: [
     [-20,-10,-10,-10,-10,-10,-10,-20],
     [-10,  5,  0,  0,  0,  0,  5,-10],
-    [-10, 10, 10, 10, 10, 10, 10,-10],
-    [-10,  0, 10, 10, 10, 10,  0,-10],
-    [-10,  5,  5, 10, 10,  5,  5,-10],
-    [-10,  0,  5, 10, 10,  5,  0,-10],
+    [-10, 10, 10, 15, 15, 10, 10,-10],
+    [-10,  0, 15, 20, 20, 15,  0,-10],
+    [-10,  5, 15, 20, 20, 15,  5,-10],
+    [-10,  0, 10, 15, 15, 10,  0,-10],
     [-10,  5,  0,  0,  0,  0,  5,-10],
     [-20,-10,-10,-10,-10,-10,-10,-20]
   ],
   r: [
-    [ 0,  0,  0,  5,  5,  0,  0,  0],
-    [10, 10, 10, 10, 10, 10, 10, 10],
-    [-5,  0,  0,  0,  0,  0,  0, -5],
-    [-5,  0,  0,  0,  0,  0,  0, -5],
-    [-5,  0,  0,  0,  0,  0,  0, -5],
-    [-5,  0,  0,  0,  0,  0,  0, -5],
-    [ 5, 10, 10, 10, 10, 10, 10,  5],
-    [ 0,  0,  0,  5,  5,  0,  0,  0]
+    [  0,  0,  0,  5,  5,  0,  0,  0],
+    [ 25, 25, 25, 25, 25, 25, 25, 25],
+    [ -5,  0,  0,  0,  0,  0,  0, -5],
+    [ -5,  0,  0,  0,  0,  0,  0, -5],
+    [ -5,  0,  0,  0,  0,  0,  0, -5],
+    [ -5,  0,  0,  0,  0,  0,  0, -5],
+    [  5, 10, 10, 10, 10, 10, 10,  5],
+    [  0,  0,  0,  5,  5,  0,  0,  0]
   ],
   q: [
     [-20,-10,-10, -5, -5,-10,-10,-20],
     [-10,  0,  5,  0,  0,  0,  0,-10],
     [-10,  5,  5,  5,  5,  5,  0,-10],
-    [  0,  0,  5,  5,  5,  5,  0, -5],
-    [ -5,  0,  5,  5,  5,  5,  0, -5],
-    [-10,  0,  5,  5,  5,  5,  0,-10],
-    [-10,  0,  0,  0,  0,  0,  0,-10],
+    [  0,  0,  5, 10, 10,  5,  0, -5],
+    [ -5,  0,  5, 10, 10,  5,  0, -5],
+    [-10,  5,  5,  5,  5,  5,  0,-10],
+    [-10,  0,  5,  0,  0,  0,  0,-10],
     [-20,-10,-10, -5, -5,-10,-10,-20]
   ],
   k: [
@@ -2493,20 +2645,16 @@ const PST_W = {
 };
 
 function orderChessMoves(board, moves) {
-  return moves.map(mv => {
-    const target = board[mv.tr][mv.tc];
-    const piece = board[mv.fr][mv.fc];
-    let score = 0;
-    if (target) {
-      score = 10000 + (PIECE_VAL[target.type] || 0) * 10 - (PIECE_VAL[piece.type] || 0);
-    }
-    return { mv, score };
-  }).sort((a, b) => b.score - a.score).map(x => x.mv);
+  return moves;
 }
 
+// Full evaluation function (Positive = Black advantage, Negative = White advantage)
 function evalChess(board) {
-  let s = 0;
+  let score = 0;
+  let whiteMaterial = 0, blackMaterial = 0;
+  let whiteBishops = 0, blackBishops = 0;
   let hasWhiteKing = false, hasBlackKing = false;
+
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
       const p = board[r][c];
@@ -2515,58 +2663,144 @@ function evalChess(board) {
       const pst = PST_W[p.type] ? (p.color === "w" ? PST_W[p.type][r][c] : PST_W[p.type][7 - r][c]) : 0;
       const total = base + pst;
       if (p.color === "b") {
-        s += total;
+        score += total;
+        blackMaterial += base;
+        if (p.type === "b") blackBishops++;
         if (p.type === "k") hasBlackKing = true;
       } else {
-        s -= total;
+        score -= total;
+        whiteMaterial += base;
+        if (p.type === "b") whiteBishops++;
         if (p.type === "k") hasWhiteKing = true;
       }
     }
   }
+
   if (!hasBlackKing) return -50000;
   if (!hasWhiteKing) return 50000;
-  return s;
+
+  // Bishop pair bonuses
+  if (blackBishops >= 2) score += 35;
+  if (whiteBishops >= 2) score -= 35;
+
+  // King check bonuses
+  if (isKingInCheck(board, "w")) score += 40;
+  if (isKingInCheck(board, "b")) score -= 40;
+
+  return score;
 }
 
-function minimaxChess(board, depth, alpha, beta, maxing) {
-  const currentEval = evalChess(board);
-  if (Math.abs(currentEval) >= 40000) return { score: currentEval, move: null };
-  if (depth === 0) return { score: currentEval, move: null };
-
-  const color = maxing ? "b" : "w";
-  let moves = allMovesForColor(board, color);
-  if (!moves.length) return { score: currentEval, move: null };
-  moves = orderChessMoves(board, moves);
-  let bestMove = moves[0];
+// Quiescence Search: resolves all tactical captures up to 4 plies deep to eliminate horizon effect
+function quiescenceChess(board, alpha, beta, maxing, qdepth = 0) {
+  const standPat = evalChess(board);
+  if (qdepth >= 4) return standPat;
 
   if (maxing) {
-    let best = -Infinity;
-    for (let i = 0; i < moves.length; i++) {
-      const mv = moves[i];
-      const target = board[mv.tr][mv.tc];
-      if (target && target.type === "k") return { score: 50000 + depth, move: mv };
+    if (standPat >= beta) return beta;
+    if (standPat > alpha) alpha = standPat;
+
+    const captures = getLegalMovesForColor(board, "b", true);
+    for (let i = 0; i < captures.length; i++) {
+      const mv = captures[i];
       const b2 = cloneBoard(board);
       moveChess(b2, mv, false);
-      const r = minimaxChess(b2, depth - 1, alpha, beta, false);
-      if (r.score > best) { best = r.score; bestMove = mv; }
-      alpha = Math.max(alpha, best.score);
-      if (beta <= alpha) break;
+      const score = quiescenceChess(b2, alpha, beta, false, qdepth + 1);
+      if (score >= beta) return beta;
+      if (score > alpha) alpha = score;
     }
-    return { score: best, move: bestMove };
+    return alpha;
   } else {
-    let best = Infinity;
-    for (let i = 0; i < moves.length; i++) {
-      const mv = moves[i];
-      const target = board[mv.tr][mv.tc];
-      if (target && target.type === "k") return { score: -50000 - depth, move: mv };
+    if (standPat <= alpha) return alpha;
+    if (standPat < beta) beta = standPat;
+
+    const captures = getLegalMovesForColor(board, "w", true);
+    for (let i = 0; i < captures.length; i++) {
+      const mv = captures[i];
       const b2 = cloneBoard(board);
       moveChess(b2, mv, false);
-      const r = minimaxChess(b2, depth - 1, alpha, beta, true);
-      if (r.score < best) { best = r.score; bestMove = mv; }
-      beta = Math.min(beta, r.score);
-      if (beta <= alpha) break;
+      const score = quiescenceChess(b2, alpha, beta, true, qdepth + 1);
+      if (score <= alpha) return alpha;
+      if (score < beta) beta = score;
     }
-    return { score: best, move: bestMove };
+    return beta;
+  }
+}
+
+// Full Minimax with Alpha-Beta Pruning, Quiescence Search, and Checkmate Evaluation
+function minimaxChess(board, depth, alpha, beta, maxing) {
+  if (depth === 0) {
+    return { score: quiescenceChess(board, alpha, beta, maxing, 0), move: null };
+  }
+
+  const color = maxing ? "b" : "w";
+  const legalMoves = getLegalMovesForColor(board, color, false);
+
+  if (legalMoves.length === 0) {
+    if (isKingInCheck(board, color)) {
+      // Checkmate! Heavily reward earliest checkmates
+      return { score: maxing ? (-40000 - depth) : (40000 + depth), move: null };
+    }
+    // Stalemate
+    return { score: 0, move: null };
+  }
+
+  let bestMove = legalMoves[0];
+
+  if (maxing) {
+    let bestScore = -Infinity;
+    for (let i = 0; i < legalMoves.length; i++) {
+      const mv = legalMoves[i];
+      const b2 = cloneBoard(board);
+      moveChess(b2, mv, false);
+
+      const r = minimaxChess(b2, depth - 1, alpha, beta, false);
+      if (r.score > bestScore) {
+        bestScore = r.score;
+        bestMove = mv;
+      }
+      alpha = Math.max(alpha, bestScore);
+      if (beta <= alpha) break; // Alpha-beta cutoff
+    }
+    return { score: bestScore, move: bestMove };
+  } else {
+    let bestScore = Infinity;
+    for (let i = 0; i < legalMoves.length; i++) {
+      const mv = legalMoves[i];
+      const b2 = cloneBoard(board);
+      moveChess(b2, mv, false);
+
+      const r = minimaxChess(b2, depth - 1, alpha, beta, true);
+      if (r.score < bestScore) {
+        bestScore = r.score;
+        bestMove = mv;
+      }
+      beta = Math.min(beta, bestScore);
+      if (beta <= alpha) break; // Alpha-beta cutoff
+    }
+    return { score: bestScore, move: bestMove };
+  }
+}
+
+// Calibrated AI Move Selector based on selected Difficulty
+function chooseChessAiMove(board, difficulty) {
+  const legalMoves = getLegalMovesForColor(board, "b", false);
+  if (!legalMoves.length) return null;
+
+  if (difficulty === "easy") {
+    // Easy: Depth 2, 25% chance of picking a sound 2nd or 3rd best move for natural casual play
+    const res = minimaxChess(board, 2, -Infinity, Infinity, true);
+    if (Math.random() < 0.25 && legalMoves.length > 2) {
+      return legalMoves[Math.floor(Math.random() * Math.min(3, legalMoves.length))];
+    }
+    return res.move || legalMoves[0];
+  } else if (difficulty === "medium") {
+    // Medium: Solid club level - Depth 3 + Quiescence search
+    const res = minimaxChess(board, 3, -Infinity, Infinity, true);
+    return res.move || legalMoves[0];
+  } else {
+    // Hard: Strong tournament level - Depth 4 + Quiescence search
+    const res = minimaxChess(board, 4, -Infinity, Infinity, true);
+    return res.move || legalMoves[0];
   }
 }
 
@@ -2585,10 +2819,6 @@ function checkChessDrawCondition(board, nextColor) {
   if (whitePieces === 1 && blackPieces === 1 && nonKings === 0) {
     return "Insufficient Material";
   }
-  const nextMoves = allMovesForColor(board, nextColor);
-  if (nextMoves.length === 0) {
-    return "Stalemate";
-  }
   return null;
 }
 
@@ -2600,7 +2830,7 @@ function handleChessDraw(reason) {
   renderScores();
   renderChess();
   persistLiveState();
-  let drawTxt = `${reason} (Draw)`;
+  let drawTxt = reason + " (Draw)";
   if (hubState.theme === "naruto") drawTxt = "Shinobi Armistice (Draw)";
   else if (hubState.theme === "itachi") drawTxt = "Tsukuyomi in Harmony (Draw)";
   showDrawScreen(drawTxt);
@@ -2627,7 +2857,9 @@ function onChessClick(r, c) {
     return;
   }
 
-  const legal = getPseudoMoves(chessBoard, chessSelected.r, chessSelected.c).find(m => m.r === r && m.c === c);
+  // Strictly enforce genuine legal chess moves that protect the King
+  const legalMoves = getLegalMovesForPiece(chessBoard, chessSelected.r, chessSelected.c);
+  const legal = legalMoves.find(m => m.r === r && m.c === c);
   if (!legal) {
     chessSelected = (p && p.color === chessTurn) ? { r, c } : null;
     renderChess();
@@ -2639,9 +2871,28 @@ function onChessClick(r, c) {
   moveCount++;
   updateMoveCounter(true);
 
-  if (chessOver) { renderChess(); stopTurnTimer(); persistLiveState(); return; }
-
   const nextColor = chessTurn === "w" ? "b" : "w";
+
+  // Checkmate / Stalemate detection after Human move
+  const afterLegalMoves = getLegalMovesForColor(chessBoard, nextColor);
+  if (afterLegalMoves.length === 0) {
+    if (isKingInCheck(chessBoard, nextColor)) {
+      // Checkmate! White wins!
+      chessOver = true;
+      scoreA++;
+      updateStreak(modeSelect.value === "chess-ai");
+      let winTxt = "Checkmate! White Wins";
+      if (hubState.theme === "naruto") winTxt = "Will of Fire: Checkmate!";
+      else if (hubState.theme === "itachi") winTxt = "Tsukuyomi Ascendant: Checkmate!";
+      showWinScreen(winTxt);
+      persistScores(); renderScores(); renderChess(); stopTurnTimer(); persistLiveState();
+      return;
+    } else {
+      handleChessDraw("Stalemate");
+      return;
+    }
+  }
+
   const humanDraw = checkChessDrawCondition(chessBoard, nextColor);
   if (humanDraw) {
     handleChessDraw(humanDraw);
@@ -2654,47 +2905,51 @@ function onChessClick(r, c) {
   startTurnTimer();
   persistLiveState();
 
+  // AI Turn Execution
   if (aiMode && chessTurn === "b" && !chessOver) {
     if (hubState.timer === "off" && statusPill) statusPill.textContent = "AI Thinking...";
     setTimeout(() => {
       saveChessSnapshot();
       const diff = hubState.difficulty || difficultySelect?.value || "medium";
-      const allMoves = allMovesForColor(chessBoard, "b");
-      let mv = null;
-
-      if (diff === "easy") {
-        if (Math.random() < 0.35 && allMoves.length) {
-          mv = allMoves[Math.floor(Math.random() * allMoves.length)];
-        } else {
-          const res = minimaxChess(chessBoard, 1, -Infinity, Infinity, true);
-          mv = res.move || allMoves[0];
-        }
-      } else if (diff === "medium") {
-        const res = minimaxChess(chessBoard, 2, -Infinity, Infinity, true);
-        mv = res.move || allMoves[0];
-      } else {
-        // Hard: Depth 3 search with PST and MVV-LVA move ordering
-        const res = minimaxChess(chessBoard, 3, -Infinity, Infinity, true);
-        mv = res.move || allMoves[0];
-      }
+      const mv = chooseChessAiMove(chessBoard, diff);
 
       if (mv) {
         moveChess(chessBoard, mv, true);
         moveCount++;
         updateMoveCounter(true);
-        if (!chessOver) {
-          const aiDraw = checkChessDrawCondition(chessBoard, "w");
-          if (aiDraw) {
-            handleChessDraw(aiDraw);
+
+        // Checkmate / Stalemate detection after AI move
+        const afterAiLegalMoves = getLegalMovesForColor(chessBoard, "w");
+        if (afterAiLegalMoves.length === 0) {
+          if (isKingInCheck(chessBoard, "w")) {
+            // Checkmate! Black AI wins!
+            chessOver = true;
+            scoreB++;
+            updateStreak(false);
+            let winTxt = "Checkmate! Black Wins";
+            if (hubState.theme === "naruto") winTxt = "Akatsuki Rules: Checkmate!";
+            else if (hubState.theme === "itachi") winTxt = "Crow Flight: Checkmate!";
+            showWinScreen(winTxt);
+            persistScores(); renderScores(); renderChess(); stopTurnTimer(); persistLiveState();
+            return;
+          } else {
+            handleChessDraw("Stalemate");
             return;
           }
-          chessTurn = "w";
         }
+
+        const aiDraw = checkChessDrawCondition(chessBoard, "w");
+        if (aiDraw) {
+          handleChessDraw(aiDraw);
+          return;
+        }
+
+        chessTurn = "w";
       }
       renderChess();
       startTurnTimer();
       persistLiveState();
-    }, 420);
+    }, 380);
   }
 }
 
