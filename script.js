@@ -6092,27 +6092,6 @@ pattuTimeTravelBtn?.addEventListener("click", () => {
   if (pattuTtTargetDay) pattuTtTargetDay.textContent = `Day #${defaultSelectedDay}`;
   if (pattuTtFormattedDate) pattuTtFormattedDate.textContent = formatPattuDisplayDate(defaultDateStr);
   pattuTtManualWrap?.classList.add("hidden");
-
-    const qpEl = document.getElementById("pattuTtQuickPicks");
-  if (qpEl && typeof PATTU_BUNDLED_DAYS !== "undefined") {
-    qpEl.innerHTML = PATTU_BUNDLED_DAYS.map(b => 
-      `<button type="button" class="pattu-tt-chip${b.day === defaultSelectedDay ? ' active' : ''}" data-day="${b.day}">
-         ${b.movie} <span class="pattu-chip-day">#${b.day}</span>
-       </button>`
-    ).join("");
-    qpEl.querySelectorAll(".pattu-tt-chip").forEach(btn => {
-      btn.onclick = () => {
-        const day = Number(btn.dataset.day);
-        if (pattuDayInput) pattuDayInput.value = String(day);
-        const dateStr = pattuDayToDateStr(day);
-        if (pattuDateInput) pattuDateInput.value = dateStr;
-        if (pattuTtTargetDay) pattuTtTargetDay.textContent = `Day #${day}`;
-        if (pattuTtFormattedDate) pattuTtFormattedDate.textContent = formatPattuDisplayDate(dateStr);
-        qpEl.querySelectorAll(".pattu-tt-chip").forEach(c => c.classList.toggle("active", c === btn));
-      };
-    });
-  }
-
   pattuTimeTravelModal?.classList.remove("hidden");
 });
 
