@@ -7382,3 +7382,57 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
     filter: drop-shadow(0 0 18px rgba(239, 68, 68, 1));
   }
 }
+
+/* =========================================================================
+   PATTU TIME TRAVEL OFFLINE MOVIE CHIPS
+   ========================================================================= */
+.pattu-tt-offline-picker-wrap {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+.pattu-tt-offline-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.pattu-tt-quick-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.pattu-tt-chip {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.pattu-tt-chip:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  transform: translateY(-1px);
+}
+.pattu-tt-chip.active {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  border-color: #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+.pattu-chip-day {
+  font-size: 0.68rem;
+  opacity: 0.75;
+}
