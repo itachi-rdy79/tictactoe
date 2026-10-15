@@ -608,19 +608,15 @@ body[data-theme="light"] .active-game-badge {
           </button>
           <div class="theme-menu glass-panel" id="themeMenu">
             <button class="theme-item active" data-theme="dark" type="button" title="Dark Theme">
-              <span class="theme-dot dot-dark"></span>
               <span class="theme-name">Dark</span>
             </button>
             <button class="theme-item" data-theme="light" type="button" title="White Theme">
-              <span class="theme-dot dot-white"></span>
               <span class="theme-name">White</span>
             </button>
             <button class="theme-item" data-theme="itachi" type="button" title="Itachi Theme">
-              <span class="theme-dot dot-itachi"></span>
               <span class="theme-name">Itachi</span>
             </button>
             <button class="theme-item" data-theme="naruto" type="button" title="Naruto Theme">
-              <span class="theme-dot dot-naruto"></span>
               <span class="theme-name">Naruto</span>
             </button>
           </div>
@@ -694,9 +690,45 @@ body[data-theme="light"] .active-game-badge {
         themeTrigger?.setAttribute("aria-expanded", "false");
       }
 
+      let lastBrandTapTime = 0;
+
+      function cycleColor() {
+        applyPalette(currentPaletteIdx + 1);
+        if (brand) {
+          brand.classList.add("brand-click-pulse");
+          setTimeout(() => brand.classList.remove("brand-click-pulse"), 400);
+        }
+        collapsePill();
+      }
+
+      brand?.addEventListener("click", function(e) {
+        e.stopPropagation();
+        const now = Date.now();
+        if (now - lastBrandTapTime < 380) {
+          lastBrandTapTime = 0;
+          cycleColor();
+          return;
+        }
+        lastBrandTapTime = now;
+
+        const isExpanded = floatingPill?.classList.contains("expanded");
+        if (!isExpanded) {
+          expandPill();
+        } else {
+          collapsePill();
+        }
+      });
+
       floatingPill?.addEventListener("click", function(e) {
         if (!floatingPill.classList.contains("expanded")) {
           e.stopPropagation();
+          const now = Date.now();
+          if (now - lastBrandTapTime < 380) {
+            lastBrandTapTime = 0;
+            cycleColor();
+            return;
+          }
+          lastBrandTapTime = now;
           expandPill();
           return;
         }
@@ -706,23 +738,16 @@ body[data-theme="light"] .active-game-badge {
         }
       });
 
-      brand?.addEventListener("click", function(e) {
-        e.stopPropagation();
-        const isExpanded = floatingPill?.classList.contains("expanded");
-        if (!isExpanded) {
-          expandPill();
-        } else {
-          collapsePill();
-        }
-      });
-
       brand?.addEventListener("dblclick", function(e) {
         e.stopPropagation();
-        if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
-        applyPalette(currentPaletteIdx + 1);
-        brand.classList.add("brand-click-pulse");
-        setTimeout(() => brand.classList.remove("brand-click-pulse"), 400);
-        setTimeout(collapsePill, 150);
+        lastBrandTapTime = 0;
+        cycleColor();
+      });
+
+      floatingPill?.addEventListener("dblclick", function(e) {
+        e.stopPropagation();
+        lastBrandTapTime = 0;
+        cycleColor();
       });
 
       document.addEventListener("click", function(e) {

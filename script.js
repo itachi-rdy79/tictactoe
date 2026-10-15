@@ -442,6 +442,27 @@ function applyRandomPalette(target = null) {
   root.style.setProperty("--dyn-bg-dark", chosen.darkBg);
   root.style.setProperty("--dyn-bg-light", chosen.lightBg);
 
+  // Directly transform every GAP logo text element immediately
+  document.querySelectorAll(".logo-text, #gapLogoText").forEach(el => {
+    el.style.background = "linear-gradient(135deg, " + chosen.brand + " 0%, " + chosen.flame + " 50%, #ffffff 100%)";
+    el.style.webkitBackgroundClip = "text";
+    el.style.webkitTextFillColor = "transparent";
+    el.style.filter = "drop-shadow(0 0 16px " + chosen.glow + ")";
+  });
+
+  // Pulse floating pill with the newly selected palette glow
+  const pill = document.getElementById("floatingPill");
+  if (pill) {
+    pill.style.borderColor = chosen.brand;
+    pill.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.45), 0 0 20px " + chosen.glow;
+    setTimeout(() => {
+      if (pill) {
+        pill.style.borderColor = "";
+        pill.style.boxShadow = "";
+      }
+    }, 600);
+  }
+
   const brandEls = document.querySelectorAll(".brand, .dock-brand, #arcadeDock .dock-brand, #gapBrand, .nav-brand");
   brandEls.forEach(el => {
     el.title = `GAP • Palette: ${chosen.name} (Click to refresh colors)`;
@@ -6679,12 +6700,50 @@ function initScenicLandingAndNav() {
     document.getElementById("themePicker")?.classList.remove("open");
   };
 
-  // Single click / tap on GAP Pill or Trigger:
-  // - If collapsed: expands the pill to reveal actions drawer
-  // - If already expanded: collapses back immediately on tap
+  // Single click & Double click / tap on GAP Pill or Trigger:
+  let lastBrandTapTime = 0;
+
+  function triggerGapColorCycle() {
+    applyRandomPalette();
+    const brandEl = document.getElementById("gapBrand");
+    if (brandEl) {
+      brandEl.classList.add("brand-click-pulse");
+      setTimeout(() => brandEl.classList.remove("brand-click-pulse"), 400);
+    }
+    collapsePill();
+  }
+
+  // Handle click on brand with fast double-click / double-tap detection
+  brand?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const now = Date.now();
+    if (now - lastBrandTapTime < 380) {
+      // Double tap / double click detected! Cycle color palette!
+      lastBrandTapTime = 0;
+      triggerGapColorCycle();
+      return;
+    }
+    lastBrandTapTime = now;
+
+    // Single click: toggle open / close
+    const isExpanded = floatingPill?.classList.contains("expanded");
+    if (!isExpanded) {
+      expandPill();
+    } else {
+      collapsePill();
+    }
+  });
+
   floatingPill?.addEventListener("click", (e) => {
     if (!floatingPill.classList.contains("expanded")) {
       e.stopPropagation();
+      const now = Date.now();
+      if (now - lastBrandTapTime < 380) {
+        lastBrandTapTime = 0;
+        triggerGapColorCycle();
+        return;
+      }
+      lastBrandTapTime = now;
       expandPill();
       return;
     }
@@ -6694,35 +6753,24 @@ function initScenicLandingAndNav() {
     }
   });
 
-  brand?.addEventListener("click", (e) => {
+  // Explicit dblclick listener as direct event fallback
+  brand?.addEventListener("dblclick", (e) => {
     e.stopPropagation();
-    const isExpanded = floatingPill?.classList.contains("expanded");
-    if (!isExpanded) {
-      expandPill();
-    } else {
-      collapsePill();
-    }
+    lastBrandTapTime = 0;
+    triggerGapColorCycle();
   });
 
-  // Double click on GAP / Brand / Logo: Cycles color palette AND auto-collapses pill
-  const handleGapDblClick = (e) => {
+  document.getElementById("gapLogoText")?.addEventListener("dblclick", (e) => {
     e.stopPropagation();
-    if (pillClickTimer) {
-      clearTimeout(pillClickTimer);
-      pillClickTimer = null;
-    }
+    lastBrandTapTime = 0;
+    triggerGapColorCycle();
+  });
 
-    // Cycle to next vibrant color palette!
-    applyRandomPalette();
-    brand?.classList.add("brand-click-pulse");
-    setTimeout(() => brand?.classList.remove("brand-click-pulse"), 400);
-
-    // Auto close pill after double clicking
-    collapsePill();
-  };
-
-  brand?.addEventListener("dblclick", handleGapDblClick);
-  document.getElementById("gapLogoText")?.addEventListener("dblclick", handleGapDblClick);
+  floatingPill?.addEventListener("dblclick", (e) => {
+    e.stopPropagation();
+    lastBrandTapTime = 0;
+    triggerGapColorCycle();
+  });
 
   // Clicking anywhere outside the floating pill automatically collapses it
   document.addEventListener("click", (e) => {
@@ -7283,17 +7331,17 @@ function renderLudoTokens(CELL) {
       if (pos === -1) {
         // In Yard Pocket
         const pt = LUDO_YARD_POCKETS[color][tokenIdx];
-        coords = { x: pt[0], y: pt[1], key: `yard_${color}_${tokenIdx}` };
+        coords = { x: pt[0], y: pt[1], key: "yard_" + color + "_" + tokenIdx };
       } else if (pos >= 0 && pos <= 50) {
         // On 52-square track
         const trackIdx = (LUDO_START_OFFSETS[color] + pos) % 52;
         const gridPos = LUDO_TRACK[trackIdx];
-        coords = { x: (gridPos[0] + 0.5) * CELL, y: (gridPos[1] + 0.5) * CELL, key: `${gridPos[0]},${gridPos[1]}` };
+        coords = { x: (gridPos[0] + 0.5) * CELL, y: (gridPos[1] + 0.5) * CELL, key: gridPos[0] + "," + gridPos[1] };
       } else if (pos >= 51 && pos <= 55) {
         // In Home Straight
         const straightIdx = pos - 51;
         const gridPos = LUDO_HOME_PATHS[color][straightIdx];
-        coords = { x: (gridPos[0] + 0.5) * CELL, y: (gridPos[1] + 0.5) * CELL, key: `h_${color}_${straightIdx}` };
+        coords = { x: (gridPos[0] + 0.5) * CELL, y: (gridPos[1] + 0.5) * CELL, key: "h_" + color + "_" + straightIdx };
       } else if (pos === 56) {
         // Reached Center Goal
         const goalOffsets = {
@@ -7302,7 +7350,7 @@ function renderLudoTokens(CELL) {
           yellow: { x: 335, y: 300 },
           blue:   { x: 300, y: 335 }
         };
-        coords = { x: goalOffsets[color].x, y: goalOffsets[color].y, key: `goal_${color}` };
+        coords = { x: goalOffsets[color].x, y: goalOffsets[color].y, key: "goal_" + color };
       }
 
       if (coords) {
@@ -7312,18 +7360,27 @@ function renderLudoTokens(CELL) {
     });
   });
 
-  // Render tokens with gentle offsets if sharing squares
+  // Render tokens with non-overlapping, distinct hit targets when multiple tokens share a space
   Object.values(posMap).forEach(group => {
     const count = group.length;
     group.forEach((item, i) => {
       let ox = 0;
       let oy = 0;
+      let tokenRadius = 15;
+      let hitRadius = 17;
+
       if (count === 2) {
-        ox = (i === 0) ? -7 : 7;
+        // 2 tokens on same space: clean left & right separation with smaller radius so both fit comfortably
+        ox = (i === 0) ? -10 : 10;
+        tokenRadius = 12;
+        hitRadius = 14;
       } else if (count >= 3) {
-        const offsets = [[-6, -6], [6, -6], [-6, 6], [6, 6]];
-        ox = offsets[i % 4][0];
-        oy = offsets[i % 4][1];
+        // 3 or 4 tokens: 4 distinct quadrants so each is individually clickable
+        const quadOffsets = [[-10, -10], [10, -10], [-10, 10], [10, 10]];
+        ox = quadOffsets[i % 4][0];
+        oy = quadOffsets[i % 4][1];
+        tokenRadius = 9.5;
+        hitRadius = 11.5;
       }
 
       const tx = item.coords.x + ox;
@@ -7331,21 +7388,18 @@ function renderLudoTokens(CELL) {
       const isMovable = (item.color === activeColor && legalMoves.includes(item.tokenIdx));
       const colData = LUDO_COLORS[item.color];
 
-      tokensHtml += `
-        <g class="ludo-token ${item.color}-token ${isMovable ? 'can-move' : ''}" 
-           data-color="${item.color}" 
-           data-token="${item.tokenIdx}" 
-           style="cursor: ${isMovable ? 'pointer' : 'default'}">
-          ${isMovable ? `<circle cx="${tx}" cy="${ty}" r="21" fill="none" stroke="#fbbf24" stroke-width="3" stroke-dasharray="4,2" class="ludo-pulse-ring"/>` : ''}
-          <!-- 3D Glossy Token Body -->
-          <!-- Generous click hit target for mouse cursor & touch -->
-            <circle cx="${tx}" cy="${ty}" r="22" fill="transparent" pointer-events="all" style="cursor: ${isMovable ? 'pointer' : 'default'}"/>
-            <circle cx="${tx}" cy="${ty}" r="15" fill="url(#ludoTokenGrad_${item.color})" stroke="#111111" stroke-width="1.8" filter="drop-shadow(0 3px 5px rgba(0,0,0,0.5))" pointer-events="all"/>
-          <!-- Inner Specular & Pawn Ring -->
-          <circle cx="${tx}" cy="${ty}" r="7" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.2"/>
-          <ellipse cx="${tx - 4}" cy="${ty - 4}" rx="4" ry="2.2" fill="rgba(255,255,255,0.7)"/>
-        </g>
-      `;
+      tokensHtml += '<g class="ludo-token ' + item.color + '-token ' + (isMovable ? 'can-move' : '') + '" ' +
+        'data-color="' + item.color + '" ' +
+        'data-token="' + item.tokenIdx + '" ' +
+        'style="cursor: ' + (isMovable ? 'pointer' : 'default') + '">' +
+        (isMovable ? '<circle cx="' + tx + '" cy="' + ty + '" r="' + (tokenRadius + 5) + '" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="3,2" class="ludo-pulse-ring"/>' : '') +
+        '<!-- Non-overlapping click hit target for mouse cursor & touch -->' +
+        '<circle cx="' + tx + '" cy="' + ty + '" r="' + hitRadius + '" fill="transparent" pointer-events="all" style="cursor: ' + (isMovable ? 'pointer' : 'default') + '"/>' +
+        '<circle cx="' + tx + '" cy="' + ty + '" r="' + tokenRadius + '" fill="url(#ludoTokenGrad_' + item.color + ')" stroke="#111111" stroke-width="1.8" filter="drop-shadow(0 3px 5px rgba(0,0,0,0.5))" pointer-events="all"/>' +
+        '<!-- Inner Specular & Pawn Ring -->' +
+        '<circle cx="' + tx + '" cy="' + ty + '" r="' + Math.max(4, tokenRadius * 0.45) + '" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.1"/>' +
+        '<ellipse cx="' + (tx - tokenRadius * 0.25) + '" cy="' + (ty - tokenRadius * 0.25) + '" rx="' + Math.max(2, tokenRadius * 0.25) + '" ry="' + Math.max(1.2, tokenRadius * 0.15) + '" fill="rgba(255,255,255,0.7)"/>' +
+        '</g>';
     });
   });
 
@@ -7559,10 +7613,25 @@ function handleLudoTokenClick(color, tokenIdx) {
     return;
   }
 
-  if (color === activeColor && ludoState.mustMove) {
-    const legal = getLegalLudoTokens(color, ludoState.diceValue);
-    if (legal.includes(tokenIdx)) {
+  if (ludoState.mustMove) {
+    const legal = getLegalLudoTokens(activeColor, ludoState.diceValue);
+    if (color === activeColor && legal.includes(tokenIdx)) {
       moveLudoToken(color, tokenIdx);
+      return;
+    }
+    // If multiple tokens are stacked or player clicked their piece on this space
+    const targetPos = (ludoState.tokens[color] && ludoState.tokens[color][tokenIdx] !== undefined) ? ludoState.tokens[color][tokenIdx] : null;
+    if (targetPos !== null) {
+      // Find active player's legal token on the same position
+      const legalOnSamePos = legal.find(idx => ludoState.tokens[activeColor][idx] === targetPos);
+      if (legalOnSamePos !== undefined) {
+        moveLudoToken(activeColor, legalOnSamePos);
+        return;
+      }
+    }
+    // If only one legal move exists, moving it ensures user never gets stuck
+    if (legal.length === 1) {
+      moveLudoToken(activeColor, legal[0]);
     }
   }
 }

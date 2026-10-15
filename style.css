@@ -7274,3 +7274,92 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
 .active-game-badge {
   font-size: 0.8rem !important;
 }
+
+
+/* =========================================================================
+   LUDO BOARD STABILITY & CALM STATIONARY TOKENS (NO JUMPING)
+   ========================================================================= */
+
+/* Ensure theme dots are completely hidden across all themes */
+.theme-dot {
+  display: none !important;
+}
+
+.theme-item {
+  padding: 8px 14px !important;
+  gap: 0 !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+/* Stable Ludo Shell & Control Bar with zero height jitter */
+.board-shell.ludo-mode {
+  contain: layout !important;
+  transform: none !important;
+}
+
+.ludo-control-bar {
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px !important;
+  flex-shrink: 0 !important;
+}
+
+.ludo-turn-indicator {
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Stop Dice Box from pulsing scale which caused the board to jump up and down */
+.ludo-dice-box.ready-to-roll {
+  animation: ludoDiceGlowPulse 1.4s infinite ease-in-out !important;
+  transform: none !important;
+}
+
+@keyframes ludoDiceGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.4), 0 4px 18px rgba(0, 0, 0, 0.45) !important;
+    border-color: #38bdf8 !important;
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(56, 189, 248, 0.95), 0 4px 18px rgba(0, 0, 0, 0.5) !important;
+    border-color: #67e8f9 !important;
+  }
+}
+
+/* Stop Ludo Tokens from jumping or scaling across the SVG viewBox! */
+.ludo-token {
+  transform: none !important;
+  cursor: pointer;
+  transition: filter 0.2s ease !important;
+}
+
+.ludo-token:hover {
+  filter: brightness(1.25) drop-shadow(0 0 8px #fbbf24) !important;
+  transform: none !important;
+}
+
+.ludo-token.can-move {
+  animation: none !important;
+  transform: none !important;
+  cursor: pointer !important;
+  filter: drop-shadow(0 0 6px #fbbf24) !important;
+}
+
+.ludo-pulse-ring {
+  animation: ludoRingStationaryPulse 1.2s infinite ease-in-out !important;
+  transform: none !important;
+}
+
+@keyframes ludoRingStationaryPulse {
+  0%, 100% {
+    opacity: 0.5;
+    stroke-width: 2.2;
+  }
+  50% {
+    opacity: 1;
+    stroke-width: 3.8;
+  }
+}
