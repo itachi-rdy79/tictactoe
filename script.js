@@ -1,4 +1,4 @@
-var ludoActiveTimers = [];
+﻿var ludoActiveTimers = [];
 var ludoRollInterval = null;
 const modeSelect = document.getElementById("modeSelect");
 const difficultySelect = document.getElementById("difficultySelect");
@@ -2953,256 +2953,268 @@ function onChessClick(r, c) {
   }
 }
 
-/* ---------- Wordle Engine & Offline Dictionary ---------- */
-const WORDLE_TIERS = {
-  easy: [
-    "APPLE","BEACH","BREAD","CHAIR","CLEAN","CLOUD","CRANE","DANCE","EARTH","FLAME",
-    "FRUIT","GRASS","GREEN","HEART","HOUSE","LIGHT","MONEY","MUSIC","NIGHT","OCEAN",
-    "PARTY","PHONE","PIANO","PLANT","POWER","QUEEN","RADIO","RIVER","ROUND","SHARE",
-    "SHINE","SIGHT","SLEEP","SMILE","SNAKE","SPACE","STAGE","STORM","SUGAR","SWEET",
-    "TABLE","TIGER","TRAIN","TRUTH","VOICE","WATCH","WATER","WHITE","WOMAN","WORLD",
-    "YOUTH","ANGEL","BIRTH","BLACK","BRAIN","BRAVE","BROWN","CHILD","CLOCK","CROSS",
-    "CROWN","DREAM","DRIVE","EAGLE","EARLY","FIELD","FIRST","FLASH","FRESH","FRONT",
-    "GLASS","GLOBE","GLOVE","GRACE","GRAND","GRAPE","GREAT","GROUP","GUARD","GUIDE",
-    "HAPPY","HORSE","HOTEL","IMAGE","LARGE","LEARN","LEMON","LUCKY","MAGIC","MAJOR",
-    "MARCH","MATCH","METAL","MOUNT","MOUSE","MOUTH","NOBLE","NORTH","OFFER","PAINT",
-    "PAPER","PEACE","PEACH","PILOT","PITCH","PLACE","PLAIN","PLANE","PLATE","POINT",
-    "PRIDE","PRIZE","PROUD","QUIET","RANGE","REACH","RIGHT","ROBOT","ROYAL","SCALE",
-    "SCENE","SCOPE","SCORE","SHAPE","SHARP","SHIRT","SHOCK","SHOOT","SHORT","SKILL",
-    "SMART","SOLID","SOUND","SOUTH","SPEAK","SPEED","SPEND","SPORT","STAFF","STAND",
-    "START","STATE","STEAM","STEEL","STONE","STORY","STYLE","TASTE","TEACH","THANK",
-    "THEME","THINK","TOTAL","TOUCH","TOWER","TRACK","TRADE","TREAT","TREND","TRIAL",
-    "TRUCK","TRUST","UNCLE","UNDER","UNION","VALUE","VIDEO","VISIT","WHEEL","WHOLE",
-    "WRITE","WRONG"
-  ],
-  medium: [
-    "ABOVE","ACUTE","ADAPT","ADMIT","ADULT","ALERT","ALIVE","ALLOW","ALTER","AMBER",
-    "ANGER","ANGLE","ANGRY","APART","APPLY","ARENA","ARGUE","ARISE","ARROW","ASIDE",
-    "ASSET","AUDIO","AUDIT","AVOID","AWAIT","AWAKE","AWARD","AWARE","BADGE","BASIC",
-    "BASIN","BASIS","BATCH","BEAST","BEGAN","BEGIN","BEGUN","BEING","BELOW","BENCH",
-    "BERRY","BLADE","BLAME","BLANK","BLAST","BLAZE","BLEED","BLEND","BLESS","BLIND",
-    "BLINK","BLOCK","BLOOD","BLOOM","BLOWN","BLUSH","BOARD","BOAST","BOOST","BOOTH",
-    "BOUND","BRACE","BRAID","BRAKE","BRAND","BRASS","BREED","BRICK","BRIDE","BRIEF",
-    "BRING","BROAD","BROKE","BROOK","BROOM","BROTH","BRUSH","BUILD","BUILT","BURST",
-    "CABIN","CABLE","CAMEL","CANAL","CANDY","CANOE","CARGO","CARRY","CARVE","CATER",
-    "CAUSE","CEASE","CELLO","CHALK","CHAMP","CHANT","CHAOS","CHARM","CHART","CHASE",
-    "CHASM","CHEAP","CHEAT","CHECK","CHEEK","CHEER","CHEST","CHIEF","CHILL","CHIPS",
-    "CHOIR","CHOKE","CHORD","CHOSE","CHUNK","CIDER","CIGAR","CIVIC","CIVIL","CLAIM",
-    "CLAMP","CLASH","CLASP","CLASS","CLEAR","CLERK","CLICK","CLIFF","CLIMB","CLOAK",
-    "CLONE","CLOSE","CLOTH","CLOWN","COAST","COBRA","COCOA","COLON","COLOR","COMET",
-    "COMIC","CORAL","COUCH","COUGH","COULD","COUNT","COURT","COVER","CRACK","CRAFT",
-    "CRASH","CRATE","CRAZY","CREAM","CREEK","CREST","CRIME","CRISP","CROWD","CRUEL",
-    "CRUSH","CRUST","CUBIC","CURRY","CURSE","CURVE","CYCLE","DAILY","DAIRY","DATED",
-    "DEALT","DEATH","DEBIT","DEBUT","DECAY","DECOR","DELAY","DELTA","DEMON","DENSE",
-    "DEPOT","DEPTH","DERBY","DETER","DEVIL","DIARY","DIGIT","DIRTY","DISCO","DITCH",
-    "DIVER","DODGE","DOING","DONOR","DONUT","DOUBT","DOUGH","DOZEN","DRAFT","DRAIN",
-    "DRAMA","DRANK","DRAWN","DREAD","DRESS","DRIED","DRIFT","DRILL","DRINK","DROLL",
-    "DROVE","DROWN","DRUNK","DRYER","DUSKY","DUSTY","DUTCH","DWELL","DYING","EAGER",
-    "EASEL","EATEN","EIGHT","ELBOW","ELDER","ELECT","ELITE","EMBER","EMPTY","ENACT",
-    "ENEMY","ENJOY","ENTER","ENTRY","EQUAL","EQUIP","ERASE","ERECT","ERROR","ERUPT",
-    "ESSAY","ETHER","ETHIC","EVENT","EVERY","EXACT","EXALT","EXCEL","EXERT","EXILE",
-    "EXIST","EXTRA","FAINT","FAITH","FALSE","FANCY","FATAL","FAULT","FAVOR","FEAST",
-    "FEVER","FIBER","FIEND","FIFTH","FIFTY","FIGHT","FINAL","FINCH","FIRST","FISHY",
-    "FLASK","FLEET","FLESH","FLOAT","FLOCK","FLOOD","FLOOR","FLOUR","FLOWN","FLUID",
-    "FLUTE","FOCUS","FORCE","FORGE","FORTH","FORTY","FORUM","FOUND","FOYER","FRAIL",
-    "FRAME","FRANK","FRAUD","FREAK","FROST","FROZE","FUDGE","FUNNY","GIANT","GIVEN",
-    "GLARE","GLAZE","GLEAM","GLIDE","GLORY","GOING","GOOSE","GORGE","GRAIN","GRANT",
-    "GRAPH","GRASP","GRAVE","GRAVY","GREED","GREET","GRIEF","GRILL","GRIND","GROAN",
-    "GROOM","GROSS","GROVE","GROWL","GROWN","GRUNT","GUESS","GUEST","GUILT","HABIT",
-    "HAIRY","HANDY","HARSH","HASTE","HASTY","HATCH","HAVEN","HAVOC","HAZEL","HEAVY",
-    "HEDGE","HELLO","HENCE","HONEY","HONOR","HOUND","HOVER","HUMAN","HUMID","HUMOR",
-    "HURRY","INDEX","INNER","INPUT","ISSUE","IVORY","JEANS","JELLY","JEWEL","JOINT",
-    "JOKER","JUDGE","JUICE","JUICY","KNIFE","KNOCK","KNOWN","LABEL","LABOR","LASER",
-    "LATCH","LATER","LAUGH","LAYER","LEAST","LEAVE","LEGAL","LEVEL","LEVER","LIMIT",
-    "LINEN","LOCAL","LODGE","LOGIC","LOOSE","LOWER","LOYAL","LUCID","LUNCH","MAGIC",
-    "MAKER","MANOR","MARRY","MARSH","MASON","MAYOR","MEANT","MEDAL","MEDIA","MELON",
-    "MERCY","MERGE","MERIT","MERRY","METER","METRO","MICRO","MIDST","MIGHT","MINOR",
-    "MINUS","MODEL","MODEM","MOIST","MONTH","MORAL","MOTOR","MOTTO","MOUNT","MOURN",
-    "MOUSE","MOUTH","MOVIE","MUDDY","MURAL","MUSIC","NAIVE","NERVE","NEVER","NEWER",
-    "NICER","NICHE","NIGHT","NINJA","NINTH","NOBLE","NOISE","NORTH","NOTED","NOVEL",
-    "NURSE","OCCUR","OCTAL","OFFER","OFTEN","OLDER","OLIVE","ONION","ONSET","OPERA",
-    "OPTIC","ORBIT","ORDER","ORGAN","OTHER","OTTER","OUGHT","OUNCE","OUTER","OWNER",
-    "OXIDE","PAGAN","PANEL","PANIC","PAPER","PARTY","PASTA","PASTE","PATCH","PATIO",
-    "PAUSE","PEARL","PENNY","PERCH","PERIL","PETAL","PHASE","PHOTO","PIECE","PINCH",
-    "PITCH","PIXEL","PIZZA","PLAZA","POINT","POLAR","PORCH","POUND","POWER","PRANK",
-    "PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRIZE","PROBE","PRONE","PROOF",
-    "PROSE","PROUD","PROVE","PULSE","PUNCH","PUPIL","PUPPY","PURSE","QUEEN","QUERY",
-    "QUEST","QUICK","QUIET","QUOTA","QUOTE","RADAR","RADIO","RAISE","RALLY","RANCH",
-    "RAPID","RATIO","RAVEN","RAZOR","REACT","READY","REALM","REBEL","REFER","RELAX",
-    "REPLY","RESET","RIDGE","RIGHT","RIGID","RIVAL","ROAST","ROBOT","ROUGH","ROUTE",
-    "ROYAL","RULER","RUMOR","RURAL","RUSTY","SADLY","SAINT","SALAD","SALON","SALSA",
-    "SALTY","SAUCE","SAUNA","SAVOR","SCALE","SCARF","SCENE","SCENT","SCOPE","SCORE",
-    "SCORN","SCOUT","SCRAP","SCREW","SCRUB","SEDAN","SEIZE","SENSE","SERVE","SETUP",
-    "SEVEN","SEVER","SHADE","SHAFT","SHAKE","SHAME","SHARE","SHARK","SHARP","SHEEP",
-    "SHEET","SHELF","SHELL","SHIFT","SHINE","SHIRT","SHOCK","SHOOT","SHORE","SHORT",
-    "SHOUT","SHOWN","SIGHT","SINCE","SIREN","SIXTH","SIXTY","SKILL","SKIRT","SKULL",
-    "SLASH","SLATE","SLEEP","SLICE","SLIDE","SLOPE","SMART","SMELL","SMILE","SMOKE",
-    "SNACK","SNAKE","SOLAR","SOLID","SOLVE","SORRY","SOUND","SOUTH","SPACE","SPARE",
-    "SPARK","SPEAK","SPEAR","SPEED","SPELL","SPEND","SPENT","SPICE","SPICY","SPILL",
-    "SPINE","SPITE","SPLIT","SPOON","SPORT","SPRAY","SQUAD","STAFF","STAGE","STAIN",
-    "STAIR","STAKE","STALE","STAMP","STAND","STARE","START","STATE","STEAM","STEEL",
-    "STEEP","STEER","STICK","STIFF","STILL","STOCK","STONE","STOOL","STOOP","STORE",
-    "STORM","STORY","STRAP","STRAW","STRIP","STUCK","STUDY","STUFF","STYLE","SUGAR",
-    "SUITE","SUNNY","SUPER","SURGE","SWEAT","SWEET","SWIFT","SWING","SWORD","TABLE",
-    "TAKEN","TASTE","TEACH","TEETH","TEMPO","THANK","THEFT","THEIR","THEME","THERE",
-    "THESE","THICK","THIEF","THIGH","THING","THINK","THIRD","THOSE","THREE","THREW",
-    "THROW","THUMB","TIGER","TIGHT","TIMER","TITLE","TOAST","TODAY","TOKEN","TOOTH",
-    "TOPIC","TOTAL","TOUCH","TOUGH","TOWER","TOXIC","TRACE","TRACK","TRADE","TRAIL",
-    "TRAIN","TRAIT","TRASH","TREAT","TREND","TRIAL","TRIBE","TRICK","TRIED","TROOP",
-    "TRUCK","TRULY","TRUMP","TRUNK","TRUST","TRUTH","TUTOR","TWICE","TWIST","UNCLE",
-    "UNDER","UNION","UNITE","UNITY","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL",
-    "VALID","VALUE","VALVE","VAPOR","VAULT","VEGAN","VENUE","VERSE","VIDEO","VIRAL",
-    "VIRUS","VISIT","VITAL","VOICE","VOTER","VOWEL","WASTE","WATCH","WATER","WEARY",
-    "WEAVE","WEIGH","WEIRD","WHEAT","WHEEL","WHERE","WHICH","WHILE","WHITE","WHOLE",
-    "WHOSE","WIDOW","WIDTH","WINDY","WOMAN","WOMEN","WORLD","WORRY","WORSE","WORST",
-    "WORTH","WOULD","WOUND","WRIST","WRITE","WRONG","YACHT","YEARN","YEAST","YIELD",
-    "YOUNG","YOUTH","ZEBRA"
-  ],
-  hard: [
-    "KNOLL","VIVID","FJORD","PROXY","QUIRK","PUPPY","MUMMY","CYNIC","GAUZE","ENVOY",
-    "GLYPH","OZONE","WALTZ","CRYPT","ABYSS","AGONY","AMISS","ANNEX","APHID","ATOLL",
-    "AXIOM","BAYOU","BICEP","BOGEY","BOOZE","BUXOM","CABAL","COVEN","DECOY","DIZZY",
-    "DOWRY","DWARF","EPOXY","EQUIP","FEIGN","FERRY","FLAIL","FLUFF","FOYER","FUNKY",
-    "GAFFE","GECKO","GIZMO","GNOME","GOLEM","GOUGE","GUPPY","HYENA","ICHOR","IDIOM",
-    "IGLOO","IONIC","ITCHY","JAZZY","JERKY","JOUST","JUMBO","JUMPY","JUNTO","KAPUT",
-    "KAYAK","KAZOO","KHAKI","KINKY","KIOSK","KOALA","KRILL","KUDOS","LEMUR","LILAC",
-    "LIMBO","LIVID","LLAMA","LOBBY","LYMPH","MADAM","MAFIA","MAGMA","MAMBO","MAXIM",
-    "MIMIC","MINX","MODAL","MOCHA","MOGUL","MYRRH","NADIR","NANNY","NYMPH","OCTAL",
-    "ODDLY","OFFAL","OGRE","OPINE","OPIUM","OXIDE","PADDY","PALSY","PAPPY","PIQUE",
-    "PIZZA","POLYP","POPPY","POSSE","POUCH","PYGMY","QUACK","QUAFF","QUAIL","QUAKE",
-    "QUALM","QUARK","QUART","QUASH","QUASI","QUELL","QUEUE","QUILL","QUILT","RADII",
-    "RADON","RAYON","RHINO","ROUGE","SALVO","SAVVY","SCION","SCOFF","SEGUE","SHEIK",
-    "SHREW","SHRUB","SHRUG","SKULK","SLOTH","SMELT","SNOUT","SNOWY","SPASM","SQUID",
-    "SWAMI","SWAMP","SYNOD","TAFFY","TALON","THYME","TIARA","TIBIA","TITAN","TONIC",
-    "TOPAZ","TOXIN","TRAWL","TRIAD","TRITE","TROLL","TWANG","UDDER","ULCER","ULTRA",
-    "UMBRA","UNFED","UNFIT","UNIFY","UNLIT","UNMET","UNSET","UNTIE","UNZIP","UPBEAT",
-    "USURP","VALET","VALOR","VENOM","VERGE","VICAR","VIGOR","VILLA","VINYL","VIOLA",
-    "VIPER","VISOR","VISTA","VIXEN","VODKA","VOGUE","VOILA","WAFER","WAGER","WHELP",
-    "WHINY","WHIRL","WHISK","WIGHT","WINCH","WOKEN","WRACK","WRATH","WREAK","WRECK",
-    "WRUNG","WRYLY","XENON","YUCCA","ZESTY","ZILCH","ZONAL"
-  ]
-};
+/* ==========================================================================
+   AUTHENTIC WORDLE ENGINE (Josh Wardle Powerlanguage Fidelity)
+   ========================================================================== */
 
-const WORDLE_DICTIONARY_RAW = "ABOUT ABOVE ABUSE ACTOR ACUTE ADAPT ADMIT ADOPT ADULT AFTER AGAIN AGENT AGREE AHEAD AISLE ALARM ALBUM ALERT ALIKE ALIVE ALLOW ALONE ALONG ALTER AMBER AMISS AMONG AMUSE ANGEL ANGER ANGLE ANGRY ANNEX ANNOY APART APHID APPLE APPLY ARENA ARGUE ARISE ARRAY ARROW ASIDE ASSET ATOLL AUDIO AUDIT AVOID AWAIT AWAKE AWARD AWARE AWFUL AXIOM BACON BADGE BADLY BAKER BALDY BANJO BARGE BARON BASIC BASIN BASIS BATCH BATHE BAYOU BEACH BEAST BEGAN BEGIN BEGUN BEING BELLY BELOW BENCH BERRY BERTH BESET BIBLE BICEP BIKER BIRTH BISON BLACK BLADE BLAME BLANK BLAST BLAZE BLEAK BLEED BLEND BLESS BLIMP BLIND BLINK BLISS BLOCK BLOND BLOOD BLOOM BLOWN BLUFF BLUNT BLURB BLURT BLUSH BOARD BOAST BOBBY BOGEY BOOST BOOTH BOOTY BOOZE BOSOM BOSSY BOUND BOWEL BOXER BRACE BRAID BRAIN BRAKE BRAND BRASS BRAVE BREAD BREAK BREED BRIAR BRIBE BRICK BRIDE BRIEF BRINE BRING BRINK BROAD BROKE BROOD BROOK BROOM BROTH BROWN BRUSH BRUTE BUDDY BUILD BUILT BULGE BULLY BUNCH BUNNY BURST BUYER BYLAW CABAL CABIN CABLE CADET CAMEL CANAL CANDY CANOE CANON CARAT CARGO CARRY CARVE CATER CAUSE CEASE CELLO CHAIR CHALK CHAMP CHANT CHAOS CHARM CHART CHASE CHASM CHEAP CHEAT CHECK CHEEK CHEER CHESS CHEST CHICK CHIEF CHILD CHILL CHIPS CHOIR CHOKE CHORD CHOSE CHUCK CHUNK CHURN CIDER CIGAR CINCH CIRCA CIVIC CIVIL CLAIM CLAMP CLASH CLASP CLASS CLEAN CLEAR CLERK CLICK CLIFF CLIMB CLING CLOAK CLOCK CLONE CLOSE CLOTH CLOUD CLOVE CLOWN COAST COBRA COCOA COLON COLOR COMET COMIC CONDO CORAL COUCH COUGH COULD COUNT COUPE COURT COVEN COVER CRACK CRAFT CRANE CRANK CRASH CRATE CRAVE CRAZY CREAM CREEK CREEP CREST CRICK CRIME CRIMP CRISP CROAK CROCK CRONY CROOK CROSS CROWD CROWN CRUDE CRUEL CRUSH CRUST CRYPT CUBIC CUPID CURRY CURSE CURVE CYCLE CYNIC DADDY DAILY DAIRY DAISY DANCE DANDY DATED DEALT DEATH DEBIT DEBUT DECAL DECAY DECOY DECRY DEFER DEIGN DELAY DELTA DEMON DEMUR DENIM DENSE DEPOT DEPTH DERBY DETER DETOX DEUCE DEVIL DIARY DICEY DIGIT DINER DINGO DIRTY DISCO DITCH DIVER DIZZY DODGE DOGMA DOING DONOR DONUT DOPEY DOUBT DOUGH DOWRY DOZEN DRAFT DRAIN DRAMA DRANK DRAWN DREAD DREAM DRESS DRIED DRIFT DRILL DRINK DRIVE DROLL DRONE DROOP DROVE DROWN DRUID DRUNK DRYER DUCAL DULLY DUMMY DUMPY DUNCE DUSKY DUSTY DUTCH DWARF DWELL DYING EAGER EAGLE EARLY EARTH EASEL EATEN EATER EBONY ECLAT EDEMA EERIE EIGHT ELBOW ELDER ELECT ELEGY ELFIN ELITE ELUDE EMBER EMPTY ENACT ENDOW ENEMY ENJOY ENNUI ENTER ENTRY ENVOY EPOCH EPOXY EQUAL EQUIP ERASE ERECT ERODE ERROR ERUPT ESSAY ETHER ETHIC ETHOS EVADE EVENT EVERY EVICT EXACT EXALT EXCEL EXERT EXILE EXIST EXPEL EXTRA FAINT FAITH FAKIR FALSE FANCY FATAL FATTY FAULT FAUNA FAVOR FEAST FECAL FEIGN FEINT FELON FEMUR FENCE FERAL FERRY FETCH FEVER FEWER FIBER FIELD FIEND FIERY FIFTH FIFTY FIGHT FILER FILTH FINAL FINCH FINER FIRST FISHY FIXER FJORD FLACK FLAIL FLAIR FLAKE FLAME FLANK FLASH FLASK FLECK FLEET FLESH FLICK FLIER FLING FLINT FLIPS FLIRT FLOAT FLOCK FLOOD FLOOR FLORA FLOUR FLOWN FLUFF FLUID FLUKE FLUNG FLUSH FLUTE FLYER FOAMY FOCAL FOCUS FOGGY FOIST FOLIO FOLLY FORAY FORCE FORGE FORGO FORTE FORTH FORTY FORUM FOUND FOUNT FOYER FRAIL FRAME FRANK FRAUD FREAK FREED FREER FRESH FRIAR FRIED FRILL FRISK FROST FROTH FROWN FROZE FRUIT FUDGE FUGUE FULLY FUNGI FUNKY FUNNY FUROR FURRY FUSED FUSSY FUZZY GAFFE GAILY GAMER GAMMA GAMUT GAUGE GAUZE GAWKY GECKO GEESE GENIE GENRE GHOST GHOUL GIANT GIDDY GIVEN GIVER GLADE GLAND GLARE GLASS GLAZE GLEAM GLEAN GLIDE GLINT GLOAT GLOBE GLOOM GLORY GLOSS GLOVE GLYPH GNASH GNOME GODLY GOING GOLEM GONER GOOFY GOOSE GORGE GOUGE GOURD GRACE GRADE GRAFT GRAIL GRAIN GRAND GRANT GRAPE GRAPH GRASP GRASS GRATE GRAVE GRAVY GRAZE GREAT GREED GREEN GREET GRIEF GRILL GRIME GRIMY GRIND GRIPE GROAN GROIN GROOM GROSS GROUP GROUT GROVE GROWL GROWN GRUEL GRUFF GRUNT GUARD GUAVA GUESS GUEST GUIDE GUILD GUILT GUISE GULCH GULLY GUMBO GUMMY GUPPY GUSTO GUSTY HABIT HAIRY HALVE HANDY HAPPY HARDY HAREM HARSH HASTE HASTY HATCH HATER HAUNT HAUTE HAVEN HAVOC HAZEL HEADY HEARD HEART HEATH HEAVE HEAVY HEDGE HEFTY HELLO HENCE HERON HILLY HINGE HIPPO HIPPY HITCH HOARD HOBBY HOIST HOLLY HOMER HONEY HONOR HORDE HORSE HOTEL HOUND HOUSE HOVEL HOVER HOWDY HUMAN HUMID HUMOR HUMPH HUMUS HUNCH HURRY HUSKY HUTCH HYDRA HYENA HYPER ICING IDEAL IDIOT IGLOO ILIAC IMAGE IMBUE IMPEL IMPLY INANE INCUR INDEX INEPT INERT INFER INGOT INLAY INLET INNER INPUT INTER INTRO IONIC IRATE IRONY ISLET ISSUE ITCHY IVORY JAUNT JAZZY JELLY JERKY JETTY JEWEL JIFFY JOINT JOKER JOLLY JOUST JUDGE JUICE JUICY JUMBO JUMPY JUNTO JUROR KARMA KAYAK KEBAB KHAKI KIOSK KNACK KNAVE KNEAD KNEEL KNELT KNIFE KNOCK KNOLL KNOWN KOALA KRILL LABEL LABOR LADLE LAGER LANCE LANKY LAPEL LAPSE LARGE LARVA LASER LATCH LATER LATHE LATTE LAUGH LAYER LEACH LEAFY LEAKY LEANT LEAPT LEARN LEASE LEASH LEAST LEAVE LEDGE LEECH LEERY LEFTY LEGAL LEGGY LEMON LEMUR LEPER LEVEL LEVER LIBEL LIEGE LIGHT LIKEN LILAC LIMBO LIMIT LINEN LINER LINGO LIPID LITHE LIVER LIVID LLAMA LOAMY LOATH LOBBY LOCAL LOCUS LODGE LOFTY LOGIC LOGIN LOOSE LORRY LOSER LOTTO LOTUS LOUSE LOUSY LOVER LOWER LOWLY LOYAL LUCID LUCKY LUMEN LUMPY LUNAR LUNCH LUNGE LURCH LURID LUSTY LYING LYMPH LYNCH LYRIC MACAW MACHO MACRO MADAM MADLY MAFIA MAGIC MAGMA MAIZE MAJOR MAKER MAMBO MAMMA MAMMY MANGA MANGO MANGY MANIA MANIC MANLY MANOR MAPLE MARCH MARRY MARSH MASON MATCH MATEY MAUVE MAXIM MAYBE MAYOR MEALY MEANT MEATY MECCA MEDAL MEDIA MEDIC MELEE MELON MERCY MERGE MERIT MERRY METAL METER METRO MICRO MIDGE MIDST MIGHT MILKY MIMIC MINCE MINER MINOR MINTY MINUS MIRTH MISER MISSY MOCHA MODAL MODEL MODEM MOIST MOLAR MOLDY MONEY MONTH MOODY MOOSE MORAL MORON MORPH MOSSY MOTEL MOTIF MOTOR MOTTO MOULT MOUND MOUNT MOURN MOUSE MOUTH MOVER MOVIE MOWER MUCKY MUCUS MUDDY MULCH MUMMY MURAL MURKY MUSHY MUSIC MUSKY MUSTY MYRRH NADIR NAIVE NANNY NASAL NASTY NATAL NAVAL NAVEL NEEDY NEIGH NERDY NERVE NEVER NEWER NEWLY NICER NICHE NIECE NIGHT NINJA NINTH NOBLE NOBLY NOISE NOISY NOMAD NOOSE NORTH NOSEY NOTCH NOVEL NUDGE NURSE NUTTY NYMPH OASIS OBESE OCCUR OCEAN OCTAL OCTET ODDER ODDLY OFFAL OFFER OFTEN OLDER OLIVE OMEGA ONION ONSET OPERA OPINE OPIUM OPTIC ORBIT ORDER ORGAN OTHER OTTER OUGHT OUNCE OUTDO OUTER OUTGO OVARY OVATE OVERT OVINE OVOID OWING OWNER OXIDE OZONE PADDY PAGAN PAINT PALER PALSY PANEL PANIC PANSY PAPAL PAPER PARER PARKA PARRY PARSE PARTY PASTA PASTE PASTY PATCH PATIO PATSY PATTY PAUSE PAYEE PAYER PEACE PEACH PEARL PECAN PEDAL PENAL PENCE PENNE PENNY PERCH PERIL PERKY PESKY PESTO PETAL PETTY PHASE PHONE PHOTO PIANO PICKY PIECE PIETY PIGGY PILOT PINCH PINEY PINKY PINTO PIPER PIPES PIQUE PITCH PITHY PIVOT PIXEL PIZZA PLACE PLAID PLAIN PLAIT PLANE PLANK PLANT PLATE PLAZA PLEAD PLEAT PLIED PLIER PLUCK PLUMB PLUME PLUMP PLUSH POESY POINT POISE POKER POLAR POLKA POLYP POPPY PORCH POSER POSSE POUCH POUND POWER PRANK PRAWN PREEN PRESS PRICE PRICK PRIDE PRIED PRIME PRIMO PRINT PRIOR PRISM PRIVY PRIZE PROBE PRONE PRONG PROOF PROSE PROUD PROVE PROWL PROXY PRUDE PRUNE PSALM PUBIC PUDGY PUFFY PULSE PUNCH PUPIL PUPPY PUREE PURER PURGE PURSE PUSHY PUTTY PYGMY QUACK QUAFF QUAIL QUAKE QUALM QUARK QUART QUASH QUASI QUEEN QUEER QUELL QUERY QUEST QUEUE QUICK QUIET QUILL QUILT QUIRK QUITE QUOTA QUOTE RABBI RABID RACER RADAR RADII RADIO RAINY RAISE RAJAH RALLY RAMEN RANCH RANGE RAPID RARER RASPY RATIO RATTY RAVEN RAYON RAZOR REACH REACT READY REALM REARM REBAR REBEL REBUS REBUT RECAP RECUR REEDY REFER REFIT REGAL REHAB REIGN RELAX RELAY RELIC REMIT RENAL RENEW REPAY REPEL REPLY RESET RESIN RETRO REUSE REVEL REVUE RHINO RHYME RIDER RIDGE RIFLE RIGHT RIGID RIGOR RINSE RIPEN RIPER RISEN RISER RISKY RIVAL RIVER RIVET ROACH ROAST ROBIN ROBOT ROCKY RODEO ROGUE ROOMY ROOST ROTOR ROUGE ROUGH ROUND ROUSE ROUTE ROVER ROWDY ROYAL RUBLE RUDDY RUDER RUGBY RULER RUMBA RUMOR RUNNY RURAL RUSTY SADLY SAFER SAINT SALAD SALLY SALON SALSA SALTY SALVE SALVO SANDY SANER SAPPY SASSY SATIN SATYR SAUCE SAUCY SAUNA SAUTE SAVOR SAVVY SCALD SCALE SCALP SCALY SCAMP SCANT SCARE SCARF SCARY SCENE SCENT SCION SCOFF SCOLD SCONE SCOOP SCOPE SCORE SCORN SCOUR SCOUT SCOWL SCRAM SCRAP SCREE SCREW SCRUB SCRUM SCUBA SEDAN SEEDY SEGUE SEIZE SEMEN SENOR SENSE SEPIA SERIF SERUM SERVE SETUP SEVEN SEVER SEWER SHACK SHADE SHADY SHAFT SHAKE SHAKY SHALE SHALL SHAME SHANK SHAPE SHARD SHARE SHARK SHARP SHAVE SHAWL SHEAF SHEAR SHEEN SHEEP SHEER SHEET SHEIK SHELF SHELL SHIED SHIFT SHINE SHINY SHIRE SHIRK SHIRT SHOCK SHOED SHOOT SHORE SHORN SHORT SHOUT SHOVE SHOWN SHOWY SHREW SHRUB SHRUG SHUCK SHUNT SHUSH SHYLY SIEGE SIEVE SIGHT SIGMA SILKY SILLY SINCE SINEW SINGE SIREN SISSY SIXTH SIXTY SKATE SKIER SKIFF SKILL SKIMP SKIRT SKULK SKULL SKUNK SLACK SLAIN SLANG SLANT SLASH SLATE SLEEK SLEEP SLEET SLEPT SLICE SLICK SLIDE SLIME SLIMY SLING SLINK SLOOP SLOPE SLOSH SLOTH SLUMP SLUNG SLUNK SLURP SLUSH SLYLY SMACK SMALL SMART SMASH SMEAR SMELL SMELT SMILE SMIRK SMITE SMITH SMOCK SMOKE SMOKY SMOTE SNACK SNAIL SNAKE SNAKY SNARE SNARL SNEAK SNEER SNIDE SNIFF SNIPE SNOOP SNORE SNORT SNOUT SNOWY SNUCK SNUFF SOAPY SOBER SOGGY SOLAR SOLID SOLVE SONAR SONIC SOOTH SOOTY SORRY SOUND SOUTH SOWER SPACE SPADE SPANK SPARE SPARK SPASM SPAWN SPEAK SPEAR SPECK SPEED SPELL SPELT SPEND SPENT SPERM SPICE SPICY SPIED SPIEL SPIKE SPIKY SPILL SPILT SPINE SPINY SPIRE SPITE SPLAT SPLIT SPOIL SPOKE SPOOF SPOOK SPOOL SPOON SPORE SPORT SPOUT SPRAY SPREE SPRIG SPURT SQUAD SQUAT SQUIB SQUID STACK STAFF STAGE STAID STAIN STAIR STAKE STALE STALK STALL STAMP STAND STANK STARE STARK START STASH STATE STAVE STEAD STEAK STEAL STEAM STEED STEEL STEEP STEER STEIN STERN STICK STIFF STILL STILT STING STINK STINT STOCK STOIC STOKE STOLE STOMP STONE STONY STOOD STOOL STOOP STORE STORK STORM STORY STOUT STOVE STRAP STRAW STRAY STRIP STRUT STUCK STUDY STUFF STUMP STUNG STUNK STUNT STYLE SUAVE SUGAR SUING SUITE SULKY SULLY SUMAC SUNNY SUPER SURER SURGE SURLY SUSHI SWAMI SWAMP SWARM SWASH SWATH SWEAR SWEAT SWEEP SWEET SWELL SWEPT SWIFT SWILL SWINE SWING SWIRL SWISH SWOON SWOOP SWORD SWORE SWORN SYLPH SYNOD SYRUP TABBY TABLE TABOO TACIT TACKY TAFFY TAINT TAKEN TAKER TALLY TALON TAMER TANGO TANGY TAPER TAPIR TARDY TAROT TASTE TASTY TATTY TAUNT TAWNY TEACH TEARY TEASE TEDDY TEETH TEMPO TENET TENOR TENSE TENTH TEPEE TEPID TERRA TERSE TESTY THANK THEFT THEIR THEME THERE THESE THICK THIEF THIGH THING THINK THIRD THONG THORN THOSE THREE THREW THROB THROW THUMB THUMP THYME TIARA TIBIA TIDAL TIGER TIGHT TILDE TIMER TIMID TIPSY TITAN TITHE TITLE TOAST TODAY TODDY TOKEN TONAL TONGS TONIC TOOTH TOPAZ TOPIC TORCH TORSO TOTAL TOTEM TOUCH TOUGH TOWEL TOWER TOXIC TOXIN TRACE TRACK TRACT TRADE TRAIL TRAIN TRAIT TRAMP TRASH TRAWL TREAD TREAT TREND TRIAD TRIAL TRIBE TRICE TRICK TRIED TRIPE TRITE TROLL TROOP TROPE TROUT TROVE TRUCE TRUCK TRUER TRULY TRUMP TRUNK TRUSS TRUST TRUTH TRYST TUBAL TUBER TULIP TUMOR TUNIC TURBO TUTOR TWANG TWEAK TWEED TWEET TWICE TWINE TWIRL TWIST TYING UDDER ULCER ULTRA UMBRA UNCLE UNCUT UNDER UNDUE UNFED UNFIT UNIFY UNION UNITE UNITY UNLIT UNMET UNSET UNTIE UNTIL UNZIP UPEND UPPER UPSET URBAN URINE USAGE USHER USING USUAL USURP UTTER VAGUE VALET VALID VALOR VALUE VALVE VAPID VAPOR VAULT VAUNT VEGAN VENOM VENUE VERGE VERSE VERSO VERVE VICAR VIDEO VIGIL VIGOR VILLA VINYL VIOLA VIPER VIRAL VIRUS VISOR VISTA VITAL VIVID VIXEN VOCAL VODKA VOGUE VOICE VOILA VOMIT VOTER VOUCH VOWEL VYING WACKY WAFER WAGER WAGON WAIST WAIVE WALTZ WARTY WASTE WATCH WATER WAVER WAXEN WEARY WEAVE WEDGE WEEDY WEIGH WEIRD WELCH WELSH WENCH WHACK WHALE WHARF WHEAT WHEEL WHELP WHERE WHICH WHIFF WHILE WHINE WHINY WHIRL WHISK WHITE WHOLE WHOOP WHOSE WIDEN WIDER WIDOW WIDTH WIELD WIGHT WILLY WIMPY WINCE WINCH WINDY WIPER WIRED WISER WISPY WITCH WITTY WOKEN WOMAN WOMEN WOODY WOOER WOOZY WORDY WORLD WORRY WORSE WORST WORTH WOULD WOUND WOVEN WRACK WRATH WREAK WRECK WREST WRING WRIST WRITE WRONG WROTE WRUNG WRYLY YACHT YEARN YEAST YIELD YOUNG YOUTH ZEBRA ZESTY ZILCH ZONAL";
+// Official Josh Wardle Wordle Epoch: June 19, 2021
+const WORDLE_EPOCH = new Date(2021, 5, 19, 0, 0, 0, 0);
 
-const VALID_DICTIONARY_WORDS = new Set([
-  ...WORDLE_TIERS.easy,
-  ...WORDLE_TIERS.medium,
-  ...WORDLE_TIERS.hard,
-  ...WORDLE_DICTIONARY_RAW.split(" ")
-]);
+// Fallback lists if data/wordle-words.js is delayed
+const FALLBACK_ANSWERS = ["CRANE", "SLATE", "ROAST", "AUDIO", "REACT", "TRAIN", "STARE", "CHAIR", "PLANT", "LIGHT", "PRIDE", "HEART", "CLOUD", "SWEET", "GREAT", "WATER"];
+const FALLBACK_ALLOWED = ["AAHED", "AALII", "AARGH", "AARTI", "ABACA", "ABACI", "ABACK", "ABAFT"];
 
-const WORDLE_KEYBOARD_LAYOUT = [
-  ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
-  ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
-  ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "DEL"]
-];
+function getWordleAnswerList() {
+  if (typeof window !== "undefined" && Array.isArray(window.OFFICIAL_WORDLE_ANSWERS) && window.OFFICIAL_WORDLE_ANSWERS.length > 0) {
+    return window.OFFICIAL_WORDLE_ANSWERS;
+  }
+  return FALLBACK_ANSWERS;
+}
 
-let wordleTarget = "CHAIR", wordleRow = 0, wordleCol = 0, wordleGrid = [], wordleOver = false;
+function isValidWordleWord(word) {
+  const upper = (word || "").toUpperCase().trim();
+  if (upper.length !== 5) return false;
+  if (typeof window !== "undefined" && window.OFFICIAL_WORDLE_VALID_SET && window.OFFICIAL_WORDLE_VALID_SET.has(upper)) {
+    return true;
+  }
+  const answers = getWordleAnswerList();
+  if (answers.includes(upper)) return true;
+  return FALLBACK_ALLOWED.includes(upper);
+}
+
+// Calculate Official Wordle Day Number from June 19, 2021
+function getWordleDayNumber(date = new Date()) {
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffTime = d.getTime() - WORDLE_EPOCH.getTime();
+  const dayNum = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  return Math.max(0, dayNum);
+}
+
+// Get the authentic Daily target word
+function getDailyWordleTarget(dayNum) {
+  const answers = getWordleAnswerList();
+  const index = dayNum % answers.length;
+  return answers[index].toUpperCase();
+}
+
+// Get a random practice target word
+function getRandomWordleTarget() {
+  const answers = getWordleAnswerList();
+  return answers[Math.floor(Math.random() * answers.length)].toUpperCase();
+}
+
+// Wordle State Variables
+let wordleMode = localStorage.getItem("wordle_mode_pref") || "daily"; // 'daily' | 'unlimited'
+let wordleHardMode = localStorage.getItem("wordle_hard_mode") === "true";
+let wordleDayNumber = getWordleDayNumber();
+let wordleTarget = "";
+let wordleRow = 0;
+let wordleCol = 0;
+let wordleGrid = Array.from({ length: 6 }, () => Array(5).fill(""));
+let wordleOver = false;
+let wordleWon = false;
 let wordleLocked = false;
+let wordleKeyStatuses = {}; // letter -> 'correct' | 'present' | 'absent'
+let wordleCountdownInterval = null;
 
+// Stats Storage Schema
+function getWordleStats() {
+  try {
+    const raw = localStorage.getItem("wordle_stats_v2");
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return {
+    played: 0,
+    wins: 0,
+    currentStreak: 0,
+    maxStreak: 0,
+    guesses: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0 },
+    lastPlayedDay: -1
+  };
+}
+
+function saveWordleStats(stats) {
+  try {
+    localStorage.setItem("wordle_stats_v2", JSON.stringify(stats));
+  } catch (e) {}
+}
+
+function recordWordleResult(won, guessCount) {
+  const stats = getWordleStats();
+  if (wordleMode === "daily") {
+    if (stats.lastPlayedDay === wordleDayNumber) return;
+    stats.lastPlayedDay = wordleDayNumber;
+  }
+  stats.played++;
+  if (won) {
+    stats.wins++;
+    stats.currentStreak++;
+    if (stats.currentStreak > stats.maxStreak) stats.maxStreak = stats.currentStreak;
+    const g = Math.min(6, Math.max(1, guessCount));
+    stats.guesses[g] = (stats.guesses[g] || 0) + 1;
+  } else {
+    stats.currentStreak = 0;
+    stats.guesses.fail = (stats.guesses.fail || 0) + 1;
+  }
+  saveWordleStats(stats);
+}
+
+// Floating Toast Notification Helper
+function showWordleToast(message, duration = 1600) {
+  const container = document.getElementById("wordleToastContainer");
+  if (!container) return;
+  const toast = document.createElement("div");
+  toast.className = "wordle-toast";
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add("fade-out");
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  }, duration);
+}
+
+// Two-pass Clue Evaluation: Green first, then Yellow
 function evaluateWordleGuess(guess, target) {
   const result = Array(5).fill("absent");
   const targetChars = target.split("");
   const guessChars = guess.split("");
-  const counts = {};
+  const remaining = {};
 
   for (let i = 0; i < 5; i++) {
-    counts[targetChars[i]] = (counts[targetChars[i]] || 0) + 1;
+    const t = targetChars[i];
+    remaining[t] = (remaining[t] || 0) + 1;
   }
 
-  // Pass 1: exact matches
+  // Pass 1: Exact matches (green / correct)
   for (let i = 0; i < 5; i++) {
     if (guessChars[i] === targetChars[i]) {
       result[i] = "correct";
-      counts[guessChars[i]]--;
+      remaining[guessChars[i]]--;
     }
   }
 
-  // Pass 2: misplaced matches
+  // Pass 2: Misplaced matches (yellow / present)
   for (let i = 0; i < 5; i++) {
     if (result[i] === "correct") continue;
-    const c = guessChars[i];
-    if (counts[c] && counts[c] > 0) {
+    const g = guessChars[i];
+    if (remaining[g] && remaining[g] > 0) {
       result[i] = "present";
-      counts[c]--;
+      remaining[g]--;
     }
   }
 
   return result;
 }
 
-function getWordleTargetByDifficulty() {
-  const tier = hubState.difficulty || "medium";
-  const pool = WORDLE_TIERS[tier] || WORDLE_TIERS.medium;
-  return pool[Math.floor(Math.random() * pool.length)];
+// Hard Mode Validation
+function validateHardMode(guess) {
+  if (!wordleHardMode || wordleRow === 0) return { valid: true };
+  const prevRow = wordleRow - 1;
+  const prevWord = wordleGrid[prevRow].join("");
+  const prevClues = evaluateWordleGuess(prevWord, wordleTarget);
+
+  // 1. Must reuse green letters in the same position
+  for (let i = 0; i < 5; i++) {
+    if (prevClues[i] === "correct") {
+      const neededChar = prevWord[i];
+      if (guess[i] !== neededChar) {
+        const ordinals = ["1st", "2nd", "3rd", "4th", "5th"];
+        return {
+          valid: false,
+          msg: `${ordinals[i]} letter must be ${neededChar}`
+        };
+      }
+    }
+  }
+
+  // 2. Must contain yellow letters
+  for (let i = 0; i < 5; i++) {
+    if (prevClues[i] === "present") {
+      const neededChar = prevWord[i];
+      if (!guess.includes(neededChar)) {
+        return {
+          valid: false,
+          msg: `Guess must contain ${neededChar}`
+        };
+      }
+    }
+  }
+
+  return { valid: true };
 }
 
-function initWordle() {
-  resetIdleWatchdog();
-  clearWinLine();
-  stopTurnTimer();
-  showTimerInactive();
-  updateMoveCounter(false);
-  showOnlyActiveGame("wordle");
+// Keyboard Layout & Virtual Key Management
+const WORDLE_KEYBOARD_LAYOUT = [
+  ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+  ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+  ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "DEL"]
+];
 
-  wordleTarget = getWordleTargetByDifficulty();
-  wordleRow = 0;
-  wordleCol = 0;
-  wordleOver = false;
-  wordleLocked = false;
-  wordleGrid = Array.from({ length: 6 }, () => Array(5).fill(""));
-  if (statusPill) statusPill.textContent = "Wordle (" + hubState.difficulty.toUpperCase() + ")";
-  renderWordle();
-}
+function renderWordleKeyboard() {
+  const keyboardEl = document.getElementById("wordleKeyboard");
+  if (!keyboardEl) return;
+  keyboardEl.innerHTML = "";
 
-function renderWordleKeyboard(keyStatuses) {
-  if (!wordleKeyboardEl) return;
-  wordleKeyboardEl.innerHTML = "";
   WORDLE_KEYBOARD_LAYOUT.forEach(row => {
     const rowEl = document.createElement("div");
     rowEl.className = "kb-row";
+
     row.forEach(key => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "kb-key" + (key === "ENTER" || key === "DEL" ? " wide" : "");
       btn.dataset.key = key;
+
       if (key === "DEL") {
-        btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>';
+        btn.setAttribute("aria-label", "Backspace");
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>';
       } else {
         btn.textContent = key;
       }
-      if (keyStatuses[key]) {
-        btn.classList.add(keyStatuses[key]);
+
+      if (wordleKeyStatuses[key]) {
+        btn.classList.add(wordleKeyStatuses[key]);
       }
+
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         handleWordleKey(key);
       });
       rowEl.appendChild(btn);
     });
-    wordleKeyboardEl.appendChild(rowEl);
+
+    keyboardEl.appendChild(rowEl);
   });
 }
 
 function updateVirtualKey(char, newStatus) {
-  const btn = wordleKeyboardEl?.querySelector(`[data-key="${char}"]`);
+  const keyboardEl = document.getElementById("wordleKeyboard");
+  const btn = keyboardEl?.querySelector(`[data-key="${char}"]`);
   if (!btn) return;
+
+  const current = wordleKeyStatuses[char];
   if (newStatus === "correct") {
+    wordleKeyStatuses[char] = "correct";
     btn.classList.remove("present", "absent");
     btn.classList.add("correct");
-  } else if (newStatus === "present" && !btn.classList.contains("correct")) {
+  } else if (newStatus === "present" && current !== "correct") {
+    wordleKeyStatuses[char] = "present";
     btn.classList.remove("absent");
     btn.classList.add("present");
-  } else if (newStatus === "absent" && !btn.classList.contains("correct") && !btn.classList.contains("present")) {
+  } else if (newStatus === "absent" && current !== "correct" && current !== "present") {
+    wordleKeyStatuses[char] = "absent";
     btn.classList.add("absent");
   }
 }
 
-function renderWordle() {
-  if (!wordleBoardEl || !wordleKeyboardEl) return;
-  wordleBoardEl.innerHTML = "";
-  const keyStatuses = {};
+// Render the 6x5 Grid
+function renderWordleGrid() {
+  const boardEl = document.getElementById("wordleBoard");
+  if (!boardEl) return;
+  boardEl.innerHTML = "";
 
   for (let r = 0; r < 6; r++) {
     const rowEl = document.createElement("div");
@@ -3217,28 +3229,147 @@ function renderWordle() {
       const tile = document.createElement("div");
       tile.className = "wordle-tile";
       tile.id = "wt-" + r + "-" + c;
-      tile.textContent = wordleGrid[r][c];
+      const letter = wordleGrid[r][c] || "";
+      tile.textContent = letter;
+
+      if (letter) {
+        tile.classList.add("has-letter");
+      }
 
       if (rowStatuses) {
         const st = rowStatuses[c];
         tile.classList.add(st);
-        const char = wordleGrid[r][c];
-        if (st === "correct") {
-          keyStatuses[char] = "correct";
-        } else if (st === "present" && keyStatuses[char] !== "correct") {
-          keyStatuses[char] = "present";
-        } else if (st === "absent" && !keyStatuses[char]) {
-          keyStatuses[char] = "absent";
-        }
       }
+
       rowEl.appendChild(tile);
     }
-    wordleBoardEl.appendChild(rowEl);
+    boardEl.appendChild(rowEl);
   }
-
-  renderWordleKeyboard(keyStatuses);
 }
 
+// Master Render Function
+function renderWordle() {
+  renderWordleGrid();
+  renderWordleKeyboard();
+  updateWordleControls();
+}
+
+// Render Top Sub-Header & Controls
+function updateWordleControls() {
+  const modeLabel = document.getElementById("wordleModeLabel");
+  const numberLabel = document.getElementById("wordleNumberLabel");
+  const hardBtn = document.getElementById("wordleHardModeBtn");
+  const newWordBtn = document.getElementById("wordleNewWordBtn");
+
+  if (modeLabel && numberLabel) {
+    if (wordleMode === "daily") {
+      modeLabel.textContent = "Daily";
+      numberLabel.textContent = "#" + wordleDayNumber;
+    } else {
+      modeLabel.textContent = "Unlimited";
+      numberLabel.textContent = "âš¡";
+    }
+  }
+
+  if (hardBtn) {
+    hardBtn.classList.toggle("active", wordleHardMode);
+    hardBtn.title = wordleHardMode ? "Hard Mode (Strict hints ON)" : "Normal Mode (Click to enable Hard Mode)";
+  }
+
+  if (newWordBtn) {
+    if (wordleMode === "unlimited" || wordleOver) {
+      newWordBtn.classList.remove("hidden");
+    } else {
+      newWordBtn.classList.add("hidden");
+    }
+  }
+}
+
+// Daily Game Persistence
+function getDailyStorageKey(dayNum) {
+  return "wordle_daily_game_" + dayNum;
+}
+
+function saveDailyGameState() {
+  if (wordleMode !== "daily") return;
+  const state = {
+    dayNum: wordleDayNumber,
+    target: wordleTarget,
+    grid: wordleGrid,
+    row: wordleRow,
+    col: wordleCol,
+    over: wordleOver,
+    won: wordleWon,
+    hardMode: wordleHardMode,
+    keyStatuses: wordleKeyStatuses
+  };
+  try {
+    localStorage.setItem(getDailyStorageKey(wordleDayNumber), JSON.stringify(state));
+  } catch (e) {}
+}
+
+function loadDailyGameState(dayNum) {
+  try {
+    const raw = localStorage.getItem(getDailyStorageKey(dayNum));
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return null;
+}
+
+// Initialize Wordle Game
+function initWordle(forceNew = false) {
+  resetIdleWatchdog();
+  clearWinLine();
+  stopTurnTimer();
+  showTimerInactive();
+  updateMoveCounter(false);
+  showOnlyActiveGame("wordle");
+
+  wordleDayNumber = getWordleDayNumber();
+  wordleLocked = false;
+
+  if (wordleMode === "daily" && !forceNew) {
+    const saved = loadDailyGameState(wordleDayNumber);
+    if (saved && saved.target) {
+      wordleTarget = saved.target;
+      wordleGrid = saved.grid || Array.from({ length: 6 }, () => Array(5).fill(""));
+      wordleRow = saved.row || 0;
+      wordleCol = saved.col || 0;
+      wordleOver = !!saved.over;
+      wordleWon = !!saved.won;
+      wordleKeyStatuses = saved.keyStatuses || {};
+
+      renderWordleGrid();
+      renderWordleKeyboard();
+      updateWordleControls();
+
+      if (wordleOver) {
+        setTimeout(() => {
+          openWordleStatsModal();
+        }, 500);
+      }
+      return;
+    }
+    wordleTarget = getDailyWordleTarget(wordleDayNumber);
+  } else {
+    wordleTarget = getRandomWordleTarget();
+  }
+
+  wordleRow = 0;
+  wordleCol = 0;
+  wordleOver = false;
+  wordleWon = false;
+  wordleKeyStatuses = {};
+  wordleGrid = Array.from({ length: 6 }, () => Array(5).fill(""));
+
+  renderWordleGrid();
+  renderWordleKeyboard();
+  updateWordleControls();
+
+  if (statusPill) statusPill.textContent = "Wordle";
+}
+
+// Input Handling
 function handleWordleKey(k) {
   if (wordleOver || wordleLocked || hubState.game !== "wordle") return;
   resetIdleWatchdog();
@@ -3250,8 +3381,9 @@ function handleWordleKey(k) {
       const tile = document.getElementById("wt-" + wordleRow + "-" + wordleCol);
       if (tile) {
         tile.textContent = "";
-        tile.classList.remove("pop");
+        tile.classList.remove("has-letter", "pop");
       }
+      saveDailyGameState();
       persistLiveState();
     }
     return;
@@ -3261,16 +3393,13 @@ function handleWordleKey(k) {
     if (wordleCol === 5) {
       checkWordleRow();
     } else {
-      if (statusPill) statusPill.textContent = "Not enough letters";
+      showWordleToast("Not enough letters");
       const rowEl = document.getElementById("wr-" + wordleRow);
       if (rowEl) {
         rowEl.classList.remove("shake");
         void rowEl.offsetWidth;
         rowEl.classList.add("shake");
       }
-      setTimeout(() => {
-        if (statusPill && !wordleOver) statusPill.textContent = "Wordle (" + hubState.difficulty.toUpperCase() + ")";
-      }, 1200);
     }
     return;
   }
@@ -3280,30 +3409,42 @@ function handleWordleKey(k) {
     const tile = document.getElementById("wt-" + wordleRow + "-" + wordleCol);
     if (tile) {
       tile.textContent = k;
+      tile.classList.add("has-letter");
       tile.classList.remove("pop");
       void tile.offsetWidth;
       tile.classList.add("pop");
     }
     wordleCol++;
+    saveDailyGameState();
     persistLiveState();
   }
 }
 
-/* ---------- Sequential 3D Flip Animation on Wordle Submit ---------- */
+// Sequential 3D Flip & Row Evaluation
 function checkWordleRow() {
   if (wordleLocked) return;
   const guess = wordleGrid[wordleRow].join("");
-  if (!VALID_DICTIONARY_WORDS.has(guess)) {
-    if (statusPill) statusPill.textContent = "Not in word list!";
+
+  if (!isValidWordleWord(guess)) {
+    showWordleToast("Not in word list");
     const rowEl = document.getElementById("wr-" + wordleRow);
     if (rowEl) {
       rowEl.classList.remove("shake");
       void rowEl.offsetWidth;
       rowEl.classList.add("shake");
     }
-    setTimeout(() => {
-      if (statusPill && !wordleOver) statusPill.textContent = "Wordle (" + hubState.difficulty.toUpperCase() + ")";
-    }, 1200);
+    return;
+  }
+
+  const hardCheck = validateHardMode(guess);
+  if (!hardCheck.valid) {
+    showWordleToast(hardCheck.msg);
+    const rowEl = document.getElementById("wr-" + wordleRow);
+    if (rowEl) {
+      rowEl.classList.remove("shake");
+      void rowEl.offsetWidth;
+      rowEl.classList.add("shake");
+    }
     return;
   }
 
@@ -3312,13 +3453,11 @@ function checkWordleRow() {
   const currentRow = wordleRow;
   wordleLocked = true;
 
-  // Trigger 3D flip animation sequentially with 250ms stagger
   clueStatuses.forEach((status, col) => {
     const tile = document.getElementById("wt-" + currentRow + "-" + col);
     if (!tile) return;
     setTimeout(() => {
       tile.classList.add("flip");
-      // Reveal clue color halfway through the 3D flip (at 90deg)
       setTimeout(() => {
         tile.classList.add(status);
         updateVirtualKey(guess[col], status);
@@ -3334,28 +3473,268 @@ function checkWordleRow() {
 
     if (isWin) {
       wordleOver = true;
+      wordleWon = true;
       scoreA++;
       streak++;
       persistScores();
       renderScores();
-      showWinScreen("Word Solved!");
+
+      const winningRowEl = document.getElementById("wr-" + currentRow);
+      if (winningRowEl) {
+        Array.from(winningRowEl.children).forEach(t => t.classList.add("dance"));
+      }
+
+      const praises = ["Genius", "Magnificent", "Impressive", "Splendid", "Great", "Phew!"];
+      const praise = praises[currentRow] || "Genius";
+      setTimeout(() => {
+        showWordleToast(praise, 2200);
+      }, 300);
+
+      recordWordleResult(true, currentRow + 1);
+      saveDailyGameState();
+      updateWordleControls();
       persistLiveState();
+
+      setTimeout(() => {
+        openWordleStatsModal();
+      }, 2000);
       return;
     }
 
     if (wordleRow === 6) {
       wordleOver = true;
+      wordleWon = false;
       scoreB++;
       streak = 0;
       persistScores();
       renderScores();
-      showDefeatScreen("The Word was: " + wordleTarget, "Guesses Exhausted");
+
+      showWordleToast(wordleTarget, 4000);
+
+      recordWordleResult(false, 6);
+      saveDailyGameState();
+      updateWordleControls();
       persistLiveState();
+
+      setTimeout(() => {
+        openWordleStatsModal();
+      }, 2500);
       return;
     }
 
+    saveDailyGameState();
     persistLiveState();
   }, totalFlipTime);
+}
+
+// Statistics Modal Rendering
+function renderWordleStats() {
+  const stats = getWordleStats();
+  const playedEl = document.getElementById("wStatPlayed");
+  const winRateEl = document.getElementById("wStatWinRate");
+  const streakEl = document.getElementById("wStatStreak");
+  const maxStreakEl = document.getElementById("wStatMaxStreak");
+  const chartEl = document.getElementById("wDistChart");
+
+  if (playedEl) playedEl.textContent = stats.played;
+  if (winRateEl) {
+    const rate = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : 0;
+    winRateEl.textContent = rate + "%";
+  }
+  if (streakEl) streakEl.textContent = stats.currentStreak;
+  if (maxStreakEl) maxStreakEl.textContent = stats.maxStreak;
+
+  if (chartEl) {
+    chartEl.innerHTML = "";
+    const maxVal = Math.max(1, ...Object.values(stats.guesses));
+
+    for (let i = 1; i <= 6; i++) {
+      const count = stats.guesses[i] || 0;
+      const pct = Math.max(7, Math.round((count / maxVal) * 100));
+      const isCurrentWinningRow = (wordleWon && wordleRow === i);
+
+      const row = document.createElement("div");
+      row.className = "dist-row";
+      row.innerHTML = `
+        <span class="dist-num">${i}</span>
+        <div class="dist-bar-wrap">
+          <div class="dist-bar ${isCurrentWinningRow ? 'highlight' : ''}" style="width: ${pct}%">
+            ${count}
+          </div>
+        </div>
+      `;
+      chartEl.appendChild(row);
+    }
+  }
+
+  const modalNextBtn = document.getElementById("wordleModalNextWordBtn");
+  const shareBtn = document.getElementById("wordleShareBtn");
+  const countdownBox = document.getElementById("wNextCountdownBox");
+
+  if (wordleMode === "daily") {
+    countdownBox?.classList.remove("hidden");
+    modalNextBtn?.classList.add("hidden");
+    startWordleMidnightCountdown();
+  } else {
+    countdownBox?.classList.add("hidden");
+    modalNextBtn?.classList.remove("hidden");
+  }
+
+  if (shareBtn) {
+    shareBtn.style.display = wordleOver ? "flex" : "none";
+  }
+}
+
+function openWordleStatsModal() {
+  renderWordleStats();
+  const modal = document.getElementById("wordleStatsModal");
+  if (modal) modal.classList.remove("hidden");
+}
+
+function closeWordleStatsModal() {
+  const modal = document.getElementById("wordleStatsModal");
+  if (modal) modal.classList.add("hidden");
+  if (wordleCountdownInterval) {
+    clearInterval(wordleCountdownInterval);
+    wordleCountdownInterval = null;
+  }
+}
+
+// Midnight Countdown Timer
+function startWordleMidnightCountdown() {
+  if (wordleCountdownInterval) clearInterval(wordleCountdownInterval);
+
+  function update() {
+    const timerEl = document.getElementById("wNextTimer");
+    if (!timerEl) return;
+    const now = new Date();
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+    const diff = Math.max(0, midnight.getTime() - now.getTime());
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff / (1000 * 60)) % 60);
+    const secs = Math.floor((diff / 1000) % 60);
+
+    const pad = (n) => String(n).padStart(2, "0");
+    timerEl.textContent = `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
+  }
+
+  update();
+  wordleCountdownInterval = setInterval(update, 1000);
+}
+
+// Viral Emoji Share Generator
+function generateWordleShareText() {
+  const title = (wordleMode === "daily") ? `Wordle ${wordleDayNumber}` : `Wordle (Practice)`;
+  const score = wordleWon ? `${wordleRow}/6` : `X/6`;
+  const hardStar = wordleHardMode ? `*` : ``;
+
+  const emojiMap = {
+    correct: "ðŸŸ©",
+    present: "ðŸŸ¨",
+    absent: "â¬›"
+  };
+
+  const rows = [];
+  const limit = Math.min(wordleRow, 6);
+  for (let r = 0; r < limit; r++) {
+    const word = wordleGrid[r].join("");
+    if (word.length === 5) {
+      const clues = evaluateWordleGuess(word, wordleTarget);
+      rows.push(clues.map(c => emojiMap[c] || "â¬›").join(""));
+    }
+  }
+
+  return `${title} ${score}${hardStar}\n\n${rows.join("\n")}`;
+}
+
+function shareWordleResult() {
+  const text = generateWordleShareText();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showWordleToast("Copied results to clipboard", 2000);
+    }).catch(() => {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+
+  function fallbackCopy(str) {
+    const area = document.createElement("textarea");
+    area.value = str;
+    document.body.appendChild(area);
+    area.select();
+    try {
+      document.execCommand("copy");
+      showWordleToast("Copied results to clipboard", 2000);
+    } catch (e) {
+      showWordleToast("Could not copy results", 1800);
+    }
+    document.body.removeChild(area);
+  }
+}
+
+// Help Modal
+function openWordleHelpModal() {
+  const modal = document.getElementById("wordleHelpModal");
+  if (modal) modal.classList.remove("hidden");
+}
+
+function closeWordleHelpModal() {
+  const modal = document.getElementById("wordleHelpModal");
+  if (modal) modal.classList.add("hidden");
+}
+
+// Attach UI Event Listeners for Wordle
+function initWordleUIEvents() {
+  document.getElementById("wordleHelpBtn")?.addEventListener("click", openWordleHelpModal);
+  document.getElementById("closeWordleHelpBtn")?.addEventListener("click", closeWordleHelpModal);
+  document.getElementById("wordleHelpModal")?.addEventListener("click", (e) => {
+    if (e.target.id === "wordleHelpModal") closeWordleHelpModal();
+  });
+
+  document.getElementById("wordleStatsBtn")?.addEventListener("click", openWordleStatsModal);
+  document.getElementById("closeWordleStatsBtn")?.addEventListener("click", closeWordleStatsModal);
+  document.getElementById("wordleStatsModal")?.addEventListener("click", (e) => {
+    if (e.target.id === "wordleStatsModal") closeWordleStatsModal();
+  });
+
+  document.getElementById("wordleModePill")?.addEventListener("click", () => {
+    wordleMode = (wordleMode === "daily") ? "unlimited" : "daily";
+    localStorage.setItem("wordle_mode_pref", wordleMode);
+    initWordle(false);
+  });
+
+  document.getElementById("wordleHardModeBtn")?.addEventListener("click", () => {
+    // If turning on during an in-progress game, check if existing rows comply
+    if (!wordleHardMode && wordleRow > 0) {
+      showWordleToast("Hard mode can only be enabled at the start of a round", 2200);
+      return;
+    }
+    wordleHardMode = !wordleHardMode;
+    localStorage.setItem("wordle_hard_mode", String(wordleHardMode));
+    updateWordleControls();
+    showWordleToast(wordleHardMode ? "Hard mode enabled" : "Hard mode disabled", 1400);
+  });
+
+  document.getElementById("wordleNewWordBtn")?.addEventListener("click", () => {
+    initWordle(true);
+  });
+
+  document.getElementById("wordleModalNextWordBtn")?.addEventListener("click", () => {
+    closeWordleStatsModal();
+    initWordle(true);
+  });
+
+  document.getElementById("wordleShareBtn")?.addEventListener("click", shareWordleResult);
+}
+
+// Auto-run UI event attachment on script load
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initWordleUIEvents);
+} else {
+  initWordleUIEvents();
 }
 
 /* ==========================================================================

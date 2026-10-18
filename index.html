@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -601,10 +601,46 @@
             <div id="tttBoard" class="ttt-board"></div>
             <div id="chessBoard" class="chess-board hidden"></div>
             
-            <!-- Wordle Container -->
+            <!-- Wordle Container (Authentic Josh Wardle Powerlanguage Engine) -->
             <div id="wordleGame" class="wordle-arena hidden">
-              <div id="wordleBoard" class="wordle-board"></div>
-              <div id="wordleKeyboard" class="wordle-keyboard"></div>
+              <!-- Floating Toast Notifications -->
+              <div id="wordleToastContainer" class="wordle-toast-container" aria-live="polite"></div>
+
+              <!-- Top Sub-Header & Controls -->
+              <div class="wordle-top-bar">
+                <div class="wordle-bar-left">
+                  <button id="wordleHelpBtn" class="wordle-action-icon" type="button" title="How to Play" aria-label="How to Play">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  </button>
+                  <button id="wordleModePill" class="wordle-mode-badge" type="button" title="Toggle Daily / Unlimited Mode">
+                    <span id="wordleModeLabel">Daily</span>
+                    <b id="wordleNumberLabel">#1215</b>
+                  </button>
+                  <button id="wordleHardModeBtn" class="wordle-action-icon" type="button" title="Toggle Hard Mode (Strict hint reuse)" aria-label="Toggle Hard Mode">
+                    <span id="wordleHardIcon">⚡</span>
+                  </button>
+                </div>
+
+                <div class="wordle-title-block">
+                  <span class="wordle-title-text">WORDLE</span>
+                </div>
+
+                <div class="wordle-bar-right">
+                  <button id="wordleNewWordBtn" class="wordle-pill-btn hidden" type="button" title="Play Another Word">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    <span>New Word</span>
+                  </button>
+                  <button id="wordleStatsBtn" class="wordle-action-icon" type="button" title="Statistics & Share" aria-label="Statistics">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Wordle 6x5 Matrix Board -->
+              <div id="wordleBoard" class="wordle-board" role="grid" aria-label="Wordle Grid"></div>
+
+              <!-- Full Tactile On-Screen Keyboard -->
+              <div id="wordleKeyboard" class="wordle-keyboard" role="toolbar" aria-label="Wordle Keyboard"></div>
             </div>
 
             <!-- Poker Container -->
@@ -1173,6 +1209,99 @@
     </div>
   </div>
 
-  <script src="script.js?v=49.0"></script>
+  <!-- Wordle Authentic Statistics & Share Modal -->
+  <div id="wordleStatsModal" class="win-overlay hidden">
+    <div class="win-modal glass-island wordle-modal-box">
+      <button class="wordle-modal-close" id="closeWordleStatsBtn" type="button" aria-label="Close">✕</button>
+      <h2 class="wordle-modal-title">STATISTICS</h2>
+      
+      <!-- 4 Core Metrics -->
+      <div class="wordle-stats-row">
+        <div class="wordle-stat-card">
+          <span class="stat-number" id="wStatPlayed">0</span>
+          <span class="stat-label">Played</span>
+        </div>
+        <div class="wordle-stat-card">
+          <span class="stat-number" id="wStatWinRate">0%</span>
+          <span class="stat-label">Win %</span>
+        </div>
+        <div class="wordle-stat-card">
+          <span class="stat-number" id="wStatStreak">0</span>
+          <span class="stat-label">Current Streak</span>
+        </div>
+        <div class="wordle-stat-card">
+          <span class="stat-number" id="wStatMaxStreak">0</span>
+          <span class="stat-label">Max Streak</span>
+        </div>
+      </div>
+
+      <!-- Guess Distribution Chart -->
+      <h3 class="wordle-sub-heading">GUESS DISTRIBUTION</h3>
+      <div class="wordle-dist-chart" id="wDistChart"></div>
+
+      <!-- Action Row (Countdown & Share) -->
+      <div class="wordle-modal-footer">
+        <div class="wordle-next-countdown" id="wNextCountdownBox">
+          <span class="next-label">NEXT WORDLE</span>
+          <b class="next-timer" id="wNextTimer">00:00:00</b>
+        </div>
+        <div class="wordle-footer-actions">
+          <button id="wordleModalNextWordBtn" class="wordle-action-primary hidden" type="button">
+            Play Next Word
+          </button>
+          <button id="wordleShareBtn" class="wordle-action-primary share-btn" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            <span>SHARE</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wordle How to Play Instructions Modal -->
+  <div id="wordleHelpModal" class="win-overlay hidden">
+    <div class="win-modal glass-island wordle-modal-box wordle-help-box">
+      <button class="wordle-modal-close" id="closeWordleHelpBtn" type="button" aria-label="Close">✕</button>
+      <h2 class="wordle-modal-title">HOW TO PLAY</h2>
+      <p class="wordle-help-sub">Guess the <b>WORDLE</b> in 6 tries.</p>
+      <ul class="wordle-help-rules">
+        <li>Each guess must be a valid 5-letter word. Hit the <b>Enter</b> button to submit.</li>
+        <li>After each guess, the color of the tiles will change to show how close your guess was to the word.</li>
+      </ul>
+      <div class="wordle-example-wrap">
+        <h4 class="wordle-example-title">Examples</h4>
+        <div class="wordle-example-row">
+          <div class="wordle-example-tile correct">W</div>
+          <div class="wordle-example-tile">E</div>
+          <div class="wordle-example-tile">A</div>
+          <div class="wordle-example-tile">R</div>
+          <div class="wordle-example-tile">Y</div>
+        </div>
+        <p class="example-desc"><b>W</b> is in the word and in the correct spot.</p>
+
+        <div class="wordle-example-row">
+          <div class="wordle-example-tile">P</div>
+          <div class="wordle-example-tile present">I</div>
+          <div class="wordle-example-tile">L</div>
+          <div class="wordle-example-tile">L</div>
+          <div class="wordle-example-tile">S</div>
+        </div>
+        <p class="example-desc"><b>I</b> is in the word but in the wrong spot.</p>
+
+        <div class="wordle-example-row">
+          <div class="wordle-example-tile">V</div>
+          <div class="wordle-example-tile">A</div>
+          <div class="wordle-example-tile">G</div>
+          <div class="wordle-example-tile absent">U</div>
+          <div class="wordle-example-tile">E</div>
+        </div>
+        <p class="example-desc"><b>U</b> is not in the word in any spot.</p>
+      </div>
+      <p class="wordle-daily-notice">A new <b>WORDLE</b> is available every day, or toggle <b>Unlimited</b> to practice anytime!</p>
+    </div>
+  </div>
+
+  <script src="data/wordle-words.js"></script>
+  <script src="script.js?v=50.0"></script>
 </body>
 </html>
