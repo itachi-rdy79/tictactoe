@@ -2,7 +2,7 @@ var ludoActiveTimers = [];
 var ludoRollInterval = null;
 var snakeState = {
   gridSize: 20,
-  tileSize: 34, // 20 * 34 = 680
+  tileSize: 40, // 20 * 40 = 800
   snake: [],
   dir: { x: 1, y: 0 },
   nextDir: { x: 1, y: 0 },
@@ -9352,8 +9352,6 @@ function loadSnakeHighScore() {
   }
   const el = document.getElementById("snakeHighScoreVal");
   if (el) el.textContent = snakeState.highScore;
-  const sideHigh = document.getElementById("snakeSideHighScore");
-  if (sideHigh) sideHigh.textContent = `${snakeState.highScore} 🏆`;
 }
 
 function saveSnakeHighScore() {
@@ -9371,33 +9369,12 @@ function syncSnakeMatchBarUI() {
   setActive(modePills, "snakemode", snakeState.mode);
   setActive(speedPills, "snakespeed", snakeState.speed);
 
-  // Sync Side Deck mode cards
-  const sideModeCards = document.querySelectorAll("#snakeSideModeGrid .snake-mode-card");
-  sideModeCards.forEach(card => {
-    card.classList.toggle("active", card.dataset.snakemode === snakeState.mode);
-  });
-
-  // Sync Side Deck speed buttons
-  const sideSpeedBtns = document.querySelectorAll("#snakeSideSpeedGrid .snake-speed-btn");
-  sideSpeedBtns.forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.snakespeed === snakeState.speed);
-  });
-
-  // Sync Side Deck skin chips
-  const sideSkinChips = document.querySelectorAll("#snakeSideSkinGrid .snake-skin-chip");
-  sideSkinChips.forEach(chip => {
-    chip.classList.toggle("active", chip.dataset.snakeskin === snakeState.skin);
-  });
-
   const skinObj = SNAKE_SKINS[snakeState.skin] || SNAKE_SKINS.emerald;
   if (skinLabel) skinLabel.textContent = skinObj.short || skinObj.name;
   if (skinDot) {
     skinDot.style.backgroundColor = skinObj.dot;
     skinDot.style.boxShadow = `0 0 10px ${skinObj.dot}`;
   }
-
-  const activeSkinBadge = document.getElementById("snakeActiveSkinBadge");
-  if (activeSkinBadge) activeSkinBadge.textContent = skinObj.name;
 
   // Update canvas glowing accent
   const canvasContainer = document.getElementById("snakeCanvasContainer");
@@ -9406,18 +9383,12 @@ function syncSnakeMatchBarUI() {
     canvasContainer.style.setProperty("--snake-accent", skinObj.dot);
   }
 
-  // Toggle Timed HUD chips
+  // Toggle Timed HUD chip
   const timerItem = document.getElementById("snakeTimerItem");
-  const sideTimerBox = document.getElementById("snakeSideTimerBox");
   const isTimed = (snakeState.mode === "timed");
-
   if (timerItem) {
     timerItem.classList.toggle("hidden", !isTimed);
     timerItem.style.display = isTimed ? "flex" : "none";
-  }
-  if (sideTimerBox) {
-    sideTimerBox.classList.toggle("hidden", !isTimed);
-    sideTimerBox.style.display = isTimed ? "flex" : "none";
   }
 
   const muteIcon = document.getElementById("snakeMuteIcon");
@@ -9524,12 +9495,12 @@ function initSnake(forceFresh = false) {
   snakeState.isGameOver = false;
   snakeState.particles = [];
 
-  // Adjust canvas buffer to crisp 680x680 resolution
+  // Adjust canvas buffer to crisp 800x800 resolution
   const canvas = document.getElementById("snakeCanvas");
   if (canvas) {
-    canvas.width = 680;
-    canvas.height = 680;
-    snakeState.tileSize = canvas.width / snakeState.gridSize; // 680 / 20 = 34
+    canvas.width = 800;
+    canvas.height = 800;
+    snakeState.tileSize = canvas.width / snakeState.gridSize; // 800 / 20 = 40
   }
 
   buildSnakeObstacles();
@@ -9764,9 +9735,7 @@ function tickSnakeGame() {
     if (snakeState.mode === "timed") {
       snakeState.timeLeft += timeBonus;
       const timeEl = document.getElementById("snakeTimeVal");
-      const sideTime = document.getElementById("snakeSideTime");
       if (timeEl) timeEl.textContent = `${snakeState.timeLeft}s`;
-      if (sideTime) sideTime.textContent = `${snakeState.timeLeft}s`;
     }
 
     if (snakeState.score > snakeState.highScore) {
@@ -9800,7 +9769,7 @@ function updateSnakeHUD() {
   // Top Bar HUD
   if (scoreEl) scoreEl.textContent = snakeState.score;
   if (highEl) highEl.textContent = snakeState.highScore;
-  if (lenEl) lenEl.textContent = snakeState.snake.length;
+  if (lenEl) lenEl.textContent = snakeState.snake ? snakeState.snake.length : 0;
   if (timeEl) timeEl.textContent = `${snakeState.timeLeft}s`;
 
   // Canvas floating badges
@@ -9810,45 +9779,6 @@ function updateSnakeHUD() {
   if (cModeBadge) {
     const modeNames = { classic: "Classic Mode", nowalls: "No Walls Mode", obstacles: "Obstacles Mode", timed: "Timed Blitz" };
     cModeBadge.textContent = modeNames[snakeState.mode] || "Classic Mode";
-  }
-
-  // Side Deck Telemetry
-  const sideScore = document.getElementById("snakeSideScore");
-  const sideHigh = document.getElementById("snakeSideHighScore");
-  const sideBestMode = document.getElementById("snakeSideBestMode");
-  const sideLen = document.getElementById("snakeSideLength");
-  const sideApples = document.getElementById("snakeSideApples");
-  const sideGolden = document.getElementById("snakeSideGolden");
-  const sideTime = document.getElementById("snakeSideTime");
-  const sideTimerBox = document.getElementById("snakeSideTimerBox");
-  const rankBadge = document.getElementById("snakeRankBadge");
-
-  if (sideScore) sideScore.textContent = snakeState.score;
-  if (sideHigh) sideHigh.textContent = `${snakeState.highScore} 🏆`;
-  if (sideBestMode) {
-    const modeLabels = { classic: "Classic", nowalls: "No Walls", obstacles: "Obstacles", timed: "Timed" };
-    sideBestMode.textContent = modeLabels[snakeState.mode] || "Classic";
-  }
-  if (sideLen) sideLen.textContent = `${snakeState.snake.length} segments`;
-  if (sideApples) sideApples.textContent = `🍎 ${snakeState.applesEaten || 0}`;
-  if (sideGolden) sideGolden.textContent = `⭐ ${snakeState.goldenEaten || 0}`;
-  if (sideTime) sideTime.textContent = `${snakeState.timeLeft}s`;
-
-  if (sideTimerBox) {
-    const isTimed = (snakeState.mode === "timed");
-    sideTimerBox.classList.toggle("hidden", !isTimed);
-    sideTimerBox.style.display = isTimed ? "flex" : "none";
-  }
-
-  // Dynamic Rank based on length
-  if (rankBadge) {
-    const len = snakeState.snake.length;
-    let rank = "Baby Viper 🐍";
-    if (len >= 38) rank = "Dragon Monarch 🐉";
-    else if (len >= 24) rank = "Cyber Anaconda 🔮";
-    else if (len >= 14) rank = "Emerald Python 🌿";
-    else if (len >= 7) rank = "Jade Cobra ⚡";
-    rankBadge.textContent = rank;
   }
 }
 
@@ -10198,19 +10128,10 @@ function initSnakeEvents() {
   const speedPills = document.getElementById("snakeSpeedPills");
   const skinCycleBtn = document.getElementById("snakeSkinCycleBtn");
 
-  // Side Deck Controls
-  const sidePauseBtn = document.getElementById("snakeDeckPauseBtn");
-  const sideRestartBtn = document.getElementById("snakeDeckRestartBtn");
-  const sideModeGrid = document.getElementById("snakeSideModeGrid");
-  const sideSpeedGrid = document.getElementById("snakeSideSpeedGrid");
-  const sideSkinGrid = document.getElementById("snakeSideSkinGrid");
-
   startBtn?.addEventListener("click", () => startSnakeGame());
   resumeBtn?.addEventListener("click", () => resumeSnakeGame());
   pauseBtn?.addEventListener("click", () => toggleSnakePause());
-  sidePauseBtn?.addEventListener("click", () => toggleSnakePause());
   resetBtn?.addEventListener("click", () => initSnake(true));
-  sideRestartBtn?.addEventListener("click", () => initSnake(true));
   restartFromPauseBtn?.addEventListener("click", () => initSnake(true));
   playAgainBtn?.addEventListener("click", () => {
     initSnake(true);
@@ -10226,7 +10147,7 @@ function initSnakeEvents() {
     if (muteIcon) muteIcon.textContent = snakeState.sound ? "🔊" : "🔇";
   });
 
-  // Top Match Bar & Side Deck Mode Selection
+  // Top Match Bar Mode Selection
   function onSelectMode(modeKey) {
     if (!["classic", "nowalls", "obstacles", "timed"].includes(modeKey)) return;
     snakeState.mode = modeKey;
@@ -10242,12 +10163,7 @@ function initSnakeEvents() {
     if (btn) onSelectMode(btn.dataset.snakemode);
   });
 
-  sideModeGrid?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-snakemode]");
-    if (btn) onSelectMode(btn.dataset.snakemode);
-  });
-
-  // Top Match Bar & Side Deck Speed Selection
+  // Top Match Bar Speed Selection
   function onSelectSpeed(speedKey) {
     if (!SNAKE_SPEEDS[speedKey]) return;
     snakeState.speed = speedKey;
@@ -10266,17 +10182,8 @@ function initSnakeEvents() {
     if (btn) onSelectSpeed(btn.dataset.snakespeed);
   });
 
-  sideSpeedGrid?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-snakespeed]");
-    if (btn) onSelectSpeed(btn.dataset.snakespeed);
-  });
-
-  // Skin Selector Cycle & Direct Swatches
+  // Skin Selector Cycle
   skinCycleBtn?.addEventListener("click", cycleSnakeSkin);
-  sideSkinGrid?.addEventListener("click", (e) => {
-    const chip = e.target.closest("[data-snakeskin]");
-    if (chip) setSnakeSkin(chip.dataset.snakeskin);
-  });
 
   // Keyboard Controls: Arrow Keys & WASD & Spacebar & R
   window.addEventListener("keydown", (e) => {
@@ -10339,13 +10246,6 @@ function initSnakeEvents() {
       }
     }
   }, { passive: true });
-
-  // Mobile On-Screen D-Pad Buttons
-  document.getElementById("snakeDpadUp")?.addEventListener("click", () => handleSnakeSteer(0, -1));
-  document.getElementById("snakeDpadDown")?.addEventListener("click", () => handleSnakeSteer(0, 1));
-  document.getElementById("snakeDpadLeft")?.addEventListener("click", () => handleSnakeSteer(-1, 0));
-  document.getElementById("snakeDpadRight")?.addEventListener("click", () => handleSnakeSteer(1, 0));
-  document.getElementById("snakeDpadPause")?.addEventListener("click", () => toggleSnakePause());
 }
 
 /* ==========================================================================

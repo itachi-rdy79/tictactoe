@@ -1,17 +1,17 @@
 /* =========================================================================
-   GAP Arcade — PWA Offline Service Worker (v61.1 Snake Match Pill Fix)
+   GAP Arcade — PWA Offline Service Worker (v61.2 Snake Board Maximize)
    Caches all 10 games, versioned resources, nested games, offline
    dictionaries, and local media for 100% offline operation.
    ========================================================================= */
 
-const CACHE_NAME = "gap-arcade-v61.1";
+const CACHE_NAME = "gap-arcade-v61.2";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
   "./style.css",
-  "./style.css?v=61.1",
+  "./style.css?v=61.2",
   "./script.js",
-  "./script.js?v=61.1",
+  "./script.js?v=61.2",
   "./manifest.json",
   "./data/wordle-words.js",
   "./data/wordle-words.js?v=60.0",
