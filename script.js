@@ -763,7 +763,7 @@ function syncHud() {
       pattuMatchGroup.style.display = "flex";
       pattuMatchGroup.classList.remove("hidden");
       if (pattuHudDayText) {
-        const dNum = (typeof pcCurrentTargetDayIndex === "number") ? pcCurrentTargetDayIndex : 1570;
+        const dNum = (typeof pattuCurrentDay === "number" && pattuCurrentDay > 0) ? pattuCurrentDay : getPattuDayCount();
         pattuHudDayText.textContent = `Day #${dNum}`;
       }
     } else {
@@ -5707,6 +5707,10 @@ let PATTU_MOVIES = [
 ];
 
 const PATTU_BUNDLED_DAYS = [
+  { day: 1610, movie: "Shivamani" },
+  { day: 1609, movie: "Dil" },
+  { day: 1608, movie: "Jayam Manadera" },
+  { day: 1607, movie: "Shivaji" },
   { day: 1606, movie: "Raja Raja Chora" },
   { day: 1605, movie: "Robo" },
   { day: 1604, movie: "Aakali Rajyam" },
@@ -5842,17 +5846,11 @@ function initPattu(targetDay = null) {
   const todayDay = getPattuDayCount();
   pattuCurrentDay = (typeof targetDay === "number" && targetDay >= 0) ? targetDay : todayDay;
 
-  // When hosting offline or before upstream S3 publishes today's puzzle,
-  // intelligently default to our latest verified offline day (#1606)
-  if (targetDay === null && pattuCurrentDay > 1606) {
-    pattuCurrentDay = 1606;
-  }
-
   // Pre-seed with bundled offline movie for this day
   const bundled = PATTU_BUNDLED_DAYS.find(b => b.day === pattuCurrentDay) ||
     PATTU_BUNDLED_DAYS[Math.abs(pattuCurrentDay) % PATTU_BUNDLED_DAYS.length];
   pattuCurrentPuzzle = {
-    movie: bundled ? bundled.movie : "Raja Raja Chora",
+    movie: bundled ? bundled.movie : "Shivamani",
     movieFromS3: true
   };
 
@@ -5910,6 +5908,9 @@ function initPattu(targetDay = null) {
 }
 
 function renderPattuUI() {
+  const hudDayText = document.getElementById("pattuHudDayText");
+  if (hudDayText) hudDayText.textContent = `Day #${pattuCurrentDay}`;
+
   // 1. Frame Number Buttons: 1, 2, 3, 4, 5 (Numbers only, no "Step", no "Active" label)
   if (pattuFramePillsEl) {
     let tabsHtml = "";
@@ -6053,20 +6054,22 @@ function getPattuCandidateUrls(day, frameNum) {
   // 1. Direct local still for this exact day (from our offline package)
   urls.push(`data/stills/${day}/${frameNum}.jpg`);
 
-  // 2. Local daily stills
-  urls.push(`data/daily/${frameNum}.jpg`);
+  // 2. Direct online S3 & fast CDN proxies for this exact day
+  urls.push(`${PATTU_S3_BASE}/${day}/${frameNum}.jpg`);
+  urls.push(`https://wsrv.nl/?url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
+  urls.push(`https://images.weserv.nl/?url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
 
-  // 3. Fallback to mapped bundled day if an unbundled day is requested while offline
+  // 3. Local daily folder (if viewing today's day)
+  if (day === getPattuDayCount()) {
+    urls.push(`data/daily/${frameNum}.jpg`);
+  }
+
+  // 4. Offline fallback to nearest bundled day if day is unavailable
   const fallbackEntry = PATTU_BUNDLED_DAYS.find(b => b.day === day) ||
     PATTU_BUNDLED_DAYS[Math.abs(day) % PATTU_BUNDLED_DAYS.length];
   if (fallbackEntry && fallbackEntry.day !== day) {
     urls.push(`data/stills/${fallbackEntry.day}/${frameNum}.jpg`);
   }
-
-  // 4. Online CDN & S3 fallbacks
-  urls.push(`https://wsrv.nl/?url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
-  urls.push(`${PATTU_S3_BASE}/${day}/${frameNum}.jpg`);
-  urls.push(`https://images.weserv.nl/?url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
   return urls;
 }
 
