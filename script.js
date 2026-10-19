@@ -1,4 +1,4 @@
-﻿var ludoActiveTimers = [];
+var ludoActiveTimers = [];
 var ludoRollInterval = null;
 const modeSelect = document.getElementById("modeSelect");
 const difficultySelect = document.getElementById("difficultySelect");
@@ -649,6 +649,7 @@ function startIdleWatchdog() {
 
 /* ---------- State Management ---------- */
 function modeFromHub() {
+  if (hubState.game === "snake") return "snake";
   if (hubState.game === "wordle") return "wordle";
   if (hubState.game === "pattu") return "pattu";
   if (hubState.game === "sequence") return hubState.opponent === "ai" ? "sequence-ai" : "sequence-2p";
@@ -659,6 +660,11 @@ function modeFromHub() {
 }
 
 function hubFromMode(mode) {
+  if (mode === "snake") {
+    hubState.game = "snake";
+    hubState.opponent = "local";
+    return;
+  }
   if (mode === "wordle") {
     hubState.game = "wordle";
     hubState.opponent = "local";
@@ -692,7 +698,7 @@ function setActive(groupEl, key, val) {
 }
 
 function persistHub() {
-  const opponentVal = (hubState.game === "wordle") ? "local" : hubState.opponent;
+  const opponentVal = (hubState.game === "wordle" || hubState.game === "snake") ? "local" : hubState.opponent;
   localStorage.setItem("hubState", JSON.stringify({ ...hubState, opponent: opponentVal }));
   const hash = `#/${hubState.game}?vs=${opponentVal}&diff=${hubState.difficulty}&timer=${hubState.timer}&theme=${hubState.theme}`;
   history.replaceState(null, "", hash);
@@ -706,7 +712,7 @@ function loadHub() {
   const raw = location.hash || "";
   if (raw.startsWith("#/")) {
     const [path, query = ""] = raw.slice(2).split("?");
-    if (["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu"].includes(path)) hubState.game = path;
+    if (["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu", "ludo", "snake"].includes(path)) hubState.game = path;
 
     const q = new URLSearchParams(query);
     const vs = q.get("vs");
@@ -727,9 +733,9 @@ function loadHub() {
   if (!["dark", "light", "itachi", "naruto"].includes(hubState.theme)) hubState.theme = "dark";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
-  if (!["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu", "ludo"].includes(hubState.game)) hubState.game = "ttt3";
+  if (!["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu", "ludo", "snake"].includes(hubState.game)) hubState.game = "ttt3";
 
-  if (hubState.game === "wordle" || hubState.game === "pattu") hubState.opponent = "local";
+  if (hubState.game === "wordle" || hubState.game === "pattu" || hubState.game === "snake") hubState.opponent = "local";
 }
 
 function syncHud() {
@@ -783,9 +789,10 @@ function syncHud() {
 
   // Match Bar Optimization: Show Opponent selector for games supporting 2P vs AI (TTT, Chess, Sequence & Poker)
   const isLudo = (hubState.game === "ludo");
+  const isSnake = (hubState.game === "snake");
   const supportsOpponent = isTTT || isChess || isSequence || isPoker;
   if (opponentGroup) {
-    if (supportsOpponent && !isLudo) {
+    if (supportsOpponent && !isLudo && !isSnake) {
       opponentGroup.style.display = "flex";
       opponentGroup.classList.remove("hidden");
     } else {
@@ -807,10 +814,23 @@ function syncHud() {
     }
   }
 
+  // Snake Match Group in Top Match Bar
+  const snakeMatchGroup = document.getElementById("snakeMatchGroup");
+  if (snakeMatchGroup) {
+    if (isSnake) {
+      snakeMatchGroup.style.display = "flex";
+      snakeMatchGroup.classList.remove("hidden");
+      if (typeof syncSnakeMatchBarUI === "function") syncSnakeMatchBarUI();
+    } else {
+      snakeMatchGroup.style.setProperty("display", "none", "important");
+      snakeMatchGroup.classList.add("hidden");
+    }
+  }
+
   // Difficulty selector for AI-supporting games: TTT, Chess, Sequence, Poker & Ludo King (when vs AI is active)
   const supportsAi = isTTT || isChess || isSequence || isPoker || isLudo;
   if (difficultyGroup) {
-    if (supportsAi) {
+    if (supportsAi && !isSnake) {
       const isAiActive = isLudo ? (ludoState.mode === "ai") : (hubState.opponent === "ai");
       if (isAiActive) {
         difficultyGroup.style.display = "flex";
@@ -836,6 +856,7 @@ function showOnlyActiveGame(gameKey) {
   const isPattu = (gameKey === "pattu");
   const isSequence = (gameKey === "sequence");
   const isPalace = (gameKey === "palace");
+  const isSnake = (gameKey === "snake");
 
   // 1. TTT Board
   if (tttBoardEl) {
@@ -921,9 +942,21 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
-  // 8. Intelligent Game-Specific Bottom Dock Visibility Guard:
+  // 8. Snake Arena
+  const snakeGameEl = document.getElementById("snakeGame");
+  if (snakeGameEl) {
+    if (isSnake) {
+      snakeGameEl.classList.remove("hidden");
+      snakeGameEl.style.removeProperty("display");
+    } else {
+      snakeGameEl.classList.add("hidden");
+      snakeGameEl.style.setProperty("display", "none", "important");
+      if (typeof stopSnake === "function") stopSnake();
+    }
+  }
+
+  // 9. Intelligent Game-Specific Bottom Dock Visibility Guard:
   // ONLY show bottom quickDock (Timer/Actions/Scores) for Tic-Tac-Toe & Chess!
-  // For Sequence, Pattukunte, Wordle, Poker, completely hide it so it NEVER covers or obstructs the game board/cards!
   const quickDockEl = document.getElementById("quickDock");
   const needsQuickDock = (isTTT || isChess);
   if (quickDockEl) {
@@ -936,10 +969,10 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
-  // Hide TTT HUD turn status pill & adjust arena when playing Pattu or Sequence
+  // Hide TTT HUD turn status pill & adjust arena when playing Pattu, Sequence, Ludo, or Snake
   const statusWrapEl = document.querySelector(".status-wrap");
   const arenaEl = document.querySelector(".arena");
-  if (isPalace || isSequence || isLudo) {
+  if (isPalace || isSequence || isLudo || isSnake) {
     arenaEl?.classList.remove("pattu-arena-mode");
     statusWrapEl?.classList.add("hidden");
     statusWrapEl?.style.setProperty("display", "none", "important");
@@ -981,13 +1014,14 @@ function showOnlyActiveGame(gameKey) {
   }
 
   // Board wrap shell classes
-  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode", "pattu-mode", "sequence-mode", "ludo-mode");
+  boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode", "pattu-mode", "sequence-mode", "ludo-mode", "snake-mode");
   if (isChess) boardWrap?.classList.add("chess-mode");
   else if (isWordle) boardWrap?.classList.add("wordle-mode");
   else if (isPoker) boardWrap?.classList.add("poker-mode");
   else if (isPattu) boardWrap?.classList.add("pattu-mode");
   else if (isSequence) boardWrap?.classList.add("sequence-mode");
   else if (isLudo) boardWrap?.classList.add("ludo-mode");
+  else if (isSnake) boardWrap?.classList.add("snake-mode");
 
   // Sidebars (Chess captured only)
   const isMini = isMiniWindow();
@@ -6958,7 +6992,7 @@ function initBoard(forceFresh = false) {
   clearWinLine();
   resetIdleWatchdog();
 
-  if (!forceFresh && hubState.game !== "ludo") {
+  if (!forceFresh && hubState.game !== "ludo" && hubState.game !== "snake") {
     const restored = restoreLiveStateIfAny();
     if (restored) {
       syncHud();
@@ -6975,6 +7009,7 @@ function initBoard(forceFresh = false) {
   else if (hubState.game === "poker") initPoker();
   else if (hubState.game === "pattu") initPattu();
   else if (hubState.game === "ludo") initLudo(forceFresh);
+  else if (hubState.game === "snake") initSnake(forceFresh);
   else if (hubState.game === "ttt3") initTTT(3);
   else if (hubState.game === "ttt5") initTTT(5);
   else initChess();
@@ -7175,6 +7210,14 @@ function initStageDragger() {
 
 function boot() {
   initLudoEvents();
+  initSnakeEvents();
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
+
   loadHub();
   updateMiniWindowUI();
 
@@ -7210,6 +7253,7 @@ if (document.readyState === "loading") {
 
 function getGameDisplayName(gameKey) {
   if (gameKey === "ttt3" || gameKey === "ttt5" || gameKey === "ttt") return "Tic-Tac-Toe";
+  if (gameKey === "snake") return "Snake Arena";
   if (gameKey === "ludo") return "Ludo King";
   if (gameKey === "chess") return "Chess";
   if (gameKey === "sequence") return "Sequence";
@@ -7222,6 +7266,7 @@ function getGameDisplayName(gameKey) {
 
 function showLandingView() {
   stopLudo();
+  if (typeof stopSnake === "function") stopSnake();
   const landing = document.getElementById("landingView");
   const gameView = document.getElementById("gameView");
   const playBtn = document.getElementById("navPlayBtn");
@@ -7241,6 +7286,7 @@ function showLandingView() {
 
 function showGameView(gameKey) {
   if (gameKey !== "ludo") stopLudo();
+  if (gameKey !== "snake" && typeof stopSnake === "function") stopSnake();
   // Trigger dynamic expanding growth animation on the top match bar
   const matchBar = document.getElementById("gameMatchBar");
   if (matchBar) {
@@ -7297,7 +7343,7 @@ function initScenicLandingAndNav() {
         window.location.href = "pass-it-on/";
         return;
       }
-      const validGames = ["ttt3", "ttt5", "ttt", "chess", "sequence", "wordle", "poker", "pattu", "ludo"];
+      const validGames = ["ttt3", "ttt5", "ttt", "chess", "sequence", "wordle", "poker", "pattu", "ludo", "snake"];
       if (validGames.includes(routeGame)) {
         const actualGame = routeGame === "ttt" ? (hubState.lastTttMode || "ttt3") : routeGame;
         hubState.game = actualGame;
@@ -7346,6 +7392,7 @@ function initScenicLandingAndNav() {
   // 2. Return to All Games Button
   backBtn?.addEventListener("click", () => {
     stopLudo();
+    if (typeof stopSnake === "function") stopSnake();
     showLandingView();
     location.hash = "#/";
   });
@@ -8764,4 +8811,952 @@ function initLudoEvents() {
     syncHud();
     initLudo(true);
   });
+}
+
+/* =========================================================================
+   SNAKE ARENA ENGINE — MODERN SEA GLASS EDITION
+   ========================================================================= */
+
+const SNAKE_SKINS = {
+  emerald: {
+    name: "Emerald",
+    dot: "#10b981",
+    head: "#34d399",
+    bodyGrad: ["#34d399", "#10b981", "#059669"],
+    glow: "rgba(52, 211, 153, 0.8)",
+    eye: "#022c22"
+  },
+  cyan: {
+    name: "Cyber Cyan",
+    dot: "#06b6d4",
+    head: "#67e8f9",
+    bodyGrad: ["#67e8f9", "#06b6d4", "#0891b2"],
+    glow: "rgba(6, 182, 212, 0.8)",
+    eye: "#083344"
+  },
+  gold: {
+    name: "Solar Gold",
+    dot: "#f59e0b",
+    head: "#fde047",
+    bodyGrad: ["#fde047", "#f59e0b", "#d97706"],
+    glow: "rgba(245, 158, 11, 0.8)",
+    eye: "#451a03"
+  },
+  crimson: {
+    name: "Crimson Viper",
+    dot: "#ef4444",
+    head: "#fca5a5",
+    bodyGrad: ["#fca5a5", "#ef4444", "#b91c1c"],
+    glow: "rgba(239, 68, 68, 0.8)",
+    eye: "#450a0a"
+  },
+  amethyst: {
+    name: "Amethyst Glow",
+    dot: "#a855f7",
+    head: "#d8b4fe",
+    bodyGrad: ["#d8b4fe", "#a855f7", "#7e22ce"],
+    glow: "rgba(168, 85, 247, 0.8)",
+    eye: "#3b0764"
+  }
+};
+
+const SNAKE_SPEEDS = {
+  casual: 130,
+  normal: 95,
+  fast: 68,
+  insane: 46
+};
+
+const snakeState = {
+  gridSize: 20,
+  tileSize: 30, // 20 * 30 = 600
+  snake: [],
+  dir: { x: 1, y: 0 },
+  nextDir: { x: 1, y: 0 },
+  food: null,
+  obstacles: [],
+  score: 0,
+  highScore: 0,
+  mode: "classic",
+  speed: "normal",
+  skin: "emerald",
+  timeLeft: 60,
+  gameInterval: null,
+  timerInterval: null,
+  animFrameId: null,
+  isRunning: false,
+  isPaused: false,
+  isGameOver: false,
+  sound: true,
+  particles: []
+};
+
+// Web Audio API Synthesizer (100% Client-side & Offline)
+let snakeAudioCtx = null;
+function getSnakeAudio() {
+  if (!snakeAudioCtx) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) snakeAudioCtx = new AudioCtx();
+  }
+  if (snakeAudioCtx && snakeAudioCtx.state === "suspended") {
+    snakeAudioCtx.resume().catch(() => {});
+  }
+  return snakeAudioCtx;
+}
+
+function playSnakeSound(type) {
+  if (!snakeState.sound) return;
+  const ctx = getSnakeAudio();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  try {
+    if (type === "eat") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(580, now);
+      osc.frequency.exponentialRampToValueAtTime(920, now + 0.12);
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.14);
+    } else if (type === "bonus") {
+      [784, 1046].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+        gain.gain.setValueAtTime(0.25, now + idx * 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.16);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.06);
+        osc.stop(now + idx * 0.06 + 0.16);
+      });
+    } else if (type === "turn") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(220, now + 0.03);
+      gain.gain.setValueAtTime(0.05, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.03);
+    } else if (type === "crash") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.exponentialRampToValueAtTime(35, now + 0.28);
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    } else if (type === "highscore") {
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now + i * 0.09);
+        gain.gain.setValueAtTime(0.28, now + i * 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.22);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.09);
+        osc.stop(now + i * 0.09 + 0.22);
+      });
+    }
+  } catch (err) {}
+}
+
+function loadSnakeSettings() {
+  try {
+    const savedSkin = localStorage.getItem("gap_snake_skin");
+    if (savedSkin && SNAKE_SKINS[savedSkin]) snakeState.skin = savedSkin;
+
+    const savedSpeed = localStorage.getItem("gap_snake_speed");
+    if (savedSpeed && SNAKE_SPEEDS[savedSpeed]) snakeState.speed = savedSpeed;
+
+    const savedMode = localStorage.getItem("gap_snake_mode");
+    if (savedMode && ["classic", "nowalls", "obstacles", "timed"].includes(savedMode)) snakeState.mode = savedMode;
+
+    const savedSound = localStorage.getItem("gap_snake_sound");
+    if (savedSound !== null) snakeState.sound = (savedSound === "true");
+  } catch {}
+
+  loadSnakeHighScore();
+}
+
+function loadSnakeHighScore() {
+  try {
+    const val = localStorage.getItem("gap_snake_high_" + snakeState.mode);
+    snakeState.highScore = val ? parseInt(val, 10) || 0 : 0;
+  } catch {
+    snakeState.highScore = 0;
+  }
+  const el = document.getElementById("snakeHighScoreVal");
+  if (el) el.textContent = snakeState.highScore;
+}
+
+function saveSnakeHighScore() {
+  try {
+    localStorage.setItem("gap_snake_high_" + snakeState.mode, String(snakeState.highScore));
+  } catch {}
+}
+
+function syncSnakeMatchBarUI() {
+  const modePills = document.getElementById("snakeModePills");
+  const speedPills = document.getElementById("snakeSpeedPills");
+  const skinLabel = document.getElementById("snakeSkinLabel");
+  const skinDot = document.getElementById("snakeSkinPreviewDot");
+
+  setActive(modePills, "snakemode", snakeState.mode);
+  setActive(speedPills, "snakespeed", snakeState.speed);
+
+  const skinObj = SNAKE_SKINS[snakeState.skin] || SNAKE_SKINS.emerald;
+  if (skinLabel) skinLabel.textContent = skinObj.name;
+  if (skinDot) {
+    skinDot.style.backgroundColor = skinObj.dot;
+    skinDot.style.boxShadow = `0 0 10px ${skinObj.dot}`;
+  }
+
+  // Toggle Timed HUD chip
+  const timerItem = document.getElementById("snakeTimerItem");
+  if (timerItem) {
+    if (snakeState.mode === "timed") {
+      timerItem.classList.remove("hidden");
+      timerItem.style.display = "flex";
+    } else {
+      timerItem.classList.add("hidden");
+      timerItem.style.display = "none";
+    }
+  }
+
+  const muteIcon = document.getElementById("snakeMuteIcon");
+  if (muteIcon) muteIcon.textContent = snakeState.sound ? "🔊" : "🔇";
+}
+
+function buildSnakeObstacles() {
+  if (snakeState.mode !== "obstacles") {
+    snakeState.obstacles = [];
+    return;
+  }
+
+  const obs = [];
+  // 4 Symmetric Corner L-shaped crystals
+  // Top-left
+  obs.push({ x: 3, y: 3 }, { x: 4, y: 3 }, { x: 3, y: 4 });
+  // Top-right
+  obs.push({ x: 16, y: 3 }, { x: 15, y: 3 }, { x: 16, y: 4 });
+  // Bottom-left
+  obs.push({ x: 3, y: 16 }, { x: 4, y: 16 }, { x: 3, y: 15 });
+  // Bottom-right
+  obs.push({ x: 16, y: 16 }, { x: 15, y: 16 }, { x: 16, y: 15 });
+
+  // Center vertical guard pillars
+  obs.push({ x: 9, y: 7 }, { x: 9, y: 8 }, { x: 10, y: 11 }, { x: 10, y: 12 });
+
+  snakeState.obstacles = obs;
+}
+
+function spawnSnakeFood() {
+  const gs = snakeState.gridSize;
+  const occupied = new Set();
+
+  snakeState.snake.forEach(seg => occupied.add(`${seg.x},${seg.y}`));
+  snakeState.obstacles.forEach(ob => occupied.add(`${ob.x},${ob.y}`));
+
+  const freeCells = [];
+  for (let x = 0; x < gs; x++) {
+    for (let y = 0; y < gs; y++) {
+      if (!occupied.has(`${x},${y}`)) freeCells.push({ x, y });
+    }
+  }
+
+  if (!freeCells.length) return;
+
+  const chosen = freeCells[Math.floor(Math.random() * freeCells.length)];
+  const isGolden = Math.random() < 0.18; // 18% chance of Golden Apple
+
+  snakeState.food = {
+    x: chosen.x,
+    y: chosen.y,
+    type: isGolden ? "golden" : "normal"
+  };
+}
+
+function spawnSnakeEatParticles(x, y, isGolden) {
+  const ts = snakeState.tileSize;
+  const cx = x * ts + ts / 2;
+  const cy = y * ts + ts / 2;
+  const color = isGolden ? "#fbbf24" : (document.body.dataset.theme === "light" ? "#ef4444" : "#f87171");
+
+  for (let i = 0; i < 14; i++) {
+    const angle = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.4;
+    const speed = Math.random() * 4.5 + 2;
+    snakeState.particles.push({
+      x: cx,
+      y: cy,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      color,
+      alpha: 1,
+      radius: Math.random() * 3 + 2.5
+    });
+  }
+}
+
+function initSnake(forceFresh = false) {
+  loadSnakeSettings();
+  stopSnake();
+
+  // Reset core state
+  snakeState.snake = [
+    { x: 9, y: 10 },
+    { x: 8, y: 10 },
+    { x: 7, y: 10 }
+  ];
+  snakeState.dir = { x: 1, y: 0 };
+  snakeState.nextDir = { x: 1, y: 0 };
+  snakeState.score = 0;
+  snakeState.timeLeft = 60;
+  snakeState.isRunning = false;
+  snakeState.isPaused = false;
+  snakeState.isGameOver = false;
+  snakeState.particles = [];
+
+  buildSnakeObstacles();
+  spawnSnakeFood();
+  syncSnakeMatchBarUI();
+  updateSnakeHUD();
+
+  // Show start overlay initially if fresh
+  const startOverlay = document.getElementById("snakeStartOverlay");
+  const pauseOverlay = document.getElementById("snakePauseOverlay");
+  const gameOverOverlay = document.getElementById("snakeGameOverOverlay");
+  if (startOverlay) startOverlay.classList.remove("hidden");
+  if (pauseOverlay) pauseOverlay.classList.add("hidden");
+  if (gameOverOverlay) gameOverOverlay.classList.add("hidden");
+
+  // Render initial preview frame
+  renderSnakeFrame();
+}
+
+function startSnakeGame() {
+  getSnakeAudio();
+  const startOverlay = document.getElementById("snakeStartOverlay");
+  const pauseOverlay = document.getElementById("snakePauseOverlay");
+  const gameOverOverlay = document.getElementById("snakeGameOverOverlay");
+  if (startOverlay) startOverlay.classList.add("hidden");
+  if (pauseOverlay) pauseOverlay.classList.add("hidden");
+  if (gameOverOverlay) gameOverOverlay.classList.add("hidden");
+
+  snakeState.isRunning = true;
+  snakeState.isPaused = false;
+  snakeState.isGameOver = false;
+
+  clearInterval(snakeState.gameInterval);
+  clearInterval(snakeState.timerInterval);
+
+  const speedMs = SNAKE_SPEEDS[snakeState.speed] || 95;
+  snakeState.gameInterval = setInterval(tickSnakeGame, speedMs);
+
+  if (snakeState.mode === "timed") {
+    snakeState.timerInterval = setInterval(() => {
+      if (snakeState.isRunning && !snakeState.isPaused) {
+        snakeState.timeLeft--;
+        const timeEl = document.getElementById("snakeTimeVal");
+        if (timeEl) timeEl.textContent = `${snakeState.timeLeft}s`;
+
+        if (snakeState.timeLeft <= 0) {
+          endSnakeGame("Time is up!");
+        }
+      }
+    }, 1000);
+  }
+
+  // Continuous animation loop for particles & food glow pulse
+  startSnakeAnimLoop();
+}
+
+function pauseSnakeGame() {
+  if (!snakeState.isRunning || snakeState.isGameOver) return;
+  snakeState.isPaused = true;
+  clearInterval(snakeState.gameInterval);
+
+  const pauseOverlay = document.getElementById("snakePauseOverlay");
+  if (pauseOverlay) pauseOverlay.classList.remove("hidden");
+
+  const pauseText = document.getElementById("snakePauseText");
+  const pauseIcon = document.getElementById("snakePauseIcon");
+  if (pauseText) pauseText.textContent = "Resume";
+  if (pauseIcon) pauseIcon.textContent = "▶️";
+}
+
+function resumeSnakeGame() {
+  if (!snakeState.isRunning || snakeState.isGameOver) return;
+  getSnakeAudio();
+  snakeState.isPaused = false;
+
+  const pauseOverlay = document.getElementById("snakePauseOverlay");
+  if (pauseOverlay) pauseOverlay.classList.add("hidden");
+
+  const pauseText = document.getElementById("snakePauseText");
+  const pauseIcon = document.getElementById("snakePauseIcon");
+  if (pauseText) pauseText.textContent = "Pause";
+  if (pauseIcon) pauseIcon.textContent = "⏸️";
+
+  clearInterval(snakeState.gameInterval);
+  const speedMs = SNAKE_SPEEDS[snakeState.speed] || 95;
+  snakeState.gameInterval = setInterval(tickSnakeGame, speedMs);
+}
+
+function toggleSnakePause() {
+  if (!snakeState.isRunning) {
+    startSnakeGame();
+    return;
+  }
+  if (snakeState.isPaused) {
+    resumeSnakeGame();
+  } else {
+    pauseSnakeGame();
+  }
+}
+
+function stopSnake() {
+  snakeState.isRunning = false;
+  snakeState.isPaused = false;
+  clearInterval(snakeState.gameInterval);
+  clearInterval(snakeState.timerInterval);
+  if (snakeState.animFrameId) {
+    cancelAnimationFrame(snakeState.animFrameId);
+    snakeState.animFrameId = null;
+  }
+}
+
+function endSnakeGame(cause = "You crashed into a wall!") {
+  stopSnake();
+  snakeState.isGameOver = true;
+  playSnakeSound("crash");
+
+  const isNewHigh = (snakeState.score > snakeState.highScore && snakeState.score > 0);
+  if (isNewHigh) {
+    snakeState.highScore = snakeState.score;
+    saveSnakeHighScore();
+    setTimeout(() => playSnakeSound("highscore"), 280);
+  }
+
+  updateSnakeHUD();
+
+  const gameOverOverlay = document.getElementById("snakeGameOverOverlay");
+  const causeEl = document.getElementById("snakeGameOverCause");
+  const finalScoreEl = document.getElementById("snakeFinalScore");
+  const finalHighEl = document.getElementById("snakeFinalHighScore");
+  const bestModeLabel = document.getElementById("snakeBestModeLabel");
+  const newHighBadge = document.getElementById("snakeNewHighScoreBadge");
+
+  if (causeEl) causeEl.textContent = cause;
+  if (finalScoreEl) finalScoreEl.textContent = snakeState.score;
+  if (finalHighEl) finalHighEl.textContent = snakeState.highScore;
+  if (bestModeLabel) {
+    const modeNames = { classic: "Classic", nowalls: "No Walls", obstacles: "Obstacles", timed: "Timed" };
+    bestModeLabel.textContent = modeNames[snakeState.mode] || "Classic";
+  }
+  if (newHighBadge) {
+    newHighBadge.classList.toggle("hidden", !isNewHigh);
+  }
+
+  if (gameOverOverlay) gameOverOverlay.classList.remove("hidden");
+}
+
+function tickSnakeGame() {
+  if (!snakeState.isRunning || snakeState.isPaused || snakeState.isGameOver) return;
+
+  snakeState.dir = { ...snakeState.nextDir };
+  const head = snakeState.snake[0];
+  let nextHead = {
+    x: head.x + snakeState.dir.x,
+    y: head.y + snakeState.dir.y
+  };
+
+  const gs = snakeState.gridSize;
+
+  // Mode collision handling
+  if (snakeState.mode === "nowalls") {
+    // Screen wrapping
+    nextHead.x = (nextHead.x + gs) % gs;
+    nextHead.y = (nextHead.y + gs) % gs;
+  } else {
+    // Fatal walls
+    if (nextHead.x < 0 || nextHead.x >= gs || nextHead.y < 0 || nextHead.y >= gs) {
+      endSnakeGame("You crashed into a wall!");
+      return;
+    }
+  }
+
+  // Obstacle collision check
+  if (snakeState.mode === "obstacles") {
+    const hitObstacle = snakeState.obstacles.some(ob => ob.x === nextHead.x && ob.y === nextHead.y);
+    if (hitObstacle) {
+      endSnakeGame("You shattered against a Sea Glass Crystal!");
+      return;
+    }
+  }
+
+  // Self collision check (ignore tail if tail will move away and not eating food)
+  const isEating = (snakeState.food && nextHead.x === snakeState.food.x && nextHead.y === snakeState.food.y);
+  const segmentsToCheck = isEating ? snakeState.snake : snakeState.snake.slice(0, -1);
+  const hitSelf = segmentsToCheck.some(seg => seg.x === nextHead.x && seg.y === nextHead.y);
+  if (hitSelf) {
+    endSnakeGame("You tangled into yourself!");
+    return;
+  }
+
+  // Move snake
+  snakeState.snake.unshift(nextHead);
+
+  if (isEating) {
+    const isGolden = (snakeState.food.type === "golden");
+    const points = isGolden ? 30 : 10;
+    snakeState.score += points;
+
+    if (snakeState.mode === "timed") {
+      snakeState.timeLeft += (isGolden ? 8 : 4);
+      const timeEl = document.getElementById("snakeTimeVal");
+      if (timeEl) timeEl.textContent = `${snakeState.timeLeft}s`;
+    }
+
+    if (snakeState.score > snakeState.highScore) {
+      snakeState.highScore = snakeState.score;
+      saveSnakeHighScore();
+    }
+
+    playSnakeSound(isGolden ? "bonus" : "eat");
+    spawnSnakeEatParticles(snakeState.food.x, snakeState.food.y, isGolden);
+    spawnSnakeFood();
+    updateSnakeHUD();
+  } else {
+    snakeState.snake.pop();
+  }
+
+  renderSnakeFrame();
+}
+
+function updateSnakeHUD() {
+  const scoreEl = document.getElementById("snakeScoreVal");
+  const highEl = document.getElementById("snakeHighScoreVal");
+  const lenEl = document.getElementById("snakeLengthVal");
+  const timeEl = document.getElementById("snakeTimeVal");
+
+  if (scoreEl) scoreEl.textContent = snakeState.score;
+  if (highEl) highEl.textContent = snakeState.highScore;
+  if (lenEl) lenEl.textContent = snakeState.snake.length;
+  if (timeEl) timeEl.textContent = `${snakeState.timeLeft}s`;
+}
+
+function startSnakeAnimLoop() {
+  if (snakeState.animFrameId) cancelAnimationFrame(snakeState.animFrameId);
+
+  const loop = () => {
+    // Only continue RAF loop if game is active or has particles
+    if (snakeState.isRunning || snakeState.particles.length > 0) {
+      renderSnakeFrame();
+      snakeState.animFrameId = requestAnimationFrame(loop);
+    }
+  };
+  snakeState.animFrameId = requestAnimationFrame(loop);
+}
+
+function renderSnakeFrame() {
+  const canvas = document.getElementById("snakeCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+  const gs = snakeState.gridSize;
+  const ts = snakeState.tileSize;
+
+  const isLight = document.body.dataset.theme === "light";
+
+  // 1. Clear background
+  ctx.clearRect(0, 0, width, height);
+
+  // Background subtle gradient
+  const bgGrad = ctx.createRadialGradient(width / 2, height / 2, 40, width / 2, height / 2, width * 0.72);
+  if (isLight) {
+    bgGrad.addColorStop(0, "#ecfdf5");
+    bgGrad.addColorStop(1, "#d1fae5");
+  } else {
+    bgGrad.addColorStop(0, "#08201a");
+    bgGrad.addColorStop(1, "#030a08");
+  }
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, width, height);
+
+  // 2. Frosted Grid lines
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = isLight ? "rgba(16, 185, 129, 0.08)" : "rgba(255, 255, 255, 0.035)";
+  for (let i = 0; i <= gs; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * ts, 0);
+    ctx.lineTo(i * ts, height);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, i * ts);
+    ctx.lineTo(width, i * ts);
+    ctx.stroke();
+  }
+
+  // 3. Render Obstacles (Sea Glass Crystal Pillars)
+  if (snakeState.mode === "obstacles" && snakeState.obstacles.length) {
+    snakeState.obstacles.forEach(ob => {
+      const ox = ob.x * ts + 2;
+      const oy = ob.y * ts + 2;
+      const oSize = ts - 4;
+
+      ctx.save();
+      ctx.fillStyle = isLight ? "rgba(14, 116, 144, 0.22)" : "rgba(6, 182, 212, 0.16)";
+      ctx.strokeStyle = isLight ? "#0891b2" : "#22d3ee";
+      ctx.lineWidth = 1.8;
+      ctx.shadowColor = isLight ? "rgba(8, 145, 178, 0.3)" : "rgba(34, 211, 238, 0.4)";
+      ctx.shadowBlur = 8;
+
+      // Beveled rounded crystal
+      ctx.beginPath();
+      ctx.roundRect(ox, oy, oSize, oSize, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      // Crystal facet highlight
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(ox + 4, oy + oSize - 6);
+      ctx.lineTo(ox + 4, oy + 4);
+      ctx.lineTo(ox + oSize - 6, oy + 4);
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
+
+  // 4. Render Food (Apple / Golden Fruit)
+  if (snakeState.food) {
+    const fx = snakeState.food.x * ts + ts / 2;
+    const fy = snakeState.food.y * ts + ts / 2;
+    const isGolden = (snakeState.food.type === "golden");
+    const pulse = Math.sin(Date.now() / 180) * 1.5;
+    const radius = (ts / 2 - 4) + pulse;
+
+    ctx.save();
+    ctx.shadowBlur = isGolden ? 16 : 12;
+    ctx.shadowColor = isGolden ? "#fbbf24" : "#ef4444";
+
+    const fruitGrad = ctx.createRadialGradient(fx - 2, fy - 2, 2, fx, fy, radius);
+    if (isGolden) {
+      fruitGrad.addColorStop(0, "#fef08a");
+      fruitGrad.addColorStop(0.6, "#f59e0b");
+      fruitGrad.addColorStop(1, "#b45309");
+    } else {
+      fruitGrad.addColorStop(0, "#fca5a5");
+      fruitGrad.addColorStop(0.55, "#ef4444");
+      fruitGrad.addColorStop(1, "#991b1b");
+    }
+
+    ctx.fillStyle = fruitGrad;
+    ctx.beginPath();
+    ctx.arc(fx, fy, Math.max(4, radius), 0, Math.PI * 2);
+    ctx.fill();
+
+    // Leaf / stem
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = isGolden ? "#fde047" : "#22c55e";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(fx, fy - radius + 1);
+    ctx.quadraticCurveTo(fx + 4, fy - radius - 5, fx + 6, fy - radius - 3);
+    ctx.stroke();
+
+    // Specular glass shine dot
+    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+    ctx.beginPath();
+    ctx.arc(fx - radius * 0.35, fy - radius * 0.35, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  // 5. Render Glowing Snake
+  const skin = SNAKE_SKINS[snakeState.skin] || SNAKE_SKINS.emerald;
+  const snakeLen = snakeState.snake.length;
+
+  for (let i = snakeLen - 1; i >= 0; i--) {
+    const seg = snakeState.snake[i];
+    const sx = seg.x * ts + 2;
+    const sy = seg.y * ts + 2;
+    const sSize = ts - 4;
+    const isHead = (i === 0);
+
+    ctx.save();
+    ctx.shadowColor = skin.glow;
+    ctx.shadowBlur = isHead ? 14 : 8;
+
+    // Body segment gradient interpolation
+    ctx.fillStyle = isHead ? skin.head : skin.bodyGrad[1];
+
+    ctx.beginPath();
+    // Head has higher border radius
+    ctx.roundRect(sx, sy, sSize, sSize, isHead ? 10 : 8);
+    ctx.fill();
+
+    // Segment inner highlight border for authentic Sea Glass look
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Head eyes with direction tracking
+    if (isHead) {
+      const dx = snakeState.dir.x;
+      const dy = snakeState.dir.y;
+      const eyeR = 2.5;
+
+      // Base eye positions
+      let e1x = sx + sSize * 0.35;
+      let e1y = sy + sSize * 0.35;
+      let e2x = sx + sSize * 0.65;
+      let e2y = sy + sSize * 0.35;
+
+      if (dx === 1) { // Right
+        e1x = sx + sSize * 0.65; e1y = sy + sSize * 0.28;
+        e2x = sx + sSize * 0.65; e2y = sy + sSize * 0.72;
+      } else if (dx === -1) { // Left
+        e1x = sx + sSize * 0.35; e1y = sy + sSize * 0.28;
+        e2x = sx + sSize * 0.35; e2y = sy + sSize * 0.72;
+      } else if (dy === 1) { // Down
+        e1x = sx + sSize * 0.28; e1y = sy + sSize * 0.65;
+        e2x = sx + sSize * 0.72; e2y = sy + sSize * 0.65;
+      } else if (dy === -1) { // Up
+        e1x = sx + sSize * 0.28; e1y = sy + sSize * 0.35;
+        e2x = sx + sSize * 0.72; e2y = sy + sSize * 0.35;
+      }
+
+      // Eye whites
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(e1x, e1y, eyeR, 0, Math.PI * 2);
+      ctx.arc(e2x, e2y, eyeR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Pupils looking in dir
+      ctx.fillStyle = skin.eye;
+      const px = dx * 1;
+      const py = dy * 1;
+      ctx.beginPath();
+      ctx.arc(e1x + px, e1y + py, 1.3, 0, Math.PI * 2);
+      ctx.arc(e2x + px, e2y + py, 1.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  // 6. Render Particles
+  for (let i = snakeState.particles.length - 1; i >= 0; i--) {
+    const p = snakeState.particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.alpha -= 0.038;
+
+    if (p.alpha <= 0) {
+      snakeState.particles.splice(i, 1);
+      continue;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, p.alpha);
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function handleSnakeSteer(dx, dy) {
+  if (hubState.game !== "snake") return;
+
+  // If paused, resume
+  if (snakeState.isPaused) {
+    resumeSnakeGame();
+  }
+
+  // If not started, start
+  if (!snakeState.isRunning && !snakeState.isGameOver) {
+    startSnakeGame();
+  }
+
+  // Prevent immediate 180-degree self-reversal
+  if (dx !== 0 && snakeState.dir.x !== 0) return;
+  if (dy !== 0 && snakeState.dir.y !== 0) return;
+
+  playSnakeSound("turn");
+  snakeState.nextDir = { x: dx, y: dy };
+}
+
+function cycleSnakeSkin() {
+  const skinKeys = Object.keys(SNAKE_SKINS);
+  const curIdx = skinKeys.indexOf(snakeState.skin);
+  const nextIdx = (curIdx + 1) % skinKeys.length;
+  snakeState.skin = skinKeys[nextIdx];
+
+  try {
+    localStorage.setItem("gap_snake_skin", snakeState.skin);
+  } catch {}
+
+  syncSnakeMatchBarUI();
+  renderSnakeFrame();
+}
+
+function initSnakeEvents() {
+  const canvas = document.getElementById("snakeCanvas");
+  const startBtn = document.getElementById("snakeStartBtn");
+  const pauseBtn = document.getElementById("snakePauseBtn");
+  const resumeBtn = document.getElementById("snakeResumeBtn");
+  const resetBtn = document.getElementById("snakeResetBtn");
+  const restartFromPauseBtn = document.getElementById("snakeRestartFromPauseBtn");
+  const playAgainBtn = document.getElementById("snakePlayAgainBtn");
+  const muteBtn = document.getElementById("snakeMuteBtn");
+  const modePills = document.getElementById("snakeModePills");
+  const speedPills = document.getElementById("snakeSpeedPills");
+  const skinCycleBtn = document.getElementById("snakeSkinCycleBtn");
+
+  startBtn?.addEventListener("click", () => startSnakeGame());
+  resumeBtn?.addEventListener("click", () => resumeSnakeGame());
+  pauseBtn?.addEventListener("click", () => toggleSnakePause());
+  resetBtn?.addEventListener("click", () => initSnake(true));
+  restartFromPauseBtn?.addEventListener("click", () => initSnake(true));
+  playAgainBtn?.addEventListener("click", () => {
+    initSnake(true);
+    startSnakeGame();
+  });
+
+  muteBtn?.addEventListener("click", () => {
+    snakeState.sound = !snakeState.sound;
+    try {
+      localStorage.setItem("gap_snake_sound", String(snakeState.sound));
+    } catch {}
+    const muteIcon = document.getElementById("snakeMuteIcon");
+    if (muteIcon) muteIcon.textContent = snakeState.sound ? "🔊" : "🔇";
+  });
+
+  // Top Match Bar Mode Selection
+  modePills?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-snakemode]");
+    if (!btn) return;
+    snakeState.mode = btn.dataset.snakemode;
+    try {
+      localStorage.setItem("gap_snake_mode", snakeState.mode);
+    } catch {}
+    loadSnakeHighScore();
+    initSnake(true);
+  });
+
+  // Top Match Bar Speed Selection
+  speedPills?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-snakespeed]");
+    if (!btn) return;
+    snakeState.speed = btn.dataset.snakespeed;
+    try {
+      localStorage.setItem("gap_snake_speed", snakeState.speed);
+    } catch {}
+    syncSnakeMatchBarUI();
+    if (snakeState.isRunning && !snakeState.isPaused) {
+      clearInterval(snakeState.gameInterval);
+      snakeState.gameInterval = setInterval(tickSnakeGame, SNAKE_SPEEDS[snakeState.speed] || 95);
+    }
+  });
+
+  // Skin Selector Cycle
+  skinCycleBtn?.addEventListener("click", cycleSnakeSkin);
+
+  // Keyboard Controls: Arrow Keys & WASD & Spacebar & R
+  window.addEventListener("keydown", (e) => {
+    if (hubState.game !== "snake") return;
+
+    const activeEl = document.activeElement;
+    if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA")) return;
+
+    const key = e.key.toLowerCase();
+    if (key === "arrowup" || key === "w") {
+      e.preventDefault();
+      handleSnakeSteer(0, -1);
+    } else if (key === "arrowdown" || key === "s") {
+      e.preventDefault();
+      handleSnakeSteer(0, 1);
+    } else if (key === "arrowleft" || key === "a") {
+      e.preventDefault();
+      handleSnakeSteer(-1, 0);
+    } else if (key === "arrowright" || key === "d") {
+      e.preventDefault();
+      handleSnakeSteer(1, 0);
+    } else if (e.code === "Space") {
+      e.preventDefault();
+      toggleSnakePause();
+    } else if (key === "r") {
+      e.preventDefault();
+      initSnake(true);
+      startSnakeGame();
+    }
+  });
+
+  // Mobile Swipe Detection on Canvas
+  let touchStartX = 0;
+  let touchStartY = 0;
+  canvas?.addEventListener("touchstart", (e) => {
+    if (e.touches.length > 0) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  canvas?.addEventListener("touchmove", (e) => {
+    // Prevent screen jittering when swiping on canvas
+    if (hubState.game === "snake") {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  canvas?.addEventListener("touchend", (e) => {
+    if (!touchStartX && !touchStartY) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const dx = touchEndX - touchStartX;
+    const dy = touchEndY - touchStartY;
+
+    if (Math.hypot(dx, dy) > 24) {
+      if (Math.abs(dx) > Math.abs(dy)) {
+        handleSnakeSteer(dx > 0 ? 1 : -1, 0);
+      } else {
+        handleSnakeSteer(0, dy > 0 ? 1 : -1);
+      }
+    }
+  }, { passive: true });
+
+  // Mobile On-Screen D-Pad Buttons
+  document.getElementById("snakeDpadUp")?.addEventListener("click", () => handleSnakeSteer(0, -1));
+  document.getElementById("snakeDpadDown")?.addEventListener("click", () => handleSnakeSteer(0, 1));
+  document.getElementById("snakeDpadLeft")?.addEventListener("click", () => handleSnakeSteer(-1, 0));
+  document.getElementById("snakeDpadRight")?.addEventListener("click", () => handleSnakeSteer(1, 0));
+  document.getElementById("snakeDpadPause")?.addEventListener("click", () => toggleSnakePause());
 }
