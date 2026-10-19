@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>GAP Automated Diagnostics</title>
+</head>
+<body>
+  <iframe id="appFrame" src="index.html" style="width:1200px; height:800px;"></iframe>
+  <script>
+    const frame = document.getElementById("appFrame");
+    frame.onload = function() {
+      console.log("[TEST] Step 1: Iframe onload fired.");
+      try {
+        const win = frame.contentWindow;
+        const doc = frame.contentDocument || win.document;
+        console.log("[TEST] Step 2: doc.title = " + doc.title);
+
+        const landing = doc.getElementById("landingView");
+        const gameView = doc.getElementById("gameView");
+        console.log("[TEST] Step 3: landing hidden? " + landing.classList.contains("hidden") + ", gameView hidden? " + gameView.classList.contains("hidden"));
+
+        const cards = Array.from(doc.querySelectorAll("[data-game]"));
+        console.log("[TEST] Step 4: Found cards count = " + cards.length + " -> " + cards.map(c => c.dataset.game).join(","));
+
+        // Test clicking Tic-Tac-Toe
+        const tttCard = doc.querySelector('[data-game="ttt3"]') || doc.querySelector('[data-game="ttt"]');
+        if (tttCard) {
+          tttCard.click();
+          console.log("[TEST] Step 5: Clicked TTT card. hubState.game = " + (win.hubState ? win.hubState.game : "none"));
+          console.log("[TEST] Step 5: gameView is now hidden? " + gameView.classList.contains("hidden"));
+        }
+
+        // Test clicking back button
+        const backBtn = doc.getElementById("backToHubBtn");
+        if (backBtn) {
+          backBtn.click();
+          console.log("[TEST] Step 6: Clicked backBtn. landing hidden? " + landing.classList.contains("hidden"));
+        }
+
+        // Test clicking Snake card
+        const snakeCard = doc.querySelector('[data-game="snake"]');
+        if (snakeCard) {
+          snakeCard.click();
+          console.log("[TEST] Step 7: Clicked Snake card. hubState.game = " + (win.hubState ? win.hubState.game : "none"));
+          const snakeGameEl = doc.getElementById("snakeGame");
+          console.log("[TEST] Step 7: snakeGame hidden? " + (snakeGameEl ? snakeGameEl.classList.contains("hidden") : "not found"));
+        }
+
+        // Test clicking back button again
+        if (backBtn) {
+          backBtn.click();
+          console.log("[TEST] Step 8: Clicked backBtn again. landing hidden? " + landing.classList.contains("hidden"));
+        }
+
+        // Test clicking Chess card
+        const chessCard = doc.querySelector('[data-game="chess"]');
+        if (chessCard) {
+          chessCard.click();
+          console.log("[TEST] Step 9: Clicked Chess card. hubState.game = " + (win.hubState ? win.hubState.game : "none"));
+          const chessBoard = doc.getElementById("chessBoard");
+          console.log("[TEST] Step 9: chessBoard hidden? " + (chessBoard ? chessBoard.classList.contains("hidden") : "not found"));
+        }
+
+        console.log("[TEST-SUCCESS] All tests executed successfully!");
+      } catch (err) {
+        console.error("[TEST-ERROR]", err.message, err.stack);
+      }
+    };
+  </script>
+</body>
+</html>

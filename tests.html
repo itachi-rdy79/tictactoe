@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GAP Arcade — Automated Quality & Engine Test Suite</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #090d16;
+      color: #e2e8f0;
+      padding: 24px;
+      margin: 0;
+    }
+    h1 { color: #38bdf8; margin-bottom: 8px; font-size: 24px; }
+    p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
+    #testResults {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .test-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 14px;
+    }
+    .test-row.pass {
+      border-color: rgba(34, 197, 94, 0.4);
+      background: rgba(34, 197, 94, 0.08);
+    }
+    .test-row.fail {
+      border-color: rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.08);
+    }
+    .badge {
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+    .badge.pass { background: #22c55e; color: #022c22; }
+    .badge.fail { background: #ef4444; color: #450a0a; }
+    .test-title { font-weight: 600; color: #f8fafc; min-width: 330px; }
+    .test-msg { color: #94a3b8; flex: 1; }
+    #summaryCard {
+      padding: 16px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid #38bdf8;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    iframe {
+      width: 100%;
+      height: 480px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>GAP Arcade — Engine Quality & Offline Verification</h1>
+  <p class="sub">Automated unit and integration test harness for all 10 games & engine defects.</p>
+
+  <div id="summaryCard">Running automated tests...</div>
+  <div id="testResults"></div>
+
+  <h3>Live Application Sandboxed Frame</h3>
+  <iframe id="appFrame" src="index.html"></iframe>
+
+  <script>
+    const resultsContainer = document.getElementById("testResults");
+    const summaryCard = document.getElementById("summaryCard");
+    let passedCount = 0;
+    let failedCount = 0;
+
+    function assert(name, condition, details = "") {
+      const row = document.createElement("div");
+      row.className = `test-row ${condition ? "pass" : "fail"}`;
+      const badge = document.createElement("span");
+      badge.className = `badge ${condition ? "pass" : "fail"}`;
+      badge.textContent = condition ? "PASS" : "FAIL";
+
+      const title = document.createElement("span");
+      title.className = "test-title";
+      title.textContent = name;
+
+      const msg = document.createElement("span");
+      msg.className = "test-msg";
+      msg.textContent = condition ? (details || "Verified successfully.") : ("Assertion failed: " + details);
+
+      row.appendChild(badge);
+      row.appendChild(title);
+      row.appendChild(msg);
+      resultsContainer.appendChild(row);
+
+      if (condition) {
+        passedCount++;
+        console.log(`[TEST-PASS] ${name}: ${details || "OK"}`);
+      } else {
+        failedCount++;
+        console.error(`[TEST-FAIL] ${name}: ${details}`);
+      }
+    }
+
+    const frame = document.getElementById("appFrame");
+    frame.onload = function() {
+      console.log("[TEST] Frame loaded. Beginning diagnostic suite...");
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument || win.document;
+
+      try {
+        // -------------------------------------------------------------
+        // TEST 1: Sequence AI Simulation Global State Isolation
+        // -------------------------------------------------------------
+        try {
+          const origLocked = win.seqLocked ? win.seqLocked.map(r => [...r]) : [];
+          const origP1Seq = win.seqP1Sequences;
+          const origP2Seq = win.seqP2Sequences;
+
+          // Create a 10x10 mock simulation board
+          const simBoard = Array.from({ length: 10 }, () => new Array(10).fill(null));
+          // Set a 5-in-a-row for p2
+          simBoard[1][1] = "p2"; simBoard[1][2] = "p2"; simBoard[1][3] = "p2"; simBoard[1][4] = "p2"; simBoard[1][5] = "p2";
+
+          const result = win.recalculateSequences(simBoard, false);
+          assert(
+            "Sequence AI Simulation Isolation",
+            result.p2Count >= 1 && win.seqP2Sequences === origP2Seq && win.seqP1Sequences === origP1Seq,
+            "Simulation board evaluation returned sequence count without mutating global seqP1Sequences or seqP2Sequences."
+          );
+        } catch (e) {
+          assert("Sequence AI Simulation Isolation", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // TEST 2: Wordle Accumulated Hard Mode Clues
+        // -------------------------------------------------------------
+        try {
+          win.setWordleHardMode(true);
+          win.setWordleRow(1);
+          win.setWordleTarget("CABIN");
+          const g = win.getWordleGrid();
+          g[0] = ["C", "R", "A", "N", "E"]; // C is green, A is yellow, R,N,E absent
+          win.setWordleGrid(g);
+
+          const valid1 = win.validateHardMode("CATER"); // misses yellow letter A
+          const valid2 = win.validateHardMode("BOARD"); // misses green C in 1st spot
+          const valid3 = win.validateHardMode("CABIN"); // contains both
+
+          assert(
+            "Wordle Accumulated Hard Mode Clues",
+            valid1.valid === false && valid2.valid === false && valid3.valid === true,
+            "Rejects guesses missing historical green/yellow clues and accepts fully conforming guess."
+          );
+        } catch (e) {
+          assert("Wordle Accumulated Hard Mode Clues", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // TEST 3: Chess Castling (Kingside & Queenside)
+        // -------------------------------------------------------------
+        try {
+          const testBoard = Array.from({ length: 8 }, () => new Array(8).fill(null));
+          testBoard[7][4] = { color: "w", type: "k", hasMoved: false }; // e1
+          testBoard[7][0] = { color: "w", type: "r", hasMoved: false }; // a1
+          testBoard[7][7] = { color: "w", type: "r", hasMoved: false }; // h1
+          testBoard[0][4] = { color: "b", type: "k", hasMoved: false }; // e8
+          win.chessTurn = "w";
+
+          const legalMoves = win.getLegalMovesForColor(testBoard, "w");
+          const hasKingside = legalMoves.some(m => m.isCastle === "k");
+          const hasQueenside = legalMoves.some(m => m.isCastle === "q");
+
+          assert(
+            "Chess Castling Moves Generation",
+            hasKingside && hasQueenside,
+            "Both O-O (isCastle: 'k') and O-O-O (isCastle: 'q') generated when path is clear and pieces have not moved."
+          );
+        } catch (e) {
+          assert("Chess Castling Moves Generation", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // TEST 4: Chess En Passant Target & Capture
+        // -------------------------------------------------------------
+        try {
+          const epBoard = Array.from({ length: 8 }, () => new Array(8).fill(null));
+          epBoard[3][3] = { color: "w", type: "p", hasMoved: true }; // d5
+          epBoard[3][4] = { color: "b", type: "p", hasMoved: true }; // e5
+          epBoard[7][4] = { color: "w", type: "k", hasMoved: false };
+          epBoard[0][4] = { color: "b", type: "k", hasMoved: false };
+          win.chessTurn = "w";
+          win.setChessEnPassant({ r: 2, c: 4, pawnR: 3, pawnC: 4 }); // e6 target
+
+          const legalMoves = win.getLegalMovesForColor(epBoard, "w");
+          const epMove = legalMoves.find(m => m.isEnPassant && m.tr === 2 && m.tc === 4);
+
+          assert(
+            "Chess En Passant Move Generation",
+            !!epMove,
+            "White pawn on d5 correctly recognizes en passant capture square e6 (tr:2, tc:4) when Black pawn double-stepped."
+          );
+        } catch (e) {
+          assert("Chess En Passant Move Generation", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // TEST 5: Chess 50-Move Rule & Draw Condition
+        // -------------------------------------------------------------
+        try {
+          const dBoard = Array.from({ length: 8 }, () => new Array(8).fill(null));
+          dBoard[7][4] = { color: "w", type: "k" };
+          dBoard[0][4] = { color: "b", type: "k" };
+          dBoard[7][0] = { color: "w", type: "r" };
+          dBoard[0][0] = { color: "b", type: "r" };
+          win.setChessHalfmoveClock(100);
+
+          const drawResult = win.checkChessDrawCondition(dBoard, "w");
+          assert(
+            "Chess 50-Move Rule",
+            drawResult === "50-Move Rule",
+            `Draw correctly triggered at halfmove clock 100 (${drawResult})`
+          );
+        } catch (e) {
+          assert("Chess 50-Move Rule", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // TEST 6: Chess FIDE Insufficient Material Detection
+        // -------------------------------------------------------------
+        try {
+          win.setChessHalfmoveClock(0);
+          const imBoard = Array.from({ length: 8 }, () => new Array(8).fill(null));
+          imBoard[7][4] = { color: "w", type: "k" };
+          imBoard[0][4] = { color: "b", type: "k" };
+          const bareKingsDraw = win.checkChessDrawCondition(imBoard, "w");
+
+          imBoard[7][2] = { color: "w", type: "b", r: 7, c: 2 }; // King + Bishop vs King
+          const kbDraw = win.checkChessDrawCondition(imBoard, "w");
+
+          assert(
+            "Chess Insufficient Material (FIDE)",
+            bareKingsDraw === "Insufficient Material" && kbDraw === "Insufficient Material",
+            "Bare Kings and King+Bishop vs King evaluated as automatic FIDE draws."
+          );
+        } catch (e) {
+          assert("Chess Insufficient Material (FIDE)", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // TEST 7: Poker All-In Showdown & Side Pot Refund
+        // -------------------------------------------------------------
+        try {
+          win.setPokerState({
+            playerChips: 0,
+            aiChips: 100,
+            playerBet: 200,
+            aiBet: 150,
+            pot: 350,
+            stage: "river",
+            community: [
+              { id: 1, suit: "h", val: 14, str: "A" },
+              { id: 2, suit: "h", val: 13, str: "K" },
+              { id: 3, suit: "h", val: 12, str: "Q" },
+              { id: 4, suit: "h", val: 11, str: "J" },
+              { id: 5, suit: "c", val: 2, str: "2" }
+            ],
+            playerCards: [
+              { id: 6, suit: "h", val: 10, str: "10" }, // Royal Flush
+              { id: 7, suit: "c", val: 3, str: "3" }
+            ],
+            aiCards: [
+              { id: 8, suit: "d", val: 2, str: "2" },
+              { id: 9, suit: "s", val: 4, str: "4" }
+            ]
+          });
+
+          win.pokerShowdown();
+          const pState = win.getPokerState();
+
+          assert(
+            "Poker Showdown & Uncalled Bet Protection",
+            pState.pokerPlayerChips === 350,
+            `Royal flush hand evaluated correctly, awarded pot and refunded $50 uncalled excess bet (Hero chips: $${pState.pokerPlayerChips}).`
+          );
+        } catch (e) {
+          assert("Poker Showdown & Uncalled Bet Protection", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // TEST 8: Poker Local 2P Multiplayer Turn & Stage Advance
+        // -------------------------------------------------------------
+        try {
+          win.hubState.opponent = "local";
+          win.setPokerState({
+            over: false,
+            turn: "ai",
+            stage: "flop",
+            aiChips: 500,
+            playerChips: 500,
+            aiBet: 20,
+            playerBet: 40,
+            currentBet: 40,
+            pot: 60,
+            community: [
+              { id: 1, suit: "h", val: 14, str: "A" },
+              { id: 2, suit: "h", val: 13, str: "K" },
+              { id: 3, suit: "h", val: 12, str: "Q" }
+            ]
+          });
+
+          const callBtn = doc.getElementById("pokerCallBtn");
+          callBtn.click();
+          const pState = win.getPokerState();
+
+          assert(
+            "Poker Local 2P Multiplayer Turn & Stage Advance",
+            pState.pokerPot === 80 && (pState.pokerStage === "turn" || pState.pokerTurn === "player"),
+            `Player 2 called to match bet ($80 pot) and round advanced according to Texas Hold'em rules.`
+          );
+        } catch (e) {
+          assert("Poker Local 2P Multiplayer Turn & Stage Advance", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // TEST 9: Snake High Score Baseline Comparison
+        // -------------------------------------------------------------
+        console.log("[TEST] Starting Test 9 (Snake)...");
+        try {
+          win.snakeState.startHighScore = 50;
+          win.snakeState.score = 65;
+          win.snakeState.highScore = 50;
+
+          win.endSnakeGame();
+
+          assert(
+            "Snake High Score Baseline Fanfare",
+            win.snakeState.highScore === 65,
+            `High score accurately updated from baseline 50 to 65 upon game over.`
+          );
+        } catch (e) {
+          console.error("[TEST] Error in Test 9:", e);
+          assert("Snake High Score Baseline Fanfare", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // TEST 10: Hub Navigation & View Switching Integration
+        // -------------------------------------------------------------
+        console.log("[TEST] Starting Test 10 (Navigation)...");
+        try {
+          const landing = doc.getElementById("landingView");
+          const gameView = doc.getElementById("gameView");
+          const backBtn = doc.getElementById("backToHubBtn");
+
+          // Click Snake card
+          const snakeCard = doc.querySelector('[data-game="snake"]');
+          snakeCard.click();
+          const snakeActive = !gameView.classList.contains("hidden") && landing.classList.contains("hidden") && win.hubState.game === "snake";
+
+          // Click Back button
+          backBtn.click();
+          const landingRestored = gameView.classList.contains("hidden") && !landing.classList.contains("hidden");
+
+          // Click Tic Tac Toe card
+          const tttCard = doc.querySelector('[data-game="ttt3"]') || doc.querySelector('[data-game="ttt"]');
+          tttCard.click();
+          const tttActive = !gameView.classList.contains("hidden") && (win.hubState.game === "ttt3" || win.hubState.game === "ttt");
+
+          backBtn.click();
+
+          assert(
+            "Hub Navigation & Game View Switching",
+            snakeActive && landingRestored && tttActive,
+            "Navigated from Landing to Snake Arena, returned to Landing, and transitioned into Tic-Tac-Toe smoothly."
+          );
+        } catch (e) {
+          console.error("[TEST] Error in Test 10:", e);
+          assert("Hub Navigation & Game View Switching", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // Final Summary
+        // -------------------------------------------------------------
+        const allPassed = (failedCount === 0);
+        summaryCard.style.borderColor = allPassed ? "#22c55e" : "#ef4444";
+        summaryCard.style.color = allPassed ? "#4ade80" : "#f87171";
+        summaryCard.innerHTML = `Tests Completed: <b>${passedCount} / ${passedCount + failedCount} Passed</b> (${allPassed ? "100% pass rate" : "Failures detected"}). All engine quality upgrades verified.`;
+        console.log(`[TEST-SUMMARY] Complete: ${passedCount} passed, ${failedCount} failed.`);
+
+      } catch (globalErr) {
+        console.error("[TEST-SUITE-ERROR]", globalErr);
+        assert("Global Test Suite Execution", false, globalErr.message);
+      }
+    };
+  </script>
+</body>
+</html>

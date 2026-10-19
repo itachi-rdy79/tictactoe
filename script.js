@@ -1,5 +1,29 @@
 var ludoActiveTimers = [];
 var ludoRollInterval = null;
+var snakeState = {
+  gridSize: 20,
+  tileSize: 30, // 20 * 30 = 600
+  snake: [],
+  dir: { x: 1, y: 0 },
+  nextDir: { x: 1, y: 0 },
+  food: null,
+  obstacles: [],
+  score: 0,
+  highScore: 0,
+  startHighScore: 0,
+  mode: "classic",
+  speed: "normal",
+  skin: "emerald",
+  timeLeft: 60,
+  gameInterval: null,
+  timerInterval: null,
+  animFrameId: null,
+  isRunning: false,
+  isPaused: false,
+  isGameOver: false,
+  sound: true,
+  particles: []
+};
 const modeSelect = document.getElementById("modeSelect");
 const difficultySelect = document.getElementById("difficultySelect");
 const themeSelect = document.getElementById("themeSelect");
@@ -1276,14 +1300,25 @@ scoreTickerBtn?.addEventListener("click", () => {
     { label: "Chess (AI)", key: "scores_chess-ai_medium" },
     { label: "Wordle", key: "scores_wordle_medium" },
     { label: "Poker (AI)", key: "scores_poker-ai_medium" },
-    { label: "PC (Tollywood)", key: "gap_pattu_stats" }
+    { label: "PC (Tollywood)", key: "gap_pattu_stats" },
+    { label: "Ludo King", key: "scores_ludo-ai_medium" },
+    { label: "Snake Arena", key: "gap_snake_high_score" }
   ];
 
   if (!statsGridContent || !statsModal) return;
   statsGridContent.innerHTML = modes.map(m => {
+    if (m.key === "gap_snake_high_score") {
+      const hs = localStorage.getItem("gap_snake_high_score") || "0";
+      return `
+        <div class="stat-card">
+          <span>${m.label}</span>
+          <span>High Score: <b>${hs}</b> pts</span>
+        </div>
+      `;
+    }
     const data = JSON.parse(localStorage.getItem(m.key) || '{"scoreA":0,"scoreB":0,"scoreD":0,"streak":0}');
-    const wins = data.scoreA || 0;
-    const losses = data.scoreB || 0;
+    const wins = data.scoreA || data.gamesWon || 0;
+    const losses = data.scoreB || (data.gamesPlayed ? data.gamesPlayed - wins : 0);
     const totalForRate = wins + losses;
     const winRate = totalForRate > 0 ? Math.round((wins / totalForRate) * 100) : 0;
     return `
@@ -2219,6 +2254,9 @@ const CHESS_U = { wp: "♟", wr: "♜", wn: "♞", wb: "♝", wq: "♛", wk: "�
 const PIECE_VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 let chessBoard = [], chessTurn = "w", chessSelected = null, chessOver = false, whiteCaptured = [], blackCaptured = [], chessSnapshots = [];
 let chessShowMoveHints = false;
+let chessEnPassant = null;
+let chessHalfmoveClock = 0;
+let chessPositionHistory = {};
 
 function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
 function cloneBoard(b) { return b.map(row => row.map(cell => cell ? { ...cell } : null)); }
@@ -2227,6 +2265,9 @@ function saveChessSnapshot() {
   chessSnapshots.push({
     board: cloneBoard(chessBoard), turn: chessTurn, selected: chessSelected ? { ...chessSelected } : null,
     over: chessOver, whiteCaptured: [...whiteCaptured], blackCaptured: [...blackCaptured],
+    enPassant: chessEnPassant ? { ...chessEnPassant } : null,
+    halfmoveClock: chessHalfmoveClock,
+    positionHistory: { ...chessPositionHistory },
     scoreA, scoreB, scoreD, streak, moveCount
   });
 }
@@ -2235,12 +2276,17 @@ function initChess() {
   chessBoard = Array.from({ length: 8 }, () => Array(8).fill(null));
   const back = ["r", "n", "b", "q", "k", "b", "n", "r"];
   for (let c = 0; c < 8; c++) {
-    chessBoard[0][c] = { color: "b", type: back[c] };
-    chessBoard[1][c] = { color: "b", type: "p" };
-    chessBoard[6][c] = { color: "w", type: "p" };
-    chessBoard[7][c] = { color: "w", type: back[c] };
+    chessBoard[0][c] = { color: "b", type: back[c], hasMoved: false };
+    chessBoard[1][c] = { color: "b", type: "p", hasMoved: false };
+    chessBoard[6][c] = { color: "w", type: "p", hasMoved: false };
+    chessBoard[7][c] = { color: "w", type: back[c], hasMoved: false };
   }
   chessTurn = "w"; chessSelected = null; chessOver = false; whiteCaptured = []; blackCaptured = []; chessSnapshots = [];
+  chessEnPassant = null;
+  chessHalfmoveClock = 0;
+  chessPositionHistory = {};
+  const initKey = getChessPositionKey(chessBoard, "w", null);
+  chessPositionHistory[initKey] = 1;
   moveCount = 0;
   updateMoveCounter(true);
   renderCaptured();
@@ -2334,13 +2380,17 @@ function getPseudoMoves(board, r, c) {
     if (inBounds(r + dir, c) && !board[r + dir][c]) {
       out.push({ r: r + dir, c });
       if (r === start && !board[r + 2 * dir][c]) {
-        out.push({ r: r + 2 * dir, c });
+        out.push({ r: r + 2 * dir, c, isDoublePawn: true });
       }
     }
     for (const dc of [-1, 1]) {
       const nr = r + dir, nc = c + dc;
-      if (inBounds(nr, nc) && board[nr][nc] && board[nr][nc].color !== p.color) {
-        out.push({ r: nr, c: nc });
+      if (inBounds(nr, nc)) {
+        if (board[nr][nc] && board[nr][nc].color !== p.color) {
+          out.push({ r: nr, c: nc });
+        } else if (!board[nr][nc] && chessEnPassant && chessEnPassant.r === nr && chessEnPassant.c === nc) {
+          out.push({ r: nr, c: nc, isEnPassant: true, capR: chessEnPassant.pawnR, capC: chessEnPassant.pawnC });
+        }
       }
     }
   } else if (p.type === "n") {
@@ -2350,6 +2400,31 @@ function getPseudoMoves(board, r, c) {
     for (let dr = -1; dr <= 1; dr++) {
       for (let dc = -1; dc <= 1; dc++) {
         if (dr || dc) add(r + dr, c + dc);
+      }
+    }
+    // Castling rights: King has not moved and is not in check
+    if (!p.hasMoved) {
+      const oppColor = p.color === "w" ? "b" : "w";
+      const baseRow = p.color === "w" ? 7 : 0;
+      if (r === baseRow && c === 4 && !isSquareAttacked(board, baseRow, 4, oppColor)) {
+        // Kingside (O-O): f and g squares empty and not attacked; Rook at h has not moved
+        const rookK = board[baseRow][7];
+        if (rookK && rookK.type === "r" && rookK.color === p.color && !rookK.hasMoved) {
+          if (!board[baseRow][5] && !board[baseRow][6]) {
+            if (!isSquareAttacked(board, baseRow, 5, oppColor) && !isSquareAttacked(board, baseRow, 6, oppColor)) {
+              out.push({ r: baseRow, c: 6, isCastle: "k", rookFr: baseRow, rookFc: 7, rookTr: baseRow, rookTc: 5 });
+            }
+          }
+        }
+        // Queenside (O-O-O): b, c, d empty; c and d not attacked; Rook at a has not moved
+        const rookQ = board[baseRow][0];
+        if (rookQ && rookQ.type === "r" && rookQ.color === p.color && !rookQ.hasMoved) {
+          if (!board[baseRow][1] && !board[baseRow][2] && !board[baseRow][3]) {
+            if (!isSquareAttacked(board, baseRow, 2, oppColor) && !isSquareAttacked(board, baseRow, 3, oppColor)) {
+              out.push({ r: baseRow, c: 2, isCastle: "q", rookFr: baseRow, rookFc: 0, rookTr: baseRow, rookTc: 3 });
+            }
+          }
+        }
       }
     }
   } else {
@@ -2464,7 +2539,7 @@ function getLegalMovesForPiece(board, r, c) {
   for (let i = 0; i < pms.length; i++) {
     const m = pms[i];
     const b2 = cloneBoard(board);
-    moveChess(b2, { fr: r, fc: c, tr: m.r, tc: m.c }, false);
+    moveChess(b2, { fr: r, fc: c, tr: m.r, tc: m.c, ...m }, false);
     if (!isKingInCheck(b2, p.color)) {
       legal.push(m);
     }
@@ -2489,7 +2564,7 @@ function getLegalMovesForColor(board, color, capturesOnly = false) {
         if (capturesOnly && !target) continue;
 
         const b2 = cloneBoard(board);
-        moveChess(b2, { fr: r, fc: c, tr: m.r, tc: m.c }, false);
+        moveChess(b2, { fr: r, fc: c, tr: m.r, tc: m.c, ...m }, false);
 
         if (!isKingInCheck(b2, color)) {
           let score = 0;
@@ -2498,10 +2573,11 @@ function getLegalMovesForColor(board, color, capturesOnly = false) {
             score = 10000 + (PIECE_VAL[target.type] || 0) * 10 - (PIECE_VAL[p.type] || 0);
           }
           if (p.type === "p" && (m.r === 0 || m.r === 7)) score += 8000;
+          if (m.isCastle) score += 2500;
           if (isKingInCheck(b2, oppColor)) score += 1500;
           if ((m.r === 3 || m.r === 4) && (m.c === 3 || m.c === 4)) score += 200;
 
-          legal.push({ fr: r, fc: c, tr: m.r, tc: m.c, score });
+          legal.push({ fr: r, fc: c, tr: m.r, tc: m.c, ...m, score });
         }
       }
     }
@@ -2602,15 +2678,64 @@ function renderChess() {
 }
 
 function moveChess(board, mv, real = false) {
-  const piece = board[mv.fr][mv.fc], target = board[mv.tr][mv.tc];
-  if (target && real) {
-    if (target.color === "w") whiteCaptured.push(target); else blackCaptured.push(target);
+  const piece = board[mv.fr][mv.fc];
+  const target = board[mv.tr][mv.tc];
+  const isPawn = piece && piece.type === "p";
+  let isCap = Boolean(target);
+
+  // En Passant capture execution
+  if (mv.isEnPassant && mv.capR !== undefined && mv.capC !== undefined) {
+    const epTarget = board[mv.capR][mv.capC];
+    if (epTarget && real) {
+      if (epTarget.color === "w") whiteCaptured.push(epTarget);
+      else blackCaptured.push(epTarget);
+      renderCaptured();
+    }
+    board[mv.capR][mv.capC] = null;
+    isCap = true;
+  } else if (target && real) {
+    if (target.color === "w") whiteCaptured.push(target);
+    else blackCaptured.push(target);
     renderCaptured();
   }
+
+  // Castling Rook move execution
+  if (mv.isCastle && mv.rookFr !== undefined && mv.rookFc !== undefined) {
+    const rook = board[mv.rookFr][mv.rookFc];
+    board[mv.rookTr][mv.rookTc] = rook;
+    board[mv.rookFr][mv.rookFc] = null;
+    if (rook) rook.hasMoved = true;
+  }
+
   board[mv.tr][mv.tc] = piece;
   board[mv.fr][mv.fc] = null;
-  if (piece && piece.type === "p" && (mv.tr === 0 || mv.tr === 7)) {
-    piece.type = "q";
+
+  if (piece) {
+    piece.hasMoved = true;
+    if (piece.type === "p" && (mv.tr === 0 || mv.tr === 7)) {
+      piece.type = "q";
+    }
+  }
+
+  if (real) {
+    // Update En Passant double-step target
+    if (mv.isDoublePawn) {
+      const epRow = (mv.fr + mv.tr) / 2;
+      chessEnPassant = { r: epRow, c: mv.fc, pawnR: mv.tr, pawnC: mv.tc };
+    } else {
+      chessEnPassant = null;
+    }
+
+    // Fifty-Move rule clock
+    if (isPawn || isCap) {
+      chessHalfmoveClock = 0;
+    } else {
+      chessHalfmoveClock++;
+    }
+
+    // Threefold repetition board hashing
+    const posKey = getChessPositionKey(board, chessTurn === "w" ? "b" : "w", chessEnPassant);
+    chessPositionHistory[posKey] = (chessPositionHistory[posKey] || 0) + 1;
   }
 }
 
@@ -2838,21 +2963,65 @@ function chooseChessAiMove(board, difficulty) {
   }
 }
 
+function getChessPositionKey(board, turn, ep) {
+  let str = turn + "|";
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = board[r][c];
+      if (p) str += `${p.color}${p.type}${p.hasMoved ? "1" : "0"}`;
+      else str += ".";
+    }
+  }
+  if (ep) str += `|${ep.r},${ep.c}`;
+  return str;
+}
+
 function checkChessDrawCondition(board, nextColor) {
-  let whitePieces = 0, blackPieces = 0, nonKings = 0;
+  // 1. Fifty-Move Rule (100 half-moves without pawn move or capture)
+  if (chessHalfmoveClock >= 100) {
+    return "50-Move Rule";
+  }
+
+  // 2. Threefold Repetition (exact board position occurs 3 times)
+  const currentKey = getChessPositionKey(board, nextColor, chessEnPassant);
+  if ((chessPositionHistory[currentKey] || 0) >= 3) {
+    return "Threefold Repetition";
+  }
+
+  // 3. Insufficient Material (FIDE)
+  let whitePieces = [], blackPieces = [];
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
       const p = board[r][c];
       if (p) {
-        if (p.color === "w") whitePieces++;
-        else blackPieces++;
-        if (p.type !== "k") nonKings++;
+        if (p.color === "w") whitePieces.push({ ...p, r, c });
+        else blackPieces.push({ ...p, r, c });
       }
     }
   }
-  if (whitePieces === 1 && blackPieces === 1 && nonKings === 0) {
+
+  const whiteNonKings = whitePieces.filter(p => p.type !== "k");
+  const blackNonKings = blackPieces.filter(p => p.type !== "k");
+
+  // King vs King
+  if (whiteNonKings.length === 0 && blackNonKings.length === 0) {
     return "Insufficient Material";
   }
+  // King + Bishop vs King OR King + Knight vs King
+  if ((whiteNonKings.length === 1 && (whiteNonKings[0].type === "b" || whiteNonKings[0].type === "n") && blackNonKings.length === 0) ||
+      (blackNonKings.length === 1 && (blackNonKings[0].type === "b" || blackNonKings[0].type === "n") && whiteNonKings.length === 0)) {
+    return "Insufficient Material";
+  }
+  // King + Bishop vs King + Bishop on the same color square
+  if (whiteNonKings.length === 1 && whiteNonKings[0].type === "b" &&
+      blackNonKings.length === 1 && blackNonKings[0].type === "b") {
+    const wSquareColor = (whiteNonKings[0].r + whiteNonKings[0].c) % 2;
+    const bSquareColor = (blackNonKings[0].r + blackNonKings[0].c) % 2;
+    if (wSquareColor === bSquareColor) {
+      return "Insufficient Material";
+    }
+  }
+
   return null;
 }
 
@@ -2901,7 +3070,7 @@ function onChessClick(r, c) {
   }
 
   saveChessSnapshot();
-  moveChess(chessBoard, { fr: chessSelected.r, fc: chessSelected.c, tr: r, tc: c }, true);
+  moveChess(chessBoard, { fr: chessSelected.r, fc: chessSelected.c, tr: r, tc: c, ...legal }, true);
   moveCount++;
   updateMoveCounter(true);
 
@@ -3159,37 +3328,65 @@ function evaluateWordleGuess(guess, target) {
   return result;
 }
 
-// Hard Mode Validation
+// Hard Mode Validation — Accumulates all revealed clues across all prior attempts
 function validateHardMode(guess) {
   if (!wordleHardMode || wordleRow === 0) return { valid: true };
-  const prevRow = wordleRow - 1;
-  const prevWord = wordleGrid[prevRow].join("");
-  const prevClues = evaluateWordleGuess(prevWord, wordleTarget);
 
-  // 1. Must reuse green letters in the same position
-  for (let i = 0; i < 5; i++) {
-    if (prevClues[i] === "correct") {
-      const neededChar = prevWord[i];
-      if (guess[i] !== neededChar) {
-        const ordinals = ["1st", "2nd", "3rd", "4th", "5th"];
-        return {
-          valid: false,
-          msg: `${ordinals[i]} letter must be ${neededChar}`
-        };
+  const ordinals = ["1st", "2nd", "3rd", "4th", "5th"];
+
+  // 1. Must reuse all confirmed green letters in their exact positions
+  const confirmedPositions = {};
+  for (let r = 0; r < wordleRow; r++) {
+    const rowWord = wordleGrid[r].join("");
+    const clues = evaluateWordleGuess(rowWord, wordleTarget);
+    for (let i = 0; i < 5; i++) {
+      if (clues[i] === "correct") {
+        confirmedPositions[i] = rowWord[i];
       }
     }
   }
 
-  // 2. Must contain yellow letters
-  for (let i = 0; i < 5; i++) {
-    if (prevClues[i] === "present") {
-      const neededChar = prevWord[i];
-      if (!guess.includes(neededChar)) {
-        return {
-          valid: false,
-          msg: `Guess must contain ${neededChar}`
-        };
+  for (const posStr in confirmedPositions) {
+    const pos = parseInt(posStr, 10);
+    const requiredChar = confirmedPositions[pos];
+    if (guess[pos] !== requiredChar) {
+      return {
+        valid: false,
+        msg: `${ordinals[pos]} letter must be ${requiredChar}`
+      };
+    }
+  }
+
+  // 2. Must contain all revealed yellow letters (and accounts for multiple occurrences)
+  const requiredLetterCounts = {};
+  for (let r = 0; r < wordleRow; r++) {
+    const rowWord = wordleGrid[r].join("");
+    const clues = evaluateWordleGuess(rowWord, wordleTarget);
+    const rowCounts = {};
+    for (let i = 0; i < 5; i++) {
+      if (clues[i] === "correct" || clues[i] === "present") {
+        const char = rowWord[i];
+        rowCounts[char] = (rowCounts[char] || 0) + 1;
       }
+    }
+    for (const char in rowCounts) {
+      requiredLetterCounts[char] = Math.max(requiredLetterCounts[char] || 0, rowCounts[char]);
+    }
+  }
+
+  const guessCounts = {};
+  for (let i = 0; i < 5; i++) {
+    guessCounts[guess[i]] = (guessCounts[guess[i]] || 0) + 1;
+  }
+
+  for (const char in requiredLetterCounts) {
+    const minNeeded = requiredLetterCounts[char];
+    const actual = guessCounts[char] || 0;
+    if (actual < minNeeded) {
+      return {
+        valid: false,
+        msg: `Guess must contain ${char}`
+      };
     }
   }
 
@@ -3871,6 +4068,8 @@ const RANK_PLURALS = {
 };
 
 function evaluate5CardHand(cards) {
+  cards = (cards || []).filter(c => c && typeof c.val === "number");
+  if (cards.length < 5) return { rank: 0, score: 0, name: "Evaluating...", cards: [] };
   const sorted = [...cards].sort((a, b) => b.val - a.val);
   const vals = sorted.map(c => c.val);
   const isFlush = sorted.every(c => c.suit === sorted[0].suit);
@@ -4026,15 +4225,20 @@ function renderPokerUI(winningCardIds = []) {
     pokerHandEvalEl.textContent = heroEval.name;
   }
 
+  const isLocal = (hubState.opponent === "local");
+  const isP2Turn = isLocal && (pokerTurn === "ai");
+  const activeChips = isP2Turn ? pokerAiChips : pokerPlayerChips;
+  const activeBet = isP2Turn ? pokerAiBet : pokerPlayerBet;
+  const toCall = Math.max(0, pokerCurrentBet - activeBet);
+
   if (pokerCallBtn) {
-    const toCall = pokerCurrentBet - pokerPlayerBet;
     pokerCallBtn.textContent = toCall > 0 ? `Call $${toCall}` : "Check";
   }
 
   if (pokerBetSliderEl && pokerSliderValEl) {
-    const minRaise = Math.min(pokerPlayerChips, Math.max(20, (pokerCurrentBet - pokerPlayerBet) + 20));
+    const minRaise = Math.min(activeChips, Math.max(20, toCall + 20));
     pokerBetSliderEl.min = String(minRaise);
-    pokerBetSliderEl.max = String(pokerPlayerChips);
+    pokerBetSliderEl.max = String(activeChips);
     if (Number(pokerBetSliderEl.value) < minRaise) pokerBetSliderEl.value = String(minRaise);
     pokerSliderValEl.textContent = `$${pokerBetSliderEl.value}`;
     if (pokerRaiseBtn) {
@@ -4044,7 +4248,8 @@ function renderPokerUI(winningCardIds = []) {
   }
 
   if (pokerAiNameEl) {
-    if (hubState.theme === "naruto") pokerAiNameEl.textContent = "Shinobi Opponent";
+    if (isLocal) pokerAiNameEl.textContent = "Player 2";
+    else if (hubState.theme === "naruto") pokerAiNameEl.textContent = "Shinobi Opponent";
     else if (hubState.theme === "itachi") pokerAiNameEl.textContent = "Tsukuyomi Shadow";
     else pokerAiNameEl.textContent = "AI Opponent";
   }
@@ -4116,12 +4321,35 @@ function startNewPokerHand() {
 
   renderPokerUI();
 
-  if (pokerTurn === "ai") {
+  const isLocal = (hubState.opponent === "local");
+  if (pokerTurn === "ai" && !isLocal) {
     setTimeout(aiPokerTurn, 600);
   }
 }
 
+function runAllInShowdown() {
+  pokerBetControlsEl?.classList.add("hidden");
+  if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = "ALL IN! Dealing remaining community cards...";
+  function stepCommunity() {
+    if (pokerOver) return;
+    if (!pokerDeck || pokerDeck.length < 5) pokerDeck = buildFreshDeck();
+    if (pokerCommunity.length < 5) {
+      if (pokerCommunity.length === 0) {
+        pokerCommunity.push(pokerDeck.pop(), pokerDeck.pop(), pokerDeck.pop());
+      } else {
+        pokerCommunity.push(pokerDeck.pop());
+      }
+      renderPokerUI();
+      setTimeout(stepCommunity, 500);
+    } else {
+      setTimeout(pokerShowdown, 500);
+    }
+  }
+  setTimeout(stepCommunity, 400);
+}
+
 function advancePokerStage() {
+  if (!pokerDeck || pokerDeck.length < 5) pokerDeck = buildFreshDeck();
   pokerPlayerBet = 0;
   pokerAiBet = 0;
   pokerCurrentBet = 0;
@@ -4143,14 +4371,39 @@ function advancePokerStage() {
     return;
   }
 
-  pokerTurn = "player";
+  pokerTurn = pokerDealer === "player" ? "ai" : "player";
   renderPokerUI();
+
+  const isLocal = (hubState.opponent === "local");
+  if (pokerTurn === "ai") {
+    if (isLocal) {
+      if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `${pokerStage.toUpperCase()} dealt! Player 2's turn.`;
+    } else {
+      setTimeout(aiPokerTurn, 600);
+    }
+  } else {
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `${pokerStage.toUpperCase()} dealt! ${isLocal ? "Player 1's" : "Your"} turn.`;
+  }
 }
 
 function pokerShowdown() {
   pokerStage = "showdown";
   pokerOver = true;
 
+  // Uncalled excess bet refund if any (all-in side pot protection)
+  if (pokerPlayerBet > pokerAiBet) {
+    const refund = pokerPlayerBet - pokerAiBet;
+    pokerPlayerChips += refund;
+    pokerPot -= refund;
+    pokerPlayerBet = pokerAiBet;
+  } else if (pokerAiBet > pokerPlayerBet) {
+    const refund = pokerAiBet - pokerPlayerBet;
+    pokerAiChips += refund;
+    pokerPot -= refund;
+    pokerAiBet = pokerPlayerBet;
+  }
+
+  const isLocal = (hubState.opponent === "local");
   const playerEval = evaluate7Cards([...pokerPlayerCards, ...pokerCommunity]);
   const aiEval = evaluate7Cards([...pokerAiCards, ...pokerCommunity]);
 
@@ -4161,14 +4414,14 @@ function pokerShowdown() {
     pokerPlayerChips += pokerPot;
     scoreA++;
     updateStreak(true);
-    winMsg = `You Win $${pokerPot}! (${playerEval.name} beats ${aiEval.name})`;
+    winMsg = `${isLocal ? "Player 1" : "You"} Win $${pokerPot}! (${playerEval.name} beats ${aiEval.name})`;
     winningCards = playerEval.cards.map(c => c.id);
     triggerConfetti();
   } else if (aiEval.score > playerEval.score) {
     pokerAiChips += pokerPot;
     scoreB++;
     updateStreak(false);
-    winMsg = `AI Wins $${pokerPot}. (${aiEval.name} beats ${playerEval.name})`;
+    winMsg = `${isLocal ? "Player 2" : "AI"} Wins $${pokerPot}. (${aiEval.name} beats ${playerEval.name})`;
     winningCards = aiEval.cards.map(c => c.id);
   } else {
     const half = Math.floor(pokerPot / 2);
@@ -4279,14 +4532,24 @@ function aiPokerTurn() {
 }
 
 pokerFoldBtn?.addEventListener("click", () => {
-  if (pokerOver || pokerTurn !== "player") return;
+  if (pokerOver) return;
+  const isLocal = (hubState.opponent === "local");
+  if (!isLocal && pokerTurn !== "player") return;
+
   pokerOver = true;
-  pokerAiChips += pokerPot;
-  scoreB++;
-  updateStreak(false);
+  if (pokerTurn === "player") {
+    pokerAiChips += pokerPot;
+    scoreB++;
+    updateStreak(false);
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `${isLocal ? "Player 1" : "You"} Folded. ${isLocal ? "Player 2" : "AI"} takes $${pokerPot}.`;
+  } else {
+    pokerPlayerChips += pokerPot;
+    scoreA++;
+    updateStreak(true);
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `Player 2 Folded. Player 1 takes $${pokerPot}!`;
+  }
   persistScores();
   renderScores();
-  if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `You Folded. AI takes $${pokerPot}.`;
   pokerPot = 0;
   pokerBetControlsEl?.classList.add("hidden");
   pokerFoldBtn?.classList.add("hidden");
@@ -4297,39 +4560,102 @@ pokerFoldBtn?.addEventListener("click", () => {
 });
 
 pokerCallBtn?.addEventListener("click", () => {
-  if (pokerOver || pokerTurn !== "player") return;
-  const toCall = pokerCurrentBet - pokerPlayerBet;
-  const callAmt = Math.min(pokerPlayerChips, toCall);
-  pokerPlayerChips -= callAmt;
-  pokerPlayerBet += callAmt;
+  if (pokerOver) return;
+  const isLocal = (hubState.opponent === "local");
+  if (!isLocal && pokerTurn !== "player") return;
+
+  const isP2 = isLocal && (pokerTurn === "ai");
+  const activeChips = isP2 ? pokerAiChips : pokerPlayerChips;
+  const activeBet = isP2 ? pokerAiBet : pokerPlayerBet;
+  const toCall = Math.max(0, pokerCurrentBet - activeBet);
+  const callAmt = Math.min(activeChips, toCall);
+
+  if (isP2) {
+    pokerAiChips -= callAmt;
+    pokerAiBet += callAmt;
+  } else {
+    pokerPlayerChips -= callAmt;
+    pokerPlayerBet += callAmt;
+  }
   pokerPot += callAmt;
   renderPokerUI();
 
-  if (pokerPlayerBet === pokerAiBet && pokerCurrentBet > 0 && pokerStage !== "preflop") {
-    advancePokerStage();
-  } else {
+  if (pokerPlayerChips === 0 || pokerAiChips === 0) {
+    runAllInShowdown();
+    return;
+  }
+
+  if (pokerPlayerBet === pokerAiBet) {
+    if (pokerCurrentBet > 0 || pokerStage !== "preflop" || pokerDealer === (isP2 ? "ai" : "player")) {
+      advancePokerStage();
+      return;
+    }
+  }
+
+  if (pokerTurn === "player") {
     pokerTurn = "ai";
-    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = "AI is thinking...";
-    setTimeout(aiPokerTurn, 600);
+    if (isLocal) {
+      if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = "Player 1 Called. Player 2's turn.";
+      renderPokerUI();
+    } else {
+      if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = "AI is thinking...";
+      setTimeout(aiPokerTurn, 600);
+    }
+  } else {
+    pokerTurn = "player";
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = "Player 2 Called. Player 1's turn.";
+    renderPokerUI();
   }
 });
 
 pokerRaiseBtn?.addEventListener("click", () => {
-  if (pokerOver || pokerTurn !== "player") return;
+  if (pokerOver) return;
+  const isLocal = (hubState.opponent === "local");
+  if (!isLocal && pokerTurn !== "player") return;
+
+  const isP2 = isLocal && (pokerTurn === "ai");
+  const activeChips = isP2 ? pokerAiChips : pokerPlayerChips;
+  const activeBet = isP2 ? pokerAiBet : pokerPlayerBet;
+  const toCall = Math.max(0, pokerCurrentBet - activeBet);
   const raiseVal = Number(pokerBetSliderEl?.value || 40);
-  const toCall = pokerCurrentBet - pokerPlayerBet;
-  const totalCommit = Math.min(pokerPlayerChips, toCall + raiseVal);
+  const totalCommit = Math.min(activeChips, toCall + raiseVal);
   if (totalCommit <= 0) return;
 
-  pokerPlayerChips -= totalCommit;
-  pokerPlayerBet += totalCommit;
+  if (isP2) {
+    pokerAiChips -= totalCommit;
+    pokerAiBet += totalCommit;
+    pokerCurrentBet = pokerAiBet;
+  } else {
+    pokerPlayerChips -= totalCommit;
+    pokerPlayerBet += totalCommit;
+    pokerCurrentBet = pokerPlayerBet;
+  }
   pokerPot += totalCommit;
-  pokerCurrentBet = pokerPlayerBet;
   renderPokerUI();
 
-  pokerTurn = "ai";
-  if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `You Raised to $${pokerCurrentBet}. AI thinking...`;
-  setTimeout(aiPokerTurn, 650);
+  if (pokerPlayerChips === 0 || pokerAiChips === 0) {
+    const oppChips = isP2 ? pokerPlayerChips : pokerAiChips;
+    const oppBet = isP2 ? pokerPlayerBet : pokerAiBet;
+    if (oppChips === 0 || oppBet === pokerCurrentBet) {
+      runAllInShowdown();
+      return;
+    }
+  }
+
+  if (pokerTurn === "player") {
+    pokerTurn = "ai";
+    if (isLocal) {
+      if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `Player 1 Raised to $${pokerCurrentBet}. Player 2's turn.`;
+      renderPokerUI();
+    } else {
+      if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `You Raised to $${pokerCurrentBet}. AI thinking...`;
+      setTimeout(aiPokerTurn, 650);
+    }
+  } else {
+    pokerTurn = "player";
+    if (pokerStatusBannerEl) pokerStatusBannerEl.textContent = `Player 2 Raised to $${pokerCurrentBet}. Player 1's turn.`;
+    renderPokerUI();
+  }
 });
 
 pokerBetSliderEl?.addEventListener("input", () => {
@@ -4349,23 +4675,29 @@ pokerQuickMinBtn?.addEventListener("click", () => {
 
 pokerQuickHalfBtn?.addEventListener("click", () => {
   if (pokerBetSliderEl) {
+    const isP2 = (hubState.opponent === "local" && pokerTurn === "ai");
+    const activeChips = isP2 ? pokerAiChips : pokerPlayerChips;
     const half = Math.max(Number(pokerBetSliderEl.min), Math.floor(pokerPot / 2));
-    pokerBetSliderEl.value = String(Math.min(pokerPlayerChips, half));
+    pokerBetSliderEl.value = String(Math.min(activeChips, half));
     pokerBetSliderEl.dispatchEvent(new Event("input"));
   }
 });
 
 pokerQuickPotBtn?.addEventListener("click", () => {
   if (pokerBetSliderEl) {
+    const isP2 = (hubState.opponent === "local" && pokerTurn === "ai");
+    const activeChips = isP2 ? pokerAiChips : pokerPlayerChips;
     const potBet = Math.max(Number(pokerBetSliderEl.min), pokerPot || 40);
-    pokerBetSliderEl.value = String(Math.min(pokerPlayerChips, potBet));
+    pokerBetSliderEl.value = String(Math.min(activeChips, potBet));
     pokerBetSliderEl.dispatchEvent(new Event("input"));
   }
 });
 
 pokerQuickAllInBtn?.addEventListener("click", () => {
   if (pokerBetSliderEl) {
-    pokerBetSliderEl.value = String(pokerPlayerChips);
+    const isP2 = (hubState.opponent === "local" && pokerTurn === "ai");
+    const activeChips = isP2 ? pokerAiChips : pokerPlayerChips;
+    pokerBetSliderEl.value = String(activeChips);
     pokerBetSliderEl.dispatchEvent(new Event("input"));
   }
 });
@@ -4608,7 +4940,7 @@ function getValidTargetsForCard(card, player = seqTurn, board = seqBoard, locked
 }
 
 // Recalculate sequences and locks
-function recalculateSequences(board = seqBoard) {
+function recalculateSequences(board = seqBoard, updateGlobals = (board === seqBoard)) {
   const dirs = [
     [0, 1],   // horizontal
     [1, 0],   // vertical
@@ -4667,18 +4999,21 @@ function recalculateSequences(board = seqBoard) {
 
   const p1Seqs = findForPlayer("p1");
   const p2Seqs = findForPlayer("p2");
-  seqP1Sequences = p1Seqs.length;
-  seqP2Sequences = p2Seqs.length;
 
-  // Reset locks and lock all chips in accepted sequences
-  seqLocked = Array(10).fill(false).map(() => Array(10).fill(false));
-  [...p1Seqs, ...p2Seqs].forEach(seq => {
-    seq.forEach(([r, c]) => {
-      if (!isSeqCorner(r, c)) seqLocked[r][c] = true;
+  if (updateGlobals) {
+    seqP1Sequences = p1Seqs.length;
+    seqP2Sequences = p2Seqs.length;
+
+    // Reset locks and lock all chips in accepted sequences
+    seqLocked = Array(10).fill(false).map(() => Array(10).fill(false));
+    [...p1Seqs, ...p2Seqs].forEach(seq => {
+      seq.forEach(([r, c]) => {
+        if (!isSeqCorner(r, c)) seqLocked[r][c] = true;
+      });
     });
-  });
+  }
 
-  return { p1Seqs, p2Seqs };
+  return { p1Seqs, p2Seqs, p1Count: p1Seqs.length, p2Count: p2Seqs.length };
 }
 
 // Initialize Sequence Match
@@ -5327,16 +5662,18 @@ function evaluateSequenceMove(card, r, c, type) {
   // Place chip
   simBoard[r][c] = "p2";
 
-  // Check if this move completes a sequence
-  const { p2Seqs: simP2Seqs } = recalculateSequences(simBoard);
-  if (simP2Seqs >= 2) return 500000; // Immediate match victory!
-  if (simP2Seqs > seqP2Sequences) return 50000; // Completes 1st sequence!
+  // Check if this move completes a sequence without corrupting live game state
+  const baseP2 = seqP2Sequences;
+  const baseP1 = seqP1Sequences;
+  const { p2Count: simP2Count } = recalculateSequences(simBoard, false);
+  if (simP2Count >= 2) return 500000; // Immediate match victory!
+  if (simP2Count > baseP2) return 50000; // Completes sequence!
 
   // Check if opponent would have completed a sequence on this spot if they had it
   const oppSimBoard = seqBoard.map(row => [...row]);
   oppSimBoard[r][c] = "p1";
-  const { p1Seqs: oppSeqs } = recalculateSequences(oppSimBoard);
-  if (oppSeqs > seqP1Sequences) return 25000; // Crucial block!
+  const { p1Count: oppCount } = recalculateSequences(oppSimBoard, false);
+  if (oppCount > baseP1) return 25000; // Crucial block!
 
   let score = 0;
   const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
@@ -6888,6 +7225,9 @@ undoBtn?.addEventListener("click", () => {
   if (!s) return;
   chessBoard = cloneBoard(s.board); chessTurn = s.turn; chessSelected = s.selected; chessOver = s.over;
   whiteCaptured = [...s.whiteCaptured]; blackCaptured = [...s.blackCaptured];
+  if (s.enPassant !== undefined) chessEnPassant = s.enPassant;
+  if (s.halfmoveClock !== undefined) chessHalfmoveClock = s.halfmoveClock;
+  if (s.positionHistory !== undefined) chessPositionHistory = { ...s.positionHistory };
   scoreA = s.scoreA; scoreB = s.scoreB; scoreD = s.scoreD; streak = s.streak;
   moveCount = s.moveCount || Math.max(0, moveCount - 1);
   hideWinScreen();
@@ -8867,30 +9207,6 @@ const SNAKE_SPEEDS = {
   insane: 46
 };
 
-const snakeState = {
-  gridSize: 20,
-  tileSize: 30, // 20 * 30 = 600
-  snake: [],
-  dir: { x: 1, y: 0 },
-  nextDir: { x: 1, y: 0 },
-  food: null,
-  obstacles: [],
-  score: 0,
-  highScore: 0,
-  mode: "classic",
-  speed: "normal",
-  skin: "emerald",
-  timeLeft: 60,
-  gameInterval: null,
-  timerInterval: null,
-  animFrameId: null,
-  isRunning: false,
-  isPaused: false,
-  isGameOver: false,
-  sound: true,
-  particles: []
-};
-
 // Web Audio API Synthesizer (100% Client-side & Offline)
 let snakeAudioCtx = null;
 function getSnakeAudio() {
@@ -8905,12 +9221,12 @@ function getSnakeAudio() {
 }
 
 function playSnakeSound(type) {
-  if (!snakeState.sound) return;
-  const ctx = getSnakeAudio();
-  if (!ctx) return;
-
-  const now = ctx.currentTime;
   try {
+    if (!snakeState || !snakeState.sound) return;
+    const ctx = getSnakeAudio();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
     if (type === "eat") {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -9116,6 +9432,7 @@ function spawnSnakeEatParticles(x, y, isGolden) {
 
 function initSnake(forceFresh = false) {
   loadSnakeSettings();
+  if (snakeState) snakeState.startHighScore = snakeState.highScore || 0;
   stopSnake();
 
   // Reset core state
@@ -9232,10 +9549,17 @@ function toggleSnakePause() {
 }
 
 function stopSnake() {
+  if (!snakeState) return;
   snakeState.isRunning = false;
   snakeState.isPaused = false;
-  clearInterval(snakeState.gameInterval);
-  clearInterval(snakeState.timerInterval);
+  if (snakeState.gameInterval) {
+    clearInterval(snakeState.gameInterval);
+    snakeState.gameInterval = null;
+  }
+  if (snakeState.timerInterval) {
+    clearInterval(snakeState.timerInterval);
+    snakeState.timerInterval = null;
+  }
   if (snakeState.animFrameId) {
     cancelAnimationFrame(snakeState.animFrameId);
     snakeState.animFrameId = null;
@@ -9243,13 +9567,15 @@ function stopSnake() {
 }
 
 function endSnakeGame(cause = "You crashed into a wall!") {
+  if (!snakeState) return;
   stopSnake();
   snakeState.isGameOver = true;
   playSnakeSound("crash");
 
-  const isNewHigh = (snakeState.score > snakeState.highScore && snakeState.score > 0);
+  const isNewHigh = (snakeState.score > (snakeState.startHighScore || 0) && snakeState.score > 0);
   if (isNewHigh) {
     snakeState.highScore = snakeState.score;
+    snakeState.startHighScore = snakeState.score;
     saveSnakeHighScore();
     setTimeout(() => playSnakeSound("highscore"), 280);
   }
@@ -9760,3 +10086,52 @@ function initSnakeEvents() {
   document.getElementById("snakeDpadRight")?.addEventListener("click", () => handleSnakeSteer(1, 0));
   document.getElementById("snakeDpadPause")?.addEventListener("click", () => toggleSnakePause());
 }
+
+/* ==========================================================================
+   GAP Diagnostic & Test Engine Bridges (For Automated Verification)
+   ========================================================================== */
+window.hubState = hubState;
+window.recalculateSequences = recalculateSequences;
+window.validateHardMode = validateHardMode;
+window.getLegalMovesForColor = getLegalMovesForColor;
+window.checkChessDrawCondition = checkChessDrawCondition;
+window.pokerShowdown = pokerShowdown;
+window.runAllInShowdown = runAllInShowdown;
+window.snakeState = snakeState;
+window.endSnakeGame = endSnakeGame;
+window.setChessHalfmoveClock = (v) => { chessHalfmoveClock = v; };
+window.getChessHalfmoveClock = () => chessHalfmoveClock;
+window.setChessEnPassant = (v) => { chessEnPassant = v; };
+window.getChessEnPassant = () => chessEnPassant;
+window.setWordleHardMode = (v) => { wordleHardMode = v; };
+window.setWordleRow = (v) => { wordleRow = v; };
+window.setWordleTarget = (v) => { wordleTarget = v; };
+window.getWordleGrid = () => wordleGrid;
+window.setWordleGrid = (v) => { wordleGrid = v; };
+window.getPokerState = () => ({
+  pokerPlayerChips,
+  pokerAiChips,
+  pokerPot,
+  pokerTurn,
+  pokerAiBet,
+  pokerPlayerBet,
+  pokerStage,
+  pokerCommunity,
+  pokerPlayerCards,
+  pokerAiCards,
+  pokerOver
+});
+window.setPokerState = (s) => {
+  if (s.playerChips !== undefined) pokerPlayerChips = s.playerChips;
+  if (s.aiChips !== undefined) pokerAiChips = s.aiChips;
+  if (s.pot !== undefined) pokerPot = s.pot;
+  if (s.stage !== undefined) pokerStage = s.stage;
+  if (s.playerBet !== undefined) pokerPlayerBet = s.playerBet;
+  if (s.aiBet !== undefined) pokerAiBet = s.aiBet;
+  if (s.currentBet !== undefined) pokerCurrentBet = s.currentBet;
+  if (s.turn !== undefined) pokerTurn = s.turn;
+  if (s.community !== undefined) pokerCommunity = s.community;
+  if (s.playerCards !== undefined) pokerPlayerCards = s.playerCards;
+  if (s.aiCards !== undefined) pokerAiCards = s.aiCards;
+  if (s.over !== undefined) pokerOver = s.over;
+};

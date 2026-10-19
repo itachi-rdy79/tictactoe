@@ -6993,9 +6993,6 @@ body[data-theme="light"] .game-match-bar {
     stroke-width: 4;
   }
 }
-  50% { transform: scale(1.22); filter: brightness(1.35) drop-shadow(0 0 16px currentColor); }
-  100% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 5px currentColor); }
-}
 
 /* Winner Table */
 .ludo-rankings-table {
