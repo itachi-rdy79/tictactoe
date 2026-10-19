@@ -7869,10 +7869,10 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
    ========================================================================= */
 .floating-pill-container {
   top: 8px !important;
-  left: 50% !important;
-  right: auto !important;
-  transform: translateX(-50%) !important;
-  justify-content: center !important;
+  right: 18px !important;
+  left: auto !important;
+  transform: none !important;
+  justify-content: flex-end !important;
 }
 
 .floating-pill {
@@ -7880,7 +7880,7 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
   padding: 0 14px !important;
   max-width: 110px !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
-  transform-origin: center center !important;
+  transform-origin: right center !important;
 }
 
 .floating-pill.expanded {
@@ -7919,19 +7919,12 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
 }
 
 .game-match-bar {
-  align-self: flex-end !important;
-  margin: 2px 20px 6px auto !important;
+  align-self: center !important;
+  margin: 4px auto !important;
   height: 38px !important;
   min-height: 38px !important;
   padding: 0 16px !important;
   gap: 8px !important;
-}
-
-@media (max-width: 768px) {
-  .game-match-bar {
-    align-self: center !important;
-    margin: 4px auto !important;
-  }
 }
 
 .match-bar-left .hub-pill-btn,
