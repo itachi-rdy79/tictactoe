@@ -7906,9 +7906,41 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
   gap: 4px !important;
 }
 
-.gap-icon-pill-btn {
+.nav-icon-btn,
+.gap-icon-pill-btn,
+#navAvatarBtn,
+#miniWindowBtn {
   width: 28px !important;
   height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+.nav-icon-btn:hover,
+#navAvatarBtn:hover,
+#miniWindowBtn:hover {
+  transform: none !important;
+  background: rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3) !important;
+}
+
+.nav-icon-btn svg,
+#navAvatarBtn svg,
+#miniWindowBtn svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.pill-expand-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
 }
 
 .theme-trigger {
