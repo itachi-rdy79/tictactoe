@@ -8113,26 +8113,48 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
 }
 
 /* =========================================================================
-   SNAKE ARENA — PREMIUM SEA GLASS AESTHETIC & CONTROLS
+   SNAKE ARENA — EXPANSIVE SEA GLASS COCKPIT & MISSION CONTROL DECK
    ========================================================================= */
 
 .board-shell.snake-mode {
   contain: layout !important;
   transform: none !important;
-  max-width: 660px !important;
-  width: 100% !important;
-  padding: 16px !important;
-  background: rgba(15, 23, 42, 0.45) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 28px !important;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45) !important;
+  width: min(96vw, 1240px) !important;
+  max-width: 1240px !important;
+  height: auto !important;
+  min-height: auto !important;
+  aspect-ratio: auto !important;
+  overflow: visible !important;
+  cursor: default !important;
+  padding: clamp(14px, 2.5vmin, 26px) !important;
+  background: radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.16) 0%, rgba(15, 23, 42, 0.88) 75%) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
+  border-radius: 32px !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 45px rgba(16, 185, 129, 0.22), inset 0 1.5px 2px rgba(167, 243, 208, 0.4) !important;
+  transition: width 0.3s ease, max-width 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.board-shell.snake-mode .stage-drag-handle {
+  display: none !important;
 }
 
 body[data-theme="light"] .board-shell.snake-mode {
-  background: rgba(255, 255, 255, 0.72) !important;
-  border: 1px solid rgba(16, 185, 129, 0.25) !important;
-  box-shadow: 0 16px 48px rgba(16, 185, 129, 0.12) !important;
+  background: radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.12) 0%, rgba(255, 255, 255, 0.94) 80%) !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
+  box-shadow: 0 20px 50px rgba(16, 185, 129, 0.15), inset 0 1.5px 2px #ffffff !important;
+}
+
+#gameView[data-active-game="snake"] .board-shell {
+  background: radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.16) 0%, rgba(15, 23, 42, 0.88) 75%) !important;
+  border-color: rgba(16, 185, 129, 0.38) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 45px rgba(16, 185, 129, 0.22), inset 0 1.5px 2px rgba(167, 243, 208, 0.4) !important;
+}
+
+#gameView[data-active-game="snake"] .active-game-badge {
+  color: #34d399 !important;
+  text-shadow: 0 0 12px rgba(52, 211, 153, 0.8) !important;
 }
 
 .snake-arena {
@@ -8140,28 +8162,30 @@ body[data-theme="light"] .board-shell.snake-mode {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 600px;
+  max-width: 100%;
   margin: 0 auto;
   user-select: none;
 }
 
+/* Top Quick Status HUD Bar */
 .snake-hud-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 8px 16px;
-  margin-bottom: 12px;
+  padding: 8px 18px;
+  margin-bottom: 14px;
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
 }
 
 body[data-theme="light"] .snake-hud-bar {
   background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.22);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
 }
 
@@ -8185,7 +8209,7 @@ body[data-theme="light"] .snake-hud-label {
 }
 
 .snake-hud-value {
-  font-size: 1.15rem;
+  font-size: 1.18rem;
   font-weight: 800;
   color: #34d399;
   font-family: 'Outfit', sans-serif;
@@ -8205,17 +8229,17 @@ body[data-theme="light"] .snake-hud-value {
 .snake-hud-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .snake-hud-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 30px;
+  height: 32px;
   padding: 0 12px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
   color: #f1f5f9;
   font-size: 0.78rem;
@@ -8233,7 +8257,7 @@ body[data-theme="light"] .snake-hud-value {
 
 body[data-theme="light"] .snake-hud-btn {
   background: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.12);
   color: #1e293b;
 }
 
@@ -8242,22 +8266,47 @@ body[data-theme="light"] .snake-hud-btn:hover {
   border-color: #10b981;
 }
 
+/* Dual-Column Cockpit Layout */
+.snake-cockpit-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 1fr) 380px;
+  gap: clamp(16px, 2.5vmin, 28px);
+  width: 100%;
+  align-items: start;
+}
+
+@media (max-width: 980px) {
+  .snake-cockpit-layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}
+
+.snake-arena-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 /* Canvas Viewport & Overlays */
 .snake-canvas-container {
   position: relative;
   width: 100%;
-  max-width: 580px;
+  max-width: 680px;
   aspect-ratio: 1 / 1;
-  border-radius: 22px;
+  border-radius: 26px;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 0 24px rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(52, 211, 153, 0.35);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(52, 211, 153, 0.22), inset 0 0 24px rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(52, 211, 153, 0.4);
+  background: #030a08;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 body[data-theme="light"] .snake-canvas-container {
-  border-color: rgba(16, 185, 129, 0.4);
-  box-shadow: 0 16px 36px rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 16px 36px rgba(16, 185, 129, 0.18), inset 0 0 16px rgba(16, 185, 129, 0.08);
+  background: #f0fdf4;
 }
 
 .snake-canvas {
@@ -8271,6 +8320,49 @@ body[data-theme="light"] .snake-canvas {
   background: radial-gradient(circle at center, #ecfdf5 0%, #d1fae5 100%);
 }
 
+/* Floating Quick Badges on Canvas */
+.snake-canvas-badges {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.snake-badge-pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: 0.04em;
+  font-family: 'Outfit', sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.snake-badge-pill.score-pill {
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.4);
+  text-shadow: 0 0 8px rgba(52, 211, 153, 0.5);
+}
+
+body[data-theme="light"] .snake-badge-pill {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #0f172a;
+}
+
+body[data-theme="light"] .snake-badge-pill.score-pill {
+  color: #059669;
+}
+
 /* Frosted Modal Overlays */
 .snake-overlay {
   position: absolute;
@@ -8279,7 +8371,8 @@ body[data-theme="light"] .snake-canvas {
   align-items: center;
   justify-content: center;
   background: rgba(4, 13, 10, 0.82);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 20;
   transition: opacity 0.25s ease;
 }
@@ -8291,6 +8384,7 @@ body[data-theme="light"] .snake-overlay {
 .snake-modal-glass {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(6, 182, 212, 0.1));
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(52, 211, 153, 0.45);
   border-radius: 26px;
   padding: 30px 36px;
@@ -8446,6 +8540,393 @@ body[data-theme="light"] .snake-btn.secondary {
   border-color: rgba(0, 0, 0, 0.12);
 }
 
+/* =========================================================================
+   RIGHT COLUMN: MISSION CONTROL & TELEMETRY SIDE DECK
+   ========================================================================= */
+
+.snake-side-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.snake-deck-card {
+  padding: 14px 18px !important;
+  border-radius: 20px !important;
+  background: rgba(15, 23, 42, 0.55) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+body[data-theme="light"] .snake-deck-card {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+.snake-deck-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 10px;
+}
+
+body[data-theme="light"] .snake-deck-card-title {
+  color: #334155;
+}
+
+.snake-rank-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.snake-current-skin-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #34d399;
+}
+
+/* Telemetry Grid */
+.snake-telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.snake-tele-item {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body[data-theme="light"] .snake-tele-item {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.snake-tele-item.highlight {
+  grid-column: span 1;
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.snake-tele-item.trophy-item {
+  grid-column: span 1;
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.28);
+}
+
+.snake-tele-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+body[data-theme="light"] .snake-tele-label {
+  color: #64748b;
+}
+
+.snake-tele-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  font-family: 'Outfit', sans-serif;
+  margin-top: 2px;
+}
+
+body[data-theme="light"] .snake-tele-val {
+  color: #0f172a;
+}
+
+.snake-tele-val.big-glow {
+  font-size: 1.45rem;
+  color: #34d399;
+  text-shadow: 0 0 12px rgba(52, 211, 153, 0.45);
+}
+
+.snake-tele-val.gold {
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.35);
+}
+
+.snake-tele-val.timer-pulse {
+  color: #f59e0b;
+  animation: timerPulseWarn 1s infinite alternate;
+}
+
+@keyframes timerPulseWarn {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.04); opacity: 1; }
+}
+
+/* Mode Selection Grid */
+.snake-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.snake-mode-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.snake-mode-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(52, 211, 153, 0.4);
+  transform: translateY(-1px);
+}
+
+.snake-mode-card.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.15));
+  border-color: #10b981;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.3);
+}
+
+body[data-theme="light"] .snake-mode-card {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #1e293b;
+}
+
+body[data-theme="light"] .snake-mode-card.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+}
+
+.mode-icon {
+  font-size: 1.35rem;
+}
+
+.mode-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.mode-info b {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.mode-info small {
+  font-size: 0.68rem;
+  opacity: 0.7;
+}
+
+/* Speed Selector Grid */
+.snake-speed-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.snake-speed-btn {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.snake-speed-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(52, 211, 153, 0.35);
+}
+
+.snake-speed-btn.active {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #34d399;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
+}
+
+body[data-theme="light"] .snake-speed-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #334155;
+}
+
+body[data-theme="light"] .snake-speed-btn.active {
+  background: #10b981;
+  color: #ffffff;
+}
+
+/* Skin Armory Grid */
+.snake-skins-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.snake-skin-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.snake-skin-chip:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.snake-skin-chip.active {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: #34d399;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+}
+
+body[data-theme="light"] .snake-skin-chip {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #1e293b;
+}
+
+body[data-theme="light"] .snake-skin-chip.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+}
+
+.skin-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Tactical Controls & Shortcuts */
+.snake-shortcuts-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+body[data-theme="light"] .shortcut-row {
+  color: #64748b;
+}
+
+.kbd-wrap kbd,
+.shortcut-row kbd {
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 0.7rem;
+  font-family: inherit;
+  font-weight: 700;
+  color: #34d399;
+}
+
+body[data-theme="light"] .shortcut-row kbd {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.14);
+  color: #059669;
+}
+
+.snake-deck-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.snake-deck-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  border-radius: 12px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Outfit', sans-serif;
+}
+
+.snake-deck-btn.primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
+.snake-deck-btn.primary:hover {
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+  transform: translateY(-1px);
+}
+
+.snake-deck-btn.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+}
+
+.snake-deck-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(52, 211, 153, 0.4);
+  transform: translateY(-1px);
+}
+
+body[data-theme="light"] .snake-deck-btn.secondary {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #1e293b;
+}
+
 /* Mobile On-Screen D-Pad */
 .snake-dpad-wrap {
   display: flex;
@@ -8476,6 +8957,7 @@ body[data-theme="light"] .snake-btn.secondary {
   font-size: 1.25rem;
   cursor: pointer;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: transform 0.12s ease, background 0.12s ease;
   user-select: none;
@@ -8503,5 +8985,6 @@ body[data-theme="light"] .snake-dpad-btn:active {
   font-size: 0.95rem;
   background: rgba(255, 255, 255, 0.04);
 }
+
 
 

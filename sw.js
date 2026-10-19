@@ -1,17 +1,17 @@
 /* =========================================================================
-   GAP Arcade — PWA Offline Service Worker (v60.0 Engine Upgrade)
+   GAP Arcade — PWA Offline Service Worker (v61.0 Snake Cockpit Upgrade)
    Caches all 10 games, versioned resources, nested games, offline
    dictionaries, and local media for 100% offline operation.
    ========================================================================= */
 
-const CACHE_NAME = "gap-arcade-v60.0";
+const CACHE_NAME = "gap-arcade-v61.0";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
   "./style.css",
-  "./style.css?v=60.0",
+  "./style.css?v=61.0",
   "./script.js",
-  "./script.js?v=60.0",
+  "./script.js?v=61.0",
   "./manifest.json",
   "./data/wordle-words.js",
   "./data/wordle-words.js?v=60.0",

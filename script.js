@@ -2,10 +2,11 @@ var ludoActiveTimers = [];
 var ludoRollInterval = null;
 var snakeState = {
   gridSize: 20,
-  tileSize: 30, // 20 * 30 = 600
+  tileSize: 34, // 20 * 34 = 680
   snake: [],
   dir: { x: 1, y: 0 },
   nextDir: { x: 1, y: 0 },
+  dirQueue: [],
   food: null,
   obstacles: [],
   score: 0,
@@ -15,6 +16,9 @@ var snakeState = {
   speed: "normal",
   skin: "emerald",
   timeLeft: 60,
+  applesEaten: 0,
+  goldenEaten: 0,
+  diamondsEaten: 0,
   gameInterval: null,
   timerInterval: null,
   animFrameId: null,
@@ -9197,6 +9201,14 @@ const SNAKE_SKINS = {
     bodyGrad: ["#d8b4fe", "#a855f7", "#7e22ce"],
     glow: "rgba(168, 85, 247, 0.8)",
     eye: "#3b0764"
+  },
+  opal: {
+    name: "Opal Mirage",
+    dot: "#e2e8f0",
+    head: "#ffffff",
+    bodyGrad: ["#ffffff", "#e2e8f0", "#94a3b8"],
+    glow: "rgba(226, 232, 240, 0.8)",
+    eye: "#0f172a"
   }
 };
 
@@ -9223,6 +9235,7 @@ function getSnakeAudio() {
 function playSnakeSound(type) {
   try {
     if (!snakeState || !snakeState.sound) return;
+    if (typeof navigator !== "undefined" && navigator.webdriver) return;
     const ctx = getSnakeAudio();
     if (!ctx) return;
 
@@ -9251,6 +9264,19 @@ function playSnakeSound(type) {
         gain.connect(ctx.destination);
         osc.start(now + idx * 0.06);
         osc.stop(now + idx * 0.06 + 0.16);
+      });
+    } else if (type === "diamond") {
+      [880, 1174, 1480].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+        gain.gain.setValueAtTime(0.22, now + idx * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.18);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.05);
+        osc.stop(now + idx * 0.05 + 0.18);
       });
     } else if (type === "turn") {
       const osc = ctx.createOscillator();
@@ -9320,6 +9346,8 @@ function loadSnakeHighScore() {
   }
   const el = document.getElementById("snakeHighScoreVal");
   if (el) el.textContent = snakeState.highScore;
+  const sideHigh = document.getElementById("snakeSideHighScore");
+  if (sideHigh) sideHigh.textContent = `${snakeState.highScore} 🏆`;
 }
 
 function saveSnakeHighScore() {
@@ -9337,6 +9365,24 @@ function syncSnakeMatchBarUI() {
   setActive(modePills, "snakemode", snakeState.mode);
   setActive(speedPills, "snakespeed", snakeState.speed);
 
+  // Sync Side Deck mode cards
+  const sideModeCards = document.querySelectorAll("#snakeSideModeGrid .snake-mode-card");
+  sideModeCards.forEach(card => {
+    card.classList.toggle("active", card.dataset.snakemode === snakeState.mode);
+  });
+
+  // Sync Side Deck speed buttons
+  const sideSpeedBtns = document.querySelectorAll("#snakeSideSpeedGrid .snake-speed-btn");
+  sideSpeedBtns.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.snakespeed === snakeState.speed);
+  });
+
+  // Sync Side Deck skin chips
+  const sideSkinChips = document.querySelectorAll("#snakeSideSkinGrid .snake-skin-chip");
+  sideSkinChips.forEach(chip => {
+    chip.classList.toggle("active", chip.dataset.snakeskin === snakeState.skin);
+  });
+
   const skinObj = SNAKE_SKINS[snakeState.skin] || SNAKE_SKINS.emerald;
   if (skinLabel) skinLabel.textContent = skinObj.name;
   if (skinDot) {
@@ -9344,16 +9390,28 @@ function syncSnakeMatchBarUI() {
     skinDot.style.boxShadow = `0 0 10px ${skinObj.dot}`;
   }
 
-  // Toggle Timed HUD chip
+  const activeSkinBadge = document.getElementById("snakeActiveSkinBadge");
+  if (activeSkinBadge) activeSkinBadge.textContent = skinObj.name;
+
+  // Update canvas glowing accent
+  const canvasContainer = document.getElementById("snakeCanvasContainer");
+  if (canvasContainer) {
+    canvasContainer.style.setProperty("--snake-glow", skinObj.glow);
+    canvasContainer.style.setProperty("--snake-accent", skinObj.dot);
+  }
+
+  // Toggle Timed HUD chips
   const timerItem = document.getElementById("snakeTimerItem");
+  const sideTimerBox = document.getElementById("snakeSideTimerBox");
+  const isTimed = (snakeState.mode === "timed");
+
   if (timerItem) {
-    if (snakeState.mode === "timed") {
-      timerItem.classList.remove("hidden");
-      timerItem.style.display = "flex";
-    } else {
-      timerItem.classList.add("hidden");
-      timerItem.style.display = "none";
-    }
+    timerItem.classList.toggle("hidden", !isTimed);
+    timerItem.style.display = isTimed ? "flex" : "none";
+  }
+  if (sideTimerBox) {
+    sideTimerBox.classList.toggle("hidden", !isTimed);
+    sideTimerBox.style.display = isTimed ? "flex" : "none";
   }
 
   const muteIcon = document.getElementById("snakeMuteIcon");
@@ -9368,13 +9426,9 @@ function buildSnakeObstacles() {
 
   const obs = [];
   // 4 Symmetric Corner L-shaped crystals
-  // Top-left
   obs.push({ x: 3, y: 3 }, { x: 4, y: 3 }, { x: 3, y: 4 });
-  // Top-right
   obs.push({ x: 16, y: 3 }, { x: 15, y: 3 }, { x: 16, y: 4 });
-  // Bottom-left
   obs.push({ x: 3, y: 16 }, { x: 4, y: 16 }, { x: 3, y: 15 });
-  // Bottom-right
   obs.push({ x: 16, y: 16 }, { x: 15, y: 16 }, { x: 16, y: 15 });
 
   // Center vertical guard pillars
@@ -9400,30 +9454,40 @@ function spawnSnakeFood() {
   if (!freeCells.length) return;
 
   const chosen = freeCells[Math.floor(Math.random() * freeCells.length)];
-  const isGolden = Math.random() < 0.18; // 18% chance of Golden Apple
+  const rand = Math.random();
+  let type = "normal";
+  if (rand < 0.08) {
+    type = "diamond"; // 8% chance of Prismatic Diamond (+50)
+  } else if (rand < 0.26) {
+    type = "golden"; // 18% chance of Golden Apple (+30)
+  }
 
   snakeState.food = {
     x: chosen.x,
     y: chosen.y,
-    type: isGolden ? "golden" : "normal"
+    type
   };
 }
 
-function spawnSnakeEatParticles(x, y, isGolden) {
+function spawnSnakeEatParticles(x, y, foodType) {
   const ts = snakeState.tileSize;
   const cx = x * ts + ts / 2;
   const cy = y * ts + ts / 2;
-  const color = isGolden ? "#fbbf24" : (document.body.dataset.theme === "light" ? "#ef4444" : "#f87171");
+  let color = (document.body.dataset.theme === "light" ? "#ef4444" : "#f87171");
+  if (foodType === "golden") color = "#fbbf24";
+  else if (foodType === "diamond") color = "#22d3ee";
 
-  for (let i = 0; i < 14; i++) {
-    const angle = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.4;
+  const count = foodType === "diamond" ? 22 : (foodType === "golden" ? 18 : 14);
+
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
     const speed = Math.random() * 4.5 + 2;
     snakeState.particles.push({
       x: cx,
       y: cy,
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
-      color,
+      color: (foodType === "diamond" && i % 2 === 0) ? "#f472b6" : color,
       alpha: 1,
       radius: Math.random() * 3 + 2.5
     });
@@ -9443,12 +9507,24 @@ function initSnake(forceFresh = false) {
   ];
   snakeState.dir = { x: 1, y: 0 };
   snakeState.nextDir = { x: 1, y: 0 };
+  snakeState.dirQueue = [];
   snakeState.score = 0;
   snakeState.timeLeft = 60;
+  snakeState.applesEaten = 0;
+  snakeState.goldenEaten = 0;
+  snakeState.diamondsEaten = 0;
   snakeState.isRunning = false;
   snakeState.isPaused = false;
   snakeState.isGameOver = false;
   snakeState.particles = [];
+
+  // Adjust canvas buffer to crisp 680x680 resolution
+  const canvas = document.getElementById("snakeCanvas");
+  if (canvas) {
+    canvas.width = 680;
+    canvas.height = 680;
+    snakeState.tileSize = canvas.width / snakeState.gridSize; // 680 / 20 = 34
+  }
 
   buildSnakeObstacles();
   spawnSnakeFood();
@@ -9606,7 +9682,13 @@ function endSnakeGame(cause = "You crashed into a wall!") {
 function tickSnakeGame() {
   if (!snakeState.isRunning || snakeState.isPaused || snakeState.isGameOver) return;
 
-  snakeState.dir = { ...snakeState.nextDir };
+  // Process next buffered direction
+  if (snakeState.dirQueue && snakeState.dirQueue.length > 0) {
+    snakeState.dir = snakeState.dirQueue.shift();
+  } else if (snakeState.nextDir) {
+    snakeState.dir = { ...snakeState.nextDir };
+  }
+
   const head = snakeState.snake[0];
   let nextHead = {
     x: head.x + snakeState.dir.x,
@@ -9617,7 +9699,7 @@ function tickSnakeGame() {
 
   // Mode collision handling
   if (snakeState.mode === "nowalls") {
-    // Screen wrapping
+    // Screen wrapping portal
     nextHead.x = (nextHead.x + gs) % gs;
     nextHead.y = (nextHead.y + gs) % gs;
   } else {
@@ -9650,14 +9732,35 @@ function tickSnakeGame() {
   snakeState.snake.unshift(nextHead);
 
   if (isEating) {
-    const isGolden = (snakeState.food.type === "golden");
-    const points = isGolden ? 30 : 10;
+    const foodType = snakeState.food.type;
+    let points = 10;
+    let timeBonus = 4;
+    let soundType = "eat";
+    let extraGrowth = 0;
+
+    if (foodType === "diamond") {
+      points = 50;
+      timeBonus = 12;
+      soundType = "diamond";
+      snakeState.diamondsEaten = (snakeState.diamondsEaten || 0) + 1;
+    } else if (foodType === "golden") {
+      points = 30;
+      timeBonus = 8;
+      soundType = "bonus";
+      extraGrowth = 1;
+      snakeState.goldenEaten = (snakeState.goldenEaten || 0) + 1;
+    } else {
+      snakeState.applesEaten = (snakeState.applesEaten || 0) + 1;
+    }
+
     snakeState.score += points;
 
     if (snakeState.mode === "timed") {
-      snakeState.timeLeft += (isGolden ? 8 : 4);
+      snakeState.timeLeft += timeBonus;
       const timeEl = document.getElementById("snakeTimeVal");
+      const sideTime = document.getElementById("snakeSideTime");
       if (timeEl) timeEl.textContent = `${snakeState.timeLeft}s`;
+      if (sideTime) sideTime.textContent = `${snakeState.timeLeft}s`;
     }
 
     if (snakeState.score > snakeState.highScore) {
@@ -9665,8 +9768,14 @@ function tickSnakeGame() {
       saveSnakeHighScore();
     }
 
-    playSnakeSound(isGolden ? "bonus" : "eat");
-    spawnSnakeEatParticles(snakeState.food.x, snakeState.food.y, isGolden);
+    playSnakeSound(soundType);
+    spawnSnakeEatParticles(snakeState.food.x, snakeState.food.y, foodType);
+
+    if (extraGrowth > 0) {
+      const tail = snakeState.snake[snakeState.snake.length - 1];
+      snakeState.snake.push({ ...tail });
+    }
+
     spawnSnakeFood();
     updateSnakeHUD();
   } else {
@@ -9682,17 +9791,65 @@ function updateSnakeHUD() {
   const lenEl = document.getElementById("snakeLengthVal");
   const timeEl = document.getElementById("snakeTimeVal");
 
+  // Top Bar HUD
   if (scoreEl) scoreEl.textContent = snakeState.score;
   if (highEl) highEl.textContent = snakeState.highScore;
   if (lenEl) lenEl.textContent = snakeState.snake.length;
   if (timeEl) timeEl.textContent = `${snakeState.timeLeft}s`;
+
+  // Canvas floating badges
+  const cScoreBadge = document.getElementById("snakeCanvasScoreBadge");
+  const cModeBadge = document.getElementById("snakeCanvasModeBadge");
+  if (cScoreBadge) cScoreBadge.textContent = `${snakeState.score} pts`;
+  if (cModeBadge) {
+    const modeNames = { classic: "Classic Mode", nowalls: "No Walls Mode", obstacles: "Obstacles Mode", timed: "Timed Blitz" };
+    cModeBadge.textContent = modeNames[snakeState.mode] || "Classic Mode";
+  }
+
+  // Side Deck Telemetry
+  const sideScore = document.getElementById("snakeSideScore");
+  const sideHigh = document.getElementById("snakeSideHighScore");
+  const sideBestMode = document.getElementById("snakeSideBestMode");
+  const sideLen = document.getElementById("snakeSideLength");
+  const sideApples = document.getElementById("snakeSideApples");
+  const sideGolden = document.getElementById("snakeSideGolden");
+  const sideTime = document.getElementById("snakeSideTime");
+  const sideTimerBox = document.getElementById("snakeSideTimerBox");
+  const rankBadge = document.getElementById("snakeRankBadge");
+
+  if (sideScore) sideScore.textContent = snakeState.score;
+  if (sideHigh) sideHigh.textContent = `${snakeState.highScore} 🏆`;
+  if (sideBestMode) {
+    const modeLabels = { classic: "Classic", nowalls: "No Walls", obstacles: "Obstacles", timed: "Timed" };
+    sideBestMode.textContent = modeLabels[snakeState.mode] || "Classic";
+  }
+  if (sideLen) sideLen.textContent = `${snakeState.snake.length} segments`;
+  if (sideApples) sideApples.textContent = `🍎 ${snakeState.applesEaten || 0}`;
+  if (sideGolden) sideGolden.textContent = `⭐ ${snakeState.goldenEaten || 0}`;
+  if (sideTime) sideTime.textContent = `${snakeState.timeLeft}s`;
+
+  if (sideTimerBox) {
+    const isTimed = (snakeState.mode === "timed");
+    sideTimerBox.classList.toggle("hidden", !isTimed);
+    sideTimerBox.style.display = isTimed ? "flex" : "none";
+  }
+
+  // Dynamic Rank based on length
+  if (rankBadge) {
+    const len = snakeState.snake.length;
+    let rank = "Baby Viper 🐍";
+    if (len >= 38) rank = "Dragon Monarch 🐉";
+    else if (len >= 24) rank = "Cyber Anaconda 🔮";
+    else if (len >= 14) rank = "Emerald Python 🌿";
+    else if (len >= 7) rank = "Jade Cobra ⚡";
+    rankBadge.textContent = rank;
+  }
 }
 
 function startSnakeAnimLoop() {
   if (snakeState.animFrameId) cancelAnimationFrame(snakeState.animFrameId);
 
   const loop = () => {
-    // Only continue RAF loop if game is active or has particles
     if (snakeState.isRunning || snakeState.particles.length > 0) {
       renderSnakeFrame();
       snakeState.animFrameId = requestAnimationFrame(loop);
@@ -9756,13 +9913,11 @@ function renderSnakeFrame() {
       ctx.shadowColor = isLight ? "rgba(8, 145, 178, 0.3)" : "rgba(34, 211, 238, 0.4)";
       ctx.shadowBlur = 8;
 
-      // Beveled rounded crystal
       ctx.beginPath();
       ctx.roundRect(ox, oy, oSize, oSize, 6);
       ctx.fill();
       ctx.stroke();
 
-      // Crystal facet highlight
       ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
       ctx.lineWidth = 1.2;
       ctx.beginPath();
@@ -9774,48 +9929,85 @@ function renderSnakeFrame() {
     });
   }
 
-  // 4. Render Food (Apple / Golden Fruit)
+  // 4. Render Food (Apple / Golden Fruit / Diamond Gem)
   if (snakeState.food) {
     const fx = snakeState.food.x * ts + ts / 2;
     const fy = snakeState.food.y * ts + ts / 2;
-    const isGolden = (snakeState.food.type === "golden");
+    const foodType = snakeState.food.type;
     const pulse = Math.sin(Date.now() / 180) * 1.5;
     const radius = (ts / 2 - 4) + pulse;
 
     ctx.save();
-    ctx.shadowBlur = isGolden ? 16 : 12;
-    ctx.shadowColor = isGolden ? "#fbbf24" : "#ef4444";
 
-    const fruitGrad = ctx.createRadialGradient(fx - 2, fy - 2, 2, fx, fy, radius);
-    if (isGolden) {
-      fruitGrad.addColorStop(0, "#fef08a");
-      fruitGrad.addColorStop(0.6, "#f59e0b");
-      fruitGrad.addColorStop(1, "#b45309");
+    if (foodType === "diamond") {
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = "#22d3ee";
+
+      // Prismatic Diamond crystal geometry
+      const dGrad = ctx.createRadialGradient(fx - 2, fy - 2, 2, fx, fy, radius);
+      dGrad.addColorStop(0, "#ecfeff");
+      dGrad.addColorStop(0.5, "#06b6d4");
+      dGrad.addColorStop(1, "#0891b2");
+      ctx.fillStyle = dGrad;
+
+      ctx.beginPath();
+      ctx.moveTo(fx, fy - radius - 1);
+      ctx.lineTo(fx + radius * 0.85, fy);
+      ctx.lineTo(fx, fy + radius + 1);
+      ctx.lineTo(fx - radius * 0.85, fy);
+      ctx.closePath();
+      ctx.fill();
+
+      // Specular crystal facets
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+      ctx.beginPath();
+      ctx.moveTo(fx, fy - radius - 1);
+      ctx.lineTo(fx + radius * 0.35, fy - radius * 0.2);
+      ctx.lineTo(fx, fy);
+      ctx.lineTo(fx - radius * 0.35, fy - radius * 0.2);
+      ctx.closePath();
+      ctx.fill();
+
     } else {
-      fruitGrad.addColorStop(0, "#fca5a5");
-      fruitGrad.addColorStop(0.55, "#ef4444");
-      fruitGrad.addColorStop(1, "#991b1b");
+      const isGolden = (foodType === "golden");
+      ctx.shadowBlur = isGolden ? 16 : 12;
+      ctx.shadowColor = isGolden ? "#fbbf24" : "#ef4444";
+
+      const fruitGrad = ctx.createRadialGradient(fx - 2, fy - 2, 2, fx, fy, radius);
+      if (isGolden) {
+        fruitGrad.addColorStop(0, "#fef08a");
+        fruitGrad.addColorStop(0.6, "#f59e0b");
+        fruitGrad.addColorStop(1, "#b45309");
+      } else {
+        fruitGrad.addColorStop(0, "#fca5a5");
+        fruitGrad.addColorStop(0.55, "#ef4444");
+        fruitGrad.addColorStop(1, "#991b1b");
+      }
+
+      ctx.fillStyle = fruitGrad;
+      ctx.beginPath();
+      ctx.arc(fx, fy, Math.max(4, radius), 0, Math.PI * 2);
+      ctx.fill();
+
+      // Leaf / stem
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = isGolden ? "#fde047" : "#22c55e";
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(fx, fy - radius + 1);
+      ctx.quadraticCurveTo(fx + 4, fy - radius - 5, fx + 6, fy - radius - 3);
+      ctx.stroke();
+
+      // Specular glass shine dot
+      ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+      ctx.beginPath();
+      ctx.arc(fx - radius * 0.35, fy - radius * 0.35, 2, 0, Math.PI * 2);
+      ctx.fill();
     }
-
-    ctx.fillStyle = fruitGrad;
-    ctx.beginPath();
-    ctx.arc(fx, fy, Math.max(4, radius), 0, Math.PI * 2);
-    ctx.fill();
-
-    // Leaf / stem
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = isGolden ? "#fde047" : "#22c55e";
-    ctx.lineWidth = 2.2;
-    ctx.beginPath();
-    ctx.moveTo(fx, fy - radius + 1);
-    ctx.quadraticCurveTo(fx + 4, fy - radius - 5, fx + 6, fy - radius - 3);
-    ctx.stroke();
-
-    // Specular glass shine dot
-    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-    ctx.beginPath();
-    ctx.arc(fx - radius * 0.35, fy - radius * 0.35, 2, 0, Math.PI * 2);
-    ctx.fill();
 
     ctx.restore();
   }
@@ -9839,7 +10031,6 @@ function renderSnakeFrame() {
     ctx.fillStyle = isHead ? skin.head : skin.bodyGrad[1];
 
     ctx.beginPath();
-    // Head has higher border radius
     ctx.roundRect(sx, sy, sSize, sSize, isHead ? 10 : 8);
     ctx.fill();
 
@@ -9855,7 +10046,6 @@ function renderSnakeFrame() {
       const dy = snakeState.dir.y;
       const eyeR = 2.5;
 
-      // Base eye positions
       let e1x = sx + sSize * 0.35;
       let e1y = sy + sSize * 0.35;
       let e2x = sx + sSize * 0.65;
@@ -9890,6 +10080,32 @@ function renderSnakeFrame() {
       ctx.arc(e1x + px, e1y + py, 1.3, 0, Math.PI * 2);
       ctx.arc(e2x + px, e2y + py, 1.3, 0, Math.PI * 2);
       ctx.fill();
+
+      // Cute animated tongue flick!
+      const tongueCycle = Date.now() % 2800;
+      if (tongueCycle < 280 && snakeState.isRunning && !snakeState.isPaused) {
+        const tLen = 6 + (tongueCycle < 140 ? tongueCycle / 14 : (280 - tongueCycle) / 14);
+        const startX = sx + sSize / 2 + dx * (sSize / 2);
+        const startY = sy + sSize / 2 + dy * (sSize / 2);
+        const endX = startX + dx * tLen;
+        const endY = startY + dy * tLen;
+
+        ctx.strokeStyle = "#f43f5e";
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        if (dx !== 0) {
+          ctx.lineTo(endX + dx * 2.5, endY - 2.5);
+          ctx.moveTo(endX, endY);
+          ctx.lineTo(endX + dx * 2.5, endY + 2.5);
+        } else {
+          ctx.lineTo(endX - 2.5, endY + dy * 2.5);
+          ctx.moveTo(endX, endY);
+          ctx.lineTo(endX + 2.5, endY + dy * 2.5);
+        }
+        ctx.stroke();
+      }
     }
 
     ctx.restore();
@@ -9922,34 +10138,43 @@ function renderSnakeFrame() {
 function handleSnakeSteer(dx, dy) {
   if (hubState.game !== "snake") return;
 
-  // If paused, resume
   if (snakeState.isPaused) {
     resumeSnakeGame();
   }
 
-  // If not started, start
   if (!snakeState.isRunning && !snakeState.isGameOver) {
     startSnakeGame();
   }
 
-  // Prevent immediate 180-degree self-reversal
-  if (dx !== 0 && snakeState.dir.x !== 0) return;
-  if (dy !== 0 && snakeState.dir.y !== 0) return;
+  if (!snakeState.dirQueue) snakeState.dirQueue = [];
 
-  playSnakeSound("turn");
-  snakeState.nextDir = { x: dx, y: dy };
+  const lastQueued = snakeState.dirQueue.length > 0
+    ? snakeState.dirQueue[snakeState.dirQueue.length - 1]
+    : snakeState.dir;
+
+  // Prevent immediate 180-degree self-reversal
+  if (dx !== 0 && lastQueued.x !== 0) return;
+  if (dy !== 0 && lastQueued.y !== 0) return;
+
+  if (snakeState.dirQueue.length < 2) {
+    snakeState.dirQueue.push({ x: dx, y: dy });
+    playSnakeSound("turn");
+  }
 }
 
 function cycleSnakeSkin() {
   const skinKeys = Object.keys(SNAKE_SKINS);
   const curIdx = skinKeys.indexOf(snakeState.skin);
   const nextIdx = (curIdx + 1) % skinKeys.length;
-  snakeState.skin = skinKeys[nextIdx];
+  setSnakeSkin(skinKeys[nextIdx]);
+}
 
+function setSnakeSkin(skinKey) {
+  if (!SNAKE_SKINS[skinKey]) return;
+  snakeState.skin = skinKey;
   try {
     localStorage.setItem("gap_snake_skin", snakeState.skin);
   } catch {}
-
   syncSnakeMatchBarUI();
   renderSnakeFrame();
 }
@@ -9967,10 +10192,19 @@ function initSnakeEvents() {
   const speedPills = document.getElementById("snakeSpeedPills");
   const skinCycleBtn = document.getElementById("snakeSkinCycleBtn");
 
+  // Side Deck Controls
+  const sidePauseBtn = document.getElementById("snakeDeckPauseBtn");
+  const sideRestartBtn = document.getElementById("snakeDeckRestartBtn");
+  const sideModeGrid = document.getElementById("snakeSideModeGrid");
+  const sideSpeedGrid = document.getElementById("snakeSideSpeedGrid");
+  const sideSkinGrid = document.getElementById("snakeSideSkinGrid");
+
   startBtn?.addEventListener("click", () => startSnakeGame());
   resumeBtn?.addEventListener("click", () => resumeSnakeGame());
   pauseBtn?.addEventListener("click", () => toggleSnakePause());
+  sidePauseBtn?.addEventListener("click", () => toggleSnakePause());
   resetBtn?.addEventListener("click", () => initSnake(true));
+  sideRestartBtn?.addEventListener("click", () => initSnake(true));
   restartFromPauseBtn?.addEventListener("click", () => initSnake(true));
   playAgainBtn?.addEventListener("click", () => {
     initSnake(true);
@@ -9986,23 +10220,31 @@ function initSnakeEvents() {
     if (muteIcon) muteIcon.textContent = snakeState.sound ? "🔊" : "🔇";
   });
 
-  // Top Match Bar Mode Selection
-  modePills?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-snakemode]");
-    if (!btn) return;
-    snakeState.mode = btn.dataset.snakemode;
+  // Top Match Bar & Side Deck Mode Selection
+  function onSelectMode(modeKey) {
+    if (!["classic", "nowalls", "obstacles", "timed"].includes(modeKey)) return;
+    snakeState.mode = modeKey;
     try {
       localStorage.setItem("gap_snake_mode", snakeState.mode);
     } catch {}
     loadSnakeHighScore();
     initSnake(true);
+  }
+
+  modePills?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-snakemode]");
+    if (btn) onSelectMode(btn.dataset.snakemode);
   });
 
-  // Top Match Bar Speed Selection
-  speedPills?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-snakespeed]");
-    if (!btn) return;
-    snakeState.speed = btn.dataset.snakespeed;
+  sideModeGrid?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-snakemode]");
+    if (btn) onSelectMode(btn.dataset.snakemode);
+  });
+
+  // Top Match Bar & Side Deck Speed Selection
+  function onSelectSpeed(speedKey) {
+    if (!SNAKE_SPEEDS[speedKey]) return;
+    snakeState.speed = speedKey;
     try {
       localStorage.setItem("gap_snake_speed", snakeState.speed);
     } catch {}
@@ -10011,10 +10253,24 @@ function initSnakeEvents() {
       clearInterval(snakeState.gameInterval);
       snakeState.gameInterval = setInterval(tickSnakeGame, SNAKE_SPEEDS[snakeState.speed] || 95);
     }
+  }
+
+  speedPills?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-snakespeed]");
+    if (btn) onSelectSpeed(btn.dataset.snakespeed);
   });
 
-  // Skin Selector Cycle
+  sideSpeedGrid?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-snakespeed]");
+    if (btn) onSelectSpeed(btn.dataset.snakespeed);
+  });
+
+  // Skin Selector Cycle & Direct Swatches
   skinCycleBtn?.addEventListener("click", cycleSnakeSkin);
+  sideSkinGrid?.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-snakeskin]");
+    if (chip) setSnakeSkin(chip.dataset.snakeskin);
+  });
 
   // Keyboard Controls: Arrow Keys & WASD & Spacebar & R
   window.addEventListener("keydown", (e) => {
@@ -10057,7 +10313,6 @@ function initSnakeEvents() {
   }, { passive: true });
 
   canvas?.addEventListener("touchmove", (e) => {
-    // Prevent screen jittering when swiping on canvas
     if (hubState.game === "snake") {
       e.preventDefault();
     }

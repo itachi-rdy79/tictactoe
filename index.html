@@ -14,7 +14,7 @@
   <meta name="theme-color" content="#060913" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="stylesheet" href="style.css?v=60.0" />
+  <link rel="stylesheet" href="style.css?v=61.0" />
 </head>
 <body data-theme="dark">
   <!-- Dynamic Color Background (Adapts to GAP Palette in Dark & White Theme) -->
@@ -1047,10 +1047,10 @@
               </div>
             </div>
 
-            <!-- Snake Arena (Sea Glass Aesthetic with Canvas & Overlays) -->
+            <!-- Snake Arena (Sea Glass Cockpit Layout & Mission Control Deck) -->
             <div id="snakeGame" class="snake-arena hidden">
-              <!-- Sea Glass Top Status Bar -->
-              <div class="snake-hud-bar">
+              <!-- Sea Glass Top Status Bar (Responsive Quick HUD) -->
+              <div class="snake-hud-bar" id="snakeHudBar">
                 <div class="snake-hud-item">
                   <span class="snake-hud-label">SCORE</span>
                   <b class="snake-hud-value" id="snakeScoreVal">0</b>
@@ -1082,68 +1082,221 @@
                 </div>
               </div>
 
-              <!-- Main Canvas Viewport -->
-              <div class="snake-canvas-container" id="snakeCanvasContainer">
-                <canvas id="snakeCanvas" width="600" height="600" class="snake-canvas"></canvas>
-
-                <!-- Pause Overlay Modal -->
-                <div id="snakePauseOverlay" class="snake-overlay hidden">
-                  <div class="snake-modal-glass">
-                    <div class="snake-modal-icon">⏸️</div>
-                    <h2>GAME PAUSED</h2>
-                    <p>Press <b>SPACE</b> or tap Resume to continue</p>
-                    <div class="snake-modal-actions">
-                      <button type="button" class="snake-btn primary" id="snakeResumeBtn">Resume Game</button>
-                      <button type="button" class="snake-btn secondary" id="snakeRestartFromPauseBtn">Restart</button>
+              <!-- Expansive Dual-Column Cockpit Layout for Wide Displays -->
+              <div class="snake-cockpit-layout" id="snakeCockpitLayout">
+                <!-- Left Column: Primary Arena Viewport -->
+                <div class="snake-arena-col">
+                  <div class="snake-canvas-container" id="snakeCanvasContainer">
+                    <!-- Floating Quick Badges -->
+                    <div class="snake-canvas-badges">
+                      <div class="snake-badge-pill" id="snakeCanvasModeBadge">Classic Mode</div>
+                      <div class="snake-badge-pill score-pill" id="snakeCanvasScoreBadge">0 pts</div>
                     </div>
-                  </div>
-                </div>
 
-                <!-- Game Over Overlay Modal -->
-                <div id="snakeGameOverOverlay" class="snake-overlay hidden">
-                  <div class="snake-modal-glass">
-                    <div class="snake-modal-icon" id="snakeGameOverIcon">💥</div>
-                    <h2 id="snakeGameOverTitle">GAME OVER</h2>
-                    <p id="snakeGameOverCause">You crashed into a wall!</p>
-                    <div class="snake-score-summary">
-                      <div class="snake-score-box">
-                        <span>FINAL SCORE</span>
-                        <b id="snakeFinalScore">0</b>
-                      </div>
-                      <div class="snake-score-box">
-                        <span>BEST (<span id="snakeBestModeLabel">Classic</span>)</span>
-                        <b id="snakeFinalHighScore">0</b>
+                    <canvas id="snakeCanvas" width="680" height="680" class="snake-canvas"></canvas>
+
+                    <!-- Pause Overlay Modal -->
+                    <div id="snakePauseOverlay" class="snake-overlay hidden">
+                      <div class="snake-modal-glass">
+                        <div class="snake-modal-icon">⏸️</div>
+                        <h2>GAME PAUSED</h2>
+                        <p>Press <b>SPACE</b> or tap Resume to continue</p>
+                        <div class="snake-modal-actions">
+                          <button type="button" class="snake-btn primary" id="snakeResumeBtn">Resume Game</button>
+                          <button type="button" class="snake-btn secondary" id="snakeRestartFromPauseBtn">Restart</button>
+                        </div>
                       </div>
                     </div>
-                    <div id="snakeNewHighScoreBadge" class="snake-new-high-badge hidden">🎉 NEW HIGH SCORE! 🎉</div>
-                    <div class="snake-modal-actions">
-                      <button type="button" class="snake-btn primary" id="snakePlayAgainBtn">Play Again (R)</button>
+
+                    <!-- Game Over Overlay Modal -->
+                    <div id="snakeGameOverOverlay" class="snake-overlay hidden">
+                      <div class="snake-modal-glass">
+                        <div class="snake-modal-icon" id="snakeGameOverIcon">💥</div>
+                        <h2 id="snakeGameOverTitle">GAME OVER</h2>
+                        <p id="snakeGameOverCause">You crashed into a wall!</p>
+                        <div class="snake-score-summary">
+                          <div class="snake-score-box">
+                            <span>FINAL SCORE</span>
+                            <b id="snakeFinalScore">0</b>
+                          </div>
+                          <div class="snake-score-box">
+                            <span>BEST (<span id="snakeBestModeLabel">Classic</span>)</span>
+                            <b id="snakeFinalHighScore">0</b>
+                          </div>
+                        </div>
+                        <div id="snakeNewHighScoreBadge" class="snake-new-high-badge hidden">🎉 NEW HIGH SCORE! 🎉</div>
+                        <div class="snake-modal-actions">
+                          <button type="button" class="snake-btn primary" id="snakePlayAgainBtn">Play Again (R)</button>
+                        </div>
+                      </div>
                     </div>
+
+                    <!-- Start / Ready Screen Overlay -->
+                    <div id="snakeStartOverlay" class="snake-overlay">
+                      <div class="snake-modal-glass">
+                        <div class="snake-modal-icon">🐍</div>
+                        <h2>SNAKE ARENA</h2>
+                        <p>Use <b>Arrow Keys</b> or <b>WASD</b> to steer<br/><span style="opacity:0.8; font-size:0.84rem;">Swipe on mobile or use the D-Pad below</span></p>
+                        <div class="snake-modal-actions">
+                          <button type="button" class="snake-btn primary pulse-btn" id="snakeStartBtn">Start Slithering ➔</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Mobile On-Screen D-Pad (Touch Devices & Mobile Gaming) -->
+                  <div class="snake-dpad-wrap" id="snakeDpadWrap">
+                    <button type="button" class="snake-dpad-btn dpad-up" id="snakeDpadUp" aria-label="Up">▲</button>
+                    <div class="snake-dpad-row">
+                      <button type="button" class="snake-dpad-btn dpad-left" id="snakeDpadLeft" aria-label="Left">◀</button>
+                      <button type="button" class="snake-dpad-btn dpad-center" id="snakeDpadPause" aria-label="Pause">⏸</button>
+                      <button type="button" class="snake-dpad-btn dpad-right" id="snakeDpadRight" aria-label="Right">▶</button>
+                    </div>
+                    <button type="button" class="snake-dpad-btn dpad-down" id="snakeDpadDown" aria-label="Down">▼</button>
                   </div>
                 </div>
 
-                <!-- Start / Ready Screen Overlay -->
-                <div id="snakeStartOverlay" class="snake-overlay">
-                  <div class="snake-modal-glass">
-                    <div class="snake-modal-icon">🐍</div>
-                    <h2>SNAKE ARENA</h2>
-                    <p>Use <b>Arrow Keys</b> or <b>WASD</b> to steer<br/><span style="opacity:0.8; font-size:0.84rem;">Swipe on mobile or use the D-Pad below</span></p>
-                    <div class="snake-modal-actions">
-                      <button type="button" class="snake-btn primary pulse-btn" id="snakeStartBtn">Start Slithering ➔</button>
+                <!-- Right Column: Mission Control & Telemetry Side Deck -->
+                <aside class="snake-side-deck" id="snakeSideDeck">
+                  <!-- Live Telemetry Card -->
+                  <div class="snake-deck-card glass-island telemetry-card">
+                    <div class="snake-deck-card-title">
+                      <span>📊 Live Telemetry</span>
+                      <span class="snake-rank-badge" id="snakeRankBadge">Baby Viper 🐍</span>
+                    </div>
+                    <div class="snake-telemetry-grid">
+                      <div class="snake-tele-item highlight">
+                        <span class="snake-tele-label">Current Score</span>
+                        <span class="snake-tele-val big-glow" id="snakeSideScore">0</span>
+                      </div>
+                      <div class="snake-tele-item trophy-item">
+                        <span class="snake-tele-label">Record (<span id="snakeSideBestMode">Classic</span>)</span>
+                        <span class="snake-tele-val gold" id="snakeSideHighScore">0 🏆</span>
+                      </div>
+                      <div class="snake-tele-item">
+                        <span class="snake-tele-label">Snake Length</span>
+                        <span class="snake-tele-val" id="snakeSideLength">3 segments</span>
+                      </div>
+                      <div class="snake-tele-item hidden" id="snakeSideTimerBox">
+                        <span class="snake-tele-label">Time Remaining</span>
+                        <span class="snake-tele-val timer-pulse" id="snakeSideTime">60s</span>
+                      </div>
+                      <div class="snake-tele-item">
+                        <span class="snake-tele-label">Ruby Apples</span>
+                        <span class="snake-tele-val" id="snakeSideApples">🍎 0</span>
+                      </div>
+                      <div class="snake-tele-item">
+                        <span class="snake-tele-label">Golden Fruits</span>
+                        <span class="snake-tele-val gold" id="snakeSideGolden">⭐ 0</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              <!-- Mobile On-Screen D-Pad (Touch Devices & Mobile Gaming) -->
-              <div class="snake-dpad-wrap" id="snakeDpadWrap">
-                <button type="button" class="snake-dpad-btn dpad-up" id="snakeDpadUp" aria-label="Up">▲</button>
-                <div class="snake-dpad-row">
-                  <button type="button" class="snake-dpad-btn dpad-left" id="snakeDpadLeft" aria-label="Left">◀</button>
-                  <button type="button" class="snake-dpad-btn dpad-center" id="snakeDpadPause" aria-label="Pause">⏸</button>
-                  <button type="button" class="snake-dpad-btn dpad-right" id="snakeDpadRight" aria-label="Right">▶</button>
-                </div>
-                <button type="button" class="snake-dpad-btn dpad-down" id="snakeDpadDown" aria-label="Down">▼</button>
+                  <!-- Arena Game Mode Selector -->
+                  <div class="snake-deck-card glass-island">
+                    <div class="snake-deck-card-title">
+                      <span>🎮 Arena Mode</span>
+                    </div>
+                    <div class="snake-mode-grid" id="snakeSideModeGrid">
+                      <button type="button" class="snake-mode-card active" data-snakemode="classic" title="Classic: Fatal walls">
+                        <span class="mode-icon">🧱</span>
+                        <span class="mode-info">
+                          <b>Classic</b>
+                          <small>Fatal borders</small>
+                        </span>
+                      </button>
+                      <button type="button" class="snake-mode-card" data-snakemode="nowalls" title="No Walls: Screen wrapping">
+                        <span class="mode-icon">🌀</span>
+                        <span class="mode-info">
+                          <b>No Walls</b>
+                          <small>Screen warp</small>
+                        </span>
+                      </button>
+                      <button type="button" class="snake-mode-card" data-snakemode="obstacles" title="Obstacles: Sea Glass crystals">
+                        <span class="mode-icon">💎</span>
+                        <span class="mode-info">
+                          <b>Obstacles</b>
+                          <small>Crystals</small>
+                        </span>
+                      </button>
+                      <button type="button" class="snake-mode-card" data-snakemode="timed" title="Timed: 60s sprint with time bonuses">
+                        <span class="mode-icon">⏳</span>
+                        <span class="mode-info">
+                          <b>Timed Blitz</b>
+                          <small>60s sprint</small>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Velocity Speed Card -->
+                  <div class="snake-deck-card glass-island">
+                    <div class="snake-deck-card-title">
+                      <span>⚡ Velocity Speed</span>
+                    </div>
+                    <div class="snake-speed-grid" id="snakeSideSpeedGrid">
+                      <button type="button" class="snake-speed-btn" data-snakespeed="casual">Casual (130ms)</button>
+                      <button type="button" class="snake-speed-btn active" data-snakespeed="normal">Normal (95ms)</button>
+                      <button type="button" class="snake-speed-btn" data-snakespeed="fast">Fast (68ms)</button>
+                      <button type="button" class="snake-speed-btn" data-snakespeed="insane">Insane ⚡ (46ms)</button>
+                    </div>
+                  </div>
+
+                  <!-- Snake Skin Armory -->
+                  <div class="snake-deck-card glass-island">
+                    <div class="snake-deck-card-title">
+                      <span>✨ Skin Armory</span>
+                      <span class="snake-current-skin-badge" id="snakeActiveSkinBadge">Emerald</span>
+                    </div>
+                    <div class="snake-skins-grid" id="snakeSideSkinGrid">
+                      <button type="button" class="snake-skin-chip active" data-snakeskin="emerald">
+                        <span class="skin-dot" style="background:#10b981; box-shadow:0 0 8px #10b981;"></span>
+                        <span>Emerald</span>
+                      </button>
+                      <button type="button" class="snake-skin-chip" data-snakeskin="cyan">
+                        <span class="skin-dot" style="background:#06b6d4; box-shadow:0 0 8px #06b6d4;"></span>
+                        <span>Cyan</span>
+                      </button>
+                      <button type="button" class="snake-skin-chip" data-snakeskin="gold">
+                        <span class="skin-dot" style="background:#f59e0b; box-shadow:0 0 8px #f59e0b;"></span>
+                        <span>Solar</span>
+                      </button>
+                      <button type="button" class="snake-skin-chip" data-snakeskin="crimson">
+                        <span class="skin-dot" style="background:#ef4444; box-shadow:0 0 8px #ef4444;"></span>
+                        <span>Crimson</span>
+                      </button>
+                      <button type="button" class="snake-skin-chip" data-snakeskin="amethyst">
+                        <span class="skin-dot" style="background:#a855f7; box-shadow:0 0 8px #a855f7;"></span>
+                        <span>Amethyst</span>
+                      </button>
+                      <button type="button" class="snake-skin-chip" data-snakeskin="opal">
+                        <span class="skin-dot" style="background:#e2e8f0; box-shadow:0 0 8px #e2e8f0;"></span>
+                        <span>Opal</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Tactical Controls Card -->
+                  <div class="snake-deck-card glass-island">
+                    <div class="snake-deck-card-title">
+                      <span>🕹️ Controls &amp; Hotkeys</span>
+                    </div>
+                    <div class="snake-shortcuts-hint">
+                      <div class="shortcut-row"><span>Steer Snake:</span> <span class="kbd-wrap"><kbd>WASD</kbd> or <kbd>Arrows</kbd></span></div>
+                      <div class="shortcut-row"><span>Pause / Resume:</span> <span class="kbd-wrap"><kbd>Space</kbd></span></div>
+                      <div class="shortcut-row"><span>Quick Restart:</span> <span class="kbd-wrap"><kbd>R</kbd></span></div>
+                    </div>
+                    <div class="snake-deck-actions">
+                      <button type="button" class="snake-deck-btn primary" id="snakeDeckPauseBtn">
+                        <span id="snakeDeckPauseIcon">⏸️</span>
+                        <span id="snakeDeckPauseText">Pause</span>
+                      </button>
+                      <button type="button" class="snake-deck-btn secondary" id="snakeDeckRestartBtn">
+                        <span>🔄 Restart (R)</span>
+                      </button>
+                    </div>
+                  </div>
+                </aside>
               </div>
             </div>
 </section>
@@ -1460,6 +1613,6 @@
   </div>
 
   <script src="data/wordle-words.js?v=60.0"></script>
-  <script src="script.js?v=60.0"></script>
+  <script src="script.js?v=61.0"></script>
 </body>
 </html>
