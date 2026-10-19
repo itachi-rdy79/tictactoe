@@ -14,7 +14,7 @@
   <meta name="theme-color" content="#060913" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="stylesheet" href="style.css?v=61.0" />
+  <link rel="stylesheet" href="style.css?v=61.1" />
 </head>
 <body data-theme="dark">
   <!-- Dynamic Color Background (Adapts to GAP Palette in Dark & White Theme) -->
@@ -575,26 +575,32 @@
         </div>
 
         <!-- Snake Top Dashboard Dynamic Controls -->
-        <div class="group hidden" id="snakeMatchGroup">
-          <div class="seg" id="snakeModePills">
-            <button class="seg-btn active" data-snakemode="classic" type="button" title="Classic: Fatal walls">Classic</button>
-            <button class="seg-btn" data-snakemode="nowalls" type="button" title="No Walls: Screen wrapping">No Walls</button>
-            <button class="seg-btn" data-snakemode="obstacles" type="button" title="Obstacles: Sea Glass barriers">Obstacles</button>
-            <button class="seg-btn" data-snakemode="timed" type="button" title="Timed: 60s Race with Time Bonuses">Timed ⏳</button>
+        <div class="snake-match-controls hidden" id="snakeMatchGroup">
+          <div class="group" id="snakeModeGroup">
+            <div class="seg" id="snakeModePills">
+              <button class="seg-btn active" data-snakemode="classic" type="button" title="Classic: Fatal walls">Classic</button>
+              <button class="seg-btn" data-snakemode="nowalls" type="button" title="No Walls: Screen wrapping">No Walls</button>
+              <button class="seg-btn" data-snakemode="obstacles" type="button" title="Obstacles: Sea Glass barriers">Obstacles</button>
+              <button class="seg-btn" data-snakemode="timed" type="button" title="Timed: 60s Race with Time Bonuses">Timed ⏳</button>
+            </div>
           </div>
 
-          <span class="hud-label" style="margin-left: 6px; font-size: 0.68rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Speed:</span>
-          <div class="seg" id="snakeSpeedPills">
-            <button class="seg-btn" data-snakespeed="casual" type="button" title="Casual (130ms)">Casual</button>
-            <button class="seg-btn active" data-snakespeed="normal" type="button" title="Normal (95ms)">Normal</button>
-            <button class="seg-btn" data-snakespeed="fast" type="button" title="Fast (68ms)">Fast</button>
-            <button class="seg-btn" data-snakespeed="insane" type="button" title="Insane (46ms)">Insane ⚡</button>
+          <div class="group" id="snakeSpeedGroup">
+            <span class="group-label">Speed</span>
+            <div class="seg" id="snakeSpeedPills">
+              <button class="seg-btn" data-snakespeed="casual" type="button" title="Casual (130ms)">Casual</button>
+              <button class="seg-btn active" data-snakespeed="normal" type="button" title="Normal (95ms)">Normal</button>
+              <button class="seg-btn" data-snakespeed="fast" type="button" title="Fast (68ms)">Fast</button>
+              <button class="seg-btn" data-snakespeed="insane" type="button" title="Insane (46ms)">Insane ⚡</button>
+            </div>
           </div>
 
-          <button class="seg-btn icon-btn" id="snakeSkinCycleBtn" type="button" title="Cycle Snake Skin / Color" style="margin-left:4px;">
-            <span class="snake-skin-dot" id="snakeSkinPreviewDot" style="width:10px; height:10px; border-radius:50%; background:#10b981; display:inline-block; box-shadow:0 0 8px #10b981;"></span>
-            <span id="snakeSkinLabel">Emerald</span>
-          </button>
+          <div class="group" id="snakeSkinGroup">
+            <button class="seg-btn icon-btn snake-skin-cycle-btn" id="snakeSkinCycleBtn" type="button" title="Cycle Snake Skin / Color">
+              <span class="snake-skin-dot" id="snakeSkinPreviewDot" style="width:9px; height:9px; border-radius:50%; background:#10b981; display:inline-block; box-shadow:0 0 8px #10b981;"></span>
+              <span id="snakeSkinLabel">Emerald</span>
+            </button>
+          </div>
         </div>
 
       </div>
@@ -1613,6 +1619,6 @@
   </div>
 
   <script src="data/wordle-words.js?v=60.0"></script>
-  <script src="script.js?v=61.0"></script>
+  <script src="script.js?v=61.1"></script>
 </body>
 </html>

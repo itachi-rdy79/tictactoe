@@ -9164,6 +9164,7 @@ function initLudoEvents() {
 const SNAKE_SKINS = {
   emerald: {
     name: "Emerald",
+    short: "Emerald",
     dot: "#10b981",
     head: "#34d399",
     bodyGrad: ["#34d399", "#10b981", "#059669"],
@@ -9172,6 +9173,7 @@ const SNAKE_SKINS = {
   },
   cyan: {
     name: "Cyber Cyan",
+    short: "Cyan",
     dot: "#06b6d4",
     head: "#67e8f9",
     bodyGrad: ["#67e8f9", "#06b6d4", "#0891b2"],
@@ -9180,6 +9182,7 @@ const SNAKE_SKINS = {
   },
   gold: {
     name: "Solar Gold",
+    short: "Gold",
     dot: "#f59e0b",
     head: "#fde047",
     bodyGrad: ["#fde047", "#f59e0b", "#d97706"],
@@ -9188,6 +9191,7 @@ const SNAKE_SKINS = {
   },
   crimson: {
     name: "Crimson Viper",
+    short: "Crimson",
     dot: "#ef4444",
     head: "#fca5a5",
     bodyGrad: ["#fca5a5", "#ef4444", "#b91c1c"],
@@ -9196,6 +9200,7 @@ const SNAKE_SKINS = {
   },
   amethyst: {
     name: "Amethyst Glow",
+    short: "Amethyst",
     dot: "#a855f7",
     head: "#d8b4fe",
     bodyGrad: ["#d8b4fe", "#a855f7", "#7e22ce"],
@@ -9204,6 +9209,7 @@ const SNAKE_SKINS = {
   },
   opal: {
     name: "Opal Mirage",
+    short: "Opal",
     dot: "#e2e8f0",
     head: "#ffffff",
     bodyGrad: ["#ffffff", "#e2e8f0", "#94a3b8"],
@@ -9384,7 +9390,7 @@ function syncSnakeMatchBarUI() {
   });
 
   const skinObj = SNAKE_SKINS[snakeState.skin] || SNAKE_SKINS.emerald;
-  if (skinLabel) skinLabel.textContent = skinObj.name;
+  if (skinLabel) skinLabel.textContent = skinObj.short || skinObj.name;
   if (skinDot) {
     skinDot.style.backgroundColor = skinObj.dot;
     skinDot.style.boxShadow = `0 0 10px ${skinObj.dot}`;

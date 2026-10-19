@@ -8986,5 +8986,105 @@ body[data-theme="light"] .snake-dpad-btn:active {
   background: rgba(255, 255, 255, 0.04);
 }
 
+/* =========================================================================
+   SNAKE TOP MATCH CONTROLS & PILL ALIGNMENT (PREVENT CONTENT SPILL)
+   ========================================================================= */
+#gameView[data-active-game="snake"] .game-match-bar {
+  width: auto !important;
+  max-width: min(calc(100% - 24px), 1240px) !important;
+  padding: 0 clamp(14px, 1.6vw, 22px) !important;
+  gap: clamp(8px, 1.2vw, 14px) !important;
+  box-sizing: border-box !important;
+}
+
+.snake-match-controls {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: clamp(6px, 0.8vw, 10px) !important;
+  flex-shrink: 0 !important;
+}
+
+.snake-match-controls .group {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  padding: 2px 4px !important;
+  border-radius: 9999px !important;
+  flex-shrink: 0 !important;
+}
+
+.snake-match-controls .seg {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+.snake-match-controls .seg-btn {
+  height: 29px !important;
+  padding: 0 9px !important;
+  font-size: 0.77rem !important;
+  letter-spacing: 0.01em !important;
+  white-space: nowrap !important;
+  border-radius: 9999px !important;
+  transition: all 0.2s ease !important;
+}
+
+.snake-match-controls .group-label {
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  opacity: 0.75 !important;
+  margin-left: 2px !important;
+  margin-right: 2px !important;
+}
+
+.snake-skin-cycle-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 0 9px !important;
+  height: 29px !important;
+}
+
+.snake-skin-cycle-btn .snake-skin-dot {
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+}
+
+/* Fluid responsive adaptation for compact monitors and laptops */
+@media (max-width: 1200px) {
+  .snake-match-controls {
+    gap: 5px !important;
+  }
+  .snake-match-controls .group {
+    padding: 2px 3px !important;
+    gap: 2px !important;
+  }
+  .snake-match-controls .seg-btn {
+    height: 27px !important;
+    padding: 0 7px !important;
+    font-size: 0.72rem !important;
+  }
+}
+
+@media (max-width: 980px) {
+  #gameView[data-active-game="snake"] .game-match-bar {
+    border-radius: 20px !important;
+    height: auto !important;
+    padding: 8px 12px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  .snake-match-controls {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 6px !important;
+  }
+}
+
+
 
 
