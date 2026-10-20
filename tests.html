@@ -411,10 +411,10 @@
           const cells = chessBoard.querySelectorAll(".chess-cell");
           const cellCountOk = (cells.length === 64);
 
-          // Coordinates
+          // Clean Board (No coordinate numbers or letters overlaying squares)
           const fileCoords = chessBoard.querySelectorAll(".chess-coord-file");
           const rankCoords = chessBoard.querySelectorAll(".chess-coord-rank");
-          const coordsOk = (fileCoords.length > 0 && rankCoords.length > 0);
+          const coordsOk = (fileCoords.length === 0 && rankCoords.length === 0);
 
           // Themes
           win.applyChessTheme("ocean");

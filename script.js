@@ -2944,22 +2944,6 @@ function renderChess() {
         cell.setAttribute("aria-label", "Square " + squareName);
       }
 
-      // Alphanumeric Perimeter Board Coordinates (subtle corner labels)
-      const isVisualBottomRank = (!chessFlipped && r === 7) || (chessFlipped && r === 0);
-      if (isVisualBottomRank) {
-        const fileLbl = document.createElement("span");
-        fileLbl.className = "chess-coord-label chess-coord-file";
-        fileLbl.textContent = colName;
-        cell.appendChild(fileLbl);
-      }
-      const isVisualLeftFile = (!chessFlipped && c === 0) || (chessFlipped && c === 7);
-      if (isVisualLeftFile) {
-        const rankLbl = document.createElement("span");
-        rankLbl.className = "chess-coord-label chess-coord-rank";
-        rankLbl.textContent = rowName;
-        cell.appendChild(rankLbl);
-      }
-
       cell.addEventListener("pointerdown", (e) => e.stopPropagation());
       cell.addEventListener("click", (e) => {
         e.stopPropagation();

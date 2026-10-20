@@ -958,8 +958,8 @@ body[data-theme="light"] .board-shell {
 .board-shell.chess-mode {
   contain: layout !important;
   transform: none !important;
-  width: min(96vw, 860px) !important;
-  max-width: 860px !important;
+  width: min(96vw, 900px) !important;
+  max-width: 900px !important;
   height: auto !important;
   min-height: auto !important;
   aspect-ratio: auto !important;
@@ -1267,9 +1267,9 @@ body[data-theme="light"] .ttt-cell.win {
 
 .chess-cockpit-layout {
   display: grid;
-  grid-template-columns: minmax(280px, min(50vh, 410px)) 320px;
+  grid-template-columns: minmax(320px, min(64vh, 520px)) 250px;
   justify-content: center;
-  gap: clamp(12px, 2vmin, 22px);
+  gap: clamp(10px, 1.8vmin, 18px);
   width: 100%;
   align-items: start;
   transition: all 0.25s ease;
@@ -1277,7 +1277,7 @@ body[data-theme="light"] .ttt-cell.win {
 
 /* Panel Left Layout (Cockpit panel swapped to left side) */
 .chess-cockpit-layout.panel-left {
-  grid-template-columns: 320px minmax(280px, min(50vh, 410px));
+  grid-template-columns: 250px minmax(320px, min(64vh, 520px));
 }
 .chess-cockpit-layout.panel-left .chess-main-col {
   order: 2;
@@ -1305,7 +1305,7 @@ body[data-theme="light"] .ttt-cell.win {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: min(50vh, 410px);
+  max-width: min(64vh, 520px);
   margin: 0 auto;
   gap: 8px;
 }
@@ -1501,7 +1501,7 @@ body[data-theme="light"] .chess-clock-pill {
 .chess-board-shell {
   position: relative;
   width: 100%;
-  max-width: min(50vh, 410px);
+  max-width: min(64vh, 520px);
   aspect-ratio: 1 / 1;
   border-radius: 20px;
   padding: 6px;
@@ -1631,37 +1631,9 @@ body[data-theme="light"] .chess-arena[data-chess-theme="emerald"] .chess-cell.da
 }
 
 /* Coordinates in square corners */
+/* Coordinates in square corners (Clean board without numbers/letters) */
 .chess-coord-label {
-  position: absolute;
-  font-size: 0.62rem;
-  font-weight: 800;
-  font-family: 'Outfit', sans-serif;
-  color: rgba(255, 255, 255, 0.45);
-  pointer-events: none;
-  user-select: none;
-  line-height: 1;
-  z-index: 1;
-}
-
-.chess-cell.light .chess-coord-label {
-  color: rgba(255, 255, 255, 0.65);
-}
-.chess-cell.dark .chess-coord-label {
-  color: rgba(255, 255, 255, 0.35);
-}
-
-body[data-theme="light"] .chess-coord-label {
-  color: rgba(15, 23, 42, 0.55);
-}
-
-.chess-coord-label.rank-label {
-  top: 3px;
-  left: 4px;
-}
-
-.chess-coord-label.file-label {
-  bottom: 3px;
-  right: 4px;
+  display: none !important;
 }
 
 /* Move Highlights: Last Move */
@@ -1820,17 +1792,18 @@ body[data-theme="naruto"] .glass-piece-svg.glass-piece-black {
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 10px rgba(244, 63, 94, 0.7));
 }
 
-/* Right-Side Mission Panel */
+/* Right-Side Mission Panel (Compact) */
 .chess-mission-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: 100%;
+  gap: 8px;
+  width: 250px;
+  max-width: 250px;
 }
 
 .chess-panel-card {
-  padding: 14px 16px;
-  border-radius: 18px;
+  padding: 10px 12px;
+  border-radius: 14px;
   background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -1849,11 +1822,11 @@ body[data-theme="light"] .chess-panel-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .chess-panel-title {
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -1865,9 +1838,9 @@ body[data-theme="light"] .chess-panel-title {
 }
 
 .chess-status-badge {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
-  padding: 3px 10px;
+  padding: 2px 8px;
   border-radius: 9999px;
   background: rgba(168, 85, 247, 0.2);
   color: #c084fc;
@@ -1882,14 +1855,14 @@ body[data-theme="light"] .chess-status-badge {
 .chess-telemetry-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  gap: 4px;
 }
 
 .chess-tele-chip {
   display: flex;
   flex-direction: column;
-  padding: 6px 4px;
-  border-radius: 10px;
+  padding: 4px 2px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   text-align: center;
@@ -1901,7 +1874,7 @@ body[data-theme="light"] .chess-tele-chip {
 }
 
 .tele-lbl {
-  font-size: 0.58rem;
+  font-size: 0.55rem;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.5);
   letter-spacing: 0.04em;
@@ -1912,7 +1885,7 @@ body[data-theme="light"] .tele-lbl {
 }
 
 .tele-val {
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   font-weight: 800;
   color: #f1f5f9;
   font-family: 'Outfit', sans-serif;
@@ -1945,7 +1918,7 @@ body[data-theme="light"] .chess-history-table-header {
 }
 
 .chess-history-scroll {
-  max-height: 180px;
+  max-height: 110px;
   overflow-y: auto;
   scrollbar-width: thin;
   display: flex;
@@ -1955,10 +1928,10 @@ body[data-theme="light"] .chess-history-table-header {
 }
 
 .chess-history-empty {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.4);
   text-align: center;
-  padding: 16px 0;
+  padding: 12px 0;
   font-style: italic;
 }
 
@@ -1969,9 +1942,9 @@ body[data-theme="light"] .chess-history-empty {
 .chess-history-row {
   display: grid;
   grid-template-columns: 36px 1fr 1fr;
-  padding: 4px 8px;
+  padding: 3px 6px;
   border-radius: 6px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-family: 'Outfit', sans-serif;
   color: #e2e8f0;
 }
@@ -1996,7 +1969,7 @@ body[data-theme="light"] .chess-history-row:nth-child(even) {
 
 .cell-num {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
 }
 
 body[data-theme="light"] .cell-num {
@@ -2008,25 +1981,25 @@ body[data-theme="light"] .cell-num {
   font-weight: 700;
 }
 
-/* Quick Actions Grid */
+/* Quick Actions Grid (Compact 2x2) */
 .chess-quick-actions-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 
 .chess-action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 38px;
-  padding: 0 10px;
-  border-radius: 12px;
+  gap: 4px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #f1f5f9;
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   font-weight: 700;
   font-family: 'Outfit', sans-serif;
   cursor: pointer;
@@ -2083,7 +2056,8 @@ body[data-theme="light"] .chess-action-btn {
 /* Responsive Mobile Layout */
 @media (max-width: 920px) {
   .chess-mission-panel {
-    max-width: 580px;
+    width: 100% !important;
+    max-width: min(94vw, 520px) !important;
     margin: 0 auto;
   }
 }
@@ -9353,12 +9327,25 @@ body[data-theme="light"] .snake-btn.secondary {
 /* =========================================================================
    SNAKE TOP MATCH CONTROLS & PILL ALIGNMENT (PREVENT CONTENT SPILL)
    ========================================================================= */
-#gameView[data-active-game="snake"] .game-match-bar {
+#gameView[data-active-game="snake"] .game-match-bar,
+#gameView[data-active-game="snake"] .game-match-bar.collapsed {
   width: auto !important;
   max-width: min(calc(100% - 24px), 1240px) !important;
+  margin: 6px auto 6px 20px !important;
+  margin-left: 20px !important;
+  margin-right: auto !important;
+  align-self: flex-start !important;
   padding: 0 clamp(14px, 1.6vw, 22px) !important;
   gap: clamp(8px, 1.2vw, 14px) !important;
   box-sizing: border-box !important;
+}
+
+#gameView[data-active-game="snake"] .game-match-bar.collapsed {
+  padding: 6px 14px !important;
+  margin: 6px auto 6px 20px !important;
+  margin-left: 20px !important;
+  margin-right: auto !important;
+  align-self: flex-start !important;
 }
 
 .snake-match-controls {
@@ -9446,6 +9433,16 @@ body[data-theme="light"] .snake-btn.secondary {
     flex-wrap: wrap !important;
     justify-content: center !important;
     gap: 6px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  #gameView[data-active-game="snake"] .game-match-bar,
+  #gameView[data-active-game="snake"] .game-match-bar.collapsed {
+    margin: 4px auto 4px 10px !important;
+    margin-left: 10px !important;
+    margin-right: auto !important;
+    align-self: flex-start !important;
   }
 }
 
