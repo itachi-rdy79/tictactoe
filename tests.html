@@ -388,6 +388,70 @@
         }
 
         // -------------------------------------------------------------
+        // TEST 11: Sea Glass Chess Arena Cockpit, Themes, Coordinates & Move History
+        // -------------------------------------------------------------
+        console.log("[TEST] Starting Test 11 (Chess Arena Upgrade)...");
+        try {
+          // Switch to Chess mode
+          win.hubState.game = "chess";
+          win.hubState.opponent = "ai";
+          if (win.modeSelect) win.modeSelect.value = "chess-ai";
+          win.initChess();
+          win.showOnlyActiveGame("chess");
+
+          const chessGame = doc.getElementById("chessGame");
+          const chessBoard = doc.getElementById("chessBoard");
+          const boardWrap = doc.getElementById("boardWrap");
+          const opponentCard = doc.getElementById("chessOpponentCard");
+          const playerCard = doc.getElementById("chessPlayerCard");
+          const statusBadge = doc.getElementById("chessMatchStatusBadge");
+          const historyScroll = doc.getElementById("chessHistoryScroll");
+
+          const arenaVisible = chessGame && !chessGame.classList.contains("hidden");
+          const cells = chessBoard.querySelectorAll(".chess-cell");
+          const cellCountOk = (cells.length === 64);
+
+          // Coordinates
+          const fileCoords = chessBoard.querySelectorAll(".chess-coord-file");
+          const rankCoords = chessBoard.querySelectorAll(".chess-coord-rank");
+          const coordsOk = (fileCoords.length > 0 && rankCoords.length > 0);
+
+          // Themes
+          win.applyChessTheme("ocean");
+          const oceanOk = (boardWrap.dataset.chessTheme === "ocean");
+          win.cycleChessTheme();
+          const cycleOk = (boardWrap.dataset.chessTheme === "obsidian");
+          win.applyChessTheme("amethyst"); // return to default
+
+          // Board Flipping
+          win.toggleChessFlip();
+          const flippedOk = (win.chessFlipped === true);
+          win.toggleChessFlip(); // unflip
+          const unFlippedOk = (win.chessFlipped === false);
+
+          // Human move 1. e4: click e2 (row 6, col 4), then click e4 (row 4, col 4)
+          win.onChessClick(6, 4);
+          win.onChessClick(4, 4);
+
+          const lastMoveOk = (win.chessLastMove && win.chessLastMove.fr === 6 && win.chessLastMove.fc === 4 && win.chessLastMove.tr === 4 && win.chessLastMove.tc === 4);
+          const historyOk = (Array.isArray(win.chessMoveHistory) && win.chessMoveHistory.length > 0 && win.chessMoveHistory[0].white === "e4");
+
+          // Undo move
+          doc.getElementById("undoBtn")?.click();
+          const undoOk = (Array.isArray(win.chessMoveHistory) && win.chessMoveHistory.length === 0 && win.chessLastMove === null);
+
+          console.log("[TEST-11-DEBUG]", { arenaVisible, cellCountOk, coordsOk, oceanOk, cycleOk, flippedOk, unFlippedOk, lastMoveOk, historyOk, undoOk });
+          assert(
+            "Sea Glass Chess Arena Cockpit & Move History",
+            arenaVisible && cellCountOk && coordsOk && oceanOk && cycleOk && flippedOk && unFlippedOk && lastMoveOk && historyOk && undoOk,
+            `Diagnostics: arena:${arenaVisible}, cells:${cellCountOk}, coords:${coordsOk}, ocean:${oceanOk}, cycle:${cycleOk}, flip:${flippedOk}, unflip:${unFlippedOk}, lastMv:${lastMoveOk}, hist:${historyOk}, undo:${undoOk}`
+          );
+        } catch (e) {
+          console.error("[TEST] Error in Test 11:", e);
+          assert("Sea Glass Chess Arena Cockpit & Move History", false, e.message);
+        }
+
+        // -------------------------------------------------------------
         // Final Summary
         // -------------------------------------------------------------
         const allPassed = (failedCount === 0);

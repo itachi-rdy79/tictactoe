@@ -14,7 +14,7 @@
   <meta name="theme-color" content="#060913" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="stylesheet" href="style.css?v=61.2" />
+  <link rel="stylesheet" href="style.css?v=61.3" />
 </head>
 <body data-theme="dark">
   <!-- Dynamic Color Background (Adapts to GAP Palette in Dark & White Theme) -->
@@ -662,7 +662,135 @@
             <div class="stage-drag-handle" title="Drag board left or right with mouse" aria-label="Drag board left or right"><span class="stage-drag-bar"></span></div>
             <svg id="tttWinLine" class="ttt-win-line" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
             <div id="tttBoard" class="ttt-board"></div>
-            <div id="chessBoard" class="chess-board hidden"></div>
+            <!-- Chess Arena (Modern Sea Glass Chess Platform) -->
+            <div id="chessGame" class="chess-arena hidden">
+              <div class="chess-cockpit-layout">
+                <!-- Main Center Column: Opponent Card + Chess Board Stage + Player Card -->
+                <div class="chess-main-col">
+                  <!-- Opponent (Top) Player Card -->
+                  <div class="chess-player-strip opponent-strip" id="chessOpponentCard">
+                    <div class="chess-player-identity">
+                      <div class="chess-avatar-badge" id="chessOpponentAvatar">🤖</div>
+                      <div class="chess-player-meta">
+                        <div class="chess-name-row">
+                          <span class="chess-player-name" id="chessOpponentName">AI Opponent</span>
+                          <span class="chess-color-pill" id="chessOpponentColorBadge">Black</span>
+                        </div>
+                        <div class="chess-player-status" id="chessOpponentStatus">Waiting</div>
+                      </div>
+                    </div>
+                    <div class="chess-player-aside">
+                      <!-- Captured pieces Black has taken from White -->
+                      <div class="chess-captured-shelf" id="chessTopCaptured"></div>
+                      <div class="chess-material-badge hidden" id="chessTopMaterial">+0</div>
+                      <div class="chess-clock-pill hidden" id="chessOpponentClock">--:--</div>
+                    </div>
+                  </div>
+
+                  <!-- Chess Board Stage with Outer Coordinates & Floating Glass Board -->
+                  <div class="chess-board-shell" id="chessBoardShell">
+                    <div class="chess-board-frame">
+                      <div id="chessBoard" class="chess-board"></div>
+                    </div>
+                  </div>
+
+                  <!-- Player (Bottom) Player Card -->
+                  <div class="chess-player-strip player-strip" id="chessPlayerCard">
+                    <div class="chess-player-identity">
+                      <div class="chess-avatar-badge" id="chessPlayerAvatar">👤</div>
+                      <div class="chess-player-meta">
+                        <div class="chess-name-row">
+                          <span class="chess-player-name" id="chessPlayerName">You</span>
+                          <span class="chess-color-pill white-pill" id="chessPlayerColorBadge">White</span>
+                        </div>
+                        <div class="chess-player-status" id="chessPlayerStatus">Your Turn</div>
+                      </div>
+                    </div>
+                    <div class="chess-player-aside">
+                      <!-- Captured pieces White has taken from Black -->
+                      <div class="chess-captured-shelf" id="chessBottomCaptured"></div>
+                      <div class="chess-material-badge hidden" id="chessBottomMaterial">+0</div>
+                      <div class="chess-clock-pill hidden" id="chessPlayerClock">--:--</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Side Mission Control Panel (Desktop) / Collapsible Drawer (Mobile) -->
+                <aside class="chess-mission-panel" id="chessMissionPanel">
+                  <!-- Match Status & Telemetry Card -->
+                  <div class="chess-panel-card chess-status-card">
+                    <div class="chess-panel-card-head">
+                      <span class="chess-panel-title">MATCH STATUS</span>
+                      <span class="chess-status-badge" id="chessMatchStatusBadge">White's Turn</span>
+                    </div>
+                    <div class="chess-telemetry-row">
+                      <div class="chess-tele-chip">
+                        <span class="tele-lbl">MODE</span>
+                        <b class="tele-val" id="chessPanelMode">vs AI</b>
+                      </div>
+                      <div class="chess-tele-chip">
+                        <span class="tele-lbl">DIFF</span>
+                        <b class="tele-val" id="chessPanelDiff">Med</b>
+                      </div>
+                      <div class="chess-tele-chip">
+                        <span class="tele-lbl">MOVES</span>
+                        <b class="tele-val" id="chessPanelMoveCount">0</b>
+                      </div>
+                      <div class="chess-tele-chip">
+                        <span class="tele-lbl">50-RULE</span>
+                        <b class="tele-val" id="chessPanelFiftyClock">0/100</b>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Move History Table (Scrollable, Numbered Moves) -->
+                  <div class="chess-panel-card chess-history-card">
+                    <div class="chess-panel-card-head">
+                      <span class="chess-panel-title">MOVE HISTORY</span>
+                      <button type="button" class="chess-mini-action-btn" id="chessHistoryMobileToggle" title="Toggle Move History">
+                        <span id="chessHistoryToggleIcon">📜</span>
+                        <span id="chessHistoryToggleText">History</span>
+                      </button>
+                    </div>
+                    <div class="chess-history-table-wrap" id="chessHistoryTableWrap">
+                      <div class="chess-history-table-header">
+                        <span class="th-num">#</span>
+                        <span class="th-move">WHITE</span>
+                        <span class="th-move">BLACK</span>
+                      </div>
+                      <div class="chess-history-scroll" id="chessHistoryScroll">
+                        <div class="chess-history-empty" id="chessHistoryEmpty">No moves played yet</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Quick Actions Toolbar -->
+                  <div class="chess-panel-card chess-actions-card">
+                    <div class="chess-panel-card-head">
+                      <span class="chess-panel-title">CHESS ACTIONS</span>
+                    </div>
+                    <div class="chess-quick-actions-grid">
+                      <button type="button" class="chess-action-btn" id="chessFlipBoardBtn" title="Flip Board Orientation (Change Perspective)">
+                        <span class="action-icon">🔄</span>
+                        <span class="action-lbl">Flip Board</span>
+                      </button>
+                      <button type="button" class="chess-action-btn" id="chessThemeBtn" title="Cycle Chess Theme (Amethyst, Ocean, Obsidian, Emerald)">
+                        <span class="chess-theme-pip" id="chessThemePreviewPip"></span>
+                        <span class="action-lbl" id="chessThemeNameLabel">Amethyst</span>
+                      </button>
+                      <button type="button" class="chess-action-btn" id="chessHintsToggleBtn" title="Toggle Move Possibilities">
+                        <span class="action-icon">💡</span>
+                        <span class="action-lbl" id="chessHintsLabel">Hints: Off</span>
+                      </button>
+                      <button type="button" class="chess-action-btn" id="chessUndoBtn" title="Undo Last Move (Z)">
+                        <span class="action-icon">↩️</span>
+                        <span class="action-lbl">Undo</span>
+                      </button>
+                    </div>
+                  </div>
+                </aside>
+              </div>
+            </div>
             
             <!-- Wordle Container (Authentic Josh Wardle Powerlanguage Engine) -->
             <div id="wordleGame" class="wordle-arena hidden">
@@ -1461,6 +1589,6 @@
   </div>
 
   <script src="data/wordle-words.js?v=60.0"></script>
-  <script src="script.js?v=61.2"></script>
+  <script src="script.js?v=61.3"></script>
 </body>
 </html>
