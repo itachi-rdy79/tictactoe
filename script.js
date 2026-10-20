@@ -855,6 +855,18 @@ function syncHud() {
     }
   }
 
+  // Chess Top Dashboard Match & Layout Controls in Top Match Bar
+  const chessMatchGroup = document.getElementById("chessMatchGroup");
+  if (chessMatchGroup) {
+    if (isChess) {
+      chessMatchGroup.style.display = "flex";
+      chessMatchGroup.classList.remove("hidden");
+    } else {
+      chessMatchGroup.style.setProperty("display", "none", "important");
+      chessMatchGroup.classList.add("hidden");
+    }
+  }
+
   // Difficulty selector for AI-supporting games: TTT, Chess, Sequence, Poker & Ludo King (when vs AI is active)
   const supportsAi = isTTT || isChess || isSequence || isPoker || isLudo;
   if (difficultyGroup) {
@@ -874,6 +886,59 @@ function syncHud() {
     }
   }
 }
+
+// Dynamic Dock Positioning (Right / Left)
+function setDockPosition(pos) {
+  const dock = document.getElementById('quickDock');
+  if (!dock) return;
+  dock.classList.remove('dock-pos-right', 'dock-pos-left');
+  if (pos === 'left') {
+    dock.classList.add('dock-pos-left');
+  } else {
+    dock.classList.add('dock-pos-right');
+  }
+  try {
+    localStorage.setItem('gap_dock_position', pos);
+  } catch(e) {}
+  const topDockText = document.getElementById('chessTopDockPosText');
+  if (topDockText) topDockText.textContent = 'Dock: ' + (pos === 'left' ? 'Left' : 'Right');
+  const panelDockSideLabel = document.getElementById('chessDockSideLabel');
+  if (panelDockSideLabel) panelDockSideLabel.textContent = 'Dock: ' + (pos === 'left' ? 'Left' : 'Right');
+}
+window.setDockPosition = setDockPosition;
+
+function toggleDockPosition() {
+  const dock = document.getElementById('quickDock');
+  const isLeft = dock?.classList.contains('dock-pos-left');
+  setDockPosition(isLeft ? 'right' : 'left');
+}
+window.toggleDockPosition = toggleDockPosition;
+
+// Chess Cockpit Side (Panel on Right vs Panel on Left)
+function setChessPanelSide(side) {
+  const cockpit = document.getElementById('chessCockpitLayout');
+  if (!cockpit) return;
+  cockpit.classList.toggle('panel-left', side === 'left');
+  try {
+    localStorage.setItem('gap_chess_panel_side', side);
+  } catch(e) {}
+  const swapText = document.getElementById('chessLayoutSwapText');
+  if (swapText) swapText.textContent = 'Panel: ' + (side === 'left' ? 'Left' : 'Right');
+  const swapIcon = document.getElementById('chessLayoutSwapIcon');
+  if (swapIcon) swapIcon.textContent = (side === 'left' ? '◨' : '◧');
+  const panelSideLabel = document.getElementById('chessPanelSideLabel');
+  if (panelSideLabel) panelSideLabel.textContent = 'Panel: ' + (side === 'left' ? 'Left' : 'Right');
+  const panelSideIcon = document.getElementById('chessPanelSideIcon');
+  if (panelSideIcon) panelSideIcon.textContent = (side === 'left' ? '◨' : '◧');
+}
+window.setChessPanelSide = setChessPanelSide;
+
+function toggleChessPanelSide() {
+  const cockpit = document.getElementById('chessCockpitLayout');
+  const isLeft = cockpit?.classList.contains('panel-left');
+  setChessPanelSide(isLeft ? 'right' : 'left');
+}
+window.toggleChessPanelSide = toggleChessPanelSide;
 
 /* ---------- Exclusive Single-Game Matrix Display Guard ---------- */
 function showOnlyActiveGame(gameKey) {
@@ -1007,10 +1072,10 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
-  // Hide TTT HUD turn status pill & adjust arena when playing Pattu, Sequence, Ludo, or Snake
+  // Hide TTT HUD turn status pill & adjust arena when playing Pattu, Sequence, Ludo, Snake, or Chess
   const statusWrapEl = document.querySelector(".status-wrap");
   const arenaEl = document.querySelector(".arena");
-  if (isPalace || isSequence || isLudo || isSnake) {
+  if (isPalace || isSequence || isLudo || isSnake || isChess) {
     arenaEl?.classList.remove("pattu-arena-mode");
     statusWrapEl?.classList.add("hidden");
     statusWrapEl?.style.setProperty("display", "none", "important");
@@ -1056,6 +1121,12 @@ function showOnlyActiveGame(gameKey) {
   if (isChess) {
     boardWrap?.classList.add("chess-mode");
     if (boardWrap) boardWrap.dataset.chessTheme = (typeof chessTheme !== "undefined" ? chessTheme : "amethyst");
+    try {
+      const savedSide = localStorage.getItem("gap_chess_panel_side") || "right";
+      setChessPanelSide(savedSide);
+      const savedDock = localStorage.getItem("gap_dock_position") || "right";
+      setDockPosition(savedDock);
+    } catch(e) {}
   }
   else if (isWordle) boardWrap?.classList.add("wordle-mode");
   else if (isPoker) boardWrap?.classList.add("poker-mode");
@@ -2977,6 +3048,22 @@ function renderChess() {
     } else {
       statusBadge.textContent = (chessTurn === "w" ? "White" : "Black") + "'s Turn";
     }
+  }
+
+  // Top Match Bar Dynamic Pill Sync
+  const pillStatusText = document.getElementById("chessPillStatusText");
+  const pillDot = document.getElementById("chessPillDot");
+  if (pillStatusText) {
+    if (chessOver) {
+      pillStatusText.textContent = "Game Over • Move " + moveCount;
+    } else if (activeInCheck) {
+      pillStatusText.textContent = "⚠️ Check! • " + (chessTurn === "w" ? "White" : "Black");
+    } else {
+      pillStatusText.textContent = (chessTurn === "w" ? "White's Turn" : "Black's Turn") + " • M" + moveCount;
+    }
+  }
+  if (pillDot) {
+    pillDot.className = "chess-pill-dot" + (activeInCheck ? " in-check" : (chessTurn === "b" ? " black-turn" : ""));
   }
 
   // Telemetry Row
@@ -7656,6 +7743,31 @@ document.getElementById("chessHistoryMobileToggle")?.addEventListener("click", (
   if (wrap) wrap.classList.toggle("open-mobile");
 });
 
+document.getElementById("chessLayoutSwapBtn")?.addEventListener("click", () => {
+  resetIdleWatchdog();
+  toggleChessPanelSide();
+});
+document.getElementById("chessPanelSideBtn")?.addEventListener("click", () => {
+  resetIdleWatchdog();
+  toggleChessPanelSide();
+});
+document.getElementById("chessTopDockPosBtn")?.addEventListener("click", () => {
+  resetIdleWatchdog();
+  toggleDockPosition();
+});
+document.getElementById("chessDockPosBtn")?.addEventListener("click", () => {
+  resetIdleWatchdog();
+  toggleDockPosition();
+});
+document.getElementById("miniPillPosBtn")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleDockPosition();
+});
+document.getElementById("quickDockPosBtn")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleDockPosition();
+});
+
 /* ---------- HUD Bar Events ---------- */
 gameTypePills?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-game]");
@@ -8422,6 +8534,8 @@ initScenicLandingAndNav();
     if (saved === 'true') {
       dock?.classList.add('collapsed');
     }
+    const savedPos = localStorage.getItem('gap_dock_position') || 'right';
+    setDockPosition(savedPos);
   } catch(e) {}
 
   toggleBtn?.addEventListener('click', (e) => {

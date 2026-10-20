@@ -1,17 +1,17 @@
 /* =========================================================================
-   GAP Arcade — PWA Offline Service Worker (v61.3 Premium Sea Glass Chess Arena)
+   GAP Arcade — PWA Offline Service Worker (v61.4 Dynamic Pill & Compact Chess Arena)
    Caches all 10 games, versioned resources, nested games, offline
    dictionaries, and local media for 100% offline operation.
    ========================================================================= */
 
-const CACHE_NAME = "gap-arcade-v61.3";
+const CACHE_NAME = "gap-arcade-v61.4";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
   "./style.css",
-  "./style.css?v=61.3",
+  "./style.css?v=61.4",
   "./script.js",
-  "./script.js?v=61.3",
+  "./script.js?v=61.4",
   "./manifest.json",
   "./data/wordle-words.js",
   "./data/wordle-words.js?v=60.0",

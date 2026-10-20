@@ -14,7 +14,7 @@
   <meta name="theme-color" content="#060913" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="stylesheet" href="style.css?v=61.3" />
+  <link rel="stylesheet" href="style.css?v=61.4" />
 </head>
 <body data-theme="dark">
   <!-- Dynamic Color Background (Adapts to GAP Palette in Dark & White Theme) -->
@@ -513,6 +513,24 @@
             </button>
           </div>
         </div>
+        <!-- Chess Top Dashboard Dynamic Match & Layout Controls -->
+        <div class="group hidden" id="chessMatchGroup">
+          <div class="seg" id="chessMatchPills">
+            <span class="seg-btn dynamic-status-btn" id="chessDynamicStatusPill" title="Live Turn & Move Telemetry">
+              <span class="chess-pill-dot" id="chessPillDot"></span>
+              <span id="chessPillStatusText">White's Turn</span>
+            </span>
+            <button class="seg-btn chess-layout-swap-btn" id="chessLayoutSwapBtn" type="button" title="Swap Mission Control Panel Left or Right">
+              <span id="chessLayoutSwapIcon">◧</span>
+              <span id="chessLayoutSwapText">Panel: Right</span>
+            </button>
+            <button class="seg-btn chess-dock-pos-btn" id="chessTopDockPosBtn" type="button" title="Dock Match Controls Left or Right">
+              <span id="chessTopDockPosIcon">⚓</span>
+              <span id="chessTopDockPosText">Dock: Right</span>
+            </button>
+          </div>
+        </div>
+
         <!-- PC Guesser (Cinema Guesser) Top Dashboard Dynamic Controls -->
         <div class="group hidden" id="pattuMatchGroup">
           <div class="seg" id="pattuMatchPills">
@@ -664,7 +682,7 @@
             <div id="tttBoard" class="ttt-board"></div>
             <!-- Chess Arena (Modern Sea Glass Chess Platform) -->
             <div id="chessGame" class="chess-arena hidden">
-              <div class="chess-cockpit-layout">
+              <div class="chess-cockpit-layout" id="chessCockpitLayout">
                 <!-- Main Center Column: Opponent Card + Chess Board Stage + Player Card -->
                 <div class="chess-main-col">
                   <!-- Opponent (Top) Player Card -->
@@ -777,6 +795,14 @@
                       <button type="button" class="chess-action-btn" id="chessThemeBtn" title="Cycle Chess Theme (Amethyst, Ocean, Obsidian, Emerald)">
                         <span class="chess-theme-pip" id="chessThemePreviewPip"></span>
                         <span class="action-lbl" id="chessThemeNameLabel">Amethyst</span>
+                      </button>
+                      <button type="button" class="chess-action-btn" id="chessPanelSideBtn" title="Move Controls Panel to Left or Right side">
+                        <span class="action-icon" id="chessPanelSideIcon">◧</span>
+                        <span class="action-lbl" id="chessPanelSideLabel">Panel: Right</span>
+                      </button>
+                      <button type="button" class="chess-action-btn" id="chessDockPosBtn" title="Move Bottom Match Controls Dock to Left or Right corner">
+                        <span class="action-icon" id="chessDockSideIcon">⚓</span>
+                        <span class="action-lbl" id="chessDockSideLabel">Dock: Right</span>
                       </button>
                       <button type="button" class="chess-action-btn" id="chessHintsToggleBtn" title="Toggle Move Possibilities">
                         <span class="action-icon">💡</span>
@@ -1320,6 +1346,7 @@
       <div class="dock-mini-pill" id="dockMiniPill" role="button" tabindex="0" title="Click to Expand Game Controls">
         <span class="mini-pill-badge">⚡ Match Controls</span>
         <span class="mini-pill-sub" id="dockMiniSummary">Timer • Actions • Scores</span>
+        <button type="button" class="mini-pill-pos-btn" id="miniPillPosBtn" title="Move Match Controls Left / Right" aria-label="Move dock to left or right">⇄</button>
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
       </div>
       <!-- Island 1: Timer Controls -->
@@ -1376,6 +1403,17 @@
           <span class="stats-hint-badge">📊 Stats</span>
         </div>
       </div>
+      <!-- Move Dock Left / Right Button -->
+      <button id="quickDockPosBtn" class="dock-toggle-btn dock-pos-btn" type="button" title="Move Match Controls Left / Right" aria-label="Move dock left or right">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 3 21 3 21 8"></polyline>
+          <line x1="4" y1="20" x2="21" y2="3"></line>
+          <polyline points="21 16 21 21 16 21"></polyline>
+          <line x1="15" y1="15" x2="21" y2="21"></line>
+          <polyline points="4 8 4 3 9 3"></polyline>
+          <line x1="4" y1="3" x2="9" y2="9"></line>
+        </svg>
+      </button>
       <!-- Minimize Dock Button -->
       <button id="quickDockToggleBtn" class="dock-toggle-btn" type="button" title="Minimize Controls for clean view">
         <svg class="dock-toggle-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1589,6 +1627,6 @@
   </div>
 
   <script src="data/wordle-words.js?v=60.0"></script>
-  <script src="script.js?v=61.3"></script>
+  <script src="script.js?v=61.4"></script>
 </body>
 </html>

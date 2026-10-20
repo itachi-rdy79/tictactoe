@@ -440,15 +440,33 @@
           doc.getElementById("undoBtn")?.click();
           const undoOk = (Array.isArray(win.chessMoveHistory) && win.chessMoveHistory.length === 0 && win.chessLastMove === null);
 
-          console.log("[TEST-11-DEBUG]", { arenaVisible, cellCountOk, coordsOk, oceanOk, cycleOk, flippedOk, unFlippedOk, lastMoveOk, historyOk, undoOk });
+          // Test Dynamic Pill, Hidden status-wrap & Controls Layout Position
+          const statusWrap = doc.querySelector(".status-wrap");
+          const statusWrapHidden = statusWrap && (statusWrap.classList.contains("hidden") || statusWrap.style.display === "none");
+
+          win.syncHud();
+          const chessMatchGroup = doc.getElementById("chessMatchGroup");
+          const dynamicPillOk = chessMatchGroup && !chessMatchGroup.classList.contains("hidden");
+
+          win.setDockPosition("left");
+          const dockLeftOk = doc.getElementById("quickDock")?.classList.contains("dock-pos-left");
+          win.setDockPosition("right");
+          const dockRightOk = doc.getElementById("quickDock")?.classList.contains("dock-pos-right");
+
+          win.setChessPanelSide("left");
+          const panelLeftOk = doc.getElementById("chessCockpitLayout")?.classList.contains("panel-left");
+          win.setChessPanelSide("right");
+          const panelRightOk = !doc.getElementById("chessCockpitLayout")?.classList.contains("panel-left");
+
+          console.log("[TEST-11-DEBUG]", { arenaVisible, cellCountOk, coordsOk, oceanOk, cycleOk, flippedOk, unFlippedOk, lastMoveOk, historyOk, undoOk, statusWrapHidden, dynamicPillOk, dockLeftOk, dockRightOk, panelLeftOk, panelRightOk });
           assert(
-            "Sea Glass Chess Arena Cockpit & Move History",
-            arenaVisible && cellCountOk && coordsOk && oceanOk && cycleOk && flippedOk && unFlippedOk && lastMoveOk && historyOk && undoOk,
-            `Diagnostics: arena:${arenaVisible}, cells:${cellCountOk}, coords:${coordsOk}, ocean:${oceanOk}, cycle:${cycleOk}, flip:${flippedOk}, unflip:${unFlippedOk}, lastMv:${lastMoveOk}, hist:${historyOk}, undo:${undoOk}`
+            "Sea Glass Chess Arena Cockpit, Dynamic Pill & Layout Controls",
+            arenaVisible && cellCountOk && coordsOk && oceanOk && cycleOk && flippedOk && unFlippedOk && lastMoveOk && historyOk && undoOk && statusWrapHidden && dynamicPillOk && dockLeftOk && dockRightOk && panelLeftOk && panelRightOk,
+            `Diagnostics: arena:${arenaVisible}, cells:${cellCountOk}, coords:${coordsOk}, ocean:${oceanOk}, cycle:${cycleOk}, flip:${flippedOk}, unflip:${unFlippedOk}, lastMv:${lastMoveOk}, hist:${historyOk}, undo:${undoOk}, noWrap:${statusWrapHidden}, pill:${dynamicPillOk}, dockL:${dockLeftOk}, dockR:${dockRightOk}, panelL:${panelLeftOk}, panelR:${panelRightOk}`
           );
         } catch (e) {
           console.error("[TEST] Error in Test 11:", e);
-          assert("Sea Glass Chess Arena Cockpit & Move History", false, e.message);
+          assert("Sea Glass Chess Arena Cockpit, Dynamic Pill & Layout Controls", false, e.message);
         }
 
         // -------------------------------------------------------------

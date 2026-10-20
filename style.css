@@ -958,14 +958,14 @@ body[data-theme="light"] .board-shell {
 .board-shell.chess-mode {
   contain: layout !important;
   transform: none !important;
-  width: min(96vw, 1060px) !important;
-  max-width: 1060px !important;
+  width: min(96vw, 860px) !important;
+  max-width: 860px !important;
   height: auto !important;
   min-height: auto !important;
   aspect-ratio: auto !important;
   overflow: visible !important;
   cursor: default !important;
-  padding: clamp(12px, 2vmin, 22px) !important;
+  padding: clamp(10px, 1.8vmin, 18px) !important;
   margin: 0 auto !important;
   border-radius: 28px !important;
   background: radial-gradient(circle at 50% 15%, rgba(147, 51, 234, 0.14) 0%, rgba(15, 23, 42, 0.88) 75%) !important;
@@ -1267,16 +1267,36 @@ body[data-theme="light"] .ttt-cell.win {
 
 .chess-cockpit-layout {
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) 340px;
-  gap: clamp(16px, 2.5vmin, 28px);
+  grid-template-columns: minmax(280px, min(50vh, 410px)) 320px;
+  justify-content: center;
+  gap: clamp(12px, 2vmin, 22px);
   width: 100%;
   align-items: start;
+  transition: all 0.25s ease;
+}
+
+/* Panel Left Layout (Cockpit panel swapped to left side) */
+.chess-cockpit-layout.panel-left {
+  grid-template-columns: 320px minmax(280px, min(50vh, 410px));
+}
+.chess-cockpit-layout.panel-left .chess-main-col {
+  order: 2;
+}
+.chess-cockpit-layout.panel-left .chess-mission-panel {
+  order: 1;
 }
 
 @media (max-width: 920px) {
-  .chess-cockpit-layout {
+  .chess-cockpit-layout,
+  .chess-cockpit-layout.panel-left {
     grid-template-columns: 1fr;
     justify-items: center;
+  }
+  .chess-cockpit-layout.panel-left .chess-main-col {
+    order: 1;
+  }
+  .chess-cockpit-layout.panel-left .chess-mission-panel {
+    order: 2;
   }
 }
 
@@ -1285,9 +1305,9 @@ body[data-theme="light"] .ttt-cell.win {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 580px;
+  max-width: min(50vh, 410px);
   margin: 0 auto;
-  gap: 12px;
+  gap: 8px;
 }
 
 /* Player Strips (Top & Bottom) */
@@ -1296,8 +1316,8 @@ body[data-theme="light"] .ttt-cell.win {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 8px 16px;
-  border-radius: 18px;
+  padding: 6px 14px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
@@ -1332,13 +1352,13 @@ body[data-theme="light"] .chess-player-strip.is-active-turn {
 }
 
 .chess-avatar-badge {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
@@ -1481,9 +1501,9 @@ body[data-theme="light"] .chess-clock-pill {
 .chess-board-shell {
   position: relative;
   width: 100%;
-  max-width: 580px;
+  max-width: min(50vh, 410px);
   aspect-ratio: 1 / 1;
-  border-radius: 24px;
+  border-radius: 20px;
   padding: 6px;
   box-sizing: border-box;
   background: rgba(10, 15, 28, 0.75);
@@ -7144,6 +7164,125 @@ body[data-theme="light"] .mini-pill-sub {
 
 .quick-dock.sea-glass-deck.collapsed .dock-mini-pill {
   display: inline-flex !important;
+}
+
+/* Quick-Dock Left / Right Docking Positioning */
+body[data-theme="dark"] .quick-dock.sea-glass-deck.dock-pos-right,
+body[data-theme="light"] .quick-dock.sea-glass-deck.dock-pos-right,
+body .quick-dock.sea-glass-deck.dock-pos-right,
+.game-view .quick-dock.sea-glass-deck.dock-pos-right,
+#quickDock.sea-glass-deck.dock-pos-right {
+  left: auto !important;
+  right: 20px !important;
+  transform: none !important;
+}
+
+body[data-theme="dark"] .quick-dock.sea-glass-deck.dock-pos-left,
+body[data-theme="light"] .quick-dock.sea-glass-deck.dock-pos-left,
+body .quick-dock.sea-glass-deck.dock-pos-left,
+.game-view .quick-dock.sea-glass-deck.dock-pos-left,
+#quickDock.sea-glass-deck.dock-pos-left {
+  left: 20px !important;
+  right: auto !important;
+  transform: none !important;
+}
+
+@media (max-width: 680px) {
+  body .quick-dock.sea-glass-deck.dock-pos-right,
+  body .quick-dock.sea-glass-deck.dock-pos-left,
+  #quickDock.sea-glass-deck.dock-pos-right,
+  #quickDock.sea-glass-deck.dock-pos-left {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+/* Mini Pill Position Toggle Button */
+.mini-pill-pos-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #f1f5f9;
+  border-radius: 8px;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin: 0 4px;
+  transition: all 0.2s ease;
+}
+
+.mini-pill-pos-btn:hover {
+  background: rgba(45, 212, 191, 0.25);
+  border-color: #2dd4bf;
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+body[data-theme="light"] .mini-pill-pos-btn {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #0f172a;
+}
+
+/* Chess Top Match Controls & Dynamic Pill */
+#chessMatchGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#chessMatchGroup.hidden {
+  display: none !important;
+}
+
+.dynamic-status-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 0 10px !important;
+  font-weight: 700 !important;
+  cursor: default !important;
+  background: rgba(168, 85, 247, 0.16) !important;
+  border-color: rgba(192, 132, 252, 0.4) !important;
+  color: #f3e8ff !important;
+}
+
+body[data-theme="light"] .dynamic-status-btn {
+  background: rgba(168, 85, 247, 0.1) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+  color: #6b21a8 !important;
+}
+
+.chess-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px #ffffff;
+  display: inline-block;
+  transition: all 0.25s ease;
+}
+
+.chess-pill-dot.black-turn {
+  background: #1e1b4b;
+  border: 1px solid #c084fc;
+  box-shadow: 0 0 6px #a855f7;
+}
+
+.chess-pill-dot.in-check {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+  animation: checkPulse 1s infinite alternate;
+}
+
+@keyframes checkPulse {
+  from { transform: scale(0.9); opacity: 0.8; }
+  to { transform: scale(1.2); opacity: 1; }
 }
 
 /* 5x5 Tic-Tac-Toe Grid Refinements */
