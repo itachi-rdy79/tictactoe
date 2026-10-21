@@ -1,17 +1,16 @@
 /* =========================================================================
-   GAP Arcade — PWA Offline Service Worker (v62.2 Neon Sea-Glass Global Themes & Pill Switcher)
+   GAP Arcade — PWA Offline Service Worker (v63.0 Light/Dark Sea-Glass & Wordle Upgrades)
    Caches all 10 games, versioned resources, nested games, offline
    dictionaries, and local media for 100% offline operation.
    ========================================================================= */
 
-const CACHE_NAME = "gap-arcade-v62.2";
+const CACHE_NAME = "gap-arcade-v63.0";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
   "./style.css",
-  "./style.css?v=62.2",
+  "./style.css?v=63.0",
   "./script.js",
-  "./script.js?v=62.2",
   "./manifest.json",
   "./data/wordle-words.js",
   "./data/wordle-words.js?v=60.0",

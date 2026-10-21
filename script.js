@@ -469,6 +469,11 @@ function applyRandomPalette(target = null) {
   root.style.setProperty("--dyn-glow", chosen.glow);
   root.style.setProperty("--dyn-bg-dark", chosen.darkBg);
   root.style.setProperty("--dyn-bg-light", chosen.lightBg);
+  root.style.setProperty("--brand", chosen.brand);
+  root.style.setProperty("--accent", chosen.brand);
+  root.style.setProperty("--accent-secondary", chosen.flame);
+  root.style.setProperty("--accent-glow", chosen.glow);
+  root.style.setProperty("--btn-active-border", chosen.brand);
 
   // Directly transform every GAP logo text element immediately
   document.querySelectorAll(".logo-text, #gapLogoText").forEach(el => {
@@ -751,22 +756,15 @@ function loadHub() {
     if (["ai", "local"].includes(vs)) hubState.opponent = vs;
     if (["easy", "medium", "hard"].includes(diff)) hubState.difficulty = diff;
     if (["off", "15", "30", "45", "60", "90"].includes(timer)) hubState.timer = timer;
-    if (["lagoon", "violet", "gold", "arctic"].includes(theme)) hubState.theme = theme;
-    else if (theme === "dark" || theme === "itachi") hubState.theme = "lagoon";
-    else if (theme === "light" || theme === "white") hubState.theme = "arctic";
-    else if (theme === "naruto") hubState.theme = "gold";
+    if (theme === "light" || theme === "white" || theme === "arctic") hubState.theme = "light";
+    else hubState.theme = "dark";
     const color = q.get("color");
     if (color) applyRandomPalette(color);
   }
 
   // normalize
   if (!["off", "15", "30", "45", "60", "90"].includes(hubState.timer)) hubState.timer = "off";
-  if (!["lagoon", "violet", "gold", "arctic"].includes(hubState.theme)) {
-    if (hubState.theme === "dark" || hubState.theme === "itachi") hubState.theme = "lagoon";
-    else if (hubState.theme === "light" || hubState.theme === "white") hubState.theme = "arctic";
-    else if (hubState.theme === "naruto") hubState.theme = "gold";
-    else hubState.theme = "lagoon";
-  }
+  if (hubState.theme !== "light") hubState.theme = "dark";
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
   if (!["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu", "ludo", "snake"].includes(hubState.game)) hubState.game = "ttt3";
@@ -1119,47 +1117,27 @@ function showOnlyActiveGame(gameKey) {
   }
 }
 
-/* ---------- Four Global Visual Themes (Neon Sea-Glass Arcade) ---------- */
+/* ---------- Appearance Mode (Light & Dark Only) ---------- */
 function themeMeta(theme) {
-  if (theme === "violet") {
+  if (theme === "light" || theme === "white") {
     return {
-      name: "Cyber Violet",
-      text: "Cyber Violet",
-      hint: "Electric Pink & Cyan",
-      icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`
-    };
-  }
-  if (theme === "gold") {
-    return {
-      name: "Obsidian Gold",
-      text: "Obsidian Gold",
-      hint: "Champagne Gold",
-      icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
-    };
-  }
-  if (theme === "arctic") {
-    return {
-      name: "Arctic Glass",
-      text: "Arctic Glass",
-      hint: "Icy Blue & Silver",
-      icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/></svg>`
+      name: "Light Mode",
+      text: "Light Mode",
+      hint: "Bright Glass",
+      icon: `<svg class="theme-icon sun-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.2" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.8"/><line x1="12" y1="2" x2="12" y2="4.2" stroke="#f59e0b" stroke-width="2.2"/><line x1="12" y1="19.8" x2="12" y2="22" stroke="#f59e0b" stroke-width="2.2"/><line x1="4.93" y1="4.93" x2="6.48" y2="6.48" stroke="#f59e0b" stroke-width="2.2"/><line x1="17.52" y1="17.52" x2="19.07" y2="19.07" stroke="#f59e0b" stroke-width="2.2"/><line x1="2" y1="12" x2="4.2" y2="12" stroke="#f59e0b" stroke-width="2.2"/><line x1="19.8" y1="12" x2="22" y2="12" stroke="#f59e0b" stroke-width="2.2"/><line x1="4.93" y1="19.07" x2="6.48" y2="17.52" stroke="#f59e0b" stroke-width="2.2"/><line x1="17.52" y1="6.48" x2="19.07" y2="4.93" stroke="#f59e0b" stroke-width="2.2"/></svg>`
     };
   }
   return {
-    name: "Neon Lagoon",
-    text: "Neon Lagoon",
-    hint: "Emerald & Cyan",
-    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`
+    name: "Dark Mode",
+    text: "Dark Mode",
+    hint: "Deep Sea Glass",
+    icon: `<svg class="theme-icon moon-icon" viewBox="0 0 24 24" width="16" height="16" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`
   };
 }
 
 function setTheme(theme) {
-  // Support aliases seamlessly
-  if (theme === "dark" || theme === "ocean-prism" || theme === "itachi" || theme === "crimson-moon" || theme === "neon-lagoon") theme = "lagoon";
-  if (theme === "light" || theme === "white" || theme === "pearl-rainbow" || theme === "arctic-glass") theme = "arctic";
-  if (theme === "naruto" || theme === "sunset-flame" || theme === "obsidian-gold") theme = "gold";
-  if (theme === "cyber-violet") theme = "violet";
-  if (!["lagoon", "violet", "gold", "arctic"].includes(theme)) theme = "lagoon";
+  if (theme === "light" || theme === "white" || theme === "arctic") theme = "light";
+  else theme = "dark";
 
   hubState.theme = theme;
   if (themeSelect) themeSelect.value = theme;
@@ -1178,15 +1156,26 @@ function setTheme(theme) {
     });
   }
 
-  themeMenu?.querySelectorAll(".theme-item").forEach(b => {
-    b.classList.toggle("active", b.dataset.theme === theme);
-  });
   const modalPills = document.getElementById("modalThemePills");
   if (modalPills) {
     modalPills.querySelectorAll(".seg-btn").forEach(b => {
       b.classList.toggle("active", b.dataset.theme === theme);
     });
   }
+
+  // Update body background according to current theme and active GAP palette
+  const chosen = (typeof DYNAMIC_PALETTES !== "undefined" && DYNAMIC_PALETTES[currentPaletteIdx]) ? DYNAMIC_PALETTES[currentPaletteIdx] : null;
+  if (chosen) {
+    if (theme === "dark") {
+      document.body.style.setProperty("background", chosen.darkBg, "important");
+      document.body.style.setProperty("--bg", chosen.darkBg);
+    } else {
+      document.body.style.setProperty("background", chosen.lightBg, "important");
+      document.body.style.setProperty("--bg", chosen.lightBg);
+    }
+    document.body.style.backgroundAttachment = "fixed";
+  }
+
   persistHub();
 
   if (hubState.game.startsWith("ttt")) renderTTT();
@@ -1198,28 +1187,7 @@ function setTheme(theme) {
   if (hubState.game === "sequence") renderSequenceUI();
 }
 
-themeTrigger?.addEventListener("click", (e) => {
-  e.stopPropagation();
-  const isOpen = themePicker?.classList.contains("open");
-  if (isOpen) {
-    themePicker?.classList.remove("open");
-    themeTrigger?.setAttribute("aria-expanded", "false");
-  } else {
-    themePicker?.classList.add("open");
-    themeTrigger?.setAttribute("aria-expanded", "true");
-  }
-});
-
-themeMenu?.addEventListener("click", (e) => {
-  e.stopPropagation();
-  const b = e.target.closest(".theme-item");
-  if (!b) return;
-  setTheme(b.dataset.theme);
-  themePicker?.classList.remove("open");
-  themeTrigger?.setAttribute("aria-expanded", "false");
-});
-
-// Sea-Glass Theme Switcher capsule in GAP pill
+// Sea-Glass Theme Switcher capsule in GAP pill (Sun Left / Moon Right)
 const themeGlassToggleEl = document.getElementById("themeGlassToggle");
 themeGlassToggleEl?.addEventListener("click", (e) => {
   e.stopPropagation();
@@ -1228,11 +1196,8 @@ themeGlassToggleEl?.addEventListener("click", (e) => {
     setTheme(btn.dataset.theme);
     return;
   }
-  // Click on track cycles through themes with sliding thumb animation
-  const themes = ["lagoon", "violet", "gold", "arctic"];
-  const curIdx = Math.max(0, themes.indexOf(hubState.theme));
-  const nextIdx = (curIdx + 1) % themes.length;
-  setTheme(themes[nextIdx]);
+  // Clicking the capsule track toggles between Light and Dark
+  setTheme(hubState.theme === "light" ? "dark" : "light");
 });
 
 // Chevron button in GAP pill toggles expanded drawer
@@ -3308,13 +3273,37 @@ async function fetchWordDefinition(word) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
         const entry = data[0];
-        const meaning = entry.meanings && entry.meanings[0];
-        const pos = meaning ? meaning.partOfSpeech : "word";
-        const def = (meaning && meaning.definitions && meaning.definitions[0] && meaning.definitions[0].definition) || "";
-        const example = (meaning && meaning.definitions && meaning.definitions[0] && meaning.definitions[0].example) || "";
-        const phonetic = entry.phonetic || (entry.phonetics && entry.phonetics.find(p => p.text)?.text) || "";
+        let bestDef = "";
+        let bestPos = "Word";
+        let bestExample = "";
 
-        const result = { word: w, pos, def, example, phonetic };
+        if (Array.isArray(entry.meanings)) {
+          for (const m of entry.meanings) {
+            const p = m.partOfSpeech ? (m.partOfSpeech.charAt(0).toUpperCase() + m.partOfSpeech.slice(1)) : "Word";
+            if (Array.isArray(m.definitions)) {
+              for (const d of m.definitions) {
+                if (d.definition && !bestDef) {
+                  bestDef = d.definition;
+                  bestPos = p;
+                }
+                if (d.example && !bestExample) {
+                  bestExample = d.example;
+                }
+                if (bestDef && bestExample) break;
+              }
+            }
+            if (bestDef && bestExample) break;
+          }
+        }
+
+        const phonetic = entry.phonetic || (entry.phonetics && entry.phonetics.find(p => p.text)?.text) || "";
+        const result = {
+          word: w,
+          pos: bestPos || "Word",
+          def: bestDef || "Meaning unavailable.",
+          example: bestExample || "",
+          phonetic
+        };
         WORDLE_VOCAB_CACHE[w] = result;
         return result;
       }
@@ -3323,30 +3312,121 @@ async function fetchWordDefinition(word) {
 
   return {
     word: w,
-    pos: "5-letter word",
-    def: `An authentic 5-letter English word in the official Wordle vocabulary lexicon.`
+    pos: "",
+    def: "Meaning unavailable offline.",
+    example: "",
+    offline: true
   };
 }
 
-// Display Definition in End-of-Game Stats Modal
+// Display Actual Meaning in End-of-Game Stats Modal (Wins & Losses)
 async function showWordleEndOfGameDefinition(targetWord) {
   const box = document.getElementById("wordleDefinitionBox");
   const wordEl = document.getElementById("wDefWord");
   const posEl = document.getElementById("wDefPos");
   const meaningEl = document.getElementById("wDefMeaning");
+  const exampleBox = document.getElementById("wDefExampleBox");
+  const exampleEl = document.getElementById("wDefExample");
   if (!box || !wordEl || !meaningEl) return;
 
   wordEl.textContent = targetWord;
-  posEl.textContent = "learning...";
-  meaningEl.textContent = "Loading vocabulary definition...";
+  if (posEl) posEl.textContent = "";
+  meaningEl.textContent = "Loading vocabulary meaning...";
+  if (exampleBox) exampleBox.classList.add("hidden");
   box.classList.remove("hidden");
 
   const data = await fetchWordDefinition(targetWord);
   if (data) {
     wordEl.textContent = data.word + (data.phonetic ? ` ${data.phonetic}` : "");
-    posEl.textContent = data.pos || "word";
-    meaningEl.textContent = data.def || "Official 5-letter word.";
+    if (posEl) {
+      if (data.pos) {
+        posEl.textContent = `— ${data.pos}`;
+        posEl.style.display = "inline";
+      } else {
+        posEl.style.display = "none";
+      }
+    }
+    meaningEl.textContent = data.def || "Meaning unavailable offline.";
+
+    if (exampleBox && exampleEl) {
+      if (data.example) {
+        exampleEl.textContent = `"${data.example}"`;
+        exampleBox.classList.remove("hidden");
+      } else {
+        exampleBox.classList.add("hidden");
+      }
+    }
   }
+}
+
+// Wordle Hard Mode Concept Clue Logic (1 hint per puzzle)
+function getWordleHintStorageKey() {
+  const pfx = (wordleMode === "hourly") ? `wordle_hint_hr_${getWordleHourNumber()}` :
+              (wordleMode === "daily") ? `wordle_hint_day_${wordleDayNumber}` :
+              `wordle_hint_unl_${wordleTarget}`;
+  return pfx;
+}
+
+async function showWordleHardModeHint() {
+  if (!wordleHardMode) return;
+  if (wordleOver) {
+    showWordleToast("Puzzle is already completed!", 2000);
+    return;
+  }
+
+  const hintCard = document.getElementById("wordleHintCard");
+  const hintText = document.getElementById("wordleHintText");
+  if (!hintCard || !hintText) return;
+
+  const storageKey = getWordleHintStorageKey();
+  let cachedHint = null;
+  try {
+    cachedHint = localStorage.getItem(storageKey);
+  } catch (e) {}
+
+  if (cachedHint) {
+    hintText.textContent = cachedHint;
+    hintCard.classList.remove("hidden");
+    return;
+  }
+
+  hintText.textContent = "Retrieving conceptual clue...";
+  hintCard.classList.remove("hidden");
+
+  const data = await fetchWordDefinition(wordleTarget);
+  if (!data || data.offline || !data.def || data.def === "Meaning unavailable offline.") {
+    hintText.textContent = "Hint unavailable offline.";
+    return;
+  }
+
+  // Create concept hint masking the word itself and related stems so answer is NEVER revealed
+  let clue = data.def;
+  const maskRegex = new RegExp("\\b" + wordleTarget + "(s|ed|ing|er|ly)?\\b", "gi");
+  clue = clue.replace(maskRegex, "[this word]");
+
+  let formattedHint = clue;
+  const lower = formattedHint.toLowerCase();
+  if (!lower.startsWith("describes") && !lower.startsWith("refers") && !lower.startsWith("to ")) {
+    const pos = (data.pos || "").toLowerCase();
+    if (pos.includes("noun")) {
+      formattedHint = "Refers to: " + formattedHint;
+    } else if (pos.includes("verb")) {
+      formattedHint = "To: " + formattedHint.charAt(0).toLowerCase() + formattedHint.slice(1);
+    } else if (pos.includes("adjective")) {
+      formattedHint = "Describes: " + formattedHint.charAt(0).toLowerCase() + formattedHint.slice(1);
+    }
+  }
+
+  try {
+    localStorage.setItem(storageKey, formattedHint);
+  } catch (e) {}
+
+  hintText.textContent = formattedHint;
+}
+
+function closeWordleHint() {
+  const hintCard = document.getElementById("wordleHintCard");
+  if (hintCard) hintCard.classList.add("hidden");
 }
 
 // Display Definition in Interactive Popup Modal (board double-tap / click)
@@ -3683,6 +3763,17 @@ function updateWordleControls() {
     hardBtn.title = wordleHardMode ? "Hard Mode (Strict hints ON)" : "Normal Mode (Click to enable Hard Mode)";
   }
 
+  const hintBtn = document.getElementById("wordleHintBtn");
+  const hintCard = document.getElementById("wordleHintCard");
+  if (hintBtn) {
+    if (wordleHardMode && !wordleOver) {
+      hintBtn.classList.remove("hidden");
+    } else {
+      hintBtn.classList.add("hidden");
+      if (hintCard) hintCard.classList.add("hidden");
+    }
+  }
+
   if (newWordBtn) {
     if (wordleMode === "unlimited" || wordleOver) {
       newWordBtn.classList.remove("hidden");
@@ -4009,6 +4100,9 @@ function renderWordleStats() {
 
 function openWordleStatsModal() {
   renderWordleStats();
+  if (wordleOver && wordleTarget) {
+    showWordleEndOfGameDefinition(wordleTarget);
+  }
   const modal = document.getElementById("wordleStatsModal");
   if (modal) modal.classList.remove("hidden");
 }
@@ -4170,6 +4264,14 @@ function initWordleUIEvents() {
   document.getElementById("wordleModalNextWordBtn")?.addEventListener("click", () => {
     closeWordleStatsModal();
     initWordle(true);
+  });
+
+  document.getElementById("wordleHintBtn")?.addEventListener("click", () => {
+    showWordleHardModeHint();
+  });
+
+  document.getElementById("closeWordleHintBtn")?.addEventListener("click", () => {
+    closeWordleHint();
   });
 
   document.getElementById("wordleShareBtn")?.addEventListener("click", shareWordleResult);
@@ -8231,10 +8333,7 @@ function initScenicLandingAndNav() {
   document.getElementById("featBadgeStats")?.addEventListener("click", triggerStats);
 
   document.getElementById("featBadgeThemes")?.addEventListener("click", () => {
-    const themes = ["lagoon", "violet", "gold", "arctic"];
-    const curIdx = Math.max(0, themes.indexOf(hubState.theme));
-    const nextIdx = (curIdx + 1) % themes.length;
-    setTheme(themes[nextIdx]);
+    setTheme(hubState.theme === "light" ? "dark" : "light");
   });
 }
 

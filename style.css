@@ -2,227 +2,151 @@
   --font: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "SF Mono", "Fira Code", "Consolas", monospace;
 
-  /* Global Default Tokens (Neon Lagoon) */
-  --bg-dark: #060b0e;
-  --dyn-bg-dark: radial-gradient(circle at 18% 15%, rgba(6, 182, 212, 0.18) 0%, transparent 45%), radial-gradient(circle at 82% 85%, rgba(16, 185, 129, 0.16) 0%, transparent 45%), radial-gradient(ellipse 60% 50% at 50% 50%, rgba(5, 150, 105, 0.1) 0%, transparent 70%), #060b0e;
-  --dyn-bg-light: var(--dyn-bg-dark);
+  /* Centralized Dynamic Theme Tokens (Automatically Inherited from GAP Header Accent) */
+  --brand: var(--dyn-brand, #38bdf8);
+  --accent: var(--dyn-brand, #38bdf8);
+  --accent-secondary: var(--dyn-flame, #818cf8);
+  --accent-glow: var(--dyn-glow, rgba(56, 189, 248, 0.45));
+  --accent-gradient: linear-gradient(135deg, var(--dyn-brand, #38bdf8) 0%, var(--dyn-flame, #818cf8) 100%);
+
+  /* Default Dark Mode Surface & Contrast Tokens */
+  --bg-dark: #060913;
+  --dyn-bg-dark: radial-gradient(circle at 18% 15%, rgba(56, 189, 248, 0.16) 0%, transparent 45%), radial-gradient(circle at 82% 85%, rgba(129, 140, 248, 0.14) 0%, transparent 45%), #060913;
+  --dyn-bg-light: #f1f5f9;
 
   --bg: var(--dyn-bg-dark);
-  --surface: rgba(8, 20, 18, 0.74);
-  --surface-border: rgba(45, 212, 191, 0.22);
-  --surface-border-glow: rgba(45, 212, 191, 0.5);
-  --surface-specular: rgba(255, 255, 255, 0.35);
-  --surface-glow: rgba(16, 185, 129, 0.35);
-  --text: #f0fdf4;
+  --surface: rgba(10, 16, 28, 0.76);
+  --surface-border: rgba(255, 255, 255, 0.14);
+  --surface-border-glow: var(--dyn-glow, rgba(56, 189, 248, 0.45));
+  --surface-specular: rgba(255, 255, 255, 0.28);
+  --surface-glow: var(--dyn-glow, rgba(56, 189, 248, 0.32));
+  --text: #f8fafc;
   --muted: #94a3b8;
-
-  --brand: #10b981;
-  --accent: #10b981;
-  --accent-secondary: #06b6d4;
-  --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
-
-  --btn-bg: rgba(255, 255, 255, 0.07);
-  --btn-border: rgba(255, 255, 255, 0.14);
-  --btn-text: #e2e8f0;
-
-  --btn-active-bg: rgba(45, 212, 191, 0.22);
-  --btn-active-border: rgba(45, 212, 191, 0.6);
-  --btn-active-text: #ffffff;
-  --btn-active-shadow: 0 4px 16px rgba(16, 185, 129, 0.32), inset 0 1px 1.5px rgba(255, 255, 255, 0.6);
-
-  --x: #06b6d4;
-  --o: #10b981;
-  --tile-bg: rgba(255, 255, 255, 0.05);
-  --tile-border: rgba(45, 212, 191, 0.2);
-  --shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-
-  --turn-bg: rgba(9, 24, 21, 0.85);
-  --turn-border: rgba(45, 212, 191, 0.35);
-  --turn-text: #ffffff;
-
-  --snake-surface: #040807;
-  --snake-border: rgba(45, 212, 191, 0.32);
-  --snake-glow: rgba(16, 185, 129, 0.35);
-
-  --chess-light: rgba(45, 212, 191, 0.16);
-  --chess-dark: rgba(6, 26, 22, 0.85);
-  --chess-piece-white: #f0f9ff;
-  --chess-piece-black: #051411;
-}
-
-/* 1. Neon Lagoon (Charcoal, Emerald, Cyan) */
-body[data-theme="lagoon"],
-body[data-theme="neon-lagoon"],
-body[data-theme="dark"],
-body:not([data-theme]) {
-  --bg: radial-gradient(circle at 18% 15%, rgba(6, 182, 212, 0.18) 0%, transparent 45%), radial-gradient(circle at 82% 85%, rgba(16, 185, 129, 0.16) 0%, transparent 45%), radial-gradient(ellipse 60% 50% at 50% 50%, rgba(5, 150, 105, 0.1) 0%, transparent 70%), #060b0e;
-  --surface: rgba(8, 20, 18, 0.74);
-  --surface-border: rgba(45, 212, 191, 0.22);
-  --surface-border-glow: rgba(45, 212, 191, 0.5);
-  --surface-specular: rgba(255, 255, 255, 0.35);
-  --surface-glow: rgba(16, 185, 129, 0.35);
-  --text: #f0fdf4;
-  --muted: #94a3b8;
-  --brand: #10b981;
-  --accent: #10b981;
-  --accent-secondary: #06b6d4;
-  --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
-
-  --btn-bg: rgba(255, 255, 255, 0.07);
-  --btn-border: rgba(255, 255, 255, 0.14);
-  --btn-text: #e2e8f0;
-  --btn-active-bg: rgba(45, 212, 191, 0.22);
-  --btn-active-border: rgba(45, 212, 191, 0.6);
-  --btn-active-text: #ffffff;
-  --btn-active-shadow: 0 4px 16px rgba(16, 185, 129, 0.32), inset 0 1px 1.5px rgba(255, 255, 255, 0.6);
-
-  --x: #06b6d4;
-  --o: #10b981;
-  --tile-bg: rgba(255, 255, 255, 0.05);
-  --tile-border: rgba(45, 212, 191, 0.2);
-
-  --turn-bg: rgba(9, 24, 21, 0.85);
-  --turn-border: rgba(45, 212, 191, 0.35);
-  --turn-text: #ffffff;
-
-  --snake-surface: #040807;
-  --snake-border: rgba(45, 212, 191, 0.32);
-  --snake-glow: rgba(16, 185, 129, 0.35);
-
-  --chess-light: rgba(45, 212, 191, 0.16);
-  --chess-dark: rgba(6, 26, 22, 0.85);
-  --chess-piece-white: #f0f9ff;
-  --chess-piece-black: #051411;
-}
-
-/* 2. Cyber Violet (Dark Purple, Electric Pink, Cyan) */
-body[data-theme="violet"],
-body[data-theme="cyber-violet"] {
-  --bg: radial-gradient(circle at 18% 15%, rgba(236, 72, 153, 0.18) 0%, transparent 45%), radial-gradient(circle at 82% 85%, rgba(168, 85, 247, 0.18) 0%, transparent 45%), radial-gradient(ellipse 60% 50% at 50% 50%, rgba(6, 182, 212, 0.09) 0%, transparent 70%), #090512;
-  --surface: rgba(18, 11, 28, 0.76);
-  --surface-border: rgba(236, 72, 153, 0.25);
-  --surface-border-glow: rgba(236, 72, 153, 0.55);
-  --surface-specular: rgba(255, 255, 255, 0.35);
-  --surface-glow: rgba(236, 72, 153, 0.35);
-  --text: #fdf2f8;
-  --muted: #cbd5e1;
-  --brand: #ec4899;
-  --accent: #ec4899;
-  --accent-secondary: #06b6d4;
-  --accent-gradient: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #06b6d4 100%);
 
   --btn-bg: rgba(255, 255, 255, 0.07);
   --btn-border: rgba(255, 255, 255, 0.14);
   --btn-text: #f1f5f9;
-  --btn-active-bg: rgba(236, 72, 153, 0.24);
-  --btn-active-border: rgba(236, 72, 153, 0.65);
+
+  /* GAP-adaptive Active Buttons, Selected Options & Highlights */
+  --btn-active-bg: rgba(255, 255, 255, 0.15);
+  --btn-active-border: var(--dyn-brand, #38bdf8);
   --btn-active-text: #ffffff;
-  --btn-active-shadow: 0 4px 16px rgba(236, 72, 153, 0.35), inset 0 1px 1.5px rgba(255, 255, 255, 0.6);
+  --btn-active-shadow: 0 4px 18px var(--dyn-glow, rgba(56, 189, 248, 0.38)), inset 0 1px 1.5px rgba(255, 255, 255, 0.55);
 
-  --x: #ec4899;
-  --o: #06b6d4;
+  --x: var(--dyn-brand, #38bdf8);
+  --o: var(--dyn-flame, #818cf8);
   --tile-bg: rgba(255, 255, 255, 0.05);
-  --tile-border: rgba(236, 72, 153, 0.22);
+  --tile-border: rgba(255, 255, 255, 0.14);
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
 
-  --turn-bg: rgba(26, 13, 38, 0.85);
-  --turn-border: rgba(236, 72, 153, 0.38);
+  --turn-bg: rgba(15, 23, 42, 0.88);
+  --turn-border: var(--dyn-brand, #38bdf8);
   --turn-text: #ffffff;
 
-  --snake-surface: #07030e;
-  --snake-border: rgba(236, 72, 153, 0.35);
-  --snake-glow: rgba(236, 72, 153, 0.38);
+  --snake-surface: #050811;
+  --snake-border: var(--dyn-brand, #38bdf8);
+  --snake-glow: var(--dyn-glow, rgba(56, 189, 248, 0.35));
 
-  --chess-light: rgba(236, 72, 153, 0.16);
-  --chess-dark: rgba(20, 10, 32, 0.85);
-  --chess-piece-white: #fdf2f8;
-  --chess-piece-black: #180928;
+  --chess-light: rgba(255, 255, 255, 0.14);
+  --chess-dark: rgba(10, 16, 28, 0.88);
+  --chess-piece-white: #f8fafc;
+  --chess-piece-black: #050811;
 }
 
-/* 3. Obsidian Gold (Near-Black, Champagne Gold) */
-body[data-theme="gold"],
-body[data-theme="obsidian-gold"] {
-  --bg: radial-gradient(circle at 18% 15%, rgba(245, 158, 11, 0.16) 0%, transparent 45%), radial-gradient(circle at 82% 85%, rgba(217, 119, 6, 0.14) 0%, transparent 45%), radial-gradient(ellipse 60% 50% at 50% 50%, rgba(254, 240, 138, 0.07) 0%, transparent 70%), #070605;
-  --surface: rgba(18, 16, 13, 0.78);
-  --surface-border: rgba(245, 158, 11, 0.25);
-  --surface-border-glow: rgba(245, 158, 11, 0.55);
-  --surface-specular: rgba(255, 255, 255, 0.35);
-  --surface-glow: rgba(245, 158, 11, 0.35);
-  --text: #fffbeb;
-  --muted: #d4d4d8;
-  --brand: #f59e0b;
-  --accent: #f59e0b;
-  --accent-secondary: #fde047;
-  --accent-gradient: linear-gradient(135deg, #fde047 0%, #f59e0b 60%, #b45309 100%);
+/* =========================================================================
+   APPEARANCE MODES: Exclusively Light Mode and Dark Mode
+   Brightness, glass surfaces, and contrast adapt to mode;
+   Accents, borders, glows, active pills adapt automatically to GAP color.
+   ========================================================================= */
 
-  --btn-bg: rgba(255, 255, 255, 0.07);
-  --btn-border: rgba(255, 255, 255, 0.14);
-  --btn-text: #fef3c7;
-  --btn-active-bg: rgba(245, 158, 11, 0.24);
-  --btn-active-border: rgba(245, 158, 11, 0.65);
-  --btn-active-text: #ffffff;
-  --btn-active-shadow: 0 4px 16px rgba(245, 158, 11, 0.35), inset 0 1px 1.5px rgba(255, 255, 255, 0.6);
-
-  --x: #fbbf24;
-  --o: #f59e0b;
-  --tile-bg: rgba(255, 255, 255, 0.05);
-  --tile-border: rgba(245, 158, 11, 0.22);
-
-  --turn-bg: rgba(28, 22, 14, 0.85);
-  --turn-border: rgba(245, 158, 11, 0.38);
-  --turn-text: #ffffff;
-
-  --snake-surface: #070604;
-  --snake-border: rgba(245, 158, 11, 0.35);
-  --snake-glow: rgba(245, 158, 11, 0.38);
-
-  --chess-light: rgba(254, 240, 138, 0.16);
-  --chess-dark: rgba(22, 18, 12, 0.86);
-  --chess-piece-white: #fffbeb;
-  --chess-piece-black: #1a150c;
-}
-
-/* 4. Arctic Glass (Navy, Icy Blue, Silver) */
-body[data-theme="arctic"],
-body[data-theme="arctic-glass"],
-body[data-theme="light"] {
-  --bg: radial-gradient(circle at 18% 15%, rgba(56, 189, 248, 0.18) 0%, transparent 45%), radial-gradient(circle at 82% 85%, rgba(14, 165, 233, 0.14) 0%, transparent 45%), radial-gradient(ellipse 60% 50% at 50% 50%, rgba(186, 230, 253, 0.08) 0%, transparent 70%), #050a12;
-  --surface: rgba(10, 20, 34, 0.76);
-  --surface-border: rgba(56, 189, 248, 0.25);
-  --surface-border-glow: rgba(56, 189, 248, 0.55);
-  --surface-specular: rgba(255, 255, 255, 0.4);
-  --surface-glow: rgba(56, 189, 248, 0.35);
-  --text: #f0f9ff;
+/* 1. Dark Mode (Default) */
+body[data-theme="dark"],
+body:not([data-theme="light"]) {
+  --bg: var(--dyn-bg-dark, #060913);
+  --surface: rgba(10, 16, 28, 0.78);
+  --surface-border: rgba(255, 255, 255, 0.14);
+  --surface-border-glow: var(--dyn-glow, rgba(56, 189, 248, 0.45));
+  --surface-specular: rgba(255, 255, 255, 0.28);
+  --surface-glow: var(--dyn-glow, rgba(56, 189, 248, 0.35));
+  --text: #f8fafc;
   --muted: #94a3b8;
-  --brand: #38bdf8;
-  --accent: #38bdf8;
-  --accent-secondary: #e2e8f0;
-  --accent-gradient: linear-gradient(135deg, #bae6fd 0%, #38bdf8 55%, #0284c7 100%);
+
+  --brand: var(--dyn-brand, #38bdf8);
+  --accent: var(--dyn-brand, #38bdf8);
+  --accent-secondary: var(--dyn-flame, #818cf8);
+  --accent-glow: var(--dyn-glow, rgba(56, 189, 248, 0.45));
+  --accent-gradient: linear-gradient(135deg, var(--dyn-brand, #38bdf8) 0%, var(--dyn-flame, #818cf8) 100%);
 
   --btn-bg: rgba(255, 255, 255, 0.07);
   --btn-border: rgba(255, 255, 255, 0.14);
-  --btn-text: #e0f2fe;
-  --btn-active-bg: rgba(56, 189, 248, 0.24);
-  --btn-active-border: rgba(56, 189, 248, 0.65);
+  --btn-text: #f1f5f9;
+  --btn-active-bg: rgba(255, 255, 255, 0.16);
+  --btn-active-border: var(--dyn-brand, #38bdf8);
   --btn-active-text: #ffffff;
-  --btn-active-shadow: 0 4px 16px rgba(56, 189, 248, 0.35), inset 0 1px 1.5px rgba(255, 255, 255, 0.6);
+  --btn-active-shadow: 0 4px 18px var(--dyn-glow, rgba(56, 189, 248, 0.38)), inset 0 1px 1.5px rgba(255, 255, 255, 0.55);
 
-  --x: #38bdf8;
-  --o: #7dd3fc;
+  --x: var(--dyn-brand, #38bdf8);
+  --o: var(--dyn-flame, #818cf8);
   --tile-bg: rgba(255, 255, 255, 0.05);
-  --tile-border: rgba(56, 189, 248, 0.22);
+  --tile-border: rgba(255, 255, 255, 0.14);
 
-  --turn-bg: rgba(14, 26, 44, 0.85);
-  --turn-border: rgba(56, 189, 248, 0.38);
+  --turn-bg: rgba(15, 23, 42, 0.88);
+  --turn-border: var(--dyn-brand, #38bdf8);
   --turn-text: #ffffff;
 
-  --snake-surface: #040810;
-  --snake-border: rgba(56, 189, 248, 0.35);
-  --snake-glow: rgba(56, 189, 248, 0.38);
+  --snake-surface: #050811;
+  --snake-border: var(--dyn-brand, #38bdf8);
+  --snake-glow: var(--dyn-glow, rgba(56, 189, 248, 0.35));
 
-  --chess-light: rgba(186, 230, 253, 0.2);
-  --chess-dark: rgba(10, 24, 38, 0.85);
-  --chess-piece-white: #f0f9ff;
-  --chess-piece-black: #0c1a29;
+  --chess-light: rgba(255, 255, 255, 0.14);
+  --chess-dark: rgba(10, 16, 28, 0.88);
+  --chess-piece-white: #f8fafc;
+  --chess-piece-black: #050811;
+}
+
+/* 2. Light Mode */
+body[data-theme="light"],
+body[data-theme="white"] {
+  --bg: var(--dyn-bg-light, #f1f5f9);
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-border: rgba(0, 0, 0, 0.11);
+  --surface-border-glow: var(--dyn-glow, rgba(56, 189, 248, 0.35));
+  --surface-specular: rgba(255, 255, 255, 0.9);
+  --surface-glow: var(--dyn-glow, rgba(56, 189, 248, 0.22));
+  --text: #0f172a;
+  --muted: #475569;
+
+  --brand: var(--dyn-brand, #0284c7);
+  --accent: var(--dyn-brand, #0284c7);
+  --accent-secondary: var(--dyn-flame, #6366f1);
+  --accent-glow: var(--dyn-glow, rgba(56, 189, 248, 0.35));
+  --accent-gradient: linear-gradient(135deg, var(--dyn-brand, #0284c7) 0%, var(--dyn-flame, #6366f1) 100%);
+
+  --btn-bg: rgba(0, 0, 0, 0.05);
+  --btn-border: rgba(0, 0, 0, 0.12);
+  --btn-text: #1e293b;
+  --btn-active-bg: rgba(0, 0, 0, 0.08);
+  --btn-active-border: var(--dyn-brand, #0284c7);
+  --btn-active-text: #0f172a;
+  --btn-active-shadow: 0 3px 12px var(--dyn-glow, rgba(56, 189, 248, 0.28)), inset 0 1px 1px #ffffff;
+
+  --x: var(--dyn-brand, #0284c7);
+  --o: var(--dyn-flame, #6366f1);
+  --tile-bg: rgba(255, 255, 255, 0.7);
+  --tile-border: rgba(0, 0, 0, 0.12);
+
+  --turn-bg: rgba(255, 255, 255, 0.92);
+  --turn-border: var(--dyn-brand, #0284c7);
+  --turn-text: #0f172a;
+
+  --snake-surface: #e2e8f0;
+  --snake-border: var(--dyn-brand, #0284c7);
+  --snake-glow: var(--dyn-glow, rgba(56, 189, 248, 0.28));
+
+  --chess-light: rgba(255, 255, 255, 0.78);
+  --chess-dark: rgba(203, 213, 225, 0.88);
+  --chess-piece-white: #ffffff;
+  --chess-piece-black: #0f172a;
 }
 
 * { box-sizing: border-box; }
@@ -250,22 +174,23 @@ body::before {
 }
 
 /* =========================================================================
-   Sea-Glass Theme Switcher Capsule (Inside GAP Pill, Inspired by Frosted Glass Slider)
+   Sea-Glass Theme Switcher Capsule (Frosted Slider • Sun Left / Moon Right)
+   Matches user's reference design with smooth sliding frosted glass thumb
    ========================================================================= */
 .sea-glass-theme-switch {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  height: 30px;
-  width: 128px;
-  padding: 2.5px;
+  height: 32px;
+  width: 78px;
+  padding: 2px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1.5px solid rgba(255, 255, 255, 0.42);
-  backdrop-filter: blur(20px) saturate(200%);
-  -webkit-backdrop-filter: blur(20px) saturate(200%);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.45), 0 3px 12px rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.45), 0 3px 12px rgba(0, 0, 0, 0.25);
   box-sizing: border-box;
   margin: 0 4px;
   cursor: pointer;
@@ -273,63 +198,51 @@ body::before {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-.sea-glass-theme-switch:hover {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.65);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 4px 16px rgba(0, 0, 0, 0.45);
+body[data-theme="light"] .sea-glass-theme-switch {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.7), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Sliding Frosted Glass Thumb (as in user's 2nd picture) */
+.sea-glass-theme-switch:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.75);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* Sliding Frosted Glass Thumb (Stadium / rounded glass capsule) */
 .sea-glass-thumb {
   position: absolute;
   top: 2px;
   bottom: 2px;
   left: 2px;
-  width: calc((100% - 4px) / 4);
+  width: calc((100% - 4px) / 2);
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1.5px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), inset 0 1.5px 2px #ffffff;
-  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1.5px 2px #ffffff;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   pointer-events: none;
   z-index: 1;
 }
 
-body[data-theme="lagoon"] .sea-glass-thumb,
-body[data-theme="neon-lagoon"] .sea-glass-thumb,
-body[data-theme="dark"] .sea-glass-thumb,
-body:not([data-theme]) .sea-glass-thumb {
-  transform: translateX(0%);
-  background: rgba(16, 185, 129, 0.35);
-  border-color: rgba(52, 211, 153, 0.85);
-  box-shadow: 0 2px 12px rgba(16, 185, 129, 0.55), inset 0 1.5px 2px #ffffff;
-}
-
-body[data-theme="violet"] .sea-glass-thumb,
-body[data-theme="cyber-violet"] .sea-glass-thumb {
-  transform: translateX(100%);
-  background: rgba(236, 72, 153, 0.35);
-  border-color: rgba(244, 114, 182, 0.85);
-  box-shadow: 0 2px 12px rgba(236, 72, 153, 0.55), inset 0 1.5px 2px #ffffff;
-}
-
-body[data-theme="gold"] .sea-glass-thumb,
-body[data-theme="obsidian-gold"] .sea-glass-thumb {
-  transform: translateX(200%);
-  background: rgba(245, 158, 11, 0.35);
-  border-color: rgba(251, 191, 36, 0.85);
-  box-shadow: 0 2px 12px rgba(245, 158, 11, 0.55), inset 0 1.5px 2px #ffffff;
-}
-
-body[data-theme="arctic"] .sea-glass-thumb,
-body[data-theme="arctic-glass"] .sea-glass-thumb,
+/* Light Mode: Thumb on Left over Sun */
 body[data-theme="light"] .sea-glass-thumb {
-  transform: translateX(300%);
-  background: rgba(56, 189, 248, 0.35);
-  border-color: rgba(125, 211, 252, 0.85);
-  box-shadow: 0 2px 12px rgba(56, 189, 248, 0.55), inset 0 1.5px 2px #ffffff;
+  transform: translateX(0%);
+  background: rgba(255, 255, 255, 0.75);
+  border-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.25), inset 0 1.5px 2px #ffffff;
+}
+
+/* Dark Mode: Thumb on Right over Moon */
+body[data-theme="dark"] .sea-glass-thumb,
+body:not([data-theme="light"]) .sea-glass-thumb {
+  transform: translateX(100%);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 2px 10px var(--dyn-glow, rgba(56, 189, 248, 0.35)), inset 0 1.5px 2px rgba(255, 255, 255, 0.8);
 }
 
 .sea-glass-btn {
@@ -344,19 +257,50 @@ body[data-theme="light"] .sea-glass-thumb {
   border: none;
   padding: 0;
   margin: 0;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.55);
   cursor: pointer;
-  transition: color 0.18s ease, transform 0.15s ease;
+  transition: color 0.18s ease, transform 0.15s ease, opacity 0.18s ease;
   outline: none;
 }
 
-.sea-glass-btn:hover {
-  color: #ffffff;
-  transform: scale(1.15);
+.sea-glass-btn .sun-icon {
+  transition: transform 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
 }
 
-.sea-glass-btn.active {
-  color: #ffffff;
+.sea-glass-btn .moon-icon {
+  transition: transform 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+}
+
+/* Sun Highlighted in Light Mode */
+body[data-theme="light"] .sea-glass-btn[data-theme="light"] {
+  opacity: 1;
+}
+body[data-theme="light"] .sea-glass-btn[data-theme="dark"] {
+  opacity: 0.45;
+}
+body[data-theme="light"] .sea-glass-btn[data-theme="dark"] .moon-icon {
+  fill: #64748b;
+  stroke: #475569;
+}
+
+/* Moon Highlighted in Dark Mode */
+body[data-theme="dark"] .sea-glass-btn[data-theme="dark"],
+body:not([data-theme="light"]) .sea-glass-btn[data-theme="dark"] {
+  opacity: 1;
+}
+body[data-theme="dark"] .sea-glass-btn[data-theme="dark"] .moon-icon,
+body:not([data-theme="light"]) .sea-glass-btn[data-theme="dark"] .moon-icon {
+  fill: #ffffff;
+  stroke: #ffffff;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+}
+body[data-theme="dark"] .sea-glass-btn[data-theme="light"],
+body:not([data-theme="light"]) .sea-glass-btn[data-theme="light"] {
+  opacity: 0.55;
+}
+
+.sea-glass-btn:hover {
+  transform: scale(1.12);
 }
 
 /* Dropdown Chevron Button inside GAP Pill */
@@ -1871,6 +1815,92 @@ body[data-theme="light"] .wordle-action-icon:hover {
   border-color: #94a3b8;
 }
 
+/* Wordle Hard Mode Hint Button */
+.wordle-hint-btn {
+  border-color: rgba(251, 191, 36, 0.45) !important;
+  color: #fbbf24 !important;
+}
+.wordle-hint-btn:hover {
+  background: rgba(251, 191, 36, 0.2) !important;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.5) !important;
+}
+
+/* Wordle Hard Mode Concept Hint Card (Compact Sea-Glass Card) */
+.wordle-hint-card {
+  width: 100%;
+  max-width: 380px;
+  margin: 6px auto;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1.5px solid var(--dyn-brand, #38bdf8);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px var(--dyn-glow, rgba(56, 189, 248, 0.35));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  box-sizing: border-box;
+  animation: wordleHintPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes wordleHintPop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+body[data-theme="light"] .wordle-hint-card {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: var(--dyn-brand, #0284c7);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), 0 0 12px var(--dyn-glow, rgba(56, 189, 248, 0.25));
+}
+
+.wordle-hint-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wordle-hint-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #f59e0b;
+}
+
+.wordle-hint-close-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+body[data-theme="light"] .wordle-hint-close-btn {
+  color: #475569;
+}
+.wordle-hint-close-btn:hover {
+  color: #ffffff;
+}
+body[data-theme="light"] .wordle-hint-close-btn:hover {
+  color: #0f172a;
+}
+
+.wordle-hint-body {
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: #f1f5f9;
+  margin: 0;
+  font-style: italic;
+}
+body[data-theme="light"] .wordle-hint-body {
+  color: #1e293b;
+}
+
 .wordle-mode-badge {
   display: inline-flex;
   align-items: center;
@@ -1983,20 +2013,20 @@ body[data-theme="light"] .wordle-mode-badge b {
   padding: 12px 14px;
   margin: 0 0 16px 0;
   border-radius: 12px;
-  background: rgba(45, 212, 191, 0.08);
-  border: 1px solid rgba(45, 212, 191, 0.28);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.72);
+  border: 1.5px solid var(--dyn-brand, #38bdf8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 0 14px var(--dyn-glow, rgba(56, 189, 248, 0.25));
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
   text-align: left;
   box-sizing: border-box;
 }
 
 body[data-theme="light"] .wordle-definition-box {
-  background: rgba(13, 148, 136, 0.06);
-  border-color: rgba(13, 148, 136, 0.25);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--dyn-brand, #0284c7);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 0 10px var(--dyn-glow, rgba(56, 189, 248, 0.2));
 }
 
 .wordle-definition-box.hidden,
@@ -2009,11 +2039,11 @@ body[data-theme="light"] .wordle-definition-box {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #2dd4bf;
+  color: var(--dyn-brand, #38bdf8);
 }
 
 body[data-theme="light"] .def-badge {
-  color: #0d9488;
+  color: var(--dyn-brand, #0284c7);
 }
 
 .def-header {
@@ -2043,11 +2073,30 @@ body[data-theme="light"] .def-pos {
   color: #475569;
 }
 
+.def-meaning-block,
+.def-example-block {
+  margin-top: 3px;
+}
+
+.def-field-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dyn-brand, #38bdf8);
+  display: block;
+  margin-bottom: 2px;
+}
+
+body[data-theme="light"] .def-field-label {
+  color: var(--dyn-brand, #0284c7);
+}
+
 .def-text {
   font-size: 0.85rem;
-  line-height: 1.4;
+  line-height: 1.42;
   color: #e2e8f0;
-  margin: 2px 0 0 0;
+  margin: 0;
 }
 
 body[data-theme="light"] .def-text {
@@ -2055,12 +2104,18 @@ body[data-theme="light"] .def-text {
 }
 
 .def-example {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-style: italic;
-  color: #94a3b8;
-  margin: 4px 0 0 0;
+  line-height: 1.4;
+  color: #cbd5e1;
+  margin: 0;
   padding-left: 8px;
-  border-left: 2px solid rgba(45, 212, 191, 0.5);
+  border-left: 2px solid var(--dyn-brand, #38bdf8);
+}
+
+body[data-theme="light"] .def-example {
+  color: #334155;
+  border-left-color: var(--dyn-brand, #0284c7);
 }
 
 .wordle-def-modal {

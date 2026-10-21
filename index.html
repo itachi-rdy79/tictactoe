@@ -14,33 +14,39 @@
   <meta name="theme-color" content="#060913" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="stylesheet" href="style.css?v=62.2" />
+  <link rel="stylesheet" href="style.css?v=63.0" />
 </head>
-<body data-theme="lagoon">
+<body data-theme="dark">
   <!-- Dynamic Color Background (Adapts to GAP Palette in Dark & White Theme) -->
 
   <!-- Floating Translucent Top Navigation Header -->
   <header class="floating-pill-container" id="scenicNav">
     <div class="floating-pill glass-panel" id="floatingPill">
       <!-- Left: GAP Brand Logo / Main Trigger -->
-      <div class="nav-brand brand pill-brand" id="gapBrand" role="button" tabindex="0" title="GAP • Click to expand settings">
+      <div class="nav-brand brand pill-brand" id="gapBrand" role="button" tabindex="0" title="GAP • Click to refresh colors">
         <span class="logo-text" id="gapLogoText">GAP</span>
       </div>
 
-      <!-- Center: Sea-Glass Theme Switcher Capsule (Inspired by Frosted Glass Slider) -->
-      <div class="sea-glass-theme-switch" id="themeGlassToggle" role="radiogroup" aria-label="Arcade Global Theme" title="Switch Theme • Neon Lagoon, Cyber Violet, Obsidian Gold, Arctic Glass">
+      <!-- Center: Sea-Glass Theme Switcher Capsule (Sun / Moon Frosted Slider) -->
+      <div class="sea-glass-theme-switch" id="themeGlassToggle" role="radiogroup" aria-label="Appearance Mode" title="Toggle Light / Dark Mode">
         <div class="sea-glass-thumb" id="themeGlassThumb"></div>
-        <button class="sea-glass-btn active" data-theme="lagoon" type="button" role="radio" aria-checked="true" title="Neon Lagoon (Charcoal, Emerald, Cyan)">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <button class="sea-glass-btn" data-theme="light" type="button" role="radio" aria-checked="false" title="Switch to Light Mode" aria-label="Light Mode">
+          <svg class="theme-icon sun-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4.2" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.8"/>
+            <line x1="12" y1="2" x2="12" y2="4.2" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="12" y1="19.8" x2="12" y2="22" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="4.93" y1="4.93" x2="6.48" y2="6.48" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="17.52" y1="17.52" x2="19.07" y2="19.07" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="2" y1="12" x2="4.2" y2="12" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="19.8" y1="12" x2="22" y2="12" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="4.93" y1="19.07" x2="6.48" y2="17.52" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="17.52" y1="6.48" x2="19.07" y2="4.93" stroke="#f59e0b" stroke-width="2.2"/>
+          </svg>
         </button>
-        <button class="sea-glass-btn" data-theme="violet" type="button" role="radio" aria-checked="false" title="Cyber Violet (Dark Purple, Electric Pink, Cyan)">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        </button>
-        <button class="sea-glass-btn" data-theme="gold" type="button" role="radio" aria-checked="false" title="Obsidian Gold (Near-Black, Champagne Gold)">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        </button>
-        <button class="sea-glass-btn" data-theme="arctic" type="button" role="radio" aria-checked="false" title="Arctic Glass (Navy, Icy Blue, Silver)">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/></svg>
+        <button class="sea-glass-btn active" data-theme="dark" type="button" role="radio" aria-checked="true" title="Switch to Dark Mode" aria-label="Dark Mode">
+          <svg class="theme-icon moon-icon" viewBox="0 0 24 24" width="17" height="17" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
         </button>
       </div>
 
@@ -49,41 +55,8 @@
         <svg class="pill-chevron" id="pillChevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
 
-      <!-- Expandable Actions Drawer (Reveals Theme Menu, Profile Avatar & Mini Window on Click) -->
+      <!-- Expandable Actions Drawer (Profile Avatar & Mini Window on Click) -->
       <div class="pill-expand-actions" id="pillActions">
-        <!-- Theme Picker Detailed List -->
-        <div class="theme-picker" id="themePicker">
-          <button class="theme-trigger theme-pill-btn" id="themeTrigger" type="button" aria-expanded="false" title="Select Theme">
-            <span id="themeCurrentIcon">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-            </span>
-            <span id="themeCurrentText">Neon Lagoon</span>
-            <svg class="theme-chevron" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="theme-menu glass-panel" id="themeMenu">
-            <button class="theme-item active" data-theme="lagoon" type="button" title="Neon Lagoon">
-              <span class="theme-color-pip pip-lagoon"></span>
-              <span class="theme-name">Neon Lagoon</span>
-              <span class="theme-palette-hint">Emerald &amp; Cyan</span>
-            </button>
-            <button class="theme-item" data-theme="violet" type="button" title="Cyber Violet">
-              <span class="theme-color-pip pip-violet"></span>
-              <span class="theme-name">Cyber Violet</span>
-              <span class="theme-palette-hint">Electric Pink &amp; Cyan</span>
-            </button>
-            <button class="theme-item" data-theme="gold" type="button" title="Obsidian Gold">
-              <span class="theme-color-pip pip-gold"></span>
-              <span class="theme-name">Obsidian Gold</span>
-              <span class="theme-palette-hint">Champagne Gold</span>
-            </button>
-            <button class="theme-item" data-theme="arctic" type="button" title="Arctic Glass">
-              <span class="theme-color-pip pip-arctic"></span>
-              <span class="theme-name">Arctic Glass</span>
-              <span class="theme-palette-hint">Icy Blue &amp; Silver</span>
-            </button>
-          </div>
-        </div>
-
         <!-- Profile / Avatar Action -->
         <button class="nav-icon-btn" id="navAvatarBtn" type="button" title="Player Profile &amp; Stats">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -697,6 +670,10 @@
                     <button id="wordleHardModeBtn" class="wordle-action-icon" type="button" title="Toggle Hard Mode (Strict hint reuse)" aria-label="Toggle Hard Mode">
                       <span id="wordleHardIcon">⚡</span>
                     </button>
+                    <!-- Hard Mode Hint Button (Visible Exclusively in Hard Mode) -->
+                    <button id="wordleHintBtn" class="wordle-action-icon wordle-hint-btn hidden" type="button" title="Get Conceptual Clue (Hard Mode Only • 1 per puzzle)" aria-label="Meaning Hint">
+                      <span id="wordleHintIcon">💡</span>
+                    </button>
                   </div>
 
                   <div class="wordle-title-block">
@@ -708,6 +685,15 @@
                       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                     </button>
                   </div>
+                </div>
+
+                <!-- Wordle Hard Mode Concept Clue Card (Frosted Sea-Glass) -->
+                <div id="wordleHintCard" class="wordle-hint-card glass-panel hidden" role="region" aria-label="Hard Mode Meaning Hint">
+                  <div class="wordle-hint-card-head">
+                    <span class="wordle-hint-badge">💡 HARD MODE HINT (1 OF 1)</span>
+                    <button id="closeWordleHintBtn" class="wordle-hint-close-btn" type="button" aria-label="Close Hint">✕</button>
+                  </div>
+                  <p class="wordle-hint-body" id="wordleHintText">Loading hint...</p>
                 </div>
 
                 <div class="wordle-subbar">
@@ -1316,10 +1302,8 @@
     <option value="hard">Hard</option>
   </select>
   <select id="themeSelect" hidden>
-    <option value="lagoon" selected>Neon Lagoon</option>
-    <option value="violet">Cyber Violet</option>
-    <option value="gold">Obsidian Gold</option>
-    <option value="arctic">Arctic Glass</option>
+    <option value="light">Light</option>
+    <option value="dark" selected>Dark</option>
   </select>
 
   <!-- Modern Frosted Glass Settings Modal -->
@@ -1355,12 +1339,10 @@
           </div>
         </div>
         <div class="settings-row">
-          <label class="settings-label">Visual Theme</label>
-          <div class="seg seg-theme-picker" id="modalThemePills">
-            <button class="seg-btn active" data-theme="lagoon" type="button">Neon Lagoon</button>
-            <button class="seg-btn" data-theme="violet" type="button">Cyber Violet</button>
-            <button class="seg-btn" data-theme="gold" type="button">Obsidian Gold</button>
-            <button class="seg-btn" data-theme="arctic" type="button">Arctic Glass</button>
+          <label class="settings-label">Appearance</label>
+          <div class="seg" id="modalThemePills">
+            <button class="seg-btn" data-theme="light" type="button">☀️ Light</button>
+            <button class="seg-btn active" data-theme="dark" type="button">🌙 Dark</button>
           </div>
         </div>
       </div>
@@ -1405,7 +1387,14 @@
           <b class="def-word" id="wDefWord">WORDLE</b>
           <span class="def-pos" id="wDefPos">noun</span>
         </div>
-        <p class="def-text" id="wDefMeaning">Loading definition...</p>
+        <div class="def-meaning-block">
+          <span class="def-field-label">Meaning:</span>
+          <p class="def-text" id="wDefMeaning">Loading definition...</p>
+        </div>
+        <div class="def-example-block hidden" id="wDefExampleBox">
+          <span class="def-field-label">Example:</span>
+          <p class="def-example" id="wDefExample"></p>
+        </div>
       </div>
 
       <!-- 4 Core Metrics -->
