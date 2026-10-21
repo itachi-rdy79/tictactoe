@@ -855,17 +855,7 @@ function syncHud() {
     }
   }
 
-  // Chess Top Dashboard Match & Layout Controls in Top Match Bar
-  const chessMatchGroup = document.getElementById("chessMatchGroup");
-  if (chessMatchGroup) {
-    if (isChess) {
-      chessMatchGroup.style.display = "flex";
-      chessMatchGroup.classList.remove("hidden");
-    } else {
-      chessMatchGroup.style.setProperty("display", "none", "important");
-      chessMatchGroup.classList.add("hidden");
-    }
-  }
+
 
   // Difficulty selector for AI-supporting games: TTT, Chess, Sequence, Poker & Ludo King (when vs AI is active)
   const supportsAi = isTTT || isChess || isSequence || isPoker || isLudo;
@@ -899,58 +889,7 @@ function syncHud() {
   }
 }
 
-// Dynamic Dock Positioning (Right / Left)
-function setDockPosition(pos) {
-  const dock = document.getElementById('quickDock');
-  if (!dock) return;
-  dock.classList.remove('dock-pos-right', 'dock-pos-left');
-  if (pos === 'left') {
-    dock.classList.add('dock-pos-left');
-  } else {
-    dock.classList.add('dock-pos-right');
-  }
-  try {
-    localStorage.setItem('gap_dock_position', pos);
-  } catch(e) {}
-  const topDockText = document.getElementById('chessTopDockPosText');
-  if (topDockText) topDockText.textContent = 'Dock: ' + (pos === 'left' ? 'Left' : 'Right');
-  const panelDockSideLabel = document.getElementById('chessDockSideLabel');
-  if (panelDockSideLabel) panelDockSideLabel.textContent = 'Dock: ' + (pos === 'left' ? 'Left' : 'Right');
-}
-window.setDockPosition = setDockPosition;
 
-function toggleDockPosition() {
-  const dock = document.getElementById('quickDock');
-  const isLeft = dock?.classList.contains('dock-pos-left');
-  setDockPosition(isLeft ? 'right' : 'left');
-}
-window.toggleDockPosition = toggleDockPosition;
-
-// Chess Cockpit Side (Panel on Right vs Panel on Left)
-function setChessPanelSide(side) {
-  const cockpit = document.getElementById('chessCockpitLayout');
-  if (!cockpit) return;
-  cockpit.classList.toggle('panel-left', side === 'left');
-  try {
-    localStorage.setItem('gap_chess_panel_side', side);
-  } catch(e) {}
-  const swapText = document.getElementById('chessLayoutSwapText');
-  if (swapText) swapText.textContent = 'Panel: ' + (side === 'left' ? 'Left' : 'Right');
-  const swapIcon = document.getElementById('chessLayoutSwapIcon');
-  if (swapIcon) swapIcon.textContent = (side === 'left' ? '◨' : '◧');
-  const panelSideLabel = document.getElementById('chessPanelSideLabel');
-  if (panelSideLabel) panelSideLabel.textContent = 'Panel: ' + (side === 'left' ? 'Left' : 'Right');
-  const panelSideIcon = document.getElementById('chessPanelSideIcon');
-  if (panelSideIcon) panelSideIcon.textContent = (side === 'left' ? '◨' : '◧');
-}
-window.setChessPanelSide = setChessPanelSide;
-
-function toggleChessPanelSide() {
-  const cockpit = document.getElementById('chessCockpitLayout');
-  const isLeft = cockpit?.classList.contains('panel-left');
-  setChessPanelSide(isLeft ? 'right' : 'left');
-}
-window.toggleChessPanelSide = toggleChessPanelSide;
 
 /* ---------- Exclusive Single-Game Matrix Display Guard ---------- */
 function showOnlyActiveGame(gameKey) {
@@ -974,17 +913,7 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
-  // 2. Chess Arena & Board
-  const chessGameEl = document.getElementById("chessGame");
-  if (chessGameEl) {
-    if (isChess) {
-      chessGameEl.classList.remove("hidden");
-      chessGameEl.style.removeProperty("display");
-    } else {
-      chessGameEl.classList.add("hidden");
-      chessGameEl.style.setProperty("display", "none", "important");
-    }
-  }
+  // 2. Chess Board
   if (chessBoardEl) {
     if (isChess) {
       chessBoardEl.classList.remove("hidden");
@@ -1130,16 +1059,7 @@ function showOnlyActiveGame(gameKey) {
 
   // Board wrap shell classes
   boardWrap?.classList.remove("chess-mode", "wordle-mode", "poker-mode", "pattu-mode", "sequence-mode", "ludo-mode", "snake-mode");
-  if (isChess) {
-    boardWrap?.classList.add("chess-mode");
-    if (boardWrap) boardWrap.dataset.chessTheme = (typeof chessTheme !== "undefined" ? chessTheme : "amethyst");
-    try {
-      const savedSide = localStorage.getItem("gap_chess_panel_side") || "right";
-      setChessPanelSide(savedSide);
-      const savedDock = localStorage.getItem("gap_dock_position") || "right";
-      setDockPosition(savedDock);
-    } catch(e) {}
-  }
+  if (isChess) boardWrap?.classList.add("chess-mode");
   else if (isWordle) boardWrap?.classList.add("wordle-mode");
   else if (isPoker) boardWrap?.classList.add("poker-mode");
   else if (isPattu) boardWrap?.classList.add("pattu-mode");
@@ -1147,14 +1067,26 @@ function showOnlyActiveGame(gameKey) {
   else if (isLudo) boardWrap?.classList.add("ludo-mode");
   else if (isSnake) boardWrap?.classList.add("snake-mode");
 
-  // Sidebars (Legacy captured sidebars hidden in favor of integrated Sea Glass player strips)
+  // Sidebars (Chess captured only)
+  const isMini = isMiniWindow();
+  const showSidebars = isChess && !isMini;
   if (capturedLeft) {
-    capturedLeft.classList.add("hidden");
-    capturedLeft.style.setProperty("display", "none", "important");
+    if (showSidebars) {
+      capturedLeft.classList.remove("hidden");
+      capturedLeft.style.removeProperty("display");
+    } else {
+      capturedLeft.classList.add("hidden");
+      capturedLeft.style.setProperty("display", "none", "important");
+    }
   }
   if (capturedRight) {
-    capturedRight.classList.add("hidden");
-    capturedRight.style.setProperty("display", "none", "important");
+    if (showSidebars) {
+      capturedRight.classList.remove("hidden");
+      capturedRight.style.removeProperty("display");
+    } else {
+      capturedRight.classList.add("hidden");
+      capturedRight.style.setProperty("display", "none", "important");
+    }
   }
 
   // Sequence Flanking Edge Shelves (P1 on extreme left, P2/AI on extreme right)
@@ -1662,22 +1594,7 @@ function renderRadial() {
   ringFg.style.strokeDashoffset = `${CIRC * (1 - pct)}`;
   radialText.textContent = String(Math.ceil(Math.max(0, turnTimeLeft)));
 
-  // Update Chess Arena player clocks
-  if (hubState.game === "chess" && hubState.timer !== "off") {
-    const mins = Math.floor(Math.max(0, turnTimeLeft) / 60);
-    const secs = Math.ceil(Math.max(0, turnTimeLeft) % 60);
-    const timeStr = `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-    const oppClock = document.getElementById("chessOpponentClock");
-    const plyClock = document.getElementById("chessPlayerClock");
-    const isOppTurn = (typeof chessFlipped !== "undefined" && !chessFlipped && chessTurn === "b") || (typeof chessFlipped !== "undefined" && chessFlipped && chessTurn === "w");
-    if (isOppTurn) {
-      if (oppClock) { oppClock.textContent = timeStr; oppClock.classList.remove("hidden"); }
-      if (plyClock) { plyClock.textContent = "--:--"; }
-    } else {
-      if (plyClock) { plyClock.textContent = timeStr; plyClock.classList.remove("hidden"); }
-      if (oppClock) { oppClock.textContent = "--:--"; }
-    }
-  }
+
 }
 function startTurnTimer() {
   stopTurnTimer();
@@ -2355,150 +2272,13 @@ function onTTTClick(i) {
 }
 
 /* ---------- Chess Engine & Custom UI ---------- */
-const CHESS_U = { wp: "♟", wr: "♜", wn: "♞", wb: "♝", wq: "♛", wk: "♚", bp: "♟", br: "♜", bn: "♞", bb: "♝", bq: "♛", bk: "♚" };
+const CHESS_U = { wp: "ΓÖƒ", wr: "ΓÖ£", wn: "ΓÖ₧", wb: "ΓÖ¥", wq: "ΓÖ¢", wk: "ΓÖÜ", bp: "ΓÖƒ", br: "ΓÖ£", bn: "ΓÖ₧", bb: "ΓÖ¥", bq: "ΓÖ¢", bk: "ΓÖÜ" };
 const PIECE_VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
-const CHESS_THEMES = ["amethyst", "ocean", "obsidian", "emerald"];
-var chessTheme = (function() {
-  try {
-    const saved = localStorage.getItem("gap_chess_theme");
-    return (CHESS_THEMES.includes(saved) ? saved : "amethyst");
-  } catch (_) {
-    return "amethyst";
-  }
-})();
-var chessFlipped = false;
-var chessLastMove = null;
-var chessMoveHistory = [];
-
 let chessBoard = [], chessTurn = "w", chessSelected = null, chessOver = false, whiteCaptured = [], blackCaptured = [], chessSnapshots = [];
-let chessAiTimer = null;
 let chessShowMoveHints = false;
 let chessEnPassant = null;
 let chessHalfmoveClock = 0;
 let chessPositionHistory = {};
-
-function applyChessTheme(themeKey) {
-  if (!CHESS_THEMES.includes(themeKey)) themeKey = "amethyst";
-  chessTheme = themeKey;
-  try { localStorage.setItem("gap_chess_theme", themeKey); } catch (_) {}
-  if (boardWrap) boardWrap.dataset.chessTheme = themeKey;
-  const labelEl = document.getElementById("chessThemeNameLabel");
-  if (labelEl) {
-    const names = { amethyst: "Amethyst", ocean: "Ocean", obsidian: "Obsidian", emerald: "Emerald" };
-    labelEl.textContent = names[themeKey] || "Amethyst";
-  }
-}
-
-function cycleChessTheme() {
-  const idx = CHESS_THEMES.indexOf(chessTheme);
-  const next = CHESS_THEMES[(idx + 1) % CHESS_THEMES.length];
-  applyChessTheme(next);
-}
-
-function toggleChessFlip() {
-  chessFlipped = !chessFlipped;
-  renderCaptured();
-  renderChess();
-}
-
-function formatChessMoveBase(board, mv) {
-  if (mv.isCastle) {
-    return mv.tc > mv.fc ? "O-O" : "O-O-O";
-  }
-  const p = board[mv.fr][mv.fc];
-  if (!p) return "";
-  
-  const dest = String.fromCharCode(97 + mv.tc) + (8 - mv.tr);
-  const isPawn = p.type === "p";
-  const target = board[mv.tr][mv.tc];
-  const isCapture = Boolean(target || mv.isEnPassant);
-
-  if (isPawn) {
-    let str = "";
-    if (isCapture) {
-      str = String.fromCharCode(97 + mv.fc) + "x" + dest;
-    } else {
-      str = dest;
-    }
-    if (mv.tr === 0 || mv.tr === 7) {
-      str += "=Q";
-    }
-    return str;
-  }
-
-  const pieceLetter = p.type.toUpperCase();
-  let disambig = "";
-  try {
-    const candidates = [];
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        if (r === mv.fr && c === mv.fc) continue;
-        const op = board[r][c];
-        if (op && op.color === p.color && op.type === p.type) {
-          const legals = getLegalMovesForPiece(board, r, c);
-          if (legals.some(m => m.r === mv.tr && m.c === mv.tc)) {
-            candidates.push({ r, c });
-          }
-        }
-      }
-    }
-    if (candidates.length > 0) {
-      const sameCol = candidates.some(c => c.c === mv.fc);
-      const sameRow = candidates.some(c => c.r === mv.fr);
-      if (!sameCol) {
-        disambig = String.fromCharCode(97 + mv.fc);
-      } else if (!sameRow) {
-        disambig = String(8 - mv.fr);
-      } else {
-        disambig = String.fromCharCode(97 + mv.fc) + String(8 - mv.fr);
-      }
-    }
-  } catch (_) {}
-
-  return pieceLetter + disambig + (isCapture ? "x" : "") + dest;
-}
-
-function recordMoveHistory(notation, color) {
-  if (color === "w") {
-    chessMoveHistory.push({
-      num: chessMoveHistory.length + 1,
-      white: notation,
-      black: ""
-    });
-  } else {
-    if (chessMoveHistory.length > 0 && !chessMoveHistory[chessMoveHistory.length - 1].black) {
-      chessMoveHistory[chessMoveHistory.length - 1].black = notation;
-    } else {
-      chessMoveHistory.push({
-        num: chessMoveHistory.length + 1,
-        white: "...",
-        black: notation
-      });
-    }
-  }
-  renderChessHistory();
-}
-
-function renderChessHistory() {
-  const scrollEl = document.getElementById("chessHistoryScroll");
-  if (!scrollEl) return;
-  if (!chessMoveHistory.length) {
-    scrollEl.innerHTML = `<div class="chess-history-empty" id="chessHistoryEmpty">No moves played yet</div>`;
-    return;
-  }
-  let html = "";
-  chessMoveHistory.forEach(item => {
-    html += `
-      <div class="chess-history-row">
-        <span class="col-num">${item.num}.</span>
-        <span class="col-white">${item.white || ""}</span>
-        <span class="col-black">${item.black || ""}</span>
-      </div>
-    `;
-  });
-  scrollEl.innerHTML = html;
-  scrollEl.scrollTop = scrollEl.scrollHeight;
-}
 
 function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
 function cloneBoard(b) { return b.map(row => row.map(cell => cell ? { ...cell } : null)); }
@@ -2510,17 +2290,11 @@ function saveChessSnapshot() {
     enPassant: chessEnPassant ? { ...chessEnPassant } : null,
     halfmoveClock: chessHalfmoveClock,
     positionHistory: { ...chessPositionHistory },
-    lastMove: chessLastMove ? { ...chessLastMove } : null,
-    moveHistory: JSON.parse(JSON.stringify(chessMoveHistory)),
     scoreA, scoreB, scoreD, streak, moveCount
   });
 }
 
 function initChess() {
-  if (chessAiTimer) {
-    clearTimeout(chessAiTimer);
-    chessAiTimer = null;
-  }
   chessBoard = Array.from({ length: 8 }, () => Array(8).fill(null));
   const back = ["r", "n", "b", "q", "k", "b", "n", "r"];
   for (let c = 0; c < 8; c++) {
@@ -2533,14 +2307,10 @@ function initChess() {
   chessEnPassant = null;
   chessHalfmoveClock = 0;
   chessPositionHistory = {};
-  chessLastMove = null;
-  chessMoveHistory = [];
   const initKey = getChessPositionKey(chessBoard, "w", null);
   chessPositionHistory[initKey] = 1;
   moveCount = 0;
   updateMoveCounter(true);
-  applyChessTheme(chessTheme);
-  renderChessHistory();
   renderCaptured();
   renderChess();
   startTurnTimer();
@@ -2584,54 +2354,14 @@ function renderCaptured() {
         return `
           <div class="captured-piece-chip" title="${count} piece(s) captured">
             <span class="chip-icon ${pieceClass}">${pieceSvg}</span>
-            <span class="chip-badge">×${count}</span>
+            <span class="chip-badge">├ù${count}</span>
           </div>
         `;
       })
       .join("");
   }
 
-  // Integrated Chess Arena Top & Bottom Player Strip Shelves
-  const topShelf = document.getElementById("chessTopCaptured");
-  const bottomShelf = document.getElementById("chessBottomCaptured");
-  const topMat = document.getElementById("chessTopMaterial");
-  const bottomMat = document.getElementById("chessBottomMaterial");
-
-  // Material lead calculation (in pawn equivalents)
-  let whiteMat = 0, blackMat = 0;
-  blackCaptured.forEach(p => { whiteMat += Math.round((PIECE_VAL[p.type] || 100) / 100); });
-  whiteCaptured.forEach(p => { blackMat += Math.round((PIECE_VAL[p.type] || 100) / 100); });
-
-  const whiteAdv = whiteMat - blackMat; // >0 means White leads
-  const blackAdv = blackMat - whiteMat; // >0 means Black leads
-
-  if (!chessFlipped) {
-    // Normal: Top is Black (captures of White), Bottom is White (captures of Black)
-    if (topShelf) topShelf.innerHTML = buildTrayHTML(whiteCaptured, "w");
-    if (bottomShelf) bottomShelf.innerHTML = buildTrayHTML(blackCaptured, "b");
-    if (topMat) {
-      if (blackAdv > 0) { topMat.textContent = `+${blackAdv}`; topMat.classList.remove("hidden"); }
-      else { topMat.classList.add("hidden"); }
-    }
-    if (bottomMat) {
-      if (whiteAdv > 0) { bottomMat.textContent = `+${whiteAdv}`; bottomMat.classList.remove("hidden"); }
-      else { bottomMat.classList.add("hidden"); }
-    }
-  } else {
-    // Flipped: Top is White (captures of Black), Bottom is Black (captures of White)
-    if (topShelf) topShelf.innerHTML = buildTrayHTML(blackCaptured, "b");
-    if (bottomShelf) bottomShelf.innerHTML = buildTrayHTML(whiteCaptured, "w");
-    if (topMat) {
-      if (whiteAdv > 0) { topMat.textContent = `+${whiteAdv}`; topMat.classList.remove("hidden"); }
-      else { topMat.classList.add("hidden"); }
-    }
-    if (bottomMat) {
-      if (blackAdv > 0) { bottomMat.textContent = `+${blackAdv}`; bottomMat.classList.remove("hidden"); }
-      else { bottomMat.classList.add("hidden"); }
-    }
-  }
-
-  // Legacy sidebars backward compatibility
+  // Dynamic theme-based tray headers
   const whiteH = document.getElementById("whiteCapturedHeader");
   const blackH = document.getElementById("blackCapturedHeader");
   if (whiteH && blackH) {
@@ -2646,8 +2376,14 @@ function renderCaptured() {
       blackH.textContent = "Black Captured";
     }
   }
-  if (whiteCapturedEl) whiteCapturedEl.innerHTML = buildTrayHTML(whiteCaptured, "w");
-  if (blackCapturedEl) blackCapturedEl.innerHTML = buildTrayHTML(blackCaptured, "b");
+
+  // Left tray holds white captured pieces; Right tray holds black captured pieces
+  if (whiteCapturedEl) {
+    whiteCapturedEl.innerHTML = buildTrayHTML(whiteCaptured, "w");
+  }
+  if (blackCapturedEl) {
+    blackCapturedEl.innerHTML = buildTrayHTML(blackCaptured, "b");
+  }
 }
 
 function getPseudoMoves(board, r, c) {
@@ -2881,7 +2617,6 @@ function renderChess() {
   resetIdleWatchdog();
   showOnlyActiveGame("chess");
   clearWinLine();
-  applyChessTheme(chessTheme);
 
   if (!chessBoardEl || !Array.isArray(chessBoard) || !chessBoard.length) return;
   chessBoardEl.innerHTML = "";
@@ -2903,200 +2638,61 @@ function renderChess() {
 
   const whiteInCheck = isKingInCheck(chessBoard, "w");
   const blackInCheck = isKingInCheck(chessBoard, "b");
-  const activeInCheck = (chessTurn === "w" && whiteInCheck) || (chessTurn === "b" && blackInCheck);
 
-  // Direction of board rendering based on chessFlipped
-  const rStart = chessFlipped ? 7 : 0;
-  const rEnd = chessFlipped ? -1 : 8;
-  const rStep = chessFlipped ? -1 : 1;
-  const cStart = chessFlipped ? 7 : 0;
-  const cEnd = chessFlipped ? -1 : 8;
-  const cStep = chessFlipped ? -1 : 1;
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    const cell = document.createElement("button");
+    cell.type = "button";
+    cell.className = "chess-cell " + (((r + c) % 2 === 0) ? "light" : "dark");
+    cell.dataset.row = r;
+    cell.dataset.col = c;
+    const colName = String.fromCharCode(97 + c);
+    const rowName = (8 - r).toString();
+    const squareName = colName + rowName;
 
-  for (let r = rStart; r !== rEnd; r += rStep) {
-    for (let c = cStart; c !== cEnd; c += cStep) {
-      const cell = document.createElement("button");
-      cell.type = "button";
-      cell.className = "chess-cell " + (((r + c) % 2 === 0) ? "light" : "dark");
-      cell.dataset.row = r;
-      cell.dataset.col = c;
-      const colName = String.fromCharCode(97 + c);
-      const rowName = (8 - r).toString();
-      const squareName = colName + rowName;
+    const isSelected = !!(chessSelected && chessSelected.r === r && chessSelected.c === c);
+    if (isSelected) cell.classList.add("selected");
 
-      const isSelected = !!(chessSelected && chessSelected.r === r && chessSelected.c === c);
-      if (isSelected) cell.classList.add("selected");
-
-      // Last Move Source & Target Highlights
-      if (chessLastMove) {
-        if (chessLastMove.fr === r && chessLastMove.fc === c) {
-          cell.classList.add("last-move-source");
-        } else if (chessLastMove.tr === r && chessLastMove.tc === c) {
-          cell.classList.add("last-move-target");
-        }
-      }
-
-      // Legal Move Target Hints (Glow borders without distracting dots)
-      const cellKey = r + "," + c;
-      if (chessShowMoveHints && legalMoveSet.has(cellKey)) {
-        if (captureMoveSet.has(cellKey)) {
-          cell.classList.add("capture-target");
-        } else {
-          cell.classList.add("valid-target");
-        }
-      }
-
-      const p = chessBoard[r][c];
-      if (p) {
-        cell.innerHTML = getPieceSvgHtml(p.color, p.type);
-        cell.classList.add(p.color === "w" ? "white-piece" : "black-piece");
-        cell.setAttribute("aria-label", (p.color === 'w' ? 'White' : 'Black') + " " + p.type.toUpperCase() + " at " + squareName);
-
-        // Check & Checkmate Indicators on King
-        if (p.type === "k" && ((p.color === "w" && whiteInCheck) || (p.color === "b" && blackInCheck))) {
-          cell.classList.add("in-check");
-          if (chessOver) cell.classList.add("in-checkmate");
-        }
+    const cellKey = r + "," + c;
+    if (chessShowMoveHints && legalMoveSet.has(cellKey)) {
+      if (captureMoveSet.has(cellKey)) {
+        cell.classList.add("capture-target");
       } else {
-        cell.setAttribute("aria-label", "Square " + squareName);
+        cell.classList.add("valid-target");
       }
-
-      cell.addEventListener("pointerdown", (e) => e.stopPropagation());
-      cell.addEventListener("click", (e) => {
-        e.stopPropagation();
-        onChessClick(r, c);
-      });
-      chessBoardEl.appendChild(cell);
     }
-  }
 
-  // --- Dynamic Chess Arena Cockpit Updates ---
-  const isAi = (hubState.opponent === "ai") || (modeSelect && modeSelect.value === "chess-ai");
-  const diff = (hubState.difficulty || difficultySelect?.value || "med").toUpperCase();
+    const p = chessBoard[r][c];
+    if (p) {
+      cell.innerHTML = getPieceSvgHtml(p.color, p.type);
+      cell.classList.add(p.color === "w" ? "white-piece" : "black-piece");
+      cell.setAttribute("aria-label", (p.color === 'w' ? 'White' : 'Black') + " " + p.type.toUpperCase() + " at " + squareName);
 
-  // Determine perspective assignments
-  const isOpponentWhite = chessFlipped; // normally Top is Black, if flipped Top is White
-  const oppColor = isOpponentWhite ? "w" : "b";
-  const plyColor = isOpponentWhite ? "b" : "w";
-
-  // Elements
-  const oppCard = document.getElementById("chessOpponentCard");
-  const plyCard = document.getElementById("chessPlayerCard");
-  const oppName = document.getElementById("chessOpponentName");
-  const plyName = document.getElementById("chessPlayerName");
-  const oppAvatar = document.getElementById("chessOpponentAvatar");
-  const plyAvatar = document.getElementById("chessPlayerAvatar");
-  const oppBadge = document.getElementById("chessOpponentColorBadge");
-  const plyBadge = document.getElementById("chessPlayerColorBadge");
-  const oppStatus = document.getElementById("chessOpponentStatus");
-  const plyStatus = document.getElementById("chessPlayerStatus");
-  const oppClock = document.getElementById("chessOpponentClock");
-  const plyClock = document.getElementById("chessPlayerClock");
-
-  // Names, Avatars & Color Badges
-  if (oppName) {
-    if (isAi) oppName.textContent = isOpponentWhite ? "You" : `AI Opponent (${diff})`;
-    else oppName.textContent = isOpponentWhite ? "Player 1" : "Player 2";
-  }
-  if (plyName) {
-    if (isAi) plyName.textContent = isOpponentWhite ? `AI Opponent (${diff})` : "You";
-    else plyName.textContent = isOpponentWhite ? "Player 2" : "Player 1";
-  }
-  if (oppAvatar) oppAvatar.textContent = (isAi && !isOpponentWhite) ? "🤖" : "👤";
-  if (plyAvatar) plyAvatar.textContent = (isAi && isOpponentWhite) ? "🤖" : "👤";
-
-  if (oppBadge) {
-    oppBadge.textContent = isOpponentWhite ? "White" : "Black";
-    oppBadge.className = `chess-color-pill ${isOpponentWhite ? "white-pill" : ""}`;
-  }
-  if (plyBadge) {
-    plyBadge.textContent = isOpponentWhite ? "Black" : "White";
-    plyBadge.className = `chess-color-pill ${isOpponentWhite ? "" : "white-pill"}`;
-  }
-
-  // Turn Glow
-  const isOppTurn = (chessTurn === oppColor);
-  const isPlyTurn = (chessTurn === plyColor);
-  if (oppCard) oppCard.classList.toggle("is-active-turn", isOppTurn && !chessOver);
-  if (plyCard) plyCard.classList.toggle("is-active-turn", isPlyTurn && !chessOver);
-
-  // Status Lines
-  if (oppStatus) {
-    if (chessOver) oppStatus.textContent = "Finished";
-    else if (isOppTurn && (oppColor === "w" ? whiteInCheck : blackInCheck)) oppStatus.textContent = "⚠️ In Check!";
-    else if (isOppTurn) oppStatus.textContent = (isAi && !isOpponentWhite) ? "Thinking..." : "Moving...";
-    else oppStatus.textContent = "Waiting";
-  }
-  if (plyStatus) {
-    if (chessOver) plyStatus.textContent = "Finished";
-    else if (isPlyTurn && (plyColor === "w" ? whiteInCheck : blackInCheck)) plyStatus.textContent = "⚠️ In Check!";
-    else if (isPlyTurn) plyStatus.textContent = (isAi && isOpponentWhite) ? "Thinking..." : "Your Turn";
-    else plyStatus.textContent = "Waiting";
-  }
-
-  // Clocks Visibility
-  const timerOn = hubState.timer !== "off";
-  if (oppClock) oppClock.classList.toggle("hidden", !timerOn);
-  if (plyClock) plyClock.classList.toggle("hidden", !timerOn);
-
-  // Match Status Badge
-  const statusBadge = document.getElementById("chessMatchStatusBadge");
-  if (statusBadge) {
-    if (chessOver) {
-      statusBadge.textContent = "Game Over";
-    } else if (activeInCheck) {
-      statusBadge.textContent = "⚠️ " + (chessTurn === "w" ? "White" : "Black") + " in Check!";
+      // Check Indicator: highlight king when in check
+      if (p.type === "k" && ((p.color === "w" && whiteInCheck) || (p.color === "b" && blackInCheck))) {
+        cell.classList.add("in-check");
+      }
     } else {
-      statusBadge.textContent = (chessTurn === "w" ? "White" : "Black") + "'s Turn";
+      cell.setAttribute("aria-label", "Square " + squareName);
     }
+
+    cell.addEventListener("pointerdown", (e) => e.stopPropagation());
+    cell.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onChessClick(r, c);
+    });
+    chessBoardEl.appendChild(cell);
   }
 
-  // Top Match Bar Dynamic Pill Sync
-  const pillStatusText = document.getElementById("chessPillStatusText");
-  const pillDot = document.getElementById("chessPillDot");
-  if (pillStatusText) {
-    if (chessOver) {
-      pillStatusText.textContent = "Game Over • Move " + moveCount;
-    } else if (activeInCheck) {
-      pillStatusText.textContent = "⚠️ Check! • " + (chessTurn === "w" ? "White" : "Black");
-    } else {
-      pillStatusText.textContent = (chessTurn === "w" ? "White's Turn" : "Black's Turn") + " • M" + moveCount;
-    }
-  }
-  if (pillDot) {
-    pillDot.className = "chess-pill-dot" + (activeInCheck ? " in-check" : (chessTurn === "b" ? " black-turn" : ""));
-  }
-
-  // Telemetry Row
-  const panelMode = document.getElementById("chessPanelMode");
-  const panelDiff = document.getElementById("chessPanelDiff");
-  const panelMoveCount = document.getElementById("chessPanelMoveCount");
-  const panelFiftyClock = document.getElementById("chessPanelFiftyClock");
-  if (panelMode) panelMode.textContent = isAi ? "vs AI" : "Local 2P";
-  if (panelDiff) panelDiff.textContent = isAi ? diff : "N/A";
-  if (panelMoveCount) panelMoveCount.textContent = String(moveCount);
-  if (panelFiftyClock) panelFiftyClock.textContent = `${Math.floor(chessHalfmoveClock / 2)}/50`;
-
-  // Quick Action Buttons Sync
-  const hintsToggleBtn = document.getElementById("chessHintsToggleBtn");
-  const hintsLabel = document.getElementById("chessHintsLabel");
-  if (hintsToggleBtn) hintsToggleBtn.classList.toggle("active", chessShowMoveHints);
-  if (hintsLabel) hintsLabel.textContent = `Hints: ${chessShowMoveHints ? "On" : "Off"}`;
-
-  const themeNameLabel = document.getElementById("chessThemeNameLabel");
-  if (themeNameLabel) {
-    const names = { amethyst: "Amethyst", ocean: "Ocean", obsidian: "Obsidian", emerald: "Emerald" };
-    themeNameLabel.textContent = names[chessTheme] || "Amethyst";
-  }
-
-  // Legacy Dashboard Pill
   if (hubState.timer === "off" && statusPill) {
+    const activeInCheck = (chessTurn === "w" && whiteInCheck) || (chessTurn === "b" && blackInCheck);
     if (chessOver) {
       statusPill.textContent = "Game Over";
     } else if (activeInCheck) {
-      statusPill.textContent = "⚠️ " + (chessTurn === "w" ? "White" : "Black") + " in Check!";
+      statusPill.textContent = "ΓÜá∩╕Å " + (chessTurn === "w" ? "White" : "Black") + " in Check!";
     } else if (hubState.theme === "naruto") {
       statusPill.textContent = (chessTurn === "w" ? "Leaf Shinobi" : "Akatsuki") + "'s Turn";
+    } else if (hubState.theme === "itachi") {
+      statusPill.textContent = (chessTurn === "w" ? "White" : "Black") + "'s Turn";
     } else {
       statusPill.textContent = (chessTurn === "w" ? "White" : "Black") + "'s Turn";
     }
@@ -3495,39 +3091,24 @@ function onChessClick(r, c) {
     return;
   }
 
-  const humanMovingColor = chessTurn;
-  const humanMoveObj = { fr: chessSelected.r, fc: chessSelected.c, tr: r, tc: c, ...legal };
-  const humanNotationBase = formatChessMoveBase(chessBoard, humanMoveObj);
-
   saveChessSnapshot();
-  moveChess(chessBoard, humanMoveObj, true);
-  chessLastMove = { fr: chessSelected.r, fc: chessSelected.c, tr: r, tc: c };
+  moveChess(chessBoard, { fr: chessSelected.r, fc: chessSelected.c, tr: r, tc: c, ...legal }, true);
   moveCount++;
   updateMoveCounter(true);
 
-  const nextColor = humanMovingColor === "w" ? "b" : "w";
+  const nextColor = chessTurn === "w" ? "b" : "w";
 
   // Checkmate / Stalemate detection after Human move
   const afterLegalMoves = getLegalMovesForColor(chessBoard, nextColor);
-  const nextInCheck = isKingInCheck(chessBoard, nextColor);
-  const isHumanCheckmate = (afterLegalMoves.length === 0 && nextInCheck);
-  const humanFullNotation = humanNotationBase + (isHumanCheckmate ? "#" : (nextInCheck ? "+" : ""));
-  recordMoveHistory(humanFullNotation, humanMovingColor);
-
   if (afterLegalMoves.length === 0) {
-    if (nextInCheck) {
-      // Checkmate! Current mover wins!
+    if (isKingInCheck(chessBoard, nextColor)) {
+      // Checkmate! White wins!
       chessOver = true;
-      if (humanMovingColor === "w") {
-        scoreA++;
-        updateStreak(modeSelect.value === "chess-ai");
-      } else {
-        scoreB++;
-        updateStreak(false);
-      }
-      let winTxt = humanMovingColor === "w" ? "Checkmate! White Wins" : "Checkmate! Black Wins";
-      if (hubState.theme === "naruto") winTxt = humanMovingColor === "w" ? "Will of Fire: Checkmate!" : "Akatsuki Rules: Checkmate!";
-      else if (hubState.theme === "itachi") winTxt = humanMovingColor === "w" ? "Tsukuyomi Ascendant: Checkmate!" : "Crow Flight: Checkmate!";
+      scoreA++;
+      updateStreak(modeSelect.value === "chess-ai");
+      let winTxt = "Checkmate! White Wins";
+      if (hubState.theme === "naruto") winTxt = "Will of Fire: Checkmate!";
+      else if (hubState.theme === "itachi") winTxt = "Tsukuyomi Ascendant: Checkmate!";
       showWinScreen(winTxt);
       persistScores(); renderScores(); renderChess(); stopTurnTimer(); persistLiveState();
       return;
@@ -3552,32 +3133,20 @@ function onChessClick(r, c) {
   // AI Turn Execution
   if (aiMode && chessTurn === "b" && !chessOver) {
     if (hubState.timer === "off" && statusPill) statusPill.textContent = "AI Thinking...";
-    const oppStatusEl = document.getElementById("chessOpponentStatus");
-    if (oppStatusEl) oppStatusEl.textContent = "Thinking...";
-
-    if (chessAiTimer) clearTimeout(chessAiTimer);
-    chessAiTimer = setTimeout(() => {
-      chessAiTimer = null;
+    setTimeout(() => {
       saveChessSnapshot();
       const diff = hubState.difficulty || difficultySelect?.value || "medium";
       const mv = chooseChessAiMove(chessBoard, diff);
 
       if (mv) {
-        const aiNotationBase = formatChessMoveBase(chessBoard, mv);
         moveChess(chessBoard, mv, true);
-        chessLastMove = { fr: mv.fr, fc: mv.fc, tr: mv.tr, tc: mv.tc };
         moveCount++;
         updateMoveCounter(true);
 
         // Checkmate / Stalemate detection after AI move
         const afterAiLegalMoves = getLegalMovesForColor(chessBoard, "w");
-        const whiteInCheck = isKingInCheck(chessBoard, "w");
-        const isAiCheckmate = (afterAiLegalMoves.length === 0 && whiteInCheck);
-        const aiFullNotation = aiNotationBase + (isAiCheckmate ? "#" : (whiteInCheck ? "+" : ""));
-        recordMoveHistory(aiFullNotation, "b");
-
         if (afterAiLegalMoves.length === 0) {
-          if (whiteInCheck) {
+          if (isKingInCheck(chessBoard, "w")) {
             // Checkmate! Black AI wins!
             chessOver = true;
             scoreB++;
@@ -3608,6 +3177,7 @@ function onChessClick(r, c) {
     }, 380);
   }
 }
+
 
 /* ==========================================================================
    AUTHENTIC WORDLE ENGINE (Josh Wardle Powerlanguage Fidelity)
@@ -7427,11 +6997,7 @@ function persistLiveState() {
     },
     chess: {
       board: chessBoard, turn: chessTurn, selected: chessSelected, over: chessOver,
-      whiteCaptured, blackCaptured,
-      lastMove: chessLastMove,
-      moveHistory: chessMoveHistory,
-      theme: chessTheme,
-      flipped: chessFlipped
+      whiteCaptured, blackCaptured
     },
     wordle: {
       target: wordleTarget, row: wordleRow, col: wordleCol, grid: wordleGrid, over: wordleOver
@@ -7545,16 +7111,11 @@ function restoreLiveStateIfAny() {
       chessOver = !!s.chess.over;
       whiteCaptured = Array.isArray(s.chess.whiteCaptured) ? s.chess.whiteCaptured : [];
       blackCaptured = Array.isArray(s.chess.blackCaptured) ? s.chess.blackCaptured : [];
-      if (s.chess.lastMove !== undefined) chessLastMove = s.chess.lastMove;
-      if (Array.isArray(s.chess.moveHistory)) chessMoveHistory = s.chess.moveHistory;
-      if (s.chess.theme) applyChessTheme(s.chess.theme);
-      if (s.chess.flipped !== undefined) chessFlipped = !!s.chess.flipped;
 
       const looksValid = chessBoard.length === 8 && Array.isArray(chessBoard[0]) && chessBoard[0].length === 8;
       if (!looksValid || chessOver) return false;
 
       updateMoveCounter(true);
-      renderChessHistory();
       renderCaptured();
       renderChess();
       return true;
@@ -7707,11 +7268,6 @@ undoBtn?.addEventListener("click", () => {
   if (s.enPassant !== undefined) chessEnPassant = s.enPassant;
   if (s.halfmoveClock !== undefined) chessHalfmoveClock = s.halfmoveClock;
   if (s.positionHistory !== undefined) chessPositionHistory = { ...s.positionHistory };
-  if (s.lastMove !== undefined) chessLastMove = s.lastMove;
-  if (Array.isArray(s.moveHistory)) {
-    chessMoveHistory = JSON.parse(JSON.stringify(s.moveHistory));
-    renderChessHistory();
-  }
   scoreA = s.scoreA; scoreB = s.scoreB; scoreD = s.scoreD; streak = s.streak;
   moveCount = s.moveCount || Math.max(0, moveCount - 1);
   hideWinScreen();
@@ -7731,61 +7287,7 @@ chessHintsBtn?.addEventListener("click", () => {
   renderChess();
 });
 
-// Chess Arena Cockpit Event Listeners
-document.getElementById("chessFlipBoardBtn")?.addEventListener("click", () => {
-  resetIdleWatchdog();
-  toggleChessFlip();
-});
 
-document.getElementById("chessThemeBtn")?.addEventListener("click", () => {
-  resetIdleWatchdog();
-  cycleChessTheme();
-});
-
-document.getElementById("chessHintsToggleBtn")?.addEventListener("click", () => {
-  resetIdleWatchdog();
-  chessShowMoveHints = !chessShowMoveHints;
-  if (chessHintsBtn) {
-    chessHintsBtn.classList.toggle("active", chessShowMoveHints);
-    chessHintsBtn.setAttribute("aria-pressed", chessShowMoveHints ? "true" : "false");
-  }
-  renderChess();
-});
-
-document.getElementById("chessUndoBtn")?.addEventListener("click", () => {
-  resetIdleWatchdog();
-  undoBtn?.click();
-});
-
-document.getElementById("chessHistoryMobileToggle")?.addEventListener("click", () => {
-  const wrap = document.getElementById("chessHistoryTableWrap");
-  if (wrap) wrap.classList.toggle("open-mobile");
-});
-
-document.getElementById("chessLayoutSwapBtn")?.addEventListener("click", () => {
-  resetIdleWatchdog();
-  toggleChessPanelSide();
-});
-document.getElementById("chessPanelSideBtn")?.addEventListener("click", () => {
-  resetIdleWatchdog();
-  toggleChessPanelSide();
-});
-document.getElementById("chessTopDockPosBtn")?.addEventListener("click", () => {
-  resetIdleWatchdog();
-  toggleDockPosition();
-});
-document.getElementById("chessDockPosBtn")?.addEventListener("click", () => {
-  resetIdleWatchdog();
-  toggleDockPosition();
-});
-document.getElementById("miniPillPosBtn")?.addEventListener("click", (e) => {
-  e.stopPropagation();
-  toggleDockPosition();
-});
-document.getElementById("quickDockPosBtn")?.addEventListener("click", (e) => {
-  e.stopPropagation();
-  toggleDockPosition();
-});
 
 /* ---------- HUD Bar Events ---------- */
 gameTypePills?.addEventListener("click", (e) => {

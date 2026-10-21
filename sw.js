@@ -1,17 +1,17 @@
 /* =========================================================================
-   GAP Arcade — PWA Offline Service Worker (v61.9 Sea-Glass Navigation Pill & Vertical Dropdown)
+   GAP Arcade — PWA Offline Service Worker (v62.0 Clean Friday Chess Board & Sea-Glass Navigation Pill)
    Caches all 10 games, versioned resources, nested games, offline
    dictionaries, and local media for 100% offline operation.
    ========================================================================= */
 
-const CACHE_NAME = "gap-arcade-v61.9";
+const CACHE_NAME = "gap-arcade-v62.0";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
   "./style.css",
-  "./style.css?v=61.9",
+  "./style.css?v=62.0",
   "./script.js",
-  "./script.js?v=61.9",
+  "./script.js?v=62.0",
   "./manifest.json",
   "./data/wordle-words.js",
   "./data/wordle-words.js?v=60.0",

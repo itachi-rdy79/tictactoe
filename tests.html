@@ -391,85 +391,53 @@
         }
 
         // -------------------------------------------------------------
-        // TEST 11: Sea Glass Chess Arena Cockpit, Themes, Coordinates & Move History
+        // TEST 11: Clean Friday Chess Board Engine & Interaction
         // -------------------------------------------------------------
-        console.log("[TEST] Starting Test 11 (Chess Arena Upgrade)...");
+        console.log("[TEST] Starting Test 11 (Clean Friday Chess Board)...");
         try {
           // Switch to Chess mode
           win.hubState.game = "chess";
-          win.hubState.opponent = "pass";
-          if (win.modeSelect) win.modeSelect.value = "chess-local";
+          win.hubState.opponent = "local";
+          if (win.modeSelect) win.modeSelect.value = "chess-2p";
           win.initChess();
           win.showOnlyActiveGame("chess");
 
-          const chessGame = doc.getElementById("chessGame");
           const chessBoard = doc.getElementById("chessBoard");
           const boardWrap = doc.getElementById("boardWrap");
-          const opponentCard = doc.getElementById("chessOpponentCard");
-          const playerCard = doc.getElementById("chessPlayerCard");
-          const statusBadge = doc.getElementById("chessMatchStatusBadge");
-          const historyScroll = doc.getElementById("chessHistoryScroll");
 
-          const arenaVisible = chessGame && !chessGame.classList.contains("hidden");
-          const cells = chessBoard.querySelectorAll(".chess-cell");
+          const boardVisible = chessBoard && !chessBoard.classList.contains("hidden");
+          const cells = chessBoard ? chessBoard.querySelectorAll(".chess-cell") : [];
           const cellCountOk = (cells.length === 64);
 
-          // Clean Board (No coordinate numbers or letters overlaying squares)
-          const fileCoords = chessBoard.querySelectorAll(".chess-coord-file");
-          const rankCoords = chessBoard.querySelectorAll(".chess-coord-rank");
-          const coordsOk = (fileCoords.length === 0 && rankCoords.length === 0);
+          // Verify clean Friday boardWrap
+          const wrapChessMode = boardWrap && boardWrap.classList.contains("chess-mode");
 
-          // Themes
-          win.applyChessTheme("ocean");
-          const oceanOk = (boardWrap.dataset.chessTheme === "ocean");
-          win.cycleChessTheme();
-          const cycleOk = (boardWrap.dataset.chessTheme === "obsidian");
-          win.applyChessTheme("amethyst"); // return to default
-
-          // Board Flipping
-          win.toggleChessFlip();
-          const flippedOk = (win.chessFlipped === true);
-          win.toggleChessFlip(); // unflip
-          const unFlippedOk = (win.chessFlipped === false);
-
-          // Human move 1. e4: click e2 (row 6, col 4), then click e4 (row 4, col 4)
+          // Test legal move: 1. e4 (from 6,4 to 4,4)
           win.onChessClick(6, 4);
           win.onChessClick(4, 4);
+          const e4Cell = chessBoard.querySelector('[data-row="4"][data-col="4"]');
+          const pawnMovedOk = e4Cell && e4Cell.querySelector(".glass-piece-svg") && win.chessTurn === "b";
 
-          const lastMoveOk = (win.chessLastMove && win.chessLastMove.fr === 6 && win.chessLastMove.fc === 4 && win.chessLastMove.tr === 4 && win.chessLastMove.tc === 4);
-          const historyOk = (Array.isArray(win.chessMoveHistory) && win.chessMoveHistory.length > 0 && win.chessMoveHistory[0].white === "e4");
-
-          // Undo move
+          // Test Undo: restores pawn to e2 (6,4) and turn to white
           doc.getElementById("undoBtn")?.click();
-          const undoOk = (Array.isArray(win.chessMoveHistory) && win.chessMoveHistory.length === 0 && win.chessLastMove === null);
+          const e2Cell = chessBoard.querySelector('[data-row="6"][data-col="4"]');
+          const undoOk = e2Cell && e2Cell.querySelector(".glass-piece-svg") && win.chessTurn === "w";
 
-          // Test Dynamic Pill, Hidden status-wrap & Controls Layout Position
-          const statusWrap = doc.querySelector(".status-wrap");
-          const statusWrapHidden = statusWrap && (statusWrap.classList.contains("hidden") || statusWrap.style.display === "none");
+          // Test Move Hints toggle
+          const hintsBtn = doc.getElementById("chessHintsBtn");
+          hintsBtn?.click();
+          const hintsActive = win.chessShowMoveHints === true;
+          hintsBtn?.click(); // toggle off
 
-          win.syncHud();
-          const chessMatchGroup = doc.getElementById("chessMatchGroup");
-          const dynamicPillOk = chessMatchGroup && !chessMatchGroup.classList.contains("hidden");
-
-          win.setDockPosition("left");
-          const dockLeftOk = doc.getElementById("quickDock")?.classList.contains("dock-pos-left");
-          win.setDockPosition("right");
-          const dockRightOk = doc.getElementById("quickDock")?.classList.contains("dock-pos-right");
-
-          win.setChessPanelSide("left");
-          const panelLeftOk = doc.getElementById("chessCockpitLayout")?.classList.contains("panel-left");
-          win.setChessPanelSide("right");
-          const panelRightOk = !doc.getElementById("chessCockpitLayout")?.classList.contains("panel-left");
-
-          console.log("[TEST-11-DEBUG]", { arenaVisible, cellCountOk, coordsOk, oceanOk, cycleOk, flippedOk, unFlippedOk, lastMoveOk, historyOk, undoOk, statusWrapHidden, dynamicPillOk, dockLeftOk, dockRightOk, panelLeftOk, panelRightOk });
+          console.log("[TEST-11-DEBUG]", { boardVisible, cellCountOk, wrapChessMode, pawnMovedOk, undoOk, hintsActive });
           assert(
-            "Sea Glass Chess Arena Cockpit, Dynamic Pill & Layout Controls",
-            arenaVisible && cellCountOk && coordsOk && oceanOk && cycleOk && flippedOk && unFlippedOk && lastMoveOk && historyOk && undoOk && statusWrapHidden && dynamicPillOk && dockLeftOk && dockRightOk && panelLeftOk && panelRightOk,
-            `Diagnostics: arena:${arenaVisible}, cells:${cellCountOk}, coords:${coordsOk}, ocean:${oceanOk}, cycle:${cycleOk}, flip:${flippedOk}, unflip:${unFlippedOk}, lastMv:${lastMoveOk}, hist:${historyOk}, undo:${undoOk}, noWrap:${statusWrapHidden}, pill:${dynamicPillOk}, dockL:${dockLeftOk}, dockR:${dockRightOk}, panelL:${panelLeftOk}, panelR:${panelRightOk}`
+            "Clean Friday Chess Board Engine & Interaction",
+            boardVisible && cellCountOk && wrapChessMode && pawnMovedOk && undoOk && hintsActive,
+            `Diagnostics: visible:${boardVisible}, cells:${cellCountOk}, wrap:${wrapChessMode}, move:${pawnMovedOk}, undo:${undoOk}, hints:${hintsActive}`
           );
         } catch (e) {
           console.error("[TEST] Error in Test 11:", e);
-          assert("Sea Glass Chess Arena Cockpit, Dynamic Pill & Layout Controls", false, e.message);
+          assert("Clean Friday Chess Board Engine & Interaction", false, e.message);
         }
 
         // -------------------------------------------------------------
@@ -617,7 +585,7 @@
           win.launchGameFromCard("chess");
           const chessBarLeftAligned = bar && (win.getComputedStyle(bar).alignSelf === "flex-start");
           toggleBtn?.click();
-          const chessControlsVisible = doc.getElementById("chessMatchGroup") && !doc.getElementById("chessMatchGroup").classList.contains("hidden");
+          const chessControlsVisible = doc.getElementById("opponentGroup") && !doc.getElementById("opponentGroup").classList.contains("hidden");
           console.log("[TEST-13] Step 6 checks:", { chessBarLeftAligned, chessControlsVisible });
 
           // 7. Switch to Tic-Tac-Toe and verify options
