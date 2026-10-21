@@ -1,5 +1,12 @@
 var ludoActiveTimers = [];
 var ludoRollInterval = null;
+var hubState = {
+  game: "ttt3",
+  opponent: "ai",
+  difficulty: "medium",
+  timer: "off",
+  theme: "dark"
+};
 var snakeState = {
   gridSize: 20,
   tileSize: 40, // 20 * 40 = 800
@@ -537,8 +544,12 @@ function applyRandomPalette(target = null) {
   }
   document.body.style.backgroundAttachment = "fixed";
 
-  if (typeof syncSnakeMatchBarUI === "function") syncSnakeMatchBarUI();
-  if (typeof renderSnakeFrame === "function") renderSnakeFrame();
+  try {
+    if (typeof hubState !== "undefined" && hubState && hubState.game === "snake") {
+      if (typeof syncSnakeMatchBarUI === "function") syncSnakeMatchBarUI();
+      if (typeof renderSnakeFrame === "function") renderSnakeFrame();
+    }
+  } catch (_) {}
 
   try {
     localStorage.setItem("gap_palette_idx", currentPaletteIdx);
@@ -642,13 +653,16 @@ const LUDO_COLORS = {
 
 
 
-const hubState = {
-  game: "ttt3",
-  opponent: "ai",
-  difficulty: "medium",
-  timer: "off",
-  theme: "dark"
-};
+// hubState is defined at the top of script.js
+if (typeof hubState === "undefined") {
+  var hubState = {
+    game: "ttt3",
+    opponent: "ai",
+    difficulty: "medium",
+    timer: "off",
+    theme: "dark"
+  };
+}
 
 let scoreA = 0, scoreB = 0, scoreD = 0, streak = 0;
 let moveCount = 0;
@@ -1301,7 +1315,11 @@ miniWindowBtn?.addEventListener("click", () => {
 window.addEventListener("resize", updateMiniWindowUI);
 
 /* ---------- Score Tracking & Statistics Modal ---------- */
-function scoreKey() { return `scores_${modeSelect.value}_${difficultySelect.value}`; }
+function scoreKey() {
+  const m = (typeof modeSelect !== "undefined" && modeSelect && modeSelect.value) ? modeSelect.value : (typeof modeFromHub === "function" ? modeFromHub() : "ttt3-ai");
+  const d = (typeof difficultySelect !== "undefined" && difficultySelect && difficultySelect.value) ? difficultySelect.value : ((typeof hubState !== "undefined" && hubState && hubState.difficulty) ? hubState.difficulty : "medium");
+  return `scores_${m}_${d}`;
+}
 
 function renderScores() {
   if (scoreAEl) scoreAEl.textContent = scoreA;
@@ -9799,7 +9817,7 @@ function syncSnakeMatchBarUI() {
   setActive(modePills, "snakemode", snakeState.mode);
   setActive(speedPills, "snakespeed", snakeState.speed);
 
-  const isAdaptive = (snakeState.skin === "adaptive" || !SNAKE_SKINS[snakeState.skin]);
+  const isAdaptive = (snakeState.skin === "adaptive" || typeof SNAKE_SKINS === "undefined" || !SNAKE_SKINS[snakeState.skin]);
   const brand = getComputedStyle(document.documentElement).getPropertyValue("--brand").trim() || "#38bdf8";
   const glow = getComputedStyle(document.documentElement).getPropertyValue("--accent-glow").trim() || "rgba(56, 189, 248, 0.8)";
   const skinObj = isAdaptive
@@ -9809,7 +9827,7 @@ function syncSnakeMatchBarUI() {
         dot: brand,
         glow: glow
       }
-    : (SNAKE_SKINS[snakeState.skin] || SNAKE_SKINS.adaptive);
+    : ((typeof SNAKE_SKINS !== "undefined" && SNAKE_SKINS[snakeState.skin]) ? SNAKE_SKINS[snakeState.skin] : { name: "GAP Accent", short: "Accent", dot: brand, glow: glow });
   if (skinLabel) skinLabel.textContent = skinObj.short || skinObj.name;
   if (skinDot) {
     skinDot.style.backgroundColor = skinObj.dot;
