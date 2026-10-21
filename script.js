@@ -885,6 +885,18 @@ function syncHud() {
       difficultyGroup.classList.add("hidden");
     }
   }
+
+  // Wordle Match Group in Top Match Dropdown
+  const wordleMatchGroup = document.getElementById("wordleMatchGroup");
+  if (wordleMatchGroup) {
+    if (isWordle) {
+      wordleMatchGroup.style.display = "flex";
+      wordleMatchGroup.classList.remove("hidden");
+    } else {
+      wordleMatchGroup.style.setProperty("display", "none", "important");
+      wordleMatchGroup.classList.add("hidden");
+    }
+  }
 }
 
 // Dynamic Dock Positioning (Right / Left)
@@ -2359,6 +2371,7 @@ var chessLastMove = null;
 var chessMoveHistory = [];
 
 let chessBoard = [], chessTurn = "w", chessSelected = null, chessOver = false, whiteCaptured = [], blackCaptured = [], chessSnapshots = [];
+let chessAiTimer = null;
 let chessShowMoveHints = false;
 let chessEnPassant = null;
 let chessHalfmoveClock = 0;
@@ -2504,6 +2517,10 @@ function saveChessSnapshot() {
 }
 
 function initChess() {
+  if (chessAiTimer) {
+    clearTimeout(chessAiTimer);
+    chessAiTimer = null;
+  }
   chessBoard = Array.from({ length: 8 }, () => Array(8).fill(null));
   const back = ["r", "n", "b", "q", "k", "b", "n", "r"];
   for (let c = 0; c < 8; c++) {
@@ -3538,7 +3555,9 @@ function onChessClick(r, c) {
     const oppStatusEl = document.getElementById("chessOpponentStatus");
     if (oppStatusEl) oppStatusEl.textContent = "Thinking...";
 
-    setTimeout(() => {
+    if (chessAiTimer) clearTimeout(chessAiTimer);
+    chessAiTimer = setTimeout(() => {
+      chessAiTimer = null;
       saveChessSnapshot();
       const diff = hubState.difficulty || difficultySelect?.value || "medium";
       const mv = chooseChessAiMove(chessBoard, diff);
@@ -7449,7 +7468,19 @@ function restoreLiveStateIfAny() {
     const s = JSON.parse(raw);
     if (!s || !s.mode) return false;
 
-    if (s.hubState) Object.assign(hubState, s.hubState);
+    // Guard: Only restore live state if the saved mode matches the current requested game!
+    const currentMode = hubState.game || "ttt3";
+    const currentNorm = currentMode.startsWith("ttt") ? "ttt" : currentMode;
+    const savedNorm = s.mode.startsWith("ttt") ? "ttt" : s.mode;
+    if (currentNorm !== savedNorm) {
+      return false;
+    }
+
+    if (s.hubState) {
+      const prevGame = hubState.game;
+      Object.assign(hubState, s.hubState);
+      if (prevGame) hubState.game = prevGame;
+    }
     modeSelect.value = s.mode;
 
     if (s.scores) {
@@ -7664,6 +7695,10 @@ undoBtn?.addEventListener("click", () => {
     startTurnTimer();
     persistLiveState();
     return;
+  }
+  if (chessAiTimer) {
+    clearTimeout(chessAiTimer);
+    chessAiTimer = null;
   }
   const s = chessSnapshots.pop();
   if (!s) return;
@@ -8158,7 +8193,50 @@ function showGameView(gameKey) {
   try {
     sessionStorage.setItem("gap_view_mode", "game");
   } catch {}
+  if (typeof window.setGameNavDropdownOpen === "function") {
+    window.setGameNavDropdownOpen(false);
+  }
 }
+
+function launchGameFromCard(targetGame) {
+  if (!targetGame) return;
+  if (targetGame === "palace") {
+    window.location.href = "palace-escape/";
+    return;
+  }
+  if (targetGame === "passiton" || targetGame === "pass-it-on") {
+    window.location.href = "pass-it-on/";
+    return;
+  }
+  if (targetGame === "ttt" || targetGame === "ttt3") {
+    targetGame = hubState.lastTttMode || "ttt3";
+  }
+  hubState.game = targetGame;
+  if (targetGame.startsWith("ttt")) hubState.lastTttMode = targetGame;
+  if (modeSelect) modeSelect.value = modeFromHub();
+  syncHud();
+  persistHub();
+
+  // Instant view transition so UI immediately displays active game arena
+  showGameView(targetGame);
+
+  try {
+    initBoard(true);
+  } catch (err) {
+    console.error("[GAP] Error during initBoard for " + targetGame + ":", err);
+  }
+  showOnlyActiveGame(targetGame);
+
+  const targetHash = "#/" + targetGame;
+  try {
+    if (history.replaceState) {
+      history.replaceState(null, "", targetHash);
+    } else if (location.protocol !== "file:") {
+      location.hash = targetHash;
+    }
+  } catch (_) {}
+}
+window.launchGameFromCard = launchGameFromCard;
 
 function initScenicLandingAndNav() {
   const cardGrid = document.getElementById("gamesCardGrid");
@@ -8195,8 +8273,14 @@ function initScenicLandingAndNav() {
         if (actualGame.startsWith("ttt")) hubState.lastTttMode = actualGame;
         if (modeSelect) modeSelect.value = modeFromHub();
         syncHud();
-        initBoard(false);
         showGameView(actualGame);
+        try {
+          initBoard(false);
+        } catch (err) {
+          console.error("[GAP] Error during handleRoute initBoard:", err);
+          initBoard(true);
+        }
+        showOnlyActiveGame(actualGame);
         return;
       }
       showGameView(hubState.game);
@@ -8208,38 +8292,61 @@ function initScenicLandingAndNav() {
   handleRoute();
   window.addEventListener("hashchange", handleRoute);
 
-  // 1. Game Selection Cards
-  cardGrid?.addEventListener("click", (e) => {
-    const card = e.target.closest("[data-game]");
-    if (!card) return;
-    let targetGame = card.dataset.game;
-    if (targetGame === "palace") {
-      window.location.href = "palace-escape/";
-      return;
-    }
-    if (targetGame === "passiton" || targetGame === "pass-it-on") {
-      window.location.href = "pass-it-on/";
-      return;
-    }
-    if (targetGame === "ttt" || targetGame === "ttt3") {
-      targetGame = hubState.lastTttMode || "ttt3";
-    }
-    hubState.game = targetGame;
-    if (targetGame.startsWith("ttt")) hubState.lastTttMode = targetGame;
-    if (modeSelect) modeSelect.value = modeFromHub();
-    syncHud();
-    persistHub();
-    initBoard(true);
-    showGameView(targetGame);
-    location.hash = "#/" + targetGame;
-  });
-
-  // 2. Return to All Games Button
-  backBtn?.addEventListener("click", () => {
+  function returnToHub() {
     stopLudo();
     if (typeof stopSnake === "function") stopSnake();
     showLandingView();
-    location.hash = "#/";
+    try {
+      if (history.replaceState) {
+        history.replaceState(null, "", "#/");
+      } else if (location.protocol !== "file:") {
+        location.hash = "#/";
+      }
+    } catch (_) {}
+  }
+
+  // 1. Game Selection Cards: Grid click listener
+  cardGrid?.addEventListener("click", (e) => {
+    const card = e.target.closest("[data-game]");
+    if (!card) return;
+    e.preventDefault();
+    e.stopPropagation();
+    launchGameFromCard(card.dataset.game);
+  });
+
+  // Global Delegated Click Listener for maximum resilience
+  document.addEventListener("click", (e) => {
+    // Check if Back to Hub was clicked
+    if (e.target.closest("#backToHubBtn, .back-to-hub-btn")) {
+      e.preventDefault();
+      returnToHub();
+      return;
+    }
+
+    const card = e.target.closest("[data-game]");
+    if (!card) return;
+    const landing = document.getElementById("landingView");
+    if (card.closest("#gamesCardGrid") || (landing && !landing.classList.contains("hidden"))) {
+      e.preventDefault();
+      launchGameFromCard(card.dataset.game);
+    }
+  });
+
+  // Accessible keyboard navigation (Enter & Space) for game selection cards
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      const card = document.activeElement?.closest("[data-game]");
+      if (card && card.closest("#gamesCardGrid")) {
+        e.preventDefault();
+        launchGameFromCard(card.dataset.game);
+      }
+    }
+  });
+
+  // 2. Return to All Games Button
+  backBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    returnToHub();
   });
 
   // 3. Header Play Button
@@ -8461,42 +8568,63 @@ initScenicLandingAndNav();
 
 
 
-// Collapsible Upper Match Bar Logic (Mirroring Bottom Dock)
+// Universal Sea-Glass Navigation Pill & Vertical Dropdown Handler
 (function() {
   const bar = document.getElementById('gameMatchBar');
   const toggleBtn = document.getElementById('matchBarToggleBtn');
   const activeBadge = document.getElementById('activeGameBadge');
 
-  function updateMatchBarState(collapsed) {
+  function setDropdownOpen(open) {
     if (!bar) return;
-    bar.classList.toggle('collapsed', collapsed);
+    bar.classList.toggle('dropdown-open', open);
+    bar.classList.toggle('collapsed', !open);
     if (toggleBtn) {
-      toggleBtn.title = collapsed ? "Expand Match Controls" : "Minimize Controls for clean view";
-      toggleBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      toggleBtn.title = open ? "Close Settings Dropdown" : "Open Settings Dropdown";
+      toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
     }
-    try {
-      localStorage.setItem('gap_matchbar_collapsed', collapsed ? 'true' : 'false');
-    } catch(e) {}
   }
 
-  try {
-    const saved = localStorage.getItem('gap_matchbar_collapsed');
-    if (saved === 'true') {
-      updateMatchBarState(true);
-    }
-  } catch(e) {}
+  // Always start with collapsed/compact navigation pill across all games
+  setDropdownOpen(false);
 
+  // Chevron toggle button click
   toggleBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
-    const isCollapsed = bar?.classList.contains('collapsed');
-    updateMatchBarState(!isCollapsed);
+    const isOpen = bar?.classList.contains('dropdown-open');
+    setDropdownOpen(!isOpen);
   });
 
+  // Clicking active game badge also toggles dropdown
   activeBadge?.addEventListener('click', (e) => {
-    if (bar?.classList.contains('collapsed')) {
-      updateMatchBarState(false);
+    e.stopPropagation();
+    const isOpen = bar?.classList.contains('dropdown-open');
+    setDropdownOpen(!isOpen);
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!bar) return;
+    if (bar.classList.contains('dropdown-open') && !bar.contains(e.target)) {
+      setDropdownOpen(false);
     }
   });
+
+  // Close dropdown when pressing Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && bar && bar.classList.contains('dropdown-open')) {
+      setDropdownOpen(false);
+    }
+  });
+
+  // Wordle dropdown guide button hook
+  document.getElementById('wordleDropdownHelpBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setDropdownOpen(false);
+    const wordleHelpModal = document.getElementById('wordleHelpModal');
+    if (wordleHelpModal) wordleHelpModal.classList.remove('hidden');
+  });
+
+  window.setGameNavDropdownOpen = setDropdownOpen;
 })();
 
 // Collapsible Quick-Dock Logic

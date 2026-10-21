@@ -111,7 +111,10 @@
     }
 
     const frame = document.getElementById("appFrame");
+    let suiteRan = false;
     frame.onload = function() {
+      if (suiteRan) return;
+      suiteRan = true;
       console.log("[TEST] Frame loaded. Beginning diagnostic suite...");
       const win = frame.contentWindow;
       const doc = frame.contentDocument || win.document;
@@ -394,8 +397,8 @@
         try {
           // Switch to Chess mode
           win.hubState.game = "chess";
-          win.hubState.opponent = "ai";
-          if (win.modeSelect) win.modeSelect.value = "chess-ai";
+          win.hubState.opponent = "pass";
+          if (win.modeSelect) win.modeSelect.value = "chess-local";
           win.initChess();
           win.showOnlyActiveGame("chess");
 
@@ -467,6 +470,180 @@
         } catch (e) {
           console.error("[TEST] Error in Test 11:", e);
           assert("Sea Glass Chess Arena Cockpit, Dynamic Pill & Layout Controls", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // TEST 12: Landing Page Game Cards Navigation & Instant Screen Transition
+        // -------------------------------------------------------------
+        console.log("[TEST] Starting Test 12 (Landing Page Game Cards Navigation)...");
+        try {
+          const landingView = doc.getElementById("landingView");
+          const gameView = doc.getElementById("gameView");
+          const backBtn = doc.getElementById("backToHubBtn");
+
+          // 1. Return to Landing
+          console.log("[TEST-12] Step 1: win.showLandingView()");
+          win.showLandingView();
+          const initialLandingVisible = landingView && !landingView.classList.contains("hidden") && gameView.classList.contains("hidden");
+          console.log("[TEST-12] Step 1 ok:", initialLandingVisible);
+
+          // 2. Click Chess card
+          console.log("[TEST-12] Step 2: Click Chess card");
+          const cardChess = doc.getElementById("cardChess");
+          cardChess?.click();
+          console.log("[TEST-12] Step 2 clicked");
+          const chessLaunchOk = gameView && !gameView.classList.contains("hidden") && landingView.classList.contains("hidden") && gameView.getAttribute("data-active-game") === "chess";
+          console.log("[TEST-12] Step 2 ok:", chessLaunchOk);
+
+          // 3. Click Return to All Games
+          console.log("[TEST-12] Step 3: Click Return to All Games");
+          backBtn?.click();
+          console.log("[TEST-12] Step 3 clicked");
+          const backLandingOk = landingView && !landingView.classList.contains("hidden") && gameView.classList.contains("hidden");
+          console.log("[TEST-12] Step 3 ok:", backLandingOk);
+
+          // 4. Click Tic-Tac-Toe card
+          console.log("[TEST-12] Step 4: Click TTT card");
+          const cardTTT = doc.getElementById("cardTTT");
+          cardTTT?.click();
+          console.log("[TEST-12] Step 4 clicked");
+          const tttLaunchOk = gameView && !gameView.classList.contains("hidden") && landingView.classList.contains("hidden") && gameView.getAttribute("data-active-game") === "ttt3";
+          console.log("[TEST-12] Step 4 ok:", tttLaunchOk);
+
+          // 5. Click Return to All Games
+          console.log("[TEST-12] Step 5: Click Return to All Games");
+          backBtn?.click();
+          console.log("[TEST-12] Step 5 clicked");
+
+          // 6. Click Wordle card
+          const cardWordle = doc.getElementById("cardWordle");
+          cardWordle?.click();
+          const wordleLaunchOk = gameView && !gameView.classList.contains("hidden") && gameView.getAttribute("data-active-game") === "wordle";
+
+          // 7. Click Return to All Games
+          backBtn?.click();
+
+          // 8. Click Snake card
+          const cardSnake = doc.getElementById("cardSnake");
+          cardSnake?.click();
+          const snakeLaunchOk = gameView && !gameView.classList.contains("hidden") && gameView.getAttribute("data-active-game") === "snake";
+
+          // 9. Click Return to All Games
+          backBtn?.click();
+
+          // 10. Click Poker card
+          const cardPoker = doc.getElementById("cardPoker");
+          cardPoker?.click();
+          const pokerLaunchOk = gameView && !gameView.classList.contains("hidden") && gameView.getAttribute("data-active-game") === "poker";
+
+          // 11. Click Return to All Games
+          backBtn?.click();
+
+          // 12. Click Sequence card
+          const cardSequence = doc.getElementById("cardSequence");
+          cardSequence?.click();
+          const sequenceLaunchOk = gameView && !gameView.classList.contains("hidden") && gameView.getAttribute("data-active-game") === "sequence";
+
+          // 13. Click Return to All Games
+          backBtn?.click();
+
+          // 14. Click Ludo card
+          const cardLudo = doc.getElementById("cardLudo");
+          cardLudo?.click();
+          const ludoLaunchOk = gameView && !gameView.classList.contains("hidden") && gameView.getAttribute("data-active-game") === "ludo";
+
+          // Reset back to Hub
+          backBtn?.click();
+
+          console.log("[TEST-12-DEBUG]", { initialLandingVisible, chessLaunchOk, backLandingOk, tttLaunchOk, wordleLaunchOk, snakeLaunchOk, pokerLaunchOk, sequenceLaunchOk, ludoLaunchOk });
+
+          assert(
+            "Landing Page Game Cards Navigation & Instant Screen Transition",
+            initialLandingVisible && chessLaunchOk && backLandingOk && tttLaunchOk && wordleLaunchOk && snakeLaunchOk && pokerLaunchOk && sequenceLaunchOk && ludoLaunchOk,
+            `Landing:${initialLandingVisible}, Chess:${chessLaunchOk}, Back:${backLandingOk}, TTT:${tttLaunchOk}, Wordle:${wordleLaunchOk}, Snake:${snakeLaunchOk}, Poker:${pokerLaunchOk}, Seq:${sequenceLaunchOk}, Ludo:${ludoLaunchOk}`
+          );
+        } catch (e) {
+          console.error("[TEST] Error in Test 12:", e);
+          assert("Landing Page Game Cards Navigation & Instant Screen Transition", false, e.message);
+        }
+
+        // -------------------------------------------------------------
+        // TEST 13: Universal Sea-Glass Navigation Pill & Vertical Dropdown System
+        // -------------------------------------------------------------
+        console.log("[TEST] Starting Test 13 (Vertical Dropdown Navigation Pill)...");
+        try {
+          const gameView = doc.getElementById("gameView");
+          const bar = doc.getElementById("gameMatchBar");
+          const toggleBtn = doc.getElementById("matchBarToggleBtn");
+          const activeBadge = doc.getElementById("activeGameBadge");
+          const centerGroup = doc.getElementById("hudCenterGroup");
+          const backBtn = doc.getElementById("backToHubBtn");
+
+          console.log("[TEST-13] Step 1: launch snake");
+          win.launchGameFromCard("snake");
+          console.log("[TEST-13] Step 1 done");
+          const snakeBarLeftAligned = bar && (win.getComputedStyle(bar).alignSelf === "flex-start");
+          const centerAbsolute = centerGroup && (win.getComputedStyle(centerGroup).position === "absolute");
+          const startsClosed = bar && !bar.classList.contains("dropdown-open");
+          console.log("[TEST-13] Step 1 checks:", { snakeBarLeftAligned, centerAbsolute, startsClosed });
+
+          // 2. Open dropdown via toggleBtn click
+          console.log("[TEST-13] Step 2: toggleBtn click");
+          toggleBtn?.click();
+          const openedViaBtn = bar && bar.classList.contains("dropdown-open");
+          const snakeControlsVisible = doc.getElementById("snakeMatchGroup") && !doc.getElementById("snakeMatchGroup").classList.contains("hidden");
+          console.log("[TEST-13] Step 2 checks:", { openedViaBtn, snakeControlsVisible });
+
+          // 3. Close dropdown via Escape key
+          console.log("[TEST-13] Step 3: Escape key");
+          doc.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+          const closedViaEscape = bar && !bar.classList.contains("dropdown-open");
+          console.log("[TEST-13] Step 3 checks:", { closedViaEscape });
+
+          // 4. Open dropdown via Active Badge click
+          console.log("[TEST-13] Step 4: badge click");
+          activeBadge?.click();
+          const openedViaBadge = bar && bar.classList.contains("dropdown-open");
+          console.log("[TEST-13] Step 4 checks:", { openedViaBadge });
+
+          // 5. Close dropdown via Click Outside
+          console.log("[TEST-13] Step 5: click outside");
+          doc.body.click();
+          const closedViaClickOutside = bar && !bar.classList.contains("dropdown-open");
+          console.log("[TEST-13] Step 5 checks:", { closedViaClickOutside });
+
+          // 6. Switch to Chess and verify top-left alignment and options
+          console.log("[TEST-13] Step 6: launch chess");
+          win.launchGameFromCard("chess");
+          const chessBarLeftAligned = bar && (win.getComputedStyle(bar).alignSelf === "flex-start");
+          toggleBtn?.click();
+          const chessControlsVisible = doc.getElementById("chessMatchGroup") && !doc.getElementById("chessMatchGroup").classList.contains("hidden");
+          console.log("[TEST-13] Step 6 checks:", { chessBarLeftAligned, chessControlsVisible });
+
+          // 7. Switch to Tic-Tac-Toe and verify options
+          console.log("[TEST-13] Step 7: launch ttt3");
+          win.launchGameFromCard("ttt3");
+          const tttControlsVisible = doc.getElementById("tttModeGroup") && !doc.getElementById("tttModeGroup").classList.contains("hidden");
+          console.log("[TEST-13] Step 7 checks:", { tttControlsVisible });
+
+          // Return to hub
+          backBtn?.click();
+
+          const allDropdownChecksPass = snakeBarLeftAligned && centerAbsolute && startsClosed &&
+                                        openedViaBtn && snakeControlsVisible && closedViaEscape &&
+                                        openedViaBadge && closedViaClickOutside &&
+                                        chessBarLeftAligned && chessControlsVisible && tttControlsVisible;
+
+          console.log("[TEST-13-DEBUG]", { snakeBarLeftAligned, centerAbsolute, startsClosed, openedViaBtn, snakeControlsVisible, closedViaEscape, openedViaBadge, closedViaClickOutside, chessBarLeftAligned, chessControlsVisible, tttControlsVisible });
+
+          assert(
+            "Universal Sea-Glass Navigation Pill & Vertical Dropdown System",
+            allDropdownChecksPass,
+            `TopLeft:${snakeBarLeftAligned}, FloatAbsolute:${centerAbsolute}, InitClosed:${startsClosed}, ToggleOpen:${openedViaBtn}, SnakeControls:${snakeControlsVisible}, EscClose:${closedViaEscape}, BadgeOpen:${openedViaBadge}, OutsideClose:${closedViaClickOutside}`
+          );
+        } catch (e) {
+          console.error("[TEST] Error in Test 13:", e);
+          assert("Universal Sea-Glass Navigation Pill & Vertical Dropdown System", false, e.message);
         }
 
         // -------------------------------------------------------------
