@@ -14,7 +14,7 @@ var snakeState = {
   startHighScore: 0,
   mode: "classic",
   speed: "normal",
-  skin: "emerald",
+  skin: "adaptive",
   timeLeft: 60,
   applesEaten: 0,
   goldenEaten: 0,
@@ -464,12 +464,23 @@ function applyRandomPalette(target = null) {
 
   const chosen = DYNAMIC_PALETTES[currentPaletteIdx];
   const root = document.documentElement;
+
+  function hexToRgbStr(hex) {
+    if (!hex) return "56, 189, 248";
+    let c = hex.replace("#", "").trim();
+    if (c.length === 3) c = c.split("").map(x => x + x).join("");
+    const num = parseInt(c, 16);
+    if (isNaN(num)) return "56, 189, 248";
+    return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+  }
+
   root.style.setProperty("--dyn-brand", chosen.brand);
   root.style.setProperty("--dyn-flame", chosen.flame);
   root.style.setProperty("--dyn-glow", chosen.glow);
   root.style.setProperty("--dyn-bg-dark", chosen.darkBg);
   root.style.setProperty("--dyn-bg-light", chosen.lightBg);
   root.style.setProperty("--brand", chosen.brand);
+  root.style.setProperty("--brand-rgb", hexToRgbStr(chosen.brand));
   root.style.setProperty("--accent", chosen.brand);
   root.style.setProperty("--accent-secondary", chosen.flame);
   root.style.setProperty("--accent-glow", chosen.glow);
@@ -525,6 +536,9 @@ function applyRandomPalette(target = null) {
     document.body.style.setProperty("--bg", chosen.lightBg);
   }
   document.body.style.backgroundAttachment = "fixed";
+
+  if (typeof syncSnakeMatchBarUI === "function") syncSnakeMatchBarUI();
+  if (typeof renderSnakeFrame === "function") renderSnakeFrame();
 
   try {
     localStorage.setItem("gap_palette_idx", currentPaletteIdx);
@@ -1185,6 +1199,7 @@ function setTheme(theme) {
   }
   if (hubState.game === "poker") renderPokerUI();
   if (hubState.game === "sequence") renderSequenceUI();
+  if (hubState.game === "snake" && typeof renderSnakeFrame === "function") renderSnakeFrame();
 }
 
 // Sea-Glass Theme Switcher capsule in GAP pill (Sun Left / Moon Right)
@@ -9567,14 +9582,14 @@ function initLudoEvents() {
    ========================================================================= */
 
 const SNAKE_SKINS = {
-  emerald: {
-    name: "Emerald",
-    short: "Emerald",
-    dot: "#10b981",
-    head: "#34d399",
-    bodyGrad: ["#34d399", "#10b981", "#059669"],
-    glow: "rgba(52, 211, 153, 0.8)",
-    eye: "#022c22"
+  adaptive: {
+    name: "GAP Accent",
+    short: "Accent",
+    dot: "#38bdf8",
+    head: "#38bdf8",
+    bodyGrad: ["#ffffff", "#38bdf8", "#0284c7"],
+    glow: "rgba(56, 189, 248, 0.8)",
+    eye: "#082f49"
   },
   cyan: {
     name: "Cyber Cyan",
@@ -9584,6 +9599,15 @@ const SNAKE_SKINS = {
     bodyGrad: ["#67e8f9", "#06b6d4", "#0891b2"],
     glow: "rgba(6, 182, 212, 0.8)",
     eye: "#083344"
+  },
+  emerald: {
+    name: "Emerald",
+    short: "Emerald",
+    dot: "#10b981",
+    head: "#34d399",
+    bodyGrad: ["#34d399", "#10b981", "#059669"],
+    glow: "rgba(52, 211, 153, 0.8)",
+    eye: "#022c22"
   },
   gold: {
     name: "Solar Gold",
@@ -9733,7 +9757,8 @@ function playSnakeSound(type) {
 function loadSnakeSettings() {
   try {
     const savedSkin = localStorage.getItem("gap_snake_skin");
-    if (savedSkin && SNAKE_SKINS[savedSkin]) snakeState.skin = savedSkin;
+    if (savedSkin && SNAKE_SKINS[savedSkin] && savedSkin !== "emerald") snakeState.skin = savedSkin;
+    else snakeState.skin = "adaptive";
 
     const savedSpeed = localStorage.getItem("gap_snake_speed");
     if (savedSpeed && SNAKE_SPEEDS[savedSpeed]) snakeState.speed = savedSpeed;
@@ -9774,7 +9799,17 @@ function syncSnakeMatchBarUI() {
   setActive(modePills, "snakemode", snakeState.mode);
   setActive(speedPills, "snakespeed", snakeState.speed);
 
-  const skinObj = SNAKE_SKINS[snakeState.skin] || SNAKE_SKINS.emerald;
+  const isAdaptive = (snakeState.skin === "adaptive" || !SNAKE_SKINS[snakeState.skin]);
+  const brand = getComputedStyle(document.documentElement).getPropertyValue("--brand").trim() || "#38bdf8";
+  const glow = getComputedStyle(document.documentElement).getPropertyValue("--accent-glow").trim() || "rgba(56, 189, 248, 0.8)";
+  const skinObj = isAdaptive
+    ? {
+        name: "GAP Accent",
+        short: "Accent",
+        dot: brand,
+        glow: glow
+      }
+    : (SNAKE_SKINS[snakeState.skin] || SNAKE_SKINS.adaptive);
   if (skinLabel) skinLabel.textContent = skinObj.short || skinObj.name;
   if (skinDot) {
     skinDot.style.backgroundColor = skinObj.dot;
@@ -10216,18 +10251,18 @@ function renderSnakeFrame() {
   // Background subtle gradient
   const bgGrad = ctx.createRadialGradient(width / 2, height / 2, 40, width / 2, height / 2, width * 0.72);
   if (isLight) {
-    bgGrad.addColorStop(0, "#ecfdf5");
-    bgGrad.addColorStop(1, "#d1fae5");
+    bgGrad.addColorStop(0, "#ffffff");
+    bgGrad.addColorStop(1, "#f1f5f9");
   } else {
-    bgGrad.addColorStop(0, "#08201a");
-    bgGrad.addColorStop(1, "#030a08");
+    bgGrad.addColorStop(0, "#0a131e");
+    bgGrad.addColorStop(1, "#03070d");
   }
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, width, height);
 
   // 2. Frosted Grid lines
   ctx.lineWidth = 1;
-  ctx.strokeStyle = isLight ? "rgba(16, 185, 129, 0.08)" : "rgba(255, 255, 255, 0.035)";
+  ctx.strokeStyle = isLight ? "rgba(100, 116, 139, 0.08)" : "rgba(255, 255, 255, 0.035)";
   for (let i = 0; i <= gs; i++) {
     ctx.beginPath();
     ctx.moveTo(i * ts, 0);
@@ -10354,7 +10389,21 @@ function renderSnakeFrame() {
   }
 
   // 5. Render Glowing Snake
-  const skin = SNAKE_SKINS[snakeState.skin] || SNAKE_SKINS.emerald;
+  let skin = SNAKE_SKINS[snakeState.skin] || SNAKE_SKINS.adaptive;
+  if (snakeState.skin === "adaptive" || !SNAKE_SKINS[snakeState.skin]) {
+    const brand = getComputedStyle(document.documentElement).getPropertyValue("--brand").trim() || "#38bdf8";
+    const glow = getComputedStyle(document.documentElement).getPropertyValue("--accent-glow").trim() || "rgba(56, 189, 248, 0.8)";
+    const flame = getComputedStyle(document.documentElement).getPropertyValue("--accent-secondary").trim() || "#0284c7";
+    skin = {
+      name: "GAP Accent",
+      short: "Accent",
+      dot: brand,
+      head: brand,
+      bodyGrad: ["#ffffff", brand, flame],
+      glow: glow,
+      eye: isLight ? "#0f172a" : "#020617"
+    };
+  }
   const snakeLen = snakeState.snake.length;
 
   for (let i = snakeLen - 1; i >= 0; i--) {
