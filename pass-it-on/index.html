@@ -17,6 +17,10 @@
 <link rel="preload" as="image" href="a-sprite-cop.8ea47034.webp">
 <link rel="preload" as="image" href="a-sprite-cop3.d43f7614.webp">
 <link rel="preload" as="image" href="a-baby.4f022132.png">
+<!-- Google Fonts Outfit & Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 @font-face{font-family:'Patrick Hand';font-style:normal;font-weight:400;font-display:swap;src:url(a-font-patrick-hand.2fed3514.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
 *{-webkit-tap-highlight-color:transparent}
@@ -251,65 +255,54 @@ a.follow:active{transform:translate(1px,1px)}
   }
 </style>
 <style>
-
 /* =====================================================================================================
-   GAP FLOATING PILL & COMPACT MATCH BAR (Reduced Space-Saving Layout for Subgames)
+   GAP MODERN SEA-GLASS NAVIGATION & MATCH BAR (Aligned with Platform Layout)
    ===================================================================================================== */
 
+/* Global UI Font */
+.floating-pill-container, .game-match-bar, #hud, #card, button.sm, .btn {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* Top Right: GAP Brand & Theme Slider Capsule */
 .floating-pill-container {
-  position: fixed;
-  top: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: auto;
-  pointer-events: none;
+  position: fixed !important;
+  top: 10px !important;
+  right: 14px !important;
+  left: auto !important;
+  transform: none !important;
+  z-index: 100000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  pointer-events: none !important;
+  width: auto !important;
 }
 
 .floating-pill {
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
-  height: 32px;
-  padding: 0 14px;
+  gap: 8px;
+  height: 36px;
+  padding: 0 8px 0 12px;
   border-radius: 9999px;
-  background: rgba(18, 24, 38, 0.85);
+  background: rgba(11, 17, 32, 0.88);
   backdrop-filter: blur(24px) saturate(190%);
   -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-top: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.2);
-  transition: max-width 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-              padding 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-              background 0.3s ease,
-              box-shadow 0.32s ease;
-  overflow: visible;
-  max-width: 95px;
-  gap: 0;
-  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.25s ease;
   user-select: none;
   -webkit-user-select: none;
 }
 
 body[data-theme="light"] .floating-pill {
   background: rgba(255, 255, 255, 0.94);
-  border-color: rgba(15, 23, 42, 0.14);
+  border-color: rgba(15, 23, 42, 0.12);
   border-top-color: #ffffff;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08), inset 0 1px 1px #ffffff;
-}
-
-.floating-pill.expanded {
-  max-width: 440px;
-  padding: 0 8px 0 12px;
-  gap: 6px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 20px var(--dyn-glow, rgba(168, 85, 247, 0.3));
-}
-
-body[data-theme="light"] .floating-pill.expanded {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 0 18px var(--dyn-glow, rgba(14, 165, 233, 0.2));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 1px 1px #ffffff;
 }
 
 .pill-brand {
@@ -335,78 +328,115 @@ body[data-theme="light"] .floating-pill.expanded {
   filter: drop-shadow(0 0 10px var(--dyn-glow, rgba(56, 189, 248, 0.45)));
 }
 
-.pill-chevron {
-  color: var(--dyn-brand, rgba(255, 255, 255, 0.6));
-  opacity: 0.7;
-  transition: transform 0.25s ease;
-  flex-shrink: 0;
-  width: 10px;
-  height: 10px;
-}
-
-.floating-pill.expanded .pill-chevron {
-  transform: rotate(180deg);
-  opacity: 1;
-}
-
-.pill-expand-actions {
+/* Sea-Glass Theme Switcher Capsule (Sun Left / Moon Right Slider) */
+.sea-glass-theme-switch {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  max-width: 0;
-  opacity: 0;
-  pointer-events: none;
-  overflow: hidden;
-  transform: scale(0.92) translateX(-4px);
-  transition: max-width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.2s ease,
-              transform 0.3s ease;
-  white-space: nowrap;
-}
-
-.floating-pill.expanded .pill-expand-actions {
-  max-width: 360px;
-  opacity: 1;
-  pointer-events: auto;
-  overflow: visible;
-  transform: scale(1) translateX(0);
-}
-
-.gap-pill-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 24px;
-  padding: 0 9px;
+  justify-content: space-between;
+  height: 28px;
+  width: 62px;
+  padding: 2px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: #38bdf8;
-  text-decoration: none;
-  font-size: 0.72rem;
-  font-weight: 700;
-  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  margin: 0 2px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-.gap-pill-link:hover {
-  background: rgba(56, 189, 248, 0.2);
-  border-color: #38bdf8;
+body[data-theme="light"] .sea-glass-theme-switch {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.sea-glass-thumb {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: calc((100% - 4px) / 2);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 2px #ffffff;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+body[data-theme="light"] .sea-glass-thumb {
+  transform: translateX(0%);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25), inset 0 1px 2px #ffffff;
+}
+
+body[data-theme="dark"] .sea-glass-thumb,
+body:not([data-theme="light"]) .sea-glass-thumb {
+  transform: translateX(100%);
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 2px 8px var(--dyn-glow, rgba(56, 189, 248, 0.35)), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+.sea-glass-btn {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: color 0.18s ease, transform 0.15s ease, opacity 0.18s ease;
+  outline: none;
+}
+
+.sea-glass-btn.active {
   color: #ffffff;
 }
 
+body[data-theme="light"] .sea-glass-btn {
+  color: rgba(15, 23, 42, 0.5);
+}
+
+body[data-theme="light"] .sea-glass-btn.active {
+  color: #0f172a;
+}
+
+.sea-glass-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
 .gap-icon-pill-btn {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   color: rgba(255, 255, 255, 0.85);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .gap-icon-pill-btn:hover {
@@ -415,239 +445,215 @@ body[data-theme="light"] .floating-pill.expanded {
   transform: scale(1.05);
 }
 
-.theme-picker {
-  position: relative;
-  flex-shrink: 0;
+body[data-theme="light"] .gap-icon-pill-btn {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #0f172a;
 }
 
-.theme-trigger {
-  height: 24px !important;
-  padding: 0 9px !important;
-  border-radius: 9999px !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  color: #f8fafc !important;
-  font-size: 0.72rem !important;
-  font-weight: 700 !important;
-  cursor: pointer !important;
-}
-
-body[data-theme="light"] .theme-trigger {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
-  color: #0f172a !important;
-}
-
-.theme-menu {
-  position: absolute !important;
-  right: 0 !important;
-  top: calc(100% + 6px) !important;
-  min-width: 130px !important;
-  border-radius: 12px !important;
-  padding: 4px !important;
-  display: none !important;
-  flex-direction: column !important;
-  gap: 3px !important;
-  z-index: 999999 !important;
-  background: rgba(15, 23, 42, 0.95) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(56, 189, 248, 0.3) !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65) !important;
-}
-
-body[data-theme="light"] .theme-menu {
-  background: rgba(255, 255, 255, 0.98) !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
-}
-
-.theme-picker.open .theme-menu {
-  display: flex !important;
-}
-
-.theme-item {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  padding: 5px 10px !important;
-  border-radius: 8px !important;
-  background: transparent !important;
-  border: none !important;
-  color: #f8fafc !important;
-  cursor: pointer !important;
-  font-size: 0.76rem !important;
-  font-weight: 600 !important;
-  width: 100% !important;
-  text-align: left !important;
-}
-
-body[data-theme="light"] .theme-item {
-  color: #0f172a !important;
-}
-
-.theme-item:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-}
-
-.theme-item.active {
-  background: rgba(56, 189, 248, 0.2) !important;
-  color: #38bdf8 !important;
-  font-weight: 700 !important;
-}
-
-.theme-dot {
-  width: 8px !important;
-  height: 8px !important;
-  border-radius: 50% !important;
-  flex-shrink: 0 !important;
-}
-
-.dot-dark { background: #38bdf8 !important; }
-.dot-white { background: #ffffff !important; border: 1px solid #94a3b8; }
-.dot-itachi { background: #ef4444 !important; }
-.dot-naruto { background: #f97316 !important; }
-
-/* Upper Match Bar - Compact Space-Saving Subgame Pill */
+/* Top Left: Game Navigation Bar with All Games Return */
 .game-match-bar {
   position: fixed;
-  top: 42px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 10px;
+  left: 14px;
   z-index: 99999;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 10px;
-  height: 26px;
+  gap: 8px;
+  padding: 3px 10px 3px 6px;
+  height: 36px;
   border-radius: 9999px;
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-  transition: all 0.2s ease;
+  background: rgba(11, 17, 32, 0.88);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.25s ease;
+  box-sizing: border-box;
 }
 
 body[data-theme="light"] .game-match-bar {
   background: rgba(255, 255, 255, 0.94);
   border-color: rgba(15, 23, 42, 0.12);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-top-color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 1px 1px #ffffff;
 }
 
-.hub-pill-btn {
+.match-bar-left {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  height: 20px;
-  padding: 0 8px;
+  gap: 8px;
+  min-width: 0;
+}
+
+.back-to-hub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: #38bdf8;
-  font-size: 0.68rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--dyn-brand, #38bdf8);
+  font-size: 0.74rem;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
-.hub-pill-btn:hover {
-  background: rgba(56, 189, 248, 0.2);
-  border-color: #38bdf8;
+.back-to-hub-btn:hover {
+  background: rgba(var(--brand-rgb, 56, 189, 248), 0.22);
+  border-color: var(--dyn-brand, #38bdf8);
   color: #ffffff;
+  transform: translateX(-1px);
+}
+
+body[data-theme="light"] .back-to-hub-btn {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: var(--dyn-brand, #0284c7);
 }
 
 .active-game-badge {
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.03em;
   color: #f8fafc;
+  white-space: nowrap;
+  padding-right: 4px;
 }
 
 body[data-theme="light"] .active-game-badge {
   color: #0f172a;
 }
 
-/* Ensure HUD and Game Canvas have proper safe clearance */
+/* HUD Clearance */
 #hud {
-  margin-top: 74px !important;
+  margin-top: 56px !important;
 }
 
+/* Mobile & Mini Window Adaptations */
+@media (max-width: 640px) {
+  .floating-pill-container {
+    top: 8px !important;
+    right: 8px !important;
+    left: auto !important;
+    transform: none !important;
+    justify-content: flex-end !important;
+  }
+  .floating-pill {
+    height: 32px !important;
+    padding: 0 6px 0 8px !important;
+    gap: 5px !important;
+  }
+  .pill-brand .logo-text {
+    font-size: 0.95rem !important;
+  }
+  .sea-glass-theme-switch {
+    width: 52px !important;
+    height: 24px !important;
+  }
+  .sea-glass-btn svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+  .gap-icon-pill-btn {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .game-match-bar {
+    top: 8px !important;
+    left: 8px !important;
+    height: 32px !important;
+    padding: 2px 6px !important;
+    max-width: calc(100vw - 145px) !important;
+  }
+  .back-to-hub-btn {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    justify-content: center !important;
+  }
+  .back-to-hub-btn span {
+    display: none !important;
+  }
+  .active-game-badge {
+    font-size: 0.74rem !important;
+    max-width: 100px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  #hud {
+    margin-top: 48px !important;
+  }
+}
 </style>
 </head>
-<body>
+<body data-theme="dark">
 
-    <!-- Standard GAP Floating Nav Pill Container -->
+  <!-- Top Left: Single Clean Game Match Bar with All Games Return Pill -->
+  <div class="game-match-bar glass-panel" id="gameMatchBar">
+    <div class="match-bar-left">
+      <a href="../#/" class="back-to-hub-btn seg-btn" id="backToHubBtn" title="Return to All Games">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>All Games</span>
+      </a>
+      <span class="active-game-badge">Pass It On</span>
+    </div>
+  </div>
+
+  <!-- Top Right: Universal GAP Floating Pill with Sea-Glass Sun/Moon Slider -->
   <header class="floating-pill-container" id="scenicNav">
     <div class="floating-pill glass-panel" id="floatingPill">
-      <!-- Left: GAP Brand Logo / Main Trigger -->
-      <div class="nav-brand brand pill-brand" id="gapBrand" role="button" tabindex="0" title="GAP • Tap to open/close | Double-click to cycle color">
+      <!-- GAP Brand Logo / Main Trigger -->
+      <div class="nav-brand brand pill-brand" id="gapBrand" role="button" tabindex="0" title="GAP • Click to cycle color palette">
         <span class="logo-text" id="gapLogoText">GAP</span>
-        <svg class="pill-chevron" id="pillChevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
 
-      <!-- Expandable Actions Drawer -->
-      <div class="pill-expand-actions" id="pillActions">
-        <!-- Return to All Games Action -->
-        <a href="../#/" class="gap-pill-link" id="gapBackBtn" title="Back to All Games">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          <span>All Games</span>
-        </a>
-
-        <!-- Theme Picker -->
-        <div class="theme-picker" id="themePicker">
-          <button class="theme-trigger theme-pill-btn" id="themeTrigger" type="button" aria-expanded="false" title="Switch Theme">
-            <span id="themeCurrentIcon">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            </span>
-            <span id="themeCurrentText">Dark</span>
-            <svg class="theme-chevron" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="theme-menu glass-panel" id="themeMenu">
-            <button class="theme-item active" data-theme="dark" type="button" title="Dark Theme">
-              <span class="theme-name">Dark</span>
-            </button>
-            <button class="theme-item" data-theme="light" type="button" title="White Theme">
-              <span class="theme-name">White</span>
-            </button>
-            <button class="theme-item" data-theme="itachi" type="button" title="Itachi Theme">
-              <span class="theme-name">Itachi</span>
-            </button>
-            <button class="theme-item" data-theme="naruto" type="button" title="Naruto Theme">
-              <span class="theme-name">Naruto</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Fullscreen Button -->
-        <button class="gap-icon-pill-btn" id="gapFsBtn" type="button" title="Toggle Fullscreen">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      <!-- Center: Sea-Glass Theme Switcher Capsule (Sun / Moon Frosted Slider) -->
+      <div class="sea-glass-theme-switch" id="themeGlassToggle" role="radiogroup" aria-label="Appearance Mode" title="Toggle Light / Dark Mode">
+        <div class="sea-glass-thumb" id="themeGlassThumb"></div>
+        <button class="sea-glass-btn" data-theme="light" type="button" role="radio" aria-checked="false" title="Switch to Light Mode" aria-label="Light Mode">
+          <svg class="theme-icon sun-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4.2" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.8"/>
+            <line x1="12" y1="2" x2="12" y2="4.2" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="12" y1="19.8" x2="12" y2="22" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="4.93" y1="4.93" x2="6.48" y2="6.48" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="17.52" y1="17.52" x2="19.07" y2="19.07" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="2" y1="12" x2="4.2" y2="12" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="19.8" y1="12" x2="22" y2="12" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="4.93" y1="19.07" x2="6.48" y2="17.52" stroke="#f59e0b" stroke-width="2.2"/>
+            <line x1="17.52" y1="6.48" x2="19.07" y2="4.93" stroke="#f59e0b" stroke-width="2.2"/>
+          </svg>
+        </button>
+        <button class="sea-glass-btn active" data-theme="dark" type="button" role="radio" aria-checked="true" title="Switch to Dark Mode" aria-label="Dark Mode">
+          <svg class="theme-icon moon-icon" viewBox="0 0 24 24" width="15" height="15" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
         </button>
       </div>
+
+      <!-- Fullscreen Button -->
+      <button class="gap-icon-pill-btn" id="gapFsBtn" type="button" title="Toggle Fullscreen">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
     </div>
   </header>
-
-  <!-- Upper Match Bar with All Games Back Pill -->
-  <div class="game-match-bar glass-panel" id="gameMatchBar">
-    <a href="../#/" class="hub-pill-btn" title="Back to All Games">
-      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      <span>All Games</span>
-    </a>
-    <span class="active-game-badge">Pass It On</span>
-  </div>
 
   <script>
     (function() {
       const brand = document.getElementById("gapBrand");
-      const floatingPill = document.getElementById("floatingPill");
-      const themePicker = document.getElementById("themePicker");
-      const themeTrigger = document.getElementById("themeTrigger");
-      const themeMenu = document.getElementById("themeMenu");
-      const themeCurrentText = document.getElementById("themeCurrentText");
-      const themeCurrentIcon = document.getElementById("themeCurrentIcon");
+      const glassToggle = document.getElementById("themeGlassToggle");
       const fsBtn = document.getElementById("gapFsBtn");
 
       const DYNAMIC_PALETTES = [
@@ -680,102 +686,35 @@ body[data-theme="light"] .active-game-badge {
       }
       applyPalette(currentPaletteIdx);
 
-      // Pill expand / collapse (close on tap)
-      function expandPill() {
-        floatingPill?.classList.add("expanded");
-      }
-      function collapsePill() {
-        floatingPill?.classList.remove("expanded");
-        themePicker?.classList.remove("open");
-        themeTrigger?.setAttribute("aria-expanded", "false");
-      }
-
-      let lastBrandTapTime = 0;
-
-      function cycleColor() {
-        applyPalette(currentPaletteIdx + 1);
-        if (brand) {
-          brand.classList.add("brand-click-pulse");
-          setTimeout(() => brand.classList.remove("brand-click-pulse"), 400);
-        }
-        collapsePill();
-      }
-
       brand?.addEventListener("click", function(e) {
         e.stopPropagation();
-        const now = Date.now();
-        if (now - lastBrandTapTime < 380) {
-          lastBrandTapTime = 0;
-          cycleColor();
-          return;
-        }
-        lastBrandTapTime = now;
-
-        const isExpanded = floatingPill?.classList.contains("expanded");
-        if (!isExpanded) {
-          expandPill();
-        } else {
-          collapsePill();
-        }
+        applyPalette(currentPaletteIdx + 1);
+        brand.classList.add("brand-click-pulse");
+        setTimeout(() => brand.classList.remove("brand-click-pulse"), 400);
       });
 
-      floatingPill?.addEventListener("click", function(e) {
-        if (!floatingPill.classList.contains("expanded")) {
-          e.stopPropagation();
-          const now = Date.now();
-          if (now - lastBrandTapTime < 380) {
-            lastBrandTapTime = 0;
-            cycleColor();
-            return;
-          }
-          lastBrandTapTime = now;
-          expandPill();
-          return;
-        }
-        if (e.target === floatingPill || e.target.closest("#gapBrand")) {
-          e.stopPropagation();
-          collapsePill();
-        }
-      });
-
-      brand?.addEventListener("dblclick", function(e) {
-        e.stopPropagation();
-        lastBrandTapTime = 0;
-        cycleColor();
-      });
-
-      floatingPill?.addEventListener("dblclick", function(e) {
-        e.stopPropagation();
-        lastBrandTapTime = 0;
-        cycleColor();
-      });
-
-      document.addEventListener("click", function(e) {
-        if (floatingPill && !floatingPill.contains(e.target)) {
-          collapsePill();
-        }
-      });
-
-      // Theme logic
+      // Theme logic - Strictly Dark and Light (no Naruto, no Itachi)
       function getSavedTheme() {
         try {
           const hub = JSON.parse(localStorage.getItem('hubState') || '{}');
-          if (hub.theme) return hub.theme;
+          if (hub.theme === 'light' || hub.theme === 'dark') return hub.theme;
         } catch {}
-        return localStorage.getItem('gap_theme') || 'dark';
+        const gapTheme = localStorage.getItem('gap_theme');
+        if (gapTheme === 'light' || gapTheme === 'white') return 'light';
+        return 'dark';
       }
 
       function applyTheme(t) {
-        if (t === 'white') t = 'light';
+        if (t !== 'light') t = 'dark';
         document.documentElement.setAttribute('data-theme', t);
         document.body.setAttribute('data-theme', t);
-        if (themeCurrentText) {
-          const nameMap = { dark: 'Dark', light: 'White', itachi: 'Itachi', naruto: 'Naruto' };
-          themeCurrentText.textContent = nameMap[t] || 'Dark';
-        }
-        themeMenu?.querySelectorAll('.theme-item').forEach(b => {
-          b.classList.toggle('active', b.dataset.theme === t || (t === 'light' && b.dataset.theme === 'white'));
+
+        glassToggle?.querySelectorAll(".sea-glass-btn").forEach(b => {
+          const isActive = (b.dataset.theme === t);
+          b.classList.toggle("active", isActive);
+          b.setAttribute("aria-checked", isActive ? "true" : "false");
         });
+
         try {
           const hub = JSON.parse(localStorage.getItem('hubState') || '{}');
           hub.theme = t;
@@ -786,20 +725,15 @@ body[data-theme="light"] .active-game-badge {
 
       applyTheme(getSavedTheme());
 
-      themeTrigger?.addEventListener("click", function(e) {
+      glassToggle?.addEventListener("click", function(e) {
         e.stopPropagation();
-        themePicker?.classList.toggle("open");
-        const isOpen = themePicker?.classList.contains("open");
-        themeTrigger.setAttribute("aria-expanded", isOpen ? "true" : "false");
-      });
-
-      themeMenu?.addEventListener("click", function(e) {
-        e.stopPropagation();
-        const b = e.target.closest(".theme-item");
-        if (!b) return;
-        applyTheme(b.dataset.theme);
-        themePicker?.classList.remove("open");
-        themeTrigger?.setAttribute("aria-expanded", "false");
+        const btn = e.target.closest(".sea-glass-btn");
+        if (btn && btn.dataset.theme) {
+          applyTheme(btn.dataset.theme);
+          return;
+        }
+        const cur = document.body.getAttribute('data-theme') || 'dark';
+        applyTheme(cur === 'light' ? 'dark' : 'light');
       });
 
       // Fullscreen
@@ -812,7 +746,8 @@ body[data-theme="light"] .active-game-badge {
         }
       });
     })();
-  </script><div id="hud" aria-live="polite">
+  </script>
+  <div id="hud" aria-live="polite">
   <span>Level <b id="hLevel">1</b></span>
   <span>Villagers <b id="hVill">6</b></span>
   <span>Passes <b id="hPass">0</b></span>

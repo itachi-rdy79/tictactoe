@@ -35,6 +35,78 @@ var snakeState = {
   sound: true,
   particles: []
 };
+var SNAKE_SKINS = {
+  adaptive: {
+    name: "GAP Accent",
+    short: "Accent",
+    dot: "#38bdf8",
+    head: "#38bdf8",
+    bodyGrad: ["#ffffff", "#38bdf8", "#0284c7"],
+    glow: "rgba(56, 189, 248, 0.8)",
+    eye: "#082f49"
+  },
+  cyan: {
+    name: "Cyber Cyan",
+    short: "Cyan",
+    dot: "#06b6d4",
+    head: "#67e8f9",
+    bodyGrad: ["#67e8f9", "#06b6d4", "#0891b2"],
+    glow: "rgba(6, 182, 212, 0.8)",
+    eye: "#083344"
+  },
+  emerald: {
+    name: "Emerald",
+    short: "Emerald",
+    dot: "#10b981",
+    head: "#34d399",
+    bodyGrad: ["#34d399", "#10b981", "#059669"],
+    glow: "rgba(52, 211, 153, 0.8)",
+    eye: "#022c22"
+  },
+  gold: {
+    name: "Solar Gold",
+    short: "Gold",
+    dot: "#f59e0b",
+    head: "#fde047",
+    bodyGrad: ["#fde047", "#f59e0b", "#d97706"],
+    glow: "rgba(245, 158, 11, 0.8)",
+    eye: "#451a03"
+  },
+  crimson: {
+    name: "Crimson Viper",
+    short: "Crimson",
+    dot: "#ef4444",
+    head: "#fca5a5",
+    bodyGrad: ["#fca5a5", "#ef4444", "#b91c1c"],
+    glow: "rgba(239, 68, 68, 0.8)",
+    eye: "#450a0a"
+  },
+  amethyst: {
+    name: "Amethyst Glow",
+    short: "Amethyst",
+    dot: "#a855f7",
+    head: "#d8b4fe",
+    bodyGrad: ["#d8b4fe", "#a855f7", "#7e22ce"],
+    glow: "rgba(168, 85, 247, 0.8)",
+    eye: "#3b0764"
+  },
+  opal: {
+    name: "Opal Mirage",
+    short: "Opal",
+    dot: "#e2e8f0",
+    head: "#ffffff",
+    bodyGrad: ["#ffffff", "#e2e8f0", "#94a3b8"],
+    glow: "rgba(226, 232, 240, 0.8)",
+    eye: "#0f172a"
+  }
+};
+var SNAKE_SPEEDS = {
+  casual: 130,
+  normal: 95,
+  fast: 68,
+  insane: 46
+};
+
 const modeSelect = document.getElementById("modeSelect");
 const difficultySelect = document.getElementById("difficultySelect");
 const themeSelect = document.getElementById("themeSelect");
@@ -7927,11 +7999,8 @@ function boot() {
   startIdleWatchdog();
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", boot);
-} else {
-  boot();
-}
+// Boot is invoked at the very bottom of script.js after all engines, handlers, and modules are loaded.
+
 
 
 
@@ -9599,81 +9668,11 @@ function initLudoEvents() {
    SNAKE ARENA ENGINE — MODERN SEA GLASS EDITION
    ========================================================================= */
 
-const SNAKE_SKINS = {
-  adaptive: {
-    name: "GAP Accent",
-    short: "Accent",
-    dot: "#38bdf8",
-    head: "#38bdf8",
-    bodyGrad: ["#ffffff", "#38bdf8", "#0284c7"],
-    glow: "rgba(56, 189, 248, 0.8)",
-    eye: "#082f49"
-  },
-  cyan: {
-    name: "Cyber Cyan",
-    short: "Cyan",
-    dot: "#06b6d4",
-    head: "#67e8f9",
-    bodyGrad: ["#67e8f9", "#06b6d4", "#0891b2"],
-    glow: "rgba(6, 182, 212, 0.8)",
-    eye: "#083344"
-  },
-  emerald: {
-    name: "Emerald",
-    short: "Emerald",
-    dot: "#10b981",
-    head: "#34d399",
-    bodyGrad: ["#34d399", "#10b981", "#059669"],
-    glow: "rgba(52, 211, 153, 0.8)",
-    eye: "#022c22"
-  },
-  gold: {
-    name: "Solar Gold",
-    short: "Gold",
-    dot: "#f59e0b",
-    head: "#fde047",
-    bodyGrad: ["#fde047", "#f59e0b", "#d97706"],
-    glow: "rgba(245, 158, 11, 0.8)",
-    eye: "#451a03"
-  },
-  crimson: {
-    name: "Crimson Viper",
-    short: "Crimson",
-    dot: "#ef4444",
-    head: "#fca5a5",
-    bodyGrad: ["#fca5a5", "#ef4444", "#b91c1c"],
-    glow: "rgba(239, 68, 68, 0.8)",
-    eye: "#450a0a"
-  },
-  amethyst: {
-    name: "Amethyst Glow",
-    short: "Amethyst",
-    dot: "#a855f7",
-    head: "#d8b4fe",
-    bodyGrad: ["#d8b4fe", "#a855f7", "#7e22ce"],
-    glow: "rgba(168, 85, 247, 0.8)",
-    eye: "#3b0764"
-  },
-  opal: {
-    name: "Opal Mirage",
-    short: "Opal",
-    dot: "#e2e8f0",
-    head: "#ffffff",
-    bodyGrad: ["#ffffff", "#e2e8f0", "#94a3b8"],
-    glow: "rgba(226, 232, 240, 0.8)",
-    eye: "#0f172a"
-  }
-};
+// SNAKE_SKINS and SNAKE_SPEEDS are declared at the top of script.js with var
 
-const SNAKE_SPEEDS = {
-  casual: 130,
-  normal: 95,
-  fast: 68,
-  insane: 46
-};
 
 // Web Audio API Synthesizer (100% Client-side & Offline)
-let snakeAudioCtx = null;
+var snakeAudioCtx = null;
 function getSnakeAudio() {
   if (!snakeAudioCtx) {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -10768,3 +10767,11 @@ window.setPokerState = (s) => {
   if (s.aiCards !== undefined) pokerAiCards = s.aiCards;
   if (s.over !== undefined) pokerOver = s.over;
 };
+
+// Universal Boot Invocation — executed cleanly after all modules, engines & event listeners are ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
+

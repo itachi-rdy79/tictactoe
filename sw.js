@@ -4,14 +4,14 @@
    dictionaries, and local media for 100% offline operation.
    ========================================================================= */
 
-const CACHE_NAME = "gap-arcade-v64.3";
+const CACHE_NAME = "gap-arcade-v64.4";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./style.css?v=64.3",
   "./script.js",
-  "./script.js?v=64.2",
+  "./script.js?v=64.4",
   "./manifest.json",
   "./data/wordle-words.js",
   "./data/wordle-words.js?v=60.0",
