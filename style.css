@@ -6420,14 +6420,18 @@ body[data-theme="light"] .game-card-desc {
 }
 
 .game-match-bar {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  width: min(calc(100% - 32px), 1080px);
-  margin: 4px auto 4px auto;
-  height: 52px;
-  padding: 0 16px;
-  border-radius: 18px;
+  justify-content: flex-start;
+  width: auto;
+  max-width: fit-content;
+  margin: 12px 0 12px 20px;
+  margin-left: 20px;
+  margin-right: 0;
+  align-self: flex-start;
+  height: 44px;
+  padding: 4px 14px;
+  border-radius: 9999px;
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -6615,17 +6619,11 @@ body[data-theme="light"] .settings-label {
   }
 
   .game-match-bar {
-    width: calc(100% - 20px);
-    height: auto;
-    padding: 8px 12px;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .match-bar-left,
-  .match-bar-center {
-    width: 100%;
-    justify-content: space-between;
+    width: auto !important;
+    height: 40px !important;
+    padding: 3px 5px !important;
+    margin: 6px 0 6px 12px !important;
+    align-self: flex-start !important;
   }
 }
 
@@ -6717,13 +6715,17 @@ body[data-theme="light"] .settings-label {
 
 /* 1. Floating Sea Glass Top Match Capsule */
 .game-match-bar {
-  display: flex !important;
+  display: inline-flex !important;
   align-items: center !important;
-  justify-content: space-between !important;
-  width: min(calc(100% - 32px), 1120px) !important;
-  margin: 8px auto 8px auto !important;
-  height: 56px !important;
-  padding: 0 18px !important;
+  justify-content: flex-start !important;
+  width: auto !important;
+  max-width: fit-content !important;
+  margin: 8px 0 8px 20px !important;
+  margin-left: 20px !important;
+  margin-right: 0 !important;
+  align-self: flex-start !important;
+  height: 44px !important;
+  padding: 4px 14px !important;
   border-radius: 9999px !important;
   background: rgba(15, 23, 42, 0.75) !important;
   backdrop-filter: blur(28px) saturate(200%) !important;
@@ -7007,20 +7009,7 @@ body[data-theme="light"] .score-divider {
 
 /* Mobile & Tablet Responsiveness for Sea Glass Dock */
 @media (max-width: 900px) {
-  .game-match-bar {
-    width: calc(100% - 20px) !important;
-    height: auto !important;
-    padding: 8px 14px !important;
-    border-radius: 20px !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-  }
-  .match-bar-center {
-    width: 100% !important;
-    justify-content: center !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-  }
+
   #quickDock.sea-glass-deck {
     bottom: 6px !important;
     gap: 6px !important;
@@ -7279,21 +7268,24 @@ body[data-theme="light"] .dynamic-status-btn {
 .game-view {
   display: flex !important;
   flex-direction: column !important;
-  align-items: center !important;
+  align-items: flex-start !important;
   width: 100% !important;
 }
 
 .game-match-bar {
   display: inline-flex !important;
   align-items: center !important;
-  justify-content: center !important;
-  gap: clamp(10px, 1.8vw, 18px) !important;
+  justify-content: flex-start !important;
+  gap: clamp(8px, 1.4vw, 14px) !important;
   width: auto !important;
-  min-width: 260px !important;
-  max-width: min(calc(100% - 24px), 1120px) !important;
-  margin: 8px auto 8px auto !important;
-  height: 54px !important;
-  padding: 0 clamp(14px, 2vw, 24px) !important;
+  min-width: 0 !important;
+  max-width: fit-content !important;
+  margin: 8px 0 8px 20px !important;
+  margin-left: 20px !important;
+  margin-right: 0 !important;
+  align-self: flex-start !important;
+  height: 44px !important;
+  padding: 4px 14px !important;
   border-radius: 9999px !important;
   background: rgba(15, 23, 42, 0.82) !important;
   backdrop-filter: blur(28px) saturate(190%) !important;
@@ -7407,11 +7399,7 @@ body[data-theme="light"] .game-match-bar {
    LUDO KING & REFINED MATCH CAPSULE (ZERO OVERFLOW & HIGH CONTRAST)
    ========================================================================== */
 
-/* Enhanced Match Capsule Padding to Prevent Content Zoned Out / Endcap Clipping */
-.game-match-bar {
-  padding: 0 clamp(22px, 2.6vw, 34px) !important;
-  gap: clamp(8px, 1.4vw, 16px) !important;
-}
+
 
 .match-bar-left {
   gap: 8px !important;
@@ -7436,15 +7424,7 @@ body[data-theme="light"] .game-match-bar {
   font-size: 0.76rem !important;
 }
 
-@media (max-width: 980px) {
-  .game-match-bar {
-    border-radius: 24px !important;
-    height: auto !important;
-    padding: 8px 18px !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-  }
-}
+
 
 /* ----------------- Ludo Arena & Shell ----------------- */
 .board-shell.ludo-mode {
@@ -8762,13 +8742,15 @@ body[data-theme="pearl-rainbow"] .game-card[data-game="ludo"]:hover {
 }
 
 .game-match-bar {
-  align-self: center !important;
-  margin: 6px auto !important;
-  height: 48px !important;
-  min-height: 48px !important;
-  padding: 0 20px !important;
-  gap: 12px !important;
-  border-radius: 999px !important;
+  align-self: flex-start !important;
+  margin: 8px 0 8px 20px !important;
+  margin-left: 20px !important;
+  margin-right: 0 !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 4px 14px !important;
+  gap: 10px !important;
+  border-radius: 9999px !important;
 }
 
 .match-bar-left {
@@ -9343,6 +9325,17 @@ body[data-theme="light"] .snake-btn.secondary {
    Replaces horizontal toolbar expansion with a beautiful vertical dropdown panel.
    ========================================================================= */
 
+#gameView.game-view {
+  align-items: flex-start !important;
+}
+
+#gameView .arena {
+  align-self: center !important;
+  width: 100% !important;
+}
+
+#gameView #gameMatchBar,
+#gameMatchBar,
 .game-match-bar {
   position: relative !important;
   display: inline-flex !important;
@@ -9351,9 +9344,9 @@ body[data-theme="light"] .snake-btn.secondary {
   width: auto !important;
   min-width: 0 !important;
   max-width: fit-content !important;
-  margin: 10px auto 10px 20px !important;
+  margin: 12px 0 12px 20px !important;
   margin-left: 20px !important;
-  margin-right: auto !important;
+  margin-right: 0 !important;
   align-self: flex-start !important;
   height: 44px !important;
   padding: 4px 6px 4px 8px !important;
@@ -9662,10 +9655,12 @@ body[data-theme="light"] .game-match-bar .match-bar-center .seg-btn:hover {
 
 /* Mobile Responsiveness */
 @media (max-width: 640px) {
+  #gameView #gameMatchBar,
+  #gameMatchBar,
   .game-match-bar {
-    margin: 6px auto 6px 12px !important;
+    margin: 6px 0 6px 12px !important;
     margin-left: 12px !important;
-    margin-right: auto !important;
+    margin-right: 0 !important;
     height: 40px !important;
     padding: 3px 5px !important;
   }
