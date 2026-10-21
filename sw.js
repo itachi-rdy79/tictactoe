@@ -4,12 +4,12 @@
    dictionaries, and local media for 100% offline operation.
    ========================================================================= */
 
-const CACHE_NAME = "gap-arcade-v64.2";
+const CACHE_NAME = "gap-arcade-v64.3";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
   "./style.css",
-  "./style.css?v=64.0",
+  "./style.css?v=64.3",
   "./script.js",
   "./script.js?v=64.2",
   "./manifest.json",
