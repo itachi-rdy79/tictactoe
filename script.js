@@ -751,14 +751,22 @@ function loadHub() {
     if (["ai", "local"].includes(vs)) hubState.opponent = vs;
     if (["easy", "medium", "hard"].includes(diff)) hubState.difficulty = diff;
     if (["off", "15", "30", "45", "60", "90"].includes(timer)) hubState.timer = timer;
-    if (["dark", "light", "itachi", "naruto"].includes(theme)) hubState.theme = theme;
+    if (["lagoon", "violet", "gold", "arctic"].includes(theme)) hubState.theme = theme;
+    else if (theme === "dark" || theme === "itachi") hubState.theme = "lagoon";
+    else if (theme === "light" || theme === "white") hubState.theme = "arctic";
+    else if (theme === "naruto") hubState.theme = "gold";
     const color = q.get("color");
     if (color) applyRandomPalette(color);
   }
 
   // normalize
   if (!["off", "15", "30", "45", "60", "90"].includes(hubState.timer)) hubState.timer = "off";
-  if (!["dark", "light", "itachi", "naruto"].includes(hubState.theme)) hubState.theme = "dark";
+  if (!["lagoon", "violet", "gold", "arctic"].includes(hubState.theme)) {
+    if (hubState.theme === "dark" || hubState.theme === "itachi") hubState.theme = "lagoon";
+    else if (hubState.theme === "light" || hubState.theme === "white") hubState.theme = "arctic";
+    else if (hubState.theme === "naruto") hubState.theme = "gold";
+    else hubState.theme = "lagoon";
+  }
   if (!["easy", "medium", "hard"].includes(hubState.difficulty)) hubState.difficulty = "medium";
   if (!["ai", "local"].includes(hubState.opponent)) hubState.opponent = "ai";
   if (!["ttt3", "ttt5", "chess", "sequence", "wordle", "poker", "pattu", "ludo", "snake"].includes(hubState.game)) hubState.game = "ttt3";
@@ -1111,40 +1119,47 @@ function showOnlyActiveGame(gameKey) {
   }
 }
 
-/* ---------- Theme Handling ---------- */
+/* ---------- Four Global Visual Themes (Neon Sea-Glass Arcade) ---------- */
 function themeMeta(theme) {
-  if (theme === "light" || theme === "white" || theme === "pearl-rainbow") {
+  if (theme === "violet") {
     return {
-      icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
-      text: "White"
+      name: "Cyber Violet",
+      text: "Cyber Violet",
+      hint: "Electric Pink & Cyan",
+      icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`
     };
   }
-  if (theme === "itachi" || theme === "crimson-moon") {
+  if (theme === "gold") {
     return {
-      icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" color="#ef4444"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="2.5"/><circle cx="5.9" cy="15.5" r="2.5"/><circle cx="18.1" cy="15.5" r="2.5"/></svg>`,
-      text: "Itachi"
+      name: "Obsidian Gold",
+      text: "Obsidian Gold",
+      hint: "Champagne Gold",
+      icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
     };
   }
-  if (theme === "naruto" || theme === "sunset-flame") {
+  if (theme === "arctic") {
     return {
-      icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/><circle cx="12" cy="13" r="2.5" fill="#f97316"/></svg>`,
-      text: "Naruto"
+      name: "Arctic Glass",
+      text: "Arctic Glass",
+      hint: "Icy Blue & Silver",
+      icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/></svg>`
     };
   }
   return {
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
-    text: "Dark"
+    name: "Neon Lagoon",
+    text: "Neon Lagoon",
+    hint: "Emerald & Cyan",
+    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`
   };
 }
 
 function setTheme(theme) {
   // Support aliases seamlessly
-  if (theme === "white" || theme === "pearl-rainbow") theme = "light";
-  if (theme === "ocean-prism") theme = "dark";
-  if (theme === "crimson-moon") theme = "itachi";
-  if (theme === "sunset-flame") theme = "naruto";
-  if (theme === "aurora-glass" || theme === "aurora") theme = "dark";
-  if (!["dark", "light", "itachi", "naruto"].includes(theme)) theme = "dark";
+  if (theme === "dark" || theme === "ocean-prism" || theme === "itachi" || theme === "crimson-moon" || theme === "neon-lagoon") theme = "lagoon";
+  if (theme === "light" || theme === "white" || theme === "pearl-rainbow" || theme === "arctic-glass") theme = "arctic";
+  if (theme === "naruto" || theme === "sunset-flame" || theme === "obsidian-gold") theme = "gold";
+  if (theme === "cyber-violet") theme = "violet";
+  if (!["lagoon", "violet", "gold", "arctic"].includes(theme)) theme = "lagoon";
 
   hubState.theme = theme;
   if (themeSelect) themeSelect.value = theme;
@@ -1152,30 +1167,27 @@ function setTheme(theme) {
   const m = themeMeta(theme);
   if (themeCurrentIcon) themeCurrentIcon.innerHTML = m.icon;
   if (themeCurrentText) themeCurrentText.textContent = m.text;
+
+  // Sync Sea-Glass Switcher inside GAP pill
+  const glassToggle = document.getElementById("themeGlassToggle");
+  if (glassToggle) {
+    glassToggle.querySelectorAll(".sea-glass-btn").forEach(b => {
+      const isActive = (b.dataset.theme === theme);
+      b.classList.toggle("active", isActive);
+      b.setAttribute("aria-checked", isActive ? "true" : "false");
+    });
+  }
+
   themeMenu?.querySelectorAll(".theme-item").forEach(b => {
-    b.classList.toggle("active", b.dataset.theme === theme || (theme === "light" && b.dataset.theme === "white"));
+    b.classList.toggle("active", b.dataset.theme === theme);
   });
   const modalPills = document.getElementById("modalThemePills");
   if (modalPills) {
     modalPills.querySelectorAll(".seg-btn").forEach(b => {
-      b.classList.toggle("active", b.dataset.theme === theme || (theme === "light" && b.dataset.theme === "white"));
+      b.classList.toggle("active", b.dataset.theme === theme);
     });
   }
   persistHub();
-
-  // If in dark or white/light theme, apply active dynamic palette background immediately
-  if (typeof currentPaletteIdx !== "undefined" && DYNAMIC_PALETTES[currentPaletteIdx]) {
-    const chosen = DYNAMIC_PALETTES[currentPaletteIdx];
-    if (theme === "dark") {
-      document.body.style.setProperty("background", chosen.darkBg, "important");
-      document.body.style.setProperty("--bg", chosen.darkBg);
-    } else if (theme === "light") {
-      document.body.style.setProperty("background", chosen.lightBg, "important");
-      document.body.style.setProperty("--bg", chosen.lightBg);
-    } else {
-      document.body.style.removeProperty("background");
-    }
-  }
 
   if (hubState.game.startsWith("ttt")) renderTTT();
   if (hubState.game === "chess") {
@@ -1205,6 +1217,31 @@ themeMenu?.addEventListener("click", (e) => {
   setTheme(b.dataset.theme);
   themePicker?.classList.remove("open");
   themeTrigger?.setAttribute("aria-expanded", "false");
+});
+
+// Sea-Glass Theme Switcher capsule in GAP pill
+const themeGlassToggleEl = document.getElementById("themeGlassToggle");
+themeGlassToggleEl?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const btn = e.target.closest(".sea-glass-btn");
+  if (btn && btn.dataset.theme) {
+    setTheme(btn.dataset.theme);
+    return;
+  }
+  // Click on track cycles through themes with sliding thumb animation
+  const themes = ["lagoon", "violet", "gold", "arctic"];
+  const curIdx = Math.max(0, themes.indexOf(hubState.theme));
+  const nextIdx = (curIdx + 1) % themes.length;
+  setTheme(themes[nextIdx]);
+});
+
+// Chevron button in GAP pill toggles expanded drawer
+const pillChevronBtnEl = document.getElementById("pillChevronBtn");
+pillChevronBtnEl?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const pill = document.getElementById("floatingPill");
+  pill?.classList.toggle("expanded");
+  pillChevronBtnEl.setAttribute("aria-expanded", pill?.classList.contains("expanded") ? "true" : "false");
 });
 
 // Robust outside-click closing listener
@@ -1657,12 +1694,18 @@ function showDrawScreen(msg, subtitle = "Equilibrium • Perfect Standoff") {
 
   const theme = hubState.theme;
   let icon = "⚖️";
-  if (theme === "naruto") {
+  if (theme === "violet") {
     icon = "⚡";
-    subtitle = "Shinobi Armistice • Equal Will";
-  } else if (theme === "itachi") {
-    icon = "👁️";
-    subtitle = "Tsukuyomi in Harmony • Tied Fate";
+    subtitle = "Stalemate • Neon Overdrive";
+  } else if (theme === "gold") {
+    icon = "✨";
+    subtitle = "Golden Harmony • Drawn Game";
+  } else if (theme === "arctic") {
+    icon = "❄️";
+    subtitle = "Glass Impasse • Frozen Match";
+  } else {
+    icon = "⚖️";
+    subtitle = "Balanced Clash • Drawn Contest";
   }
 
   if (winIcon) {
@@ -1818,17 +1861,12 @@ function renderTTT() {
   tttBoardEl.style.gridTemplateColumns = `repeat(${tttSize}, 1fr)`;
   tttBoardEl.style.gridTemplateRows = `repeat(${tttSize}, 1fr)`;
 
-  const theme = hubState.theme;
   function getIcon(mark) {
     if (mark === "X") {
-      if (theme === "itachi") return SHARINGAN_SVG;
-      if (theme === "naruto") return KONOHA_LEAF_SVG;
-      return "X";
+      return `<svg class="ttt-mark-svg mark-x" viewBox="0 0 24 24" width="62%" height="62%" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
     }
     if (mark === "O") {
-      if (theme === "itachi") return CROW_SVG;
-      if (theme === "naruto") return AKATSUKI_CLOUD_SVG;
-      return "O";
+      return `<svg class="ttt-mark-svg mark-o" viewBox="0 0 24 24" width="62%" height="62%" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="8"/></svg>`;
     }
     return "";
   }
@@ -1846,13 +1884,7 @@ function renderTTT() {
 
   const r = getTTTResult(tttBoard);
   if (hubState.timer === "off" && statusPill) {
-    if (theme === "naruto") {
-      statusPill.textContent = r.winner === "draw" ? "Shinobi Draw" : r.winner ? (r.winner === "X" ? "Konoha Leaf Prevails" : "Akatsuki Strikes") : (tttTurn === "X" ? "Leaf Ninja's Turn" : "Akatsuki's Turn");
-    } else if (theme === "itachi") {
-      statusPill.innerHTML = r.winner === "draw" ? "Draw" : r.winner ? (r.winner === "X" ? "Sharingan Wins" : "Crow Wins") : (tttTurn === "X" ? "Sharingan's Turn" : "Crow's Turn");
-    } else {
-      statusPill.textContent = r.winner === "draw" ? "Draw" : r.winner ? `${r.winner} Wins` : `${tttTurn}'s Turn`;
-    }
+    statusPill.textContent = r.winner === "draw" ? "Draw" : r.winner ? `${r.winner} Wins` : `${tttTurn}'s Turn`;
   }
 }
 
@@ -2219,25 +2251,15 @@ function finishTTT(winner, line) {
   drawWinLineTTT(line);
 
   const aiMode = modeSelect.value.endsWith("-ai");
-  const theme = hubState.theme;
   if (winner === "X") {
     scoreA++; updateStreak(aiMode);
-    let msg = aiMode ? "You Win!" : "X Wins!";
-    if (theme === "naruto") msg = "Will of Fire Prevails!";
-    else if (theme === "itachi") msg = "Sharingan Triumphs!";
-    showWinScreen(msg);
+    showWinScreen(aiMode ? "Victory! You Win" : "Victory! X Wins");
   } else if (winner === "O") {
     scoreB++; updateStreak(false);
-    let msg = aiMode ? "Computer Wins!" : "O Wins!";
-    if (theme === "naruto") msg = "Akatsuki Triumphs!";
-    else if (theme === "itachi") msg = "Crow Triumphs!";
-    showWinScreen(msg);
+    showWinScreen(aiMode ? "Game Over — AI Wins" : "Victory! O Wins");
   } else {
     scoreD++;
-    let drawMsg = "Draw";
-    if (theme === "naruto") drawMsg = "Shinobi Standoff (Draw)";
-    else if (theme === "itachi") drawMsg = "Tsukuyomi in Harmony (Draw)";
-    showDrawScreen(drawMsg);
+    showDrawScreen("Stalemate — Match Draw");
   }
 
   persistScores();
@@ -2365,16 +2387,8 @@ function renderCaptured() {
   const whiteH = document.getElementById("whiteCapturedHeader");
   const blackH = document.getElementById("blackCapturedHeader");
   if (whiteH && blackH) {
-    if (hubState.theme === "naruto") {
-      whiteH.textContent = "Konoha Shinobi";
-      blackH.textContent = "Akatsuki Rogue";
-    } else if (hubState.theme === "itachi") {
-      whiteH.textContent = "Crow Captures";
-      blackH.textContent = "Sharingan Captures";
-    } else {
-      whiteH.textContent = "White Captured";
-      blackH.textContent = "Black Captured";
-    }
+    whiteH.textContent = "White Captured";
+    blackH.textContent = "Black Captured";
   }
 
   // Left tray holds white captured pieces; Right tray holds black captured pieces
@@ -2689,10 +2703,6 @@ function renderChess() {
       statusPill.textContent = "Game Over";
     } else if (activeInCheck) {
       statusPill.textContent = "ΓÜá∩╕Å " + (chessTurn === "w" ? "White" : "Black") + " in Check!";
-    } else if (hubState.theme === "naruto") {
-      statusPill.textContent = (chessTurn === "w" ? "Leaf Shinobi" : "Akatsuki") + "'s Turn";
-    } else if (hubState.theme === "itachi") {
-      statusPill.textContent = (chessTurn === "w" ? "White" : "Black") + "'s Turn";
     } else {
       statusPill.textContent = (chessTurn === "w" ? "White" : "Black") + "'s Turn";
     }
@@ -3056,8 +3066,6 @@ function handleChessDraw(reason) {
   renderChess();
   persistLiveState();
   let drawTxt = reason + " (Draw)";
-  if (hubState.theme === "naruto") drawTxt = "Shinobi Armistice (Draw)";
-  else if (hubState.theme === "itachi") drawTxt = "Tsukuyomi in Harmony (Draw)";
   showDrawScreen(drawTxt);
 }
 
@@ -3107,8 +3115,6 @@ function onChessClick(r, c) {
       scoreA++;
       updateStreak(modeSelect.value === "chess-ai");
       let winTxt = "Checkmate! White Wins";
-      if (hubState.theme === "naruto") winTxt = "Will of Fire: Checkmate!";
-      else if (hubState.theme === "itachi") winTxt = "Tsukuyomi Ascendant: Checkmate!";
       showWinScreen(winTxt);
       persistScores(); renderScores(); renderChess(); stopTurnTimer(); persistLiveState();
       return;
@@ -3152,8 +3158,6 @@ function onChessClick(r, c) {
             scoreB++;
             updateStreak(false);
             let winTxt = "Checkmate! Black Wins";
-            if (hubState.theme === "naruto") winTxt = "Akatsuki Rules: Checkmate!";
-            else if (hubState.theme === "itachi") winTxt = "Crow Flight: Checkmate!";
             showWinScreen(winTxt);
             persistScores(); renderScores(); renderChess(); stopTurnTimer(); persistLiveState();
             return;
@@ -4442,10 +4446,7 @@ function renderPokerUI(winningCardIds = []) {
   }
 
   if (pokerAiNameEl) {
-    if (isLocal) pokerAiNameEl.textContent = "Player 2";
-    else if (hubState.theme === "naruto") pokerAiNameEl.textContent = "Shinobi Opponent";
-    else if (hubState.theme === "itachi") pokerAiNameEl.textContent = "Tsukuyomi Shadow";
-    else pokerAiNameEl.textContent = "AI Opponent";
+    pokerAiNameEl.textContent = isLocal ? "Player 2" : "AI Opponent";
   }
 }
 
@@ -8230,8 +8231,9 @@ function initScenicLandingAndNav() {
   document.getElementById("featBadgeStats")?.addEventListener("click", triggerStats);
 
   document.getElementById("featBadgeThemes")?.addEventListener("click", () => {
-    const themes = ["dark", "light", "itachi", "naruto", "aurora"];
-    const nextIdx = (themes.indexOf(hubState.theme) + 1) % themes.length;
+    const themes = ["lagoon", "violet", "gold", "arctic"];
+    const curIdx = Math.max(0, themes.indexOf(hubState.theme));
+    const nextIdx = (curIdx + 1) % themes.length;
     setTheme(themes[nextIdx]);
   });
 }
