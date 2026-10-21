@@ -1013,10 +1013,10 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
-  // Hide TTT HUD turn status pill & adjust arena when playing Pattu, Sequence, Ludo, Snake, or Chess
+  // Hide TTT HUD turn status pill & adjust arena when playing Pattu, Sequence, Ludo, Snake, Chess, Wordle, or Poker
   const statusWrapEl = document.querySelector(".status-wrap");
   const arenaEl = document.querySelector(".arena");
-  if (isPalace || isSequence || isLudo || isSnake || isChess) {
+  if (isPalace || isSequence || isLudo || isSnake || isChess || isWordle || isPoker) {
     arenaEl?.classList.remove("pattu-arena-mode");
     statusWrapEl?.classList.add("hidden");
     statusWrapEl?.style.setProperty("display", "none", "important");
@@ -3239,6 +3239,20 @@ function getDailyWordleTarget(dayNum) {
   return answers[index].toUpperCase();
 }
 
+// Calculate Wordle Hour Number from June 19, 2021 (for Hourly Mode)
+function getWordleHourNumber(date = new Date()) {
+  const diffTime = date.getTime() - WORDLE_EPOCH.getTime();
+  const hourNum = Math.floor(diffTime / (1000 * 60 * 60));
+  return Math.max(0, hourNum);
+}
+
+// Get the authentic Hourly target word (seeded deterministically by hour number)
+function getHourlyWordleTarget(hourNum) {
+  const answers = getWordleAnswerList();
+  const hash = ((hourNum * 1664525 + 1013904223) >>> 0) % answers.length;
+  return answers[hash].toUpperCase();
+}
+
 // Get a random practice target word
 function getRandomWordleTarget() {
   const answers = getWordleAnswerList();
@@ -3246,7 +3260,7 @@ function getRandomWordleTarget() {
 }
 
 // Wordle State Variables
-let wordleMode = localStorage.getItem("wordle_mode_pref") || "daily"; // 'daily' | 'unlimited'
+let wordleMode = localStorage.getItem("wordle_mode_pref") || "daily"; // 'daily' | 'hourly' | 'unlimited'
 let wordleHardMode = localStorage.getItem("wordle_hard_mode") === "true";
 let wordleDayNumber = getWordleDayNumber();
 let wordleTarget = "";
@@ -3258,6 +3272,110 @@ let wordleWon = false;
 let wordleLocked = false;
 let wordleKeyStatuses = {}; // letter -> 'correct' | 'present' | 'absent'
 let wordleCountdownInterval = null;
+
+// Vocabulary Knowledge Dictionary (High-frequency built-in definitions + live fallback)
+const WORDLE_VOCAB_CACHE = {
+  "CABIN": { pos: "noun", def: "A small wooden shelter or house in a wild or remote area; a private room on a ship." },
+  "CRANE": { pos: "noun / verb", def: "A tall, long-legged wading bird; a machine for lifting heavy weights; to stretch out one's neck." },
+  "SLATE": { pos: "noun / verb", def: "A fine-grained grey, green, or bluish metamorphic rock; to schedule or plan an event." },
+  "AUDIO": { pos: "noun / adj", def: "Sound, especially when recorded, transmitted, or reproduced." },
+  "LIGHT": { pos: "noun / adj", def: "The natural agent that stimulates sight and makes things visible; having little weight." },
+  "SHINE": { pos: "verb / noun", def: "To give out or reflect a bright light; brightness produced by light." },
+  "EARTH": { pos: "noun", def: "The planet on which we live; the world; soil or ground." },
+  "WATER": { pos: "noun / verb", def: "A colourless, transparent, odourless liquid that forms the seas, lakes, rivers, and rain." },
+  "SMART": { pos: "adj / verb", def: "Having or showing a quick-witted intelligence; clean, neat, and well-dressed." },
+  "PLANT": { pos: "noun / verb", def: "A living organism of the kind exemplified by trees, shrubs, herbs, grasses, and ferns." },
+  "HOUSE": { pos: "noun / verb", def: "A building for human habitation, especially one that is lived in by a family or small group." },
+  "SWEET": { pos: "adj / noun", def: "Having the pleasant taste characteristic of sugar or honey; delightful." },
+  "HEART": { pos: "noun", def: "A hollow muscular organ that pumps the blood through the circulatory system by rhythmic contraction." },
+  "DREAM": { pos: "noun / verb", def: "A series of thoughts, images, and sensations occurring in a person's mind during sleep." },
+  "PEACE": { pos: "noun", def: "Freedom from disturbance; tranquility; a state of mutual harmony between people or nations." }
+};
+
+// Asynchronous Dictionary Fetcher
+async function fetchWordDefinition(word) {
+  const w = (word || "").toUpperCase().trim();
+  if (!w) return null;
+  if (WORDLE_VOCAB_CACHE[w]) return { word: w, ...WORDLE_VOCAB_CACHE[w] };
+
+  try {
+    const res = await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(w.toLowerCase()));
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        const entry = data[0];
+        const meaning = entry.meanings && entry.meanings[0];
+        const pos = meaning ? meaning.partOfSpeech : "word";
+        const def = (meaning && meaning.definitions && meaning.definitions[0] && meaning.definitions[0].definition) || "";
+        const example = (meaning && meaning.definitions && meaning.definitions[0] && meaning.definitions[0].example) || "";
+        const phonetic = entry.phonetic || (entry.phonetics && entry.phonetics.find(p => p.text)?.text) || "";
+
+        const result = { word: w, pos, def, example, phonetic };
+        WORDLE_VOCAB_CACHE[w] = result;
+        return result;
+      }
+    }
+  } catch (err) {}
+
+  return {
+    word: w,
+    pos: "5-letter word",
+    def: `An authentic 5-letter English word in the official Wordle vocabulary lexicon.`
+  };
+}
+
+// Display Definition in End-of-Game Stats Modal
+async function showWordleEndOfGameDefinition(targetWord) {
+  const box = document.getElementById("wordleDefinitionBox");
+  const wordEl = document.getElementById("wDefWord");
+  const posEl = document.getElementById("wDefPos");
+  const meaningEl = document.getElementById("wDefMeaning");
+  if (!box || !wordEl || !meaningEl) return;
+
+  wordEl.textContent = targetWord;
+  posEl.textContent = "learning...";
+  meaningEl.textContent = "Loading vocabulary definition...";
+  box.classList.remove("hidden");
+
+  const data = await fetchWordDefinition(targetWord);
+  if (data) {
+    wordEl.textContent = data.word + (data.phonetic ? ` ${data.phonetic}` : "");
+    posEl.textContent = data.pos || "word";
+    meaningEl.textContent = data.def || "Official 5-letter word.";
+  }
+}
+
+// Display Definition in Interactive Popup Modal (board double-tap / click)
+async function openWordDefinitionModal(word) {
+  const modal = document.getElementById("wordleDefinitionModal");
+  const wordEl = document.getElementById("popDefWord");
+  const posEl = document.getElementById("popDefPos");
+  const meaningEl = document.getElementById("popDefMeaning");
+  const exampleEl = document.getElementById("popDefExample");
+  if (!modal || !wordEl || !meaningEl) return;
+
+  wordEl.textContent = word.toUpperCase();
+  posEl.textContent = "looking up...";
+  meaningEl.textContent = "Fetching definition from dictionary...";
+  if (exampleEl) exampleEl.classList.add("hidden");
+  modal.classList.remove("hidden");
+
+  const data = await fetchWordDefinition(word);
+  if (data) {
+    wordEl.textContent = data.word + (data.phonetic ? ` ${data.phonetic}` : "");
+    posEl.textContent = data.pos || "word";
+    meaningEl.textContent = data.def || "Valid 5-letter word.";
+    if (exampleEl && data.example) {
+      exampleEl.textContent = `"${data.example}"`;
+      exampleEl.classList.remove("hidden");
+    }
+  }
+}
+
+function closeWordDefinitionModal() {
+  const modal = document.getElementById("wordleDefinitionModal");
+  if (modal) modal.classList.add("hidden");
+}
 
 // Stats Storage Schema
 function getWordleStats() {
@@ -3495,6 +3613,18 @@ function renderWordleGrid() {
     const rowWord = wordleGrid[r].join("");
     const rowStatuses = (isSubmitted && rowWord.length === 5) ? evaluateWordleGuess(rowWord, wordleTarget) : null;
 
+    if (isSubmitted && rowWord.length === 5) {
+      rowEl.classList.add("has-submitted-word");
+      rowEl.title = `Double-click or right-click to view definition of "${rowWord}"`;
+      rowEl.addEventListener("dblclick", () => {
+        openWordDefinitionModal(rowWord);
+      });
+      rowEl.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        openWordDefinitionModal(rowWord);
+      });
+    }
+
     for (let c = 0; c < 5; c++) {
       const tile = document.createElement("div");
       tile.className = "wordle-tile";
@@ -3535,9 +3665,12 @@ function updateWordleControls() {
     if (wordleMode === "daily") {
       modeLabel.textContent = "Daily";
       numberLabel.textContent = "#" + wordleDayNumber;
+    } else if (wordleMode === "hourly") {
+      modeLabel.textContent = "Hourly";
+      numberLabel.textContent = "#" + getWordleHourNumber();
     } else {
       modeLabel.textContent = "Unlimited";
-      numberLabel.textContent = "âš¡";
+      numberLabel.textContent = "∞";
     }
   }
 
@@ -3555,15 +3688,23 @@ function updateWordleControls() {
   }
 }
 
-// Daily Game Persistence
+// Game State Persistence (Daily & Hourly)
 function getDailyStorageKey(dayNum) {
   return "wordle_daily_game_" + dayNum;
 }
 
-function saveDailyGameState() {
-  if (wordleMode !== "daily") return;
+function getHourlyStorageKey(hourNum) {
+  return "wordle_hourly_game_" + hourNum;
+}
+
+function saveWordleGameState() {
+  if (wordleMode === "unlimited") return;
+  const isHourly = (wordleMode === "hourly");
+  const num = isHourly ? getWordleHourNumber() : wordleDayNumber;
+  const key = isHourly ? getHourlyStorageKey(num) : getDailyStorageKey(num);
   const state = {
-    dayNum: wordleDayNumber,
+    mode: wordleMode,
+    num: num,
     target: wordleTarget,
     grid: wordleGrid,
     row: wordleRow,
@@ -3574,13 +3715,14 @@ function saveDailyGameState() {
     keyStatuses: wordleKeyStatuses
   };
   try {
-    localStorage.setItem(getDailyStorageKey(wordleDayNumber), JSON.stringify(state));
+    localStorage.setItem(key, JSON.stringify(state));
   } catch (e) {}
 }
 
-function loadDailyGameState(dayNum) {
+function loadWordleGameState(mode, num) {
   try {
-    const raw = localStorage.getItem(getDailyStorageKey(dayNum));
+    const key = (mode === "hourly") ? getHourlyStorageKey(num) : getDailyStorageKey(num);
+    const raw = localStorage.getItem(key);
     if (raw) return JSON.parse(raw);
   } catch (e) {}
   return null;
@@ -3596,10 +3738,12 @@ function initWordle(forceNew = false) {
   showOnlyActiveGame("wordle");
 
   wordleDayNumber = getWordleDayNumber();
+  const curHour = getWordleHourNumber();
   wordleLocked = false;
 
-  if (wordleMode === "daily" && !forceNew) {
-    const saved = loadDailyGameState(wordleDayNumber);
+  if ((wordleMode === "daily" || wordleMode === "hourly") && !forceNew) {
+    const savedNum = (wordleMode === "hourly") ? curHour : wordleDayNumber;
+    const saved = loadWordleGameState(wordleMode, savedNum);
     if (saved && saved.target) {
       wordleTarget = saved.target;
       wordleGrid = saved.grid || Array.from({ length: 6 }, () => Array(5).fill(""));
@@ -3614,13 +3758,15 @@ function initWordle(forceNew = false) {
       updateWordleControls();
 
       if (wordleOver) {
+        showWordleEndOfGameDefinition(wordleTarget);
         setTimeout(() => {
           openWordleStatsModal();
         }, 500);
       }
       return;
     }
-    wordleTarget = getDailyWordleTarget(wordleDayNumber);
+
+    wordleTarget = (wordleMode === "hourly") ? getHourlyWordleTarget(curHour) : getDailyWordleTarget(wordleDayNumber);
   } else {
     wordleTarget = getRandomWordleTarget();
   }
@@ -3653,7 +3799,7 @@ function handleWordleKey(k) {
         tile.textContent = "";
         tile.classList.remove("has-letter", "pop");
       }
-      saveDailyGameState();
+      saveWordleGameState();
       persistLiveState();
     }
     return;
@@ -3685,7 +3831,7 @@ function handleWordleKey(k) {
       tile.classList.add("pop");
     }
     wordleCol++;
-    saveDailyGameState();
+    saveWordleGameState();
     persistLiveState();
   }
 }
@@ -3761,9 +3907,10 @@ function checkWordleRow() {
       }, 300);
 
       recordWordleResult(true, currentRow + 1);
-      saveDailyGameState();
+      saveWordleGameState();
       updateWordleControls();
       persistLiveState();
+      showWordleEndOfGameDefinition(wordleTarget);
 
       setTimeout(() => {
         openWordleStatsModal();
@@ -3782,9 +3929,10 @@ function checkWordleRow() {
       showWordleToast(wordleTarget, 4000);
 
       recordWordleResult(false, 6);
-      saveDailyGameState();
+      saveWordleGameState();
       updateWordleControls();
       persistLiveState();
+      showWordleEndOfGameDefinition(wordleTarget);
 
       setTimeout(() => {
         openWordleStatsModal();
@@ -3792,7 +3940,7 @@ function checkWordleRow() {
       return;
     }
 
-    saveDailyGameState();
+    saveWordleGameState();
     persistLiveState();
   }, totalFlipTime);
 }
@@ -3841,7 +3989,7 @@ function renderWordleStats() {
   const shareBtn = document.getElementById("wordleShareBtn");
   const countdownBox = document.getElementById("wNextCountdownBox");
 
-  if (wordleMode === "daily") {
+  if (wordleMode === "daily" || wordleMode === "hourly") {
     countdownBox?.classList.remove("hidden");
     modalNextBtn?.classList.add("hidden");
     startWordleMidnightCountdown();
@@ -3870,23 +4018,36 @@ function closeWordleStatsModal() {
   }
 }
 
-// Midnight Countdown Timer
+// Midnight / Next Hour Countdown Timer
 function startWordleMidnightCountdown() {
   if (wordleCountdownInterval) clearInterval(wordleCountdownInterval);
 
   function update() {
     const timerEl = document.getElementById("wNextTimer");
+    const labelEl = document.getElementById("wNextCountdownLabel");
     if (!timerEl) return;
     const now = new Date();
-    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-    const diff = Math.max(0, midnight.getTime() - now.getTime());
+    let targetTime;
 
+    if (wordleMode === "hourly") {
+      if (labelEl) labelEl.textContent = "NEXT HOURLY WORDLE";
+      targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 1, 0, 0, 0);
+    } else {
+      if (labelEl) labelEl.textContent = "NEXT DAILY WORDLE";
+      targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+    }
+
+    const diff = Math.max(0, targetTime.getTime() - now.getTime());
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const mins = Math.floor((diff / (1000 * 60)) % 60);
     const secs = Math.floor((diff / 1000) % 60);
 
     const pad = (n) => String(n).padStart(2, "0");
     timerEl.textContent = `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
+
+    if (diff === 0 && (wordleMode === "hourly" || wordleMode === "daily")) {
+      initWordle(false);
+    }
   }
 
   update();
@@ -3895,14 +4056,16 @@ function startWordleMidnightCountdown() {
 
 // Viral Emoji Share Generator
 function generateWordleShareText() {
-  const title = (wordleMode === "daily") ? `Wordle ${wordleDayNumber}` : `Wordle (Practice)`;
+  const modeStr = (wordleMode === "daily") ? `Daily #${wordleDayNumber}` :
+                  (wordleMode === "hourly") ? `Hourly #${getWordleHourNumber()}` : `Unlimited`;
+  const title = `Wordle (${modeStr})`;
   const score = wordleWon ? `${wordleRow}/6` : `X/6`;
   const hardStar = wordleHardMode ? `*` : ``;
 
   const emojiMap = {
-    correct: "ðŸŸ©",
-    present: "ðŸŸ¨",
-    absent: "â¬›"
+    correct: "🟩",
+    present: "🟨",
+    absent: "⬛"
   };
 
   const rows = [];
@@ -3911,7 +4074,7 @@ function generateWordleShareText() {
     const word = wordleGrid[r].join("");
     if (word.length === 5) {
       const clues = evaluateWordleGuess(word, wordleTarget);
-      rows.push(clues.map(c => emojiMap[c] || "â¬›").join(""));
+      rows.push(clues.map(c => emojiMap[c] || "⬛").join(""));
     }
   }
 
@@ -3964,6 +4127,11 @@ function initWordleUIEvents() {
     if (e.target.id === "wordleHelpModal") closeWordleHelpModal();
   });
 
+  document.getElementById("closeWordleDefBtn")?.addEventListener("click", closeWordDefinitionModal);
+  document.getElementById("wordleDefinitionModal")?.addEventListener("click", (e) => {
+    if (e.target.id === "wordleDefinitionModal") closeWordDefinitionModal();
+  });
+
   document.getElementById("wordleStatsBtn")?.addEventListener("click", openWordleStatsModal);
   document.getElementById("closeWordleStatsBtn")?.addEventListener("click", closeWordleStatsModal);
   document.getElementById("wordleStatsModal")?.addEventListener("click", (e) => {
@@ -3971,9 +4139,12 @@ function initWordleUIEvents() {
   });
 
   document.getElementById("wordleModePill")?.addEventListener("click", () => {
-    wordleMode = (wordleMode === "daily") ? "unlimited" : "daily";
+    if (wordleMode === "daily") wordleMode = "hourly";
+    else if (wordleMode === "hourly") wordleMode = "unlimited";
+    else wordleMode = "daily";
     localStorage.setItem("wordle_mode_pref", wordleMode);
     initWordle(false);
+    showWordleToast(`Wordle mode: ${wordleMode.toUpperCase()}`, 1200);
   });
 
   document.getElementById("wordleHardModeBtn")?.addEventListener("click", () => {
