@@ -1152,14 +1152,16 @@ function showOnlyActiveGame(gameKey) {
     }
   }
 
-  // Chess Move Hints Button in bottom dashboard
+  // Chess Move Hints Button in bottom dashboard (Strictly Chess only)
   if (chessHintsBtn) {
     if (isChess) {
       chessHintsBtn.classList.remove("hidden");
+      chessHintsBtn.style.removeProperty("display");
       chessHintsBtn.classList.toggle("active", chessShowMoveHints);
       chessHintsBtn.setAttribute("aria-pressed", chessShowMoveHints ? "true" : "false");
     } else {
       chessHintsBtn.classList.add("hidden");
+      chessHintsBtn.style.setProperty("display", "none", "important");
     }
   }
 
@@ -9996,6 +9998,30 @@ function initSnake(forceFresh = false) {
   renderSnakeFrame();
 }
 
+function getSnakeCurrentSpeedMs(customBaseMs, customLen, customMode) {
+  const mode = customMode !== undefined ? customMode : (snakeState ? snakeState.mode : "classic");
+  const baseSpeedMs = customBaseMs !== undefined ? customBaseMs : (snakeState ? (SNAKE_SPEEDS[snakeState.speed] || 95) : 95);
+  if (mode === "nowalls") {
+    return baseSpeedMs;
+  }
+  // For all modes except "nowalls" (classic, obstacles, timed):
+  // Increase speed as snake grows in size! Starting length is 3.
+  const len = customLen !== undefined ? customLen : ((snakeState && snakeState.snake && snakeState.snake.length) ? snakeState.snake.length : 3);
+  const growth = Math.max(0, len - 3);
+  const speedReduction = Math.min(growth * 1.8, baseSpeedMs - 36);
+  return Math.max(36, Math.round(baseSpeedMs - speedReduction));
+}
+
+function updateSnakeGameInterval() {
+  if (!snakeState.isRunning || snakeState.isPaused || snakeState.isGameOver) return;
+  const targetMs = getSnakeCurrentSpeedMs();
+  if (snakeState.currentIntervalMs !== targetMs) {
+    snakeState.currentIntervalMs = targetMs;
+    clearInterval(snakeState.gameInterval);
+    snakeState.gameInterval = setInterval(tickSnakeGame, targetMs);
+  }
+}
+
 function startSnakeGame() {
   getSnakeAudio();
   const startOverlay = document.getElementById("snakeStartOverlay");
@@ -10012,7 +10038,8 @@ function startSnakeGame() {
   clearInterval(snakeState.gameInterval);
   clearInterval(snakeState.timerInterval);
 
-  const speedMs = SNAKE_SPEEDS[snakeState.speed] || 95;
+  const speedMs = getSnakeCurrentSpeedMs();
+  snakeState.currentIntervalMs = speedMs;
   snakeState.gameInterval = setInterval(tickSnakeGame, speedMs);
 
   if (snakeState.mode === "timed") {
@@ -10061,7 +10088,8 @@ function resumeSnakeGame() {
   if (pauseIcon) pauseIcon.textContent = "⏸️";
 
   clearInterval(snakeState.gameInterval);
-  const speedMs = SNAKE_SPEEDS[snakeState.speed] || 95;
+  const speedMs = getSnakeCurrentSpeedMs();
+  snakeState.currentIntervalMs = speedMs;
   snakeState.gameInterval = setInterval(tickSnakeGame, speedMs);
 }
 
@@ -10229,6 +10257,7 @@ function tickSnakeGame() {
 
     spawnSnakeFood();
     updateSnakeHUD();
+    updateSnakeGameInterval();
   } else {
     snakeState.snake.pop();
   }
@@ -10663,7 +10692,9 @@ function initSnakeEvents() {
     syncSnakeMatchBarUI();
     if (snakeState.isRunning && !snakeState.isPaused) {
       clearInterval(snakeState.gameInterval);
-      snakeState.gameInterval = setInterval(tickSnakeGame, SNAKE_SPEEDS[snakeState.speed] || 95);
+      const speedMs = getSnakeCurrentSpeedMs();
+      snakeState.currentIntervalMs = speedMs;
+      snakeState.gameInterval = setInterval(tickSnakeGame, speedMs);
     }
   }
 
