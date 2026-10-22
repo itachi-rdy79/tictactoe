@@ -12,7 +12,6 @@ var snakeState = {
   tileSize: 40, // 20 * 40 = 800
   snake: [],
   dir: { x: 1, y: 0 },
-  nextDir: { x: 1, y: 0 },
   dirQueue: [],
   food: null,
   obstacles: [],
@@ -20,6 +19,7 @@ var snakeState = {
   highScore: 0,
   startHighScore: 0,
   mode: "classic",
+  walls: "off",
   speed: "normal",
   skin: "adaptive",
   timeLeft: 60,
@@ -28,10 +28,12 @@ var snakeState = {
   diamondsEaten: 0,
   gameInterval: null,
   timerInterval: null,
+  countdownInterval: null,
   animFrameId: null,
   isRunning: false,
   isPaused: false,
   isGameOver: false,
+  isCountingDown: false,
   sound: true,
   particles: []
 };
@@ -101,10 +103,10 @@ var SNAKE_SKINS = {
   }
 };
 var SNAKE_SPEEDS = {
-  casual: 130,
-  normal: 95,
-  fast: 68,
-  insane: 46
+  casual: 200,
+  normal: 150,
+  fast: 110,
+  insane: 80
 };
 
 const modeSelect = document.getElementById("modeSelect");
@@ -9804,6 +9806,9 @@ function loadSnakeSettings() {
     const savedMode = localStorage.getItem("gap_snake_mode");
     if (savedMode && ["classic", "nowalls", "obstacles", "timed"].includes(savedMode)) snakeState.mode = savedMode;
 
+    const savedWalls = localStorage.getItem("gap_snake_walls");
+    if (savedWalls === "on" || savedWalls === "off") snakeState.walls = savedWalls;
+
     const savedSound = localStorage.getItem("gap_snake_sound");
     if (savedSound !== null) snakeState.sound = (savedSound === "true");
   } catch {}
@@ -9831,11 +9836,20 @@ function saveSnakeHighScore() {
 function syncSnakeMatchBarUI() {
   const modePills = document.getElementById("snakeModePills");
   const speedPills = document.getElementById("snakeSpeedPills");
+  const wallsPills = document.getElementById("snakeWallsPills");
   const skinLabel = document.getElementById("snakeSkinLabel");
   const skinDot = document.getElementById("snakeSkinPreviewDot");
 
   setActive(modePills, "snakemode", snakeState.mode);
   setActive(speedPills, "snakespeed", snakeState.speed);
+  setActive(wallsPills, "snakewalls", snakeState.walls);
+
+  // In 'nowalls' mode, walls are permanently off and control visually reflects that
+  if (wallsPills) {
+    const isNoWalls = snakeState.mode === "nowalls";
+    wallsPills.style.opacity = isNoWalls ? "0.45" : "1";
+    wallsPills.style.pointerEvents = isNoWalls ? "none" : "auto";
+  }
 
   const isAdaptive = (snakeState.skin === "adaptive" || typeof SNAKE_SKINS === "undefined" || !SNAKE_SKINS[snakeState.skin]);
   const brand = getComputedStyle(document.documentElement).getPropertyValue("--brand").trim() || "#38bdf8";
@@ -9854,11 +9868,13 @@ function syncSnakeMatchBarUI() {
     skinDot.style.boxShadow = `0 0 10px ${skinObj.dot}`;
   }
 
-  // Update canvas glowing accent
+  // Update canvas glowing accent & boundary danger warning
   const canvasContainer = document.getElementById("snakeCanvasContainer");
   if (canvasContainer) {
     canvasContainer.style.setProperty("--snake-glow", skinObj.glow);
     canvasContainer.style.setProperty("--snake-accent", skinObj.dot);
+    const isWallsFatal = (snakeState.walls === "on" && snakeState.mode !== "nowalls");
+    canvasContainer.classList.toggle("walls-fatal", isWallsFatal);
   }
 
   // Toggle Timed HUD chip
@@ -9949,6 +9965,16 @@ function spawnSnakeEatParticles(x, y, foodType) {
   }
 }
 
+function updateSnakeCountdownDirDisplay() {
+  const dirTextEl = document.getElementById("snakeCountdownDirText");
+  if (!dirTextEl) return;
+  const d = snakeState.dir;
+  if (d.x === 1 && d.y === 0) dirTextEl.textContent = "RIGHT ➔";
+  else if (d.x === -1 && d.y === 0) dirTextEl.textContent = "LEFT ⬅";
+  else if (d.x === 0 && d.y === -1) dirTextEl.textContent = "UP ⬆";
+  else if (d.x === 0 && d.y === 1) dirTextEl.textContent = "DOWN ⬇";
+}
+
 function initSnake(forceFresh = false) {
   loadSnakeSettings();
   if (snakeState) snakeState.startHighScore = snakeState.highScore || 0;
@@ -9961,7 +9987,7 @@ function initSnake(forceFresh = false) {
     { x: 7, y: 10 }
   ];
   snakeState.dir = { x: 1, y: 0 };
-  snakeState.nextDir = { x: 1, y: 0 };
+  delete snakeState.nextDir;
   snakeState.dirQueue = [];
   snakeState.score = 0;
   snakeState.timeLeft = 60;
@@ -9971,6 +9997,7 @@ function initSnake(forceFresh = false) {
   snakeState.isRunning = false;
   snakeState.isPaused = false;
   snakeState.isGameOver = false;
+  snakeState.isCountingDown = false;
   snakeState.particles = [];
 
   // Adjust canvas buffer to crisp 800x800 resolution
@@ -9990,9 +10017,16 @@ function initSnake(forceFresh = false) {
   const startOverlay = document.getElementById("snakeStartOverlay");
   const pauseOverlay = document.getElementById("snakePauseOverlay");
   const gameOverOverlay = document.getElementById("snakeGameOverOverlay");
+  const countdownOverlay = document.getElementById("snakeCountdownOverlay");
   if (startOverlay) startOverlay.classList.remove("hidden");
   if (pauseOverlay) pauseOverlay.classList.add("hidden");
   if (gameOverOverlay) gameOverOverlay.classList.add("hidden");
+  if (countdownOverlay) countdownOverlay.classList.add("hidden");
+
+  // Blur any focused element so arrow keys immediately steer instead of activating buttons
+  if (document.activeElement && typeof document.activeElement.blur === "function") {
+    document.activeElement.blur();
+  }
 
   // Render initial preview frame
   renderSnakeFrame();
@@ -10000,16 +10034,16 @@ function initSnake(forceFresh = false) {
 
 function getSnakeCurrentSpeedMs(customBaseMs, customLen, customMode) {
   const mode = customMode !== undefined ? customMode : (snakeState ? snakeState.mode : "classic");
-  const baseSpeedMs = customBaseMs !== undefined ? customBaseMs : (snakeState ? (SNAKE_SPEEDS[snakeState.speed] || 95) : 95);
+  const baseSpeedMs = customBaseMs !== undefined ? customBaseMs : (snakeState ? (SNAKE_SPEEDS[snakeState.speed] || 150) : 150);
   if (mode === "nowalls") {
     return baseSpeedMs;
   }
-  // For all modes except "nowalls" (classic, obstacles, timed):
-  // Increase speed as snake grows in size! Starting length is 3.
+  // Slower, gradual, capped progression: at most 35% speed reduction, 0.75ms per food eaten
   const len = customLen !== undefined ? customLen : ((snakeState && snakeState.snake && snakeState.snake.length) ? snakeState.snake.length : 3);
   const growth = Math.max(0, len - 3);
-  const speedReduction = Math.min(growth * 1.8, baseSpeedMs - 36);
-  return Math.max(36, Math.round(baseSpeedMs - speedReduction));
+  const maxReduction = Math.round(baseSpeedMs * 0.35);
+  const speedReduction = Math.min(Math.round(growth * 0.75), maxReduction);
+  return Math.max(50, baseSpeedMs - speedReduction);
 }
 
 function updateSnakeGameInterval() {
@@ -10022,15 +10056,65 @@ function updateSnakeGameInterval() {
   }
 }
 
-function startSnakeGame() {
+function startSnakeGame(withCountdown = true) {
   getSnakeAudio();
+  if (document.activeElement && typeof document.activeElement.blur === "function") {
+    document.activeElement.blur();
+  }
+
   const startOverlay = document.getElementById("snakeStartOverlay");
   const pauseOverlay = document.getElementById("snakePauseOverlay");
   const gameOverOverlay = document.getElementById("snakeGameOverOverlay");
+  const countdownOverlay = document.getElementById("snakeCountdownOverlay");
+  const countdownNum = document.getElementById("snakeCountdownNum");
+
   if (startOverlay) startOverlay.classList.add("hidden");
   if (pauseOverlay) pauseOverlay.classList.add("hidden");
   if (gameOverOverlay) gameOverOverlay.classList.add("hidden");
 
+  // Bypass countdown if explicitly requested false or running in automated test runner
+  if (!withCountdown || (typeof navigator !== "undefined" && navigator.webdriver)) {
+    if (countdownOverlay) countdownOverlay.classList.add("hidden");
+    snakeState.isCountingDown = false;
+    snakeLaunchLoop();
+    return;
+  }
+
+  // Ready Countdown: 3 -> 2 -> 1 -> GO!
+  snakeState.isCountingDown = true;
+  snakeState.isRunning = false;
+  snakeState.isPaused = false;
+  snakeState.isGameOver = false;
+
+  clearInterval(snakeState.gameInterval);
+  clearInterval(snakeState.countdownInterval);
+
+  if (countdownOverlay) countdownOverlay.classList.remove("hidden");
+  updateSnakeCountdownDirDisplay();
+
+  let count = 3;
+  if (countdownNum) countdownNum.textContent = count;
+  playSnakeSound("turn");
+
+  snakeState.countdownInterval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      if (countdownNum) countdownNum.textContent = count;
+      playSnakeSound("turn");
+    } else if (count === 0) {
+      if (countdownNum) countdownNum.textContent = "GO!";
+      playSnakeSound("eat");
+    } else {
+      clearInterval(snakeState.countdownInterval);
+      snakeState.countdownInterval = null;
+      snakeState.isCountingDown = false;
+      if (countdownOverlay) countdownOverlay.classList.add("hidden");
+      snakeLaunchLoop();
+    }
+  }, 350);
+}
+
+function snakeLaunchLoop() {
   snakeState.isRunning = true;
   snakeState.isPaused = false;
   snakeState.isGameOver = false;
@@ -10109,6 +10193,13 @@ function stopSnake() {
   if (!snakeState) return;
   snakeState.isRunning = false;
   snakeState.isPaused = false;
+  snakeState.isCountingDown = false;
+  if (snakeState.countdownInterval) {
+    clearInterval(snakeState.countdownInterval);
+    snakeState.countdownInterval = null;
+  }
+  const countdownOverlay = document.getElementById("snakeCountdownOverlay");
+  if (countdownOverlay) countdownOverlay.classList.add("hidden");
   if (snakeState.gameInterval) {
     clearInterval(snakeState.gameInterval);
     snakeState.gameInterval = null;
@@ -10163,11 +10254,11 @@ function endSnakeGame(cause = "You crashed into a wall!") {
 function tickSnakeGame() {
   if (!snakeState.isRunning || snakeState.isPaused || snakeState.isGameOver) return;
 
-  // Process next buffered direction
+  // Process next buffered direction: snakeState.dir is authoritative.
+  // If queue has an item, shift it; if empty, continue in current snakeState.dir.
+  // NEVER fall back to a stale nextDir!
   if (snakeState.dirQueue && snakeState.dirQueue.length > 0) {
     snakeState.dir = snakeState.dirQueue.shift();
-  } else if (snakeState.nextDir) {
-    snakeState.dir = { ...snakeState.nextDir };
   }
 
   const head = snakeState.snake[0];
@@ -10178,20 +10269,20 @@ function tickSnakeGame() {
 
   const gs = snakeState.gridSize;
 
-  // Mode collision handling
-  if (snakeState.mode === "nowalls") {
-    // Screen wrapping portal
-    nextHead.x = (nextHead.x + gs) % gs;
-    nextHead.y = (nextHead.y + gs) % gs;
-  } else {
-    // Fatal walls
+  // Boundary collision vs wrapping
+  const isWallsFatal = (snakeState.walls === "on" && snakeState.mode !== "nowalls");
+  if (isWallsFatal) {
     if (nextHead.x < 0 || nextHead.x >= gs || nextHead.y < 0 || nextHead.y >= gs) {
       endSnakeGame("You crashed into a wall!");
       return;
     }
+  } else {
+    // Screen wrapping portal around all four boundaries
+    nextHead.x = (nextHead.x + gs) % gs;
+    nextHead.y = (nextHead.y + gs) % gs;
   }
 
-  // Obstacle collision check
+  // Obstacle collision check (e.g. Sea Glass Crystals in Obstacles mode)
   if (snakeState.mode === "obstacles") {
     const hitObstacle = snakeState.obstacles.some(ob => ob.x === nextHead.x && ob.y === nextHead.y);
     if (hitObstacle) {
@@ -10597,20 +10688,33 @@ function handleSnakeSteer(dx, dy) {
     resumeSnakeGame();
   }
 
-  if (!snakeState.isRunning && !snakeState.isGameOver) {
+  if (!snakeState.isRunning && !snakeState.isGameOver && !snakeState.isCountingDown) {
     startSnakeGame();
   }
 
   if (!snakeState.dirQueue) snakeState.dirQueue = [];
 
-  const lastQueued = snakeState.dirQueue.length > 0
+  // Determine last planned direction (queue tail or current active direction)
+  const lastPlanned = snakeState.dirQueue.length > 0
     ? snakeState.dirQueue[snakeState.dirQueue.length - 1]
     : snakeState.dir;
 
-  // Prevent immediate 180-degree self-reversal
-  if (dx !== 0 && lastQueued.x !== 0) return;
-  if (dy !== 0 && lastQueued.y !== 0) return;
+  // Reject immediate 180-degree self-reversal
+  if ((dx !== 0 && dx === -lastPlanned.x) || (dy !== 0 && dy === -lastPlanned.y)) return;
+  // Reject identical duplicate direction
+  if (dx === lastPlanned.x && dy === lastPlanned.y) return;
 
+  // During countdown, immediately update initial direction so player sees it
+  if (snakeState.isCountingDown) {
+    snakeState.dir = { x: dx, y: dy };
+    snakeState.dirQueue = [];
+    updateSnakeCountdownDirDisplay();
+    playSnakeSound("turn");
+    renderSnakeFrame();
+    return;
+  }
+
+  // Buffer at most 2 valid consecutive turns
   if (snakeState.dirQueue.length < 2) {
     snakeState.dirQueue.push({ x: dx, y: dy });
     playSnakeSound("turn");
@@ -10644,6 +10748,7 @@ function initSnakeEvents() {
   const playAgainBtn = document.getElementById("snakePlayAgainBtn");
   const muteBtn = document.getElementById("snakeMuteBtn");
   const modePills = document.getElementById("snakeModePills");
+  const wallsPills = document.getElementById("snakeWallsPills");
   const speedPills = document.getElementById("snakeSpeedPills");
   const skinCycleBtn = document.getElementById("snakeSkinCycleBtn");
 
@@ -10682,6 +10787,21 @@ function initSnakeEvents() {
     if (btn) onSelectMode(btn.dataset.snakemode);
   });
 
+  // Top Match Bar Walls Selection (On/Off)
+  function onSelectWalls(wallsVal) {
+    if (wallsVal !== "on" && wallsVal !== "off") return;
+    snakeState.walls = wallsVal;
+    try {
+      localStorage.setItem("gap_snake_walls", snakeState.walls);
+    } catch {}
+    syncSnakeMatchBarUI();
+  }
+
+  wallsPills?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-snakewalls]");
+    if (btn) onSelectWalls(btn.dataset.snakewalls);
+  });
+
   // Top Match Bar Speed Selection
   function onSelectSpeed(speedKey) {
     if (!SNAKE_SPEEDS[speedKey]) return;
@@ -10712,6 +10832,9 @@ function initSnakeEvents() {
 
     const activeEl = document.activeElement;
     if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA")) return;
+
+    // Ignore keyboard auto-repeat to prevent queue overflow
+    if (e.repeat) return;
 
     const key = e.key.toLowerCase();
     if (key === "arrowup" || key === "w") {
@@ -10780,6 +10903,15 @@ window.checkChessDrawCondition = checkChessDrawCondition;
 window.pokerShowdown = pokerShowdown;
 window.runAllInShowdown = runAllInShowdown;
 window.snakeState = snakeState;
+window.handleSnakeSteer = handleSnakeSteer;
+window.tickSnakeGame = tickSnakeGame;
+window.initSnake = initSnake;
+window.buildSnakeObstacles = buildSnakeObstacles;
+window.startSnakeGame = startSnakeGame;
+window.pauseSnakeGame = pauseSnakeGame;
+window.resumeSnakeGame = resumeSnakeGame;
+window.getSnakeCurrentSpeedMs = getSnakeCurrentSpeedMs;
+window.SNAKE_SPEEDS = SNAKE_SPEEDS;
 window.endSnakeGame = endSnakeGame;
 window.setChessHalfmoveClock = (v) => { chessHalfmoveClock = v; };
 window.getChessHalfmoveClock = () => chessHalfmoveClock;

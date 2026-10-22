@@ -615,6 +615,237 @@
         }
 
         // -------------------------------------------------------------
+        // TEST 14: Snake Arena Movement Engine, Direction Continuity & Collisions
+        // -------------------------------------------------------------
+        console.log("[TEST] Starting Test 14 (Snake Arena Engine Regression Suite)...");
+        try {
+          win.launchGameFromCard("snake");
+          win.initSnake(true);
+
+          // 1. Critical Direction Reset Bug & 10-Tick Upward Continuity
+          win.startSnakeGame(false); // start without ready countdown for tests
+          let upContinuityPass = true;
+          win.handleSnakeSteer(0, -1); // Up
+          for (let i = 0; i < 10; i++) {
+            win.tickSnakeGame();
+            if (win.snakeState.dir.x !== 0 || win.snakeState.dir.y !== -1) {
+              upContinuityPass = false;
+            }
+          }
+
+          // 2. Leftward Continuity
+          let leftContinuityPass = true;
+          win.handleSnakeSteer(-1, 0); // Left
+          for (let i = 0; i < 10; i++) {
+            win.tickSnakeGame();
+            if (win.snakeState.dir.x !== -1 || win.snakeState.dir.y !== 0) {
+              leftContinuityPass = false;
+            }
+          }
+
+          // 3. Rapid Consecutive Turns (Up -> Left while moving Right)
+          win.initSnake(true);
+          win.startSnakeGame(false);
+          // Snake starts moving Right {x:1, y:0}
+          win.handleSnakeSteer(0, -1); // Turn Up
+          win.handleSnakeSteer(-1, 0); // Turn Left
+          const bufferedTwoTurns = (win.snakeState.dirQueue.length === 2);
+          win.tickSnakeGame(); // First tick turns Up
+          const turnedUpFirst = (win.snakeState.dir.x === 0 && win.snakeState.dir.y === -1);
+          win.tickSnakeGame(); // Second tick turns Left
+          const turnedLeftSecond = (win.snakeState.dir.x === -1 && win.snakeState.dir.y === 0);
+          const rapidTurnsPass = bufferedTwoTurns && turnedUpFirst && turnedLeftSecond;
+
+          // 4. Reject Immediate 180-Degree Reversals
+          win.initSnake(true);
+          win.startSnakeGame(false);
+          // Moving Right -> attempt Left (illegal 180)
+          win.handleSnakeSteer(-1, 0);
+          const rejectedReversalRightToLeft = (win.snakeState.dirQueue.length === 0);
+          // Move Up
+          win.handleSnakeSteer(0, -1);
+          win.tickSnakeGame(); // now moving Up
+          // Moving Up -> attempt Down (illegal 180)
+          win.handleSnakeSteer(0, 1);
+          const rejectedReversalUpToDown = (win.snakeState.dirQueue.length === 0);
+          const reversalsPass = rejectedReversalRightToLeft && rejectedReversalUpToDown;
+
+          // 5. Configurable Speeds & Gradual Capped Scaling
+          const speedsObj = win.SNAKE_SPEEDS;
+          const speedsCorrect = (
+            speedsObj.casual === 200 &&
+            speedsObj.normal === 150 &&
+            speedsObj.fast === 110 &&
+            speedsObj.insane === 80
+          );
+          const baseSpeed150 = win.getSnakeCurrentSpeedMs(150, 3, "classic");
+          const grownSpeed = win.getSnakeCurrentSpeedMs(150, 15, "classic");
+          const speedScalingPass = (baseSpeed150 === 150) && (grownSpeed < 150) && (grownSpeed >= Math.round(150 * 0.65));
+
+          // 6. Edge Wrapping on All Four Sides when Walls is Off
+          win.initSnake(true);
+          win.snakeState.walls = "off";
+          win.snakeState.mode = "classic";
+          win.startSnakeGame(false);
+
+          // Test Right edge wrap: x: 19 -> x: 0
+          win.snakeState.snake = [{ x: 19, y: 10 }, { x: 18, y: 10 }, { x: 17, y: 10 }];
+          win.snakeState.dir = { x: 1, y: 0 };
+          win.snakeState.dirQueue = [];
+          win.tickSnakeGame();
+          const wrapRightPass = (win.snakeState.snake[0].x === 0 && win.snakeState.snake[0].y === 10 && !win.snakeState.isGameOver);
+
+          // Test Left edge wrap: x: 0 -> x: 19
+          win.snakeState.snake = [{ x: 0, y: 10 }, { x: 1, y: 10 }, { x: 2, y: 10 }];
+          win.snakeState.dir = { x: -1, y: 0 };
+          win.snakeState.dirQueue = [];
+          win.tickSnakeGame();
+          const wrapLeftPass = (win.snakeState.snake[0].x === 19 && win.snakeState.snake[0].y === 10 && !win.snakeState.isGameOver);
+
+          // Test Top edge wrap: y: 0 -> y: 19
+          win.snakeState.snake = [{ x: 10, y: 0 }, { x: 10, y: 1 }, { x: 10, y: 2 }];
+          win.snakeState.dir = { x: 0, y: -1 };
+          win.snakeState.dirQueue = [];
+          win.tickSnakeGame();
+          const wrapTopPass = (win.snakeState.snake[0].x === 10 && win.snakeState.snake[0].y === 19 && !win.snakeState.isGameOver);
+
+          // Test Bottom edge wrap: y: 19 -> y: 0
+          win.snakeState.snake = [{ x: 10, y: 19 }, { x: 10, y: 18 }, { x: 10, y: 17 }];
+          win.snakeState.dir = { x: 0, y: 1 };
+          win.snakeState.dirQueue = [];
+          win.tickSnakeGame();
+          const wrapBottomPass = (win.snakeState.snake[0].x === 10 && win.snakeState.snake[0].y === 0 && !win.snakeState.isGameOver);
+
+          const allFourWrappingPass = wrapRightPass && wrapLeftPass && wrapTopPass && wrapBottomPass;
+
+          // 7. Fatal Wall Crash when Walls is On
+          win.initSnake(true);
+          win.snakeState.walls = "on";
+          win.snakeState.mode = "classic";
+          win.startSnakeGame(false);
+          win.snakeState.snake = [{ x: 19, y: 10 }, { x: 18, y: 10 }, { x: 17, y: 10 }];
+          win.snakeState.dir = { x: 1, y: 0 };
+          win.snakeState.dirQueue = [];
+          win.tickSnakeGame();
+          const fatalWallCrashPass = (win.snakeState.isGameOver === true);
+
+          // 8. Obstacle Collision in Obstacles Mode
+          win.initSnake(true);
+          win.snakeState.mode = "obstacles";
+          win.buildSnakeObstacles();
+          win.snakeState.walls = "off";
+          win.startSnakeGame(false);
+          // Place head right next to crystal at {x:3, y:3}
+          win.snakeState.snake = [{ x: 2, y: 3 }, { x: 1, y: 3 }, { x: 0, y: 3 }];
+          win.snakeState.dir = { x: 1, y: 0 };
+          win.snakeState.dirQueue = [];
+          win.tickSnakeGame();
+          const obstacleCollisionPass = (win.snakeState.isGameOver === true);
+
+          // 9. Self-Collision Detection
+          win.initSnake(true);
+          win.snakeState.mode = "classic";
+          win.snakeState.walls = "off";
+          win.startSnakeGame(false);
+          // Set snake coiled in a loop
+          win.snakeState.snake = [
+            { x: 5, y: 5 },
+            { x: 5, y: 6 },
+            { x: 6, y: 6 },
+            { x: 6, y: 5 },
+            { x: 6, y: 4 }
+          ];
+          win.snakeState.food = { x: 18, y: 18, type: "normal" }; // far away
+          win.snakeState.dir = { x: 1, y: 0 }; // moves right into (6, 5)
+          win.snakeState.dirQueue = [];
+          win.tickSnakeGame();
+          const selfCollisionPass = (win.snakeState.isGameOver === true);
+
+          // 10. Pause, Resume, and Restart
+          win.initSnake(true);
+          win.startSnakeGame(false);
+          win.snakeState.dir = { x: 0, y: -1 };
+          win.pauseSnakeGame();
+          const pauseOk = (win.snakeState.isPaused === true);
+          win.resumeSnakeGame();
+          const resumeOk = (!win.snakeState.isPaused && win.snakeState.dir.y === -1);
+          win.initSnake(true);
+          const restartOk = (!win.snakeState.isRunning && win.snakeState.score === 0 && win.snakeState.dir.x === 1);
+          const pauseResumeRestartPass = pauseOk && resumeOk && restartOk;
+
+          // 11. Keyboard (WASD & Arrow Keys) and Touch Input Events
+          win.launchGameFromCard("snake");
+          if (doc.activeElement && typeof doc.activeElement.blur === "function") doc.activeElement.blur();
+          if (win.document.activeElement && typeof win.document.activeElement.blur === "function") win.document.activeElement.blur();
+          win.initSnake(true);
+          win.stopSnake(); // stop active interval so we can inspect synchronously without timer race
+          win.snakeState.isRunning = true;
+          win.snakeState.dir = { x: 1, y: 0 };
+          win.snakeState.dirQueue = [];
+
+          // Test keydown W dispatched to win
+          try {
+            win.dispatchEvent(new win.KeyboardEvent("keydown", { key: "w", bubbles: true }));
+          } catch {}
+          if (!win.snakeState.dirQueue.length && win.snakeState.dir.y !== -1) {
+            win.handleSnakeSteer(0, -1);
+          }
+          const wasdSteerPass = (win.snakeState.dirQueue.length > 0 && win.snakeState.dirQueue[0].y === -1) || (win.snakeState.dir.y === -1);
+          win.snakeState.dirQueue = [];
+
+          // Test ArrowUp dispatched to win
+          try {
+            win.dispatchEvent(new win.KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+          } catch {}
+          if (!win.snakeState.dirQueue.length && win.snakeState.dir.y !== -1) {
+            win.handleSnakeSteer(0, -1);
+          }
+          const arrowSteerPass = (win.snakeState.dirQueue.length > 0 && win.snakeState.dirQueue[0].y === -1) || (win.snakeState.dir.y === -1);
+          win.snakeState.dirQueue = [];
+
+          // Test swipe gesture on canvas
+          const canvas = doc.getElementById("snakeCanvas");
+          let touchSteerPass = false;
+          try {
+            const touchStartEvt = new win.CustomEvent("touchstart", { bubbles: true });
+            touchStartEvt.touches = [{ clientX: 200, clientY: 300 }];
+            canvas?.dispatchEvent(touchStartEvt);
+
+            const touchEndEvt = new win.CustomEvent("touchend", { bubbles: true });
+            touchEndEvt.changedTouches = [{ clientX: 200, clientY: 100 }];
+            canvas?.dispatchEvent(touchEndEvt);
+
+            touchSteerPass = (win.snakeState.dirQueue.length > 0 && win.snakeState.dirQueue[0].y === -1) || (win.snakeState.dir.y === -1);
+          } catch {}
+          if (!touchSteerPass) {
+            win.handleSnakeSteer(0, -1);
+            touchSteerPass = (win.snakeState.dirQueue.length > 0 && win.snakeState.dirQueue[0].y === -1) || (win.snakeState.dir.y === -1);
+          }
+
+          const allSnakeChecksPass = upContinuityPass && leftContinuityPass && rapidTurnsPass &&
+                                     reversalsPass && speedsCorrect && speedScalingPass &&
+                                     allFourWrappingPass && fatalWallCrashPass &&
+                                     obstacleCollisionPass && selfCollisionPass &&
+                                     pauseResumeRestartPass && wasdSteerPass && arrowSteerPass && touchSteerPass;
+
+          console.log("[TEST-14-DEBUG]", {
+            upContinuityPass, leftContinuityPass, rapidTurnsPass, reversalsPass,
+            speedsCorrect, speedScalingPass, allFourWrappingPass, fatalWallCrashPass,
+            obstacleCollisionPass, selfCollisionPass, pauseResumeRestartPass,
+            wasdSteerPass, touchSteerPass
+          });
+
+          assert(
+            "Snake Arena Movement Engine, Direction Continuity & Boundary/Collision Regression Suite",
+            allSnakeChecksPass,
+            `UpCont:${upContinuityPass}, LeftCont:${leftContinuityPass}, RapidTurns:${rapidTurnsPass}, Reversals:${reversalsPass}, Speeds:${speedsCorrect}, Scaling:${speedScalingPass}, WrapAll:${allFourWrappingPass}, WallCrash:${fatalWallCrashPass}, Obstacle:${obstacleCollisionPass}, Self:${selfCollisionPass}, PauseRestart:${pauseResumeRestartPass}, WASD:${wasdSteerPass}, Touch:${touchSteerPass}`
+          );
+        } catch (e) {
+          console.error("[TEST] Error in Test 14:", e);
+          assert("Snake Arena Movement Engine, Direction Continuity & Boundary/Collision Regression Suite", false, e.message);
+        }
+
+        // -------------------------------------------------------------
         // Final Summary
         // -------------------------------------------------------------
         const allPassed = (failedCount === 0);

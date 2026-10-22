@@ -8701,10 +8701,20 @@ body[data-theme="light"] .snake-hud-btn:hover {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.snake-canvas-container.walls-fatal {
+  border-color: rgba(239, 68, 68, 0.75) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 32px rgba(239, 68, 68, 0.35), inset 0 0 20px rgba(239, 68, 68, 0.2) !important;
+}
+
 body[data-theme="light"] .snake-canvas-container {
   border-color: rgba(var(--brand-rgb, 56, 189, 248), 0.35);
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08), 0 0 20px var(--accent-glow);
   background: #f8fafc;
+}
+
+body[data-theme="light"] .snake-canvas-container.walls-fatal {
+  border-color: rgba(239, 68, 68, 0.7) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08), 0 0 25px rgba(239, 68, 68, 0.25) !important;
 }
 
 .snake-canvas {
@@ -8938,6 +8948,76 @@ body[data-theme="light"] .snake-btn.secondary {
   background: rgba(0, 0, 0, 0.06);
   color: #1e293b;
   border-color: rgba(0, 0, 0, 0.12);
+}
+
+/* Snake Ready Countdown Card Overlay */
+.snake-countdown-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 32px;
+  border-radius: 20px;
+  background: rgba(13, 20, 36, 0.88);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 24px var(--accent-glow);
+  text-align: center;
+  min-width: 190px;
+}
+
+body[data-theme="light"] .snake-countdown-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-top: 1px solid #ffffff;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.08), 0 0 18px var(--accent-glow);
+}
+
+.snake-countdown-number {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--dyn-brand, var(--brand, #38bdf8));
+  text-shadow: 0 0 18px var(--accent-glow);
+  margin-bottom: 6px;
+}
+
+.snake-countdown-sub {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 12px;
+}
+
+body[data-theme="light"] .snake-countdown-sub {
+  color: rgba(30, 41, 59, 0.7);
+}
+
+.snake-countdown-dir-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme="light"] .snake-countdown-dir-hint {
+  color: #1e293b;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.snake-countdown-dir-hint b {
+  color: var(--dyn-brand, var(--brand, #38bdf8));
 }
 
 
@@ -9313,7 +9393,8 @@ body[data-theme="light"] .game-match-bar .match-bar-center .hud-label {
 /* 2 Equal Columns: Grid Size, Opponent, Ludo Mode */
 #tttModePills,
 #opponentPills,
-#ludoModePills {
+#ludoModePills,
+#snakeWallsPills {
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 }
 
