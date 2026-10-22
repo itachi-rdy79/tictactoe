@@ -2371,6 +2371,7 @@ let chessShowMoveHints = false;
 let chessEnPassant = null;
 let chessHalfmoveClock = 0;
 let chessPositionHistory = {};
+let chessAiTimer = null;
 
 function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
 function cloneBoard(b) { return b.map(row => row.map(cell => cell ? { ...cell } : null)); }
@@ -10753,6 +10754,13 @@ window.setChessHalfmoveClock = (v) => { chessHalfmoveClock = v; };
 window.getChessHalfmoveClock = () => chessHalfmoveClock;
 window.setChessEnPassant = (v) => { chessEnPassant = v; };
 window.getChessEnPassant = () => chessEnPassant;
+window.initChess = initChess;
+window.onChessClick = onChessClick;
+window.renderChess = renderChess;
+window.showOnlyActiveGame = showOnlyActiveGame;
+Object.defineProperty(window, "chessTurn", { get: () => chessTurn, set: (v) => { chessTurn = v; }, configurable: true });
+Object.defineProperty(window, "chessShowMoveHints", { get: () => chessShowMoveHints, set: (v) => { chessShowMoveHints = v; }, configurable: true });
+Object.defineProperty(window, "chessSnapshots", { get: () => chessSnapshots, configurable: true });
 window.setWordleHardMode = (v) => { wordleHardMode = v; };
 window.setWordleRow = (v) => { wordleRow = v; };
 window.setWordleTarget = (v) => { wordleTarget = v; };

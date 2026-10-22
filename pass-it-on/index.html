@@ -451,33 +451,33 @@ body[data-theme="light"] .gap-icon-pill-btn {
   color: #0f172a;
 }
 
-/* Top Left: Game Navigation Bar with All Games Return */
+/* Modern Glass Navigation Pill for Pass It On */
 .game-match-bar {
   position: fixed;
-  top: 10px;
-  left: 14px;
+  top: 12px;
+  left: 16px;
   z-index: 99999;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 3px 10px 3px 6px;
-  height: 36px;
+  padding: 4px 10px 4px 6px;
+  height: 48px;
   border-radius: 9999px;
-  background: rgba(11, 17, 32, 0.88);
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  background: rgba(13, 19, 33, 0.82);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 20px var(--accent-glow, rgba(56, 189, 248, 0.2)), inset 0 1px 1px rgba(255, 255, 255, 0.25);
   transition: all 0.25s ease;
   box-sizing: border-box;
 }
 
 body[data-theme="light"] .game-match-bar {
-  background: rgba(255, 255, 255, 0.94);
-  border-color: rgba(15, 23, 42, 0.12);
-  border-top-color: #ffffff;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 1px 1px #ffffff;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-top: 1.5px solid #ffffff;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08), 0 0 16px var(--accent-glow, rgba(2, 132, 199, 0.2)), inset 0 1px 1px rgba(255, 255, 255, 0.95);
 }
 
 .match-bar-left {
@@ -487,48 +487,106 @@ body[data-theme="light"] .game-match-bar {
   min-width: 0;
 }
 
+.pill-icon-bubble {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 2px 6px rgba(0, 0, 0, 0.25);
+  color: #f8fafc;
+  transition: all 0.22s ease;
+}
+
+body[data-theme="light"] .pill-icon-bubble {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 2px 6px rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+}
+
 .back-to-hub-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 26px;
-  padding: 0 10px;
+  gap: 8px;
+  height: 38px;
+  padding: 0 10px 0 3px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--dyn-brand, #38bdf8);
-  font-size: 0.74rem;
-  font-weight: 700;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #f1f5f9;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.22s ease;
   flex-shrink: 0;
 }
 
 .back-to-hub-btn:hover {
-  background: rgba(var(--brand-rgb, 56, 189, 248), 0.22);
-  border-color: var(--dyn-brand, #38bdf8);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
   color: #ffffff;
-  transform: translateX(-1px);
+  transform: translateY(-1px);
+}
+
+.back-to-hub-btn:hover .pill-icon-bubble {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: var(--dyn-brand, #38bdf8);
+  color: var(--dyn-brand, #38bdf8);
+  box-shadow: 0 0 12px var(--accent-glow, rgba(56, 189, 248, 0.4));
 }
 
 body[data-theme="light"] .back-to-hub-btn {
-  background: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.12);
+  color: #0f172a;
+}
+
+body[data-theme="light"] .back-to-hub-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: var(--dyn-brand, #0284c7);
+  transform: translateY(-1px);
+}
+
+body[data-theme="light"] .back-to-hub-btn:hover .pill-icon-bubble {
+  background: rgba(var(--brand-rgb, 56, 189, 248), 0.12);
+  border-color: var(--dyn-brand, #0284c7);
   color: var(--dyn-brand, #0284c7);
 }
 
+.pill-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 2px;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+body[data-theme="light"] .pill-divider {
+  background: rgba(0, 0, 0, 0.12);
+}
+
 .active-game-badge {
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.03em;
-  color: #f8fafc;
+  font-family: 'Outfit', -apple-system, sans-serif;
+  font-weight: 700;
+  font-size: 0.96rem;
+  letter-spacing: 0.2px;
+  color: var(--dyn-brand, #38bdf8);
+  text-shadow: 0 0 14px var(--accent-glow, rgba(56, 189, 248, 0.3));
   white-space: nowrap;
-  padding-right: 4px;
+  padding: 0 6px 0 2px;
 }
 
 body[data-theme="light"] .active-game-badge {
-  color: #0f172a;
+  color: var(--dyn-brand, #0284c7);
+  text-shadow: none;
 }
 
 /* HUD Clearance */
@@ -598,16 +656,19 @@ body[data-theme="light"] .active-game-badge {
 </head>
 <body data-theme="dark">
 
-  <!-- Top Left: Single Clean Game Match Bar with All Games Return Pill -->
+  <!-- Top Left: Single Clean Modern Glass Navigation Pill -->
   <div class="game-match-bar glass-panel" id="gameMatchBar">
     <div class="match-bar-left">
       <a href="../#/" class="back-to-hub-btn seg-btn" id="backToHubBtn" title="Return to All Games">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="19" y1="12" x2="5" y2="12"></line>
-          <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-        <span>All Games</span>
+        <span class="pill-icon-bubble">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </span>
+        <span class="back-text">All Games</span>
       </a>
+      <span class="pill-divider" aria-hidden="true"></span>
       <span class="active-game-badge">Pass It On</span>
     </div>
   </div>

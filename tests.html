@@ -112,7 +112,7 @@
 
     const frame = document.getElementById("appFrame");
     let suiteRan = false;
-    frame.onload = function() {
+    function runSuite() {
       if (suiteRan) return;
       suiteRan = true;
       console.log("[TEST] Frame loaded. Beginning diagnostic suite...");
@@ -395,10 +395,9 @@
         // -------------------------------------------------------------
         console.log("[TEST] Starting Test 11 (Clean Friday Chess Board)...");
         try {
-          // Switch to Chess mode
-          win.hubState.game = "chess";
+          // Switch to Chess mode (local 2P)
           win.hubState.opponent = "local";
-          if (win.modeSelect) win.modeSelect.value = "chess-2p";
+          win.launchGameFromCard("chess");
           win.initChess();
           win.showOnlyActiveGame("chess");
 
@@ -421,7 +420,8 @@
           // Test Undo: restores pawn to e2 (6,4) and turn to white
           doc.getElementById("undoBtn")?.click();
           const e2Cell = chessBoard.querySelector('[data-row="6"][data-col="4"]');
-          const undoOk = e2Cell && e2Cell.querySelector(".glass-piece-svg") && win.chessTurn === "w";
+          const hasPiece = !!(e2Cell && e2Cell.querySelector(".glass-piece-svg"));
+          const undoOk = Boolean(hasPiece && win.chessTurn === "w");
 
           // Test Move Hints toggle
           const hintsBtn = doc.getElementById("chessHintsBtn");
@@ -429,11 +429,11 @@
           const hintsActive = win.chessShowMoveHints === true;
           hintsBtn?.click(); // toggle off
 
-          console.log("[TEST-11-DEBUG]", { boardVisible, cellCountOk, wrapChessMode, pawnMovedOk, undoOk, hintsActive });
+          console.log("[TEST-11-DEBUG]", { boardVisible, cellCountOk, wrapChessMode, pawnMovedOk, undoOk, hasPiece, turn: win.chessTurn, hintsActive });
           assert(
             "Clean Friday Chess Board Engine & Interaction",
             boardVisible && cellCountOk && wrapChessMode && pawnMovedOk && undoOk && hintsActive,
-            `Diagnostics: visible:${boardVisible}, cells:${cellCountOk}, wrap:${wrapChessMode}, move:${pawnMovedOk}, undo:${undoOk}, hints:${hintsActive}`
+            `Diagnostics: visible:${boardVisible}, cells:${cellCountOk}, wrap:${wrapChessMode}, move:${pawnMovedOk}, undo:${undoOk} (turn:${win.chessTurn}, hasPiece:${hasPiece}), hints:${hintsActive}`
           );
         } catch (e) {
           console.error("[TEST] Error in Test 11:", e);
@@ -627,7 +627,20 @@
         console.error("[TEST-SUITE-ERROR]", globalErr);
         assert("Global Test Suite Execution", false, globalErr.message);
       }
-    };
+    }
+
+    function checkAndRunSuite() {
+      if (suiteRan) return;
+      const win = frame.contentWindow;
+      if (!win || typeof win.launchGameFromCard !== "function") {
+        setTimeout(checkAndRunSuite, 150);
+        return;
+      }
+      runSuite();
+    }
+
+    frame.addEventListener("load", checkAndRunSuite);
+    checkAndRunSuite();
   </script>
 </body>
 </html>
