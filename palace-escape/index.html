@@ -46,15 +46,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/v1x.css" />
-    <link rel="stylesheet" href="css/theme-adapter.css" />
+    <link rel="stylesheet" href="css/style.css?v=2.2" />
+    <link rel="stylesheet" href="css/v1x.css?v=2.2" />
+    <link rel="stylesheet" href="css/theme-adapter.css?v=2.2" />
   </head>
   <body data-theme="dark">
-    <!-- Top Left: Single Clean Modern Glass Navigation Pill -->
-    <div class="game-match-bar glass-panel" id="gameMatchBar" role="button" tabindex="0" title="Return to All Games Hub" aria-label="Return to All Games Hub">
+    <!-- Top Left: Clean Modern Glass Navigation Pill with both Hub and Palace Escape Home -->
+    <div class="game-match-bar glass-panel" id="gameMatchBar" role="navigation" aria-label="Game Navigation">
       <div class="match-bar-left">
-        <a href="../#/" class="back-to-hub-btn seg-btn home-orb-btn" id="backToHubBtn" title="Back to All Games" aria-label="Back to All Games">
+        <a href="../#/" class="back-to-hub-btn seg-btn home-orb-btn" id="backToHubBtn" title="Back to All Games Hub" aria-label="Back to All Games Hub">
           <span class="home-icon-bubble">
             <svg class="home-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3.5 10.5L12 3.5l8.5 7V20a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 20v-9.5z"></path>
@@ -63,7 +63,11 @@
           </span>
         </a>
         <span class="pill-divider" aria-hidden="true"></span>
-        <span class="active-game-badge">Palace Escape</span>
+        <button type="button" class="palace-home-btn" id="palaceHomeNavBtn" title="Palace Escape Home • Choose Level" aria-label="Palace Escape Home • Choose Level">
+          <span class="palace-home-icon">🏰</span>
+          <span class="active-game-badge">Palace Escape</span>
+          <span class="palace-home-tag">Menu</span>
+        </button>
       </div>
     </div>
 
@@ -219,12 +223,17 @@
         }
 
         const backBtn = document.getElementById("backToHubBtn");
-        const matchBar = document.getElementById("gameMatchBar");
+        const palaceHomeBtn = document.getElementById("palaceHomeNavBtn");
+
         backBtn?.addEventListener("click", returnToHub);
-        matchBar?.addEventListener("click", returnToHub);
-        matchBar?.addEventListener("keydown", function(e) {
-          if (e.key === "Enter" || e.key === " ") {
-            returnToHub(e);
+        palaceHomeBtn?.addEventListener("click", function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (window.palaceGame) {
+            window.palaceGame.toMenu();
+          } else {
+            const pauseMenuBtn = document.getElementById("btn-pause-menu");
+            if (pauseMenuBtn) pauseMenuBtn.click();
           }
         });
       })();
@@ -232,7 +241,6 @@
     <div id="app">
       <header id="hud" class="hidden">
         <div class="hud-left">
-          
           <div class="level-badge" aria-label="Level"><span>LEVEL</span><b id="hud-level">1</b></div>
           <div id="hud-progress" class="level-dots" aria-hidden="true"></div>
         </div>
@@ -240,6 +248,7 @@
         <div class="hud-right">
           <div class="hud-stat hud-timer" aria-label="Time"><span class="hud-ico" data-icon="timer"></span><b id="hud-time">00:00</b></div>
           <div class="hud-stat hud-coins" aria-label="Total Aasthi"><span class="hud-ico" data-icon="coin"></span><b id="hud-aasthi">₹0.00 CR</b></div>
+          <button id="btn-hud-home" class="icon-btn" aria-label="Palace Escape Home" title="Palace Escape Home • Choose Level" data-icon="home"></button>
           <button id="btn-bachelor-card" class="icon-btn hidden" aria-label="Aasthi Pathralu" data-icon="scroll"></button>
           <button id="btn-legend" class="icon-btn" aria-label="Legend" data-icon="help"></button>
           <button id="btn-pause" class="icon-btn" aria-label="Pause" data-icon="pause"></button>
@@ -284,6 +293,26 @@
           <p class="tagline-strong">Escape fast. Take more Aasthi.</p>
           <div class="menu-buttons">
             <button id="btn-play" class="btn primary big" disabled><span class="btn-ico" data-icon="play"></span><span id="btn-play-label">PLAY</span></button>
+            
+            <!-- Palace Escape Interactive Level Selector -->
+            <div class="palace-level-hub" id="palaceLevelHub">
+              <div class="level-hub-header">
+                <span class="level-hub-label">SELECT LEVEL</span>
+                <button type="button" class="level-unlock-toggle" id="btnUnlockAll" title="Unlock all levels">Unlock All 20 Levels</button>
+              </div>
+              <div class="level-stepper">
+                <button type="button" class="level-step-btn" id="btnLevelPrev" aria-label="Previous Level" title="Previous Level">◀</button>
+                <div class="level-stepper-display">
+                  <span class="stepper-level-num" id="stepperLevelNum">LEVEL 1</span>
+                  <span class="stepper-trap-name" id="stepperTrapName">Clear Passage</span>
+                </div>
+                <button type="button" class="level-step-btn" id="btnLevelNext" aria-label="Next Level" title="Next Level">▶</button>
+              </div>
+              <div class="level-chips-container">
+                <div class="level-chips-grid" id="levelChipsGrid" role="group" aria-label="Select Level"></div>
+              </div>
+            </div>
+
             <div class="menu-row">
               <button id="btn-howto" class="btn ghost"><span class="btn-ico" data-icon="controller"></span>How to play</button>
               <button id="btn-menu-legend" class="btn ghost"><span class="btn-ico" data-icon="help"></span>Legend</button>
@@ -360,10 +389,11 @@
         <h2>PAUSED</h2>
         <div class="stack">
           <button id="btn-resume" class="btn primary" data-primary><span class="btn-ico" data-icon="play"></span>RESUME</button>
-          <button id="btn-pause-restart" class="btn"><span class="btn-ico" data-icon="restart"></span>RESTART LEVEL</button>
+          <button id="btn-pause-next" class="btn"><span class="btn-ico" data-icon="play"></span>SKIP TO NEXT LEVEL →</button>
+          <button id="btn-pause-menu" class="btn"><span class="btn-ico" data-icon="home"></span>PALACE HOME · CHOOSE LEVEL</button>
+          <button id="btn-pause-restart" class="btn ghost"><span class="btn-ico" data-icon="restart"></span>RESTART LEVEL</button>
           <button id="btn-mute-pause" class="link mute-toggle"></button>
-          <button id="btn-pause-menu" class="link"><span class="btn-ico" data-icon="home"></span>Main menu</button>
-          <a href="../" class="link" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;"><span class="btn-ico" data-icon="home"></span>Exit to GAP Hub</a>
+          <a href="../#/" class="link" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;"><span class="btn-ico" data-icon="home"></span>Exit to All Games Hub</a>
         </div>
       </div>
     </section>
@@ -470,6 +500,6 @@
       </div>
     </section>
 
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js?v=2.2"></script>
 </body>
 </html>

@@ -1263,4 +1263,244 @@ body[data-theme="light"] .active-game-badge {
   }
 }
 
+/* Palace Home Nav Button inside Top Pill */
+.palace-home-btn {
+  background: transparent !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 2px 6px !important;
+  border-radius: 9999px !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  color: var(--dyn-brand, #38bdf8) !important;
+  text-decoration: none !important;
+}
+
+.palace-home-btn:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  transform: translateY(-1px) !important;
+  filter: drop-shadow(0 0 6px var(--accent-glow, rgba(56, 189, 248, 0.5))) !important;
+}
+
+.palace-home-btn:active {
+  transform: scale(0.96) !important;
+}
+
+.palace-home-icon {
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+.palace-home-tag {
+  font-size: 9px !important;
+  text-transform: uppercase !important;
+  font-weight: 800 !important;
+  padding: 1px 4px !important;
+  border-radius: 4px !important;
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: var(--dyn-brand, #38bdf8) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  letter-spacing: 0.5px !important;
+}
+
+body[data-theme="light"] .palace-home-btn {
+  color: var(--dyn-brand, #0284c7) !important;
+}
+
+body[data-theme="light"] .palace-home-btn:hover {
+  background: rgba(2, 132, 199, 0.1) !important;
+}
+
+body[data-theme="light"] .palace-home-tag {
+  background: rgba(2, 132, 199, 0.12) !important;
+  color: var(--dyn-brand, #0284c7) !important;
+  border-color: rgba(2, 132, 199, 0.25) !important;
+}
+
+/* Palace Level Selection Hub on Main Menu */
+.palace-level-hub {
+  width: 100%;
+  max-width: 360px;
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-top: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 18px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  margin: 6px auto;
+  box-sizing: border-box;
+}
+
+body[data-theme="light"] .palace-level-hub {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 1px 1px #ffffff;
+}
+
+.level-hub-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.level-hub-label {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--terracotta-dark, #a8661a);
+}
+
+body[data-theme="dark"] .level-hub-label {
+  color: #ffd66b;
+}
+
+.level-unlock-toggle {
+  background: transparent;
+  border: 1px dashed rgba(255, 214, 107, 0.5);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--terracotta-dark, #a8661a);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+body[data-theme="dark"] .level-unlock-toggle {
+  color: #ffd66b;
+  border-color: rgba(255, 214, 107, 0.5);
+}
+
+.level-unlock-toggle:hover {
+  background: rgba(255, 214, 107, 0.2);
+  border-style: solid;
+}
+
+.level-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 12px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
+
+body[data-theme="light"] .level-stepper {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.level-step-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: inherit;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.level-step-btn:hover {
+  background: rgba(255, 214, 107, 0.3);
+  transform: scale(1.08);
+}
+
+.level-stepper-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stepper-level-num {
+  font-family: var(--serif, Georgia);
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  color: var(--terracotta-dark, #a8661a);
+}
+
+body[data-theme="dark"] .stepper-level-num {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 214, 107, 0.6);
+}
+
+.stepper-trap-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teal, #38bdf8);
+}
+
+.level-chips-container {
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.level-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 5px;
+  width: 100%;
+}
+
+.level-chip {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  padding: 0;
+}
+
+body[data-theme="light"] .level-chip {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.level-chip.unlocked {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.level-chip.locked {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.level-chip:hover {
+  transform: scale(1.15);
+  border-color: #ffd66b;
+  box-shadow: 0 0 8px rgba(255, 214, 107, 0.6);
+}
+
+.level-chip.active {
+  background: linear-gradient(135deg, #ffd66b, #e9a321) !important;
+  color: #2a1d00 !important;
+  font-weight: 900 !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(255, 214, 107, 0.8), inset 0 1px 1px #fff !important;
+  transform: scale(1.15) !important;
+}
+
 

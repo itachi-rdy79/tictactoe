@@ -69,8 +69,22 @@ export class UIManager {
 
   bind() {
     const h = this.h;
-    $("btn-play").onclick = () => h.onPlay(this.storage.data.unlocked);
-    $("btn-start-over").onclick = () => h.onPlay(1);
+    $("btn-play").onclick = () => h.onPlay(this.selectedLevel || this.storage.data.unlocked || 1);
+    $("btn-start-over").onclick = () => {
+      this.selectLevel(1);
+      h.onPlay(1);
+    };
+    $("btnLevelPrev")?.addEventListener("click", () => this.selectLevel((this.selectedLevel || 1) - 1));
+    $("btnLevelNext")?.addEventListener("click", () => this.selectLevel((this.selectedLevel || 1) + 1));
+    $("btnUnlockAll")?.addEventListener("click", () => {
+      this.storage.data.unlocked = 20;
+      this.storage.save();
+      this.buildLevelSelector();
+      this.selectLevel(this.selectedLevel || 1);
+      this.toast("All 20 Palace Levels unlocked! 🔓");
+    });
+    $("palaceHomeNavBtn")?.addEventListener("click", () => h.onMenu());
+    $("btn-hud-home")?.addEventListener("click", () => h.onMenu());
     $("btn-menu-bachelor-card").onclick = () => this.showBachelorCard();
     $("btn-howto").onclick = () => this.openModal("modal-howto");
     $("btn-menu-legend").onclick = () => this.showLegend(null);
@@ -81,7 +95,14 @@ export class UIManager {
     $("btn-pause").onclick = () => h.onPause();
     $("btn-resume").onclick = () => h.onResume();
     $("btn-pause-restart").onclick = () => h.onRestart();
-    $("btn-pause-menu").onclick = () => h.onMenu();
+    $("btn-pause-next")?.addEventListener("click", () => {
+      this.closeAllModals();
+      h.onNext();
+    });
+    $("btn-pause-menu").onclick = () => {
+      this.closeAllModals();
+      h.onMenu();
+    };
     $("btn-restart").onclick = () => h.onRestart();
     $("btn-caught-menu").onclick = () => h.onMenu();
     $("btn-next").onclick = () => {
@@ -224,7 +245,69 @@ export class UIManager {
     $("screen-loading").classList.remove("show");
   }
 
-  // ---------- menu ----------
+  // ---------- menu & level selection ----------
+
+  buildLevelSelector() {
+    const grid = $("levelChipsGrid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    const unlocked = this.storage.data.unlocked || 1;
+    const selected = this.selectedLevel || unlocked;
+    const maxLevel = 20;
+
+    for (let i = 1; i <= maxLevel; i++) {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = `level-chip ${i === selected ? "active" : ""} ${i <= unlocked ? "unlocked" : "locked"}`;
+      chip.dataset.level = String(i);
+      chip.innerHTML = `<span class="chip-num">${i}</span>`;
+      chip.title = i <= unlocked ? `Play Level ${i}` : `Level ${i} (Locked)`;
+      chip.onclick = () => {
+        this.selectLevel(i);
+      };
+      grid.appendChild(chip);
+    }
+    this.updateStepperDisplay();
+  }
+
+  selectLevel(n) {
+    const max = 20;
+    this.selectedLevel = Math.max(1, Math.min(max, n));
+    const unlocked = this.storage.data.unlocked || 1;
+    if (this.selectedLevel > unlocked) {
+      this.storage.data.unlocked = this.selectedLevel;
+      this.storage.save();
+    }
+    this.updateStepperDisplay();
+    $("btn-play-label").textContent = `PLAY · LEVEL ${this.selectedLevel}`;
+    const chips = document.querySelectorAll(".level-chip");
+    chips.forEach((c) => {
+      const lvl = parseInt(c.dataset.level, 10);
+      c.classList.toggle("active", lvl === this.selectedLevel);
+      c.classList.toggle("unlocked", lvl <= (this.storage.data.unlocked || 1));
+      c.classList.toggle("locked", lvl > (this.storage.data.unlocked || 1));
+    });
+  }
+
+  updateStepperDisplay() {
+    const n = this.selectedLevel || this.storage.data.unlocked || 1;
+    const numEl = $("stepperLevelNum");
+    const trapEl = $("stepperTrapName");
+    if (numEl) numEl.textContent = `LEVEL ${n}`;
+    const traps = [
+      "Clear Passage",
+      "Twin Doors",
+      "Long Hall",
+      "The Creature",
+      "Power-Ups",
+      "Shawl Man",
+      "Lights Out",
+      "Flooded Maze",
+      "Reversed Controls",
+      "Thatha's Treasure",
+    ];
+    if (trapEl) trapEl.textContent = traps[(n - 1) % traps.length] || `Wing ${n}`;
+  }
 
   showMenu() {
     this.hideCoach();
@@ -233,7 +316,9 @@ export class UIManager {
     $("screen-menu").classList.add("show");
     $("btn-play").disabled = !!this.playLabelSaved; // enabled now that the game script is running
     const { unlocked } = this.storage.data;
-    $("btn-play-label").textContent = unlocked > 1 ? `CONTINUE · LEVEL ${unlocked}` : "PLAY";
+    this.selectedLevel = this.selectedLevel || unlocked || 1;
+    this.buildLevelSelector();
+    this.selectLevel(this.selectedLevel);
     $("btn-start-over").classList.toggle("hidden", unlocked <= 1);
     this.updateAasthiAccess();
   }

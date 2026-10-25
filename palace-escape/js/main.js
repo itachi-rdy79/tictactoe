@@ -254,6 +254,8 @@ async function boot() {
   });
 
   game = new Game({ renderer, ui, audio, input, storage, layout });
+  window.palaceGame = game;
+  window.palaceUI = ui;
 
   const applyResize = () => {
     const wasPortrait = game.portrait;
