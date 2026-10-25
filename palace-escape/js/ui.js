@@ -14,7 +14,7 @@ const TRAP_BRIEFS = {
   reverse: ["reverse", "REVERSED CONTROLS", ["Your movement controls are reversed.", "Stay calm and adjust your direction to escape."]],
   rotate: ["rotate", "MIRROR MAZE", ["The maze flips or mirrors every 10 seconds.", "Your position stays the same relative to the maze.", "Reorient yourself quickly after every flip."]],
   hiddenDoor: ["lock", "HIDDEN EXIT", ["There is no visible exit door.", "The crocodile is holding a hostage. Grab a knife and take it out.", "Free her, then lead her to the exit — your powers protect her too."]],
-  twoDoors: ["twoDoors", "TWIN DOORS", ["Two identical doors. Someone is waiting behind the first one you open.", "Hear her out, then take her through the other door.", "You can skip the conversation after the first time."]],
+  twoDoors: ["twoDoors", "TWIN DOORS", ["Two identical doors. Someone is waiting behind the first one you open.", "Rescue her and escape together through either door!", "Swipe or press any key to skip conversation."]],
   null: ["sparkles", "CLEAR PASSAGE", ["No special trap is active in this palace.", "All chasers are still in play.", "Find the glowing exit door."]],
 };
 

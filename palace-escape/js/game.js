@@ -338,6 +338,7 @@ export class Game {
       case "LEVEL_COMPLETE":
         this.completeTimer += dt;
         this.doorOpen = Math.min(1, this.doorOpen + dt * 2.5);
+        if (this.decoyOpen != null) this.decoyOpen = Math.min(1, this.decoyOpen + dt * 2.5);
         if (!this.cardShown && this.completeTimer >= COMPLETE_CARD_DELAY) {
           this.cardShown = true;
           this.showCompletionCard();
@@ -969,7 +970,7 @@ export class Game {
   /** A swipe, tap or key press: skips the Twin Doors conversation, but only once it has been heard in full before. */
   requestSkip() {
     const ev = this.event;
-    if (ev && ev.skippable && ev.t > 0.5) ev.skip = true;
+    if (ev && ev.skippable && ev.t > 0.15) ev.skip = true;
   }
 
   /**
@@ -999,10 +1000,10 @@ export class Game {
     she.state = "TALKING";
     she.appear = 0;
     this.allies.push(she);
-    const talk = this.audio.duration("heroine2") || 8;
-    // The first time it is heard in full; from the second time any swipe, tap or key press skips it.
-    const skippable = !!this.storage.data.twinSeen;
-    this.event = { type: "twin", t: 0, duration: talk + 0.8, decoy, inner, she, skippable, skip: false };
+    const talk = this.audio.duration("heroine2") || 2.5;
+    // Always allow skipping so players can advance smoothly
+    const skippable = true;
+    this.event = { type: "twin", t: 0, duration: talk + 0.4, decoy, inner, she, skippable, skip: false };
     this.audio.play("heroine2");
     this.ui.showSkipHint(skippable);
     this.ui.toast("Someone is behind this door… 👀");
@@ -1014,7 +1015,7 @@ export class Game {
     this.decoyOpen = Math.min(1, ev.t * 1.8);
     ev.she.appear = Math.min(1, Math.max(0, (ev.t - 0.3) / 0.7));
     if (ev.t < ev.duration && !ev.skip) return;
-    // The conversation is over (or skipped): she joins him, and the other door can open.
+    // The conversation is over (or skipped): she joins him, and either door can be used to escape.
     this.audio.stopStingers();
     this.audio.stopDuck();
     this.ui.showSkipHint(false);
@@ -1030,7 +1031,7 @@ export class Game {
       this.storage.save();
     }
     this.hero.graceTimer = Math.max(this.hero.graceTimer, 1.5);
-    this.ui.toast("She's with you. Now the other door! 🚪");
+    this.ui.toast("She's with you — escape through either door! 💃🚪");
   }
 
   // ---------- Sudden Wells: Heroine 3 climbs out of the well ----------
@@ -1145,7 +1146,23 @@ export class Game {
       }
     }
     // The exit is two tiles wide: the hero leaves from whichever of the two he walks into.
-    const exitTile = this.doorTiles(level.door).find((tile) => Math.abs(hero.x - tile.c) + Math.abs(hero.y - tile.r) <= 0.55);
+    // In Twin Doors, once Heroine 2 joins the hero, either door is a valid escape exit.
+    const doorsToCheck = this.trap.id === "twoDoors" && this.twinDone && this.trap.config.decoyDoor
+      ? [level.door, this.trap.config.decoyDoor]
+      : [level.door];
+    const exitTile = doorsToCheck
+      .flatMap((d) => this.doorTiles(d))
+      .find((tile) => {
+        const d = Math.abs(hero.x - tile.c) + Math.abs(hero.y - tile.r);
+        if (d <= 0.85) return true;
+        const inner = this.innerOf(tile);
+        if (Math.abs(hero.x - inner.c) + Math.abs(hero.y - inner.r) <= 0.35) {
+          const dx = tile.c - inner.c;
+          const dy = tile.r - inner.r;
+          if (hero.dir && DIRS[hero.dir].x === dx && DIRS[hero.dir].y === dy) return true;
+        }
+        return false;
+      });
     if (!exitTile) return false; // the hero has to reach the door itself
     // The real exit stays shut until the round's story has been played.
     const locked = this.trap.id === "well" && !this.storyDone ? "The exit is sealed until the stranger from the well joins you." : null;
