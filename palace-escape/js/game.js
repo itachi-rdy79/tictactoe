@@ -202,9 +202,8 @@ export class Game {
       this.beginCountdown();
     } else {
       this.input.enabled = false;
-      // The instruction screen's Start button waits a few seconds while the traps are being learnt (levels 1-9);
-      // from level 10 on everyone knows them, so it is ready at once.
-      this.ui.showTrapBrief(this.trap, () => this.beginCountdown(), { lock: this.levelNumber <= 9 });
+      // The instruction screen is ready immediately so players can read or tap Start right away
+      this.ui.showTrapBrief(this.trap, () => this.beginCountdown(), { lock: false });
     }
   }
 

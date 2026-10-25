@@ -84,12 +84,19 @@ export class UIManager {
     $("btn-pause-menu").onclick = () => h.onMenu();
     $("btn-restart").onclick = () => h.onRestart();
     $("btn-caught-menu").onclick = () => h.onMenu();
-    $("btn-next").onclick = () => h.onNext();
+    $("btn-next").onclick = () => {
+      cancelAnimationFrame(this.confettiRaf);
+      $("card-complete").classList.remove("show");
+      h.onNext();
+    };
     $("btn-play-from-start").onclick = () => h.onPlay(1);
     $("btn-game-end-menu").onclick = () => h.onMenu();
     $("btn-powers-go").onclick = () => this.closePowers();
     $("btn-trap-brief-go").onclick = () => this.closeTrapBrief();
-    $("btn-keep-going").onclick = () => h.onNext();
+    $("btn-keep-going").onclick = () => {
+      $("card-final").classList.remove("show");
+      h.onNext();
+    };
     $("btn-share").onclick = () => this.shareCard("final-card-canvas", "name-input");
     $("btn-bachelor-share").onclick = () => this.shareCard("bachelor-card-canvas", "bachelor-name-input");
     $("btn-bachelor-close").onclick = () => this.closeBachelorCard();
@@ -262,6 +269,12 @@ export class UIManager {
     if (id === "modal-legend" && this.onLegendClose) {
       const cb = this.onLegendClose;
       this.onLegendClose = null;
+      cb();
+    }
+    if (id === "modal-trap-brief" && this.trapBriefDone) {
+      clearInterval(this.lockTimer);
+      const cb = this.trapBriefDone;
+      this.trapBriefDone = null;
       cb();
     }
   }
@@ -480,17 +493,17 @@ export class UIManager {
     btn.focus({ preventScroll: true });
   }
 
-  /** Locks the round's Start button for `seconds`, showing a fill and a "Start in N" count. */
+  /** Locks the round's Start button for `seconds`, showing a fill and a "Start in N" count, but always allows instant click to start. */
   lockTrapBrief(seconds) {
     const btn = $("btn-trap-brief-go");
     const label = btn.querySelector(".btn-label") || btn;
     if (!this.briefLabel) this.briefLabel = label.textContent.trim();
     const original = this.briefLabel;
     const caps = original === original.toUpperCase();
-    const text = (n) => (caps ? `START IN ${n}` : `Start in ${n}`);
+    const text = (n) => (caps ? `START (${n})` : `Start (${n})`);
     clearInterval(this.lockTimer);
     let left = seconds;
-    btn.disabled = true;
+    btn.disabled = false;
     btn.classList.remove("ready");
     btn.classList.add("locked");
     btn.style.setProperty("--lock-ms", `${seconds * 1000}ms`);
@@ -512,9 +525,10 @@ export class UIManager {
   }
 
   closeTrapBrief() {
-    this.closeModal("modal-trap-brief");
+    clearInterval(this.lockTimer);
     const cb = this.trapBriefDone;
     this.trapBriefDone = null;
+    this.closeModal("modal-trap-brief");
     cb?.();
   }
 
