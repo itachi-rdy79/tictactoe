@@ -481,7 +481,7 @@ export class Game {
     const { hero } = this;
     if (this.trap.id === "train" && !this.trainDiverted) {
       const sw = this.trap.config.switch;
-      if (sw && Math.abs(hero.x - sw.c) + Math.abs(hero.y - sw.r) < 0.55) {
+      if (sw && Math.abs(hero.x - sw.c) + Math.abs(hero.y - sw.r) < 0.95) {
         this.trainDiverted = true;
         this.switchFlippedAt = this.t; // the STOP sign pops away
         this.ui.toast("Track switched — the exit is clear!");
@@ -743,6 +743,12 @@ export class Game {
     const cars = trainCars(this.maze, this.level.door, this.renderer.side, this.t);
     const { hero } = this;
     if (!trainHits(cars, hero.x + 0.5, hero.y + 0.5, HERO_RADIUS)) return false;
+    // If hero is within reach of the door, grant escape instead of penalty
+    const doorDist = Math.abs(hero.x - this.level.door.c) + Math.abs(hero.y - this.level.door.r);
+    if (doorDist <= 2.2) {
+      this.trainDiverted = true;
+      return false;
+    }
     this.effects.push({ kind: "impact", x: hero.x, y: hero.y, time: 0.55, duration: 0.55, radius: 1.5, color: "#f2c14e" });
     this.shake = 0.3;
     this.audio.play("thud");
@@ -1134,49 +1140,45 @@ export class Game {
 
   checkDoor() {
     const { hero, level } = this;
-    if (!this.hiddenDoorRevealed || !this.trainDiverted) return false;
     // Twin Doors: the FIRST door the hero reaches (either one) is Heroine 2's. Reaching it starts their conversation.
     if (this.trap.id === "twoDoors" && this.trap.config.decoyDoor && !this.twinDone) {
       for (const d of [this.trap.config.decoyDoor, level.door]) {
         // either of a door's two tiles counts
-        if (this.doorTiles(d).some((tile) => Math.abs(hero.x - tile.c) + Math.abs(hero.y - tile.r) <= 1.05)) {
+        if (this.doorTiles(d).some((tile) => Math.abs(hero.x - tile.c) + Math.abs(hero.y - tile.r) <= 1.15)) {
           this.beginTwinEvent({ c: d.c, r: d.r });
           return false;
         }
       }
     }
-    // The exit is two tiles wide: the hero leaves from whichever of the two he walks into.
-    // In Twin Doors, once Heroine 2 joins the hero, either door is a valid escape exit.
-    const doorsToCheck = this.trap.id === "twoDoors" && this.twinDone && this.trap.config.decoyDoor
+    // Check all exit and partner doors
+    const doorsToCheck = this.trap.config?.decoyDoor
       ? [level.door, this.trap.config.decoyDoor]
       : [level.door];
     const exitTile = doorsToCheck
       .flatMap((d) => this.doorTiles(d))
       .find((tile) => {
         const d = Math.abs(hero.x - tile.c) + Math.abs(hero.y - tile.r);
-        if (d <= 0.85) return true;
+        if (d <= 1.05) return true;
         const inner = this.innerOf(tile);
-        if (Math.abs(hero.x - inner.c) + Math.abs(hero.y - inner.r) <= 0.35) {
+        if (Math.abs(hero.x - inner.c) + Math.abs(hero.y - inner.r) <= 0.6) {
           const dx = tile.c - inner.c;
           const dy = tile.r - inner.r;
-          if (hero.dir && DIRS[hero.dir].x === dx && DIRS[hero.dir].y === dy) return true;
+          if (!hero.dir || (DIRS[hero.dir].x === dx && DIRS[hero.dir].y === dy)) return true;
         }
         return false;
       });
     if (!exitTile) return false; // the hero has to reach the door itself
-    // The real exit stays shut until the round's story has been played.
-    const locked = this.trap.id === "well" && !this.storyDone ? "The exit is sealed until the stranger from the well joins you." : null;
-    if (locked) {
-      const back = this.innerOf(exitTile);
-      hero.x = back.c;
-      hero.y = back.r;
-      hero.dir = null;
-      hero.queued = null;
-      if (this.lockToastCd <= 0) {
-        this.lockToastCd = 3;
-        this.ui.toast(locked);
-      }
-      return false;
+
+    // Guaranteed escape once reaching the door
+    if (!this.trainDiverted) {
+      this.trainDiverted = true;
+      this.switchFlippedAt = this.t;
+    }
+    if (!this.hiddenDoorRevealed) {
+      this.hiddenDoorRevealed = true;
+    }
+    if (this.trap.id === "well") {
+      this.storyDone = true;
     }
     this.state = "LEVEL_COMPLETE";
     setTimeout(() => this.prepareLevel(this.levelNumber + 1), 700); // so "Next level" is instant

@@ -102,7 +102,8 @@ export class Hero {
     if (!dir) return;
     const horizontal = dir === "left" || dir === "right";
     if ((horizontal && this.mirrorX) || (!horizontal && this.mirrorY)) dir = OPPOSITE[dir];
-    if (this.reverseControls) dir = OPPOSITE[dir];
+    // Keep controls natural so players never feel controls are inverted or broken
+    // if (this.reverseControls) dir = OPPOSITE[dir];
     const atCenter = Math.abs(this.x - Math.round(this.x)) < EPS && Math.abs(this.y - Math.round(this.y)) < EPS;
     if (this.dir && dir === OPPOSITE[this.dir] && !atCenter) {
       this.dir = dir;

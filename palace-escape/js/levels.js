@@ -106,7 +106,14 @@ const ENDLESS_POWERS = ["eye", "knife", "boost", "knife", "eye", "boost"];
  */
 export function getLevelDef(n) {
   const k = Math.max(0, n - 1);
-  if (k < LEVELS.length) return LEVELS[k];
+  if (k < LEVELS.length) {
+    const base = LEVELS[k];
+    let layout = typeof base.layout === "string" ? LAYOUTS[base.layout] : base.layout;
+    if (layout && layout.cols < 23) {
+      layout = { ...layout, cols: 23, rows: 17, braid: 0.95, halls: Math.max(2, layout.halls || 2) };
+    }
+    return { ...base, layout };
+  }
   const lerp = (from, to, steps, startK = 0) => from + (to - from) * Math.min(1, Math.max(0, k - startK) / steps);
   const chasers = [
     { type: "crocodile", speed: +lerp(2.7, 3.9, 40).toFixed(2), spawn: "far" },

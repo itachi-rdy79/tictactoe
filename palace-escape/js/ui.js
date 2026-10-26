@@ -97,6 +97,18 @@ export class UIManager {
     $("btn-pause-restart").onclick = () => h.onRestart();
     $("btn-pause-next")?.addEventListener("click", () => {
       this.closeAllModals();
+      const nextLvl = (window.palaceGame?.levelNumber || this.selectedLevel || 1) + 1;
+      this.storage.data.unlocked = Math.max(this.storage.data.unlocked || 1, nextLvl);
+      this.storage.save();
+      this.selectLevel(nextLvl);
+      h.onNext();
+    });
+    $("btn-caught-skip")?.addEventListener("click", () => {
+      this.closeAllModals();
+      const nextLvl = (window.palaceGame?.levelNumber || this.selectedLevel || 1) + 1;
+      this.storage.data.unlocked = Math.max(this.storage.data.unlocked || 1, nextLvl);
+      this.storage.save();
+      this.selectLevel(nextLvl);
       h.onNext();
     });
     $("btn-pause-menu").onclick = () => {
