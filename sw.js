@@ -4,17 +4,30 @@
    dictionaries, and local media for 100% offline operation.
    ========================================================================= */
 
-const CACHE_NAME = "gap-arcade-v64.5";
+const CACHE_NAME = "gap-arcade-v64.6";
+const BUNDLED_STILL_DAYS = [
+  1610, 1609, 1608, 1607, 1606, 1605, 1604, 1603, 1602, 1601,
+  1600, 1599, 1598, 1597, 1587, 1582, 1577, 1574, 1571
+];
+const BUNDLED_STILL_ASSETS = BUNDLED_STILL_DAYS.flatMap(d => [
+  `./data/stills/${d}/meta-data.json`,
+  `./data/stills/${d}/1.jpg`,
+  `./data/stills/${d}/2.jpg`,
+  `./data/stills/${d}/3.jpg`,
+  `./data/stills/${d}/4.jpg`,
+  `./data/stills/${d}/5.jpg`
+]);
+
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./style.css?v=64.3",
   "./script.js",
-  "./script.js?v=64.4",
+  "./script.js?v=64.6",
   "./manifest.json",
   "./data/wordle-dict.js",
-  "./data/wordle-dict.js?v=64.4",
+  "./data/wordle-dict.js?v=64.6",
   "./data/wordle-words.js",
   "./data/wordle-words.js?v=60.0",
   "./data/tollywood-movies.json",
@@ -28,25 +41,8 @@ const PRECACHE_ASSETS = [
   "./assets/itachi-bg.png",
   "./assets/scenic_bg.jpg",
 
-  // Bundled PC Guesser offline stills
-  "./data/stills/1610/meta-data.json",
-  "./data/stills/1610/1.jpg",
-  "./data/stills/1610/2.jpg",
-  "./data/stills/1610/3.jpg",
-  "./data/stills/1610/4.jpg",
-  "./data/stills/1610/5.jpg",
-  "./data/stills/1609/meta-data.json",
-  "./data/stills/1609/1.jpg",
-  "./data/stills/1609/2.jpg",
-  "./data/stills/1609/3.jpg",
-  "./data/stills/1609/4.jpg",
-  "./data/stills/1609/5.jpg",
-  "./data/stills/1608/meta-data.json",
-  "./data/stills/1608/1.jpg",
-  "./data/stills/1608/2.jpg",
-  "./data/stills/1608/3.jpg",
-  "./data/stills/1608/4.jpg",
-  "./data/stills/1608/5.jpg",
+  // All 19 Bundled PC Guesser offline stills
+  ...BUNDLED_STILL_ASSETS,
 
   // Palace Escape (Nested Game)
   "./palace-escape/",
@@ -151,6 +147,20 @@ self.addEventListener("fetch", (e) => {
 
   // Skip caching non-http/https (e.g. chrome-extension)
   if (!url.protocol.startsWith("http")) return;
+
+  // Network-first for daily movie metadata & tollywood-movies.json so daily updates are never stale
+  if (url.pathname.includes("/data/daily/") || url.pathname.endsWith("/tollywood-movies.json")) {
+    e.respondWith(
+      fetch(e.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+        }
+        return networkResponse;
+      }).catch(() => caches.match(e.request, { ignoreSearch: true }))
+    );
+    return;
+  }
 
   const isCode = url.pathname.endsWith(".css") || url.pathname.endsWith(".js") || url.pathname.endsWith(".html");
   e.respondWith(

@@ -6525,29 +6525,93 @@ const PATTU_BUNDLED_DAYS = [
 ];
 
 const PATTU_S3_BASE = "https://pattukunte-pattucheera-movies.s3.amazonaws.com";
+const PATTU_META_CACHE = new Map();
+let pattuDailyMeta = null;
+let pattuInitReqId = 0;
 
-// Async loader to pull official movies list from S3 & local fallback
+// Pre-populate metadata cache with all bundled offline days
+PATTU_BUNDLED_DAYS.forEach(entry => {
+  PATTU_META_CACHE.set(entry.day, {
+    day: entry.day,
+    movie: entry.movie,
+    contributor: "",
+    twitterId: ""
+  });
+});
+
+// Restore any previously verified day->movie metadata from localStorage
+try {
+  const savedMetaMap = JSON.parse(localStorage.getItem("gap_pattu_day_meta_v2") || "{}");
+  Object.keys(savedMetaMap).forEach(k => {
+    const d = Number(k);
+    const m = savedMetaMap[k];
+    if (!isNaN(d) && m && m.movie && !(d > 0 && normalizePattuTitle(m.movie) === "vinayakudu")) {
+      PATTU_META_CACHE.set(d, m);
+    }
+  });
+} catch {}
+
+function cachePattuDayMeta(day, meta) {
+  if (typeof day !== "number" || isNaN(day) || !meta || !meta.movie) return;
+  // Guard against upstream static placeholder "Vinayakudu" (Day 0) leaking onto non-zero days
+  if (day > 0 && normalizePattuTitle(meta.movie) === "vinayakudu") return;
+  const clean = {
+    day,
+    movie: String(meta.movie).trim(),
+    contributor: meta.contributor || "",
+    twitterId: meta.twitterId || ""
+  };
+  PATTU_META_CACHE.set(day, clean);
+  if (!PATTU_MOVIES.includes(clean.movie)) {
+    PATTU_MOVIES.push(clean.movie);
+    PATTU_MOVIES.sort((a, b) => a.localeCompare(b));
+  }
+  try {
+    const saved = JSON.parse(localStorage.getItem("gap_pattu_day_meta_v2") || "{}");
+    saved[String(day)] = clean;
+    localStorage.setItem("gap_pattu_day_meta_v2", JSON.stringify(saved));
+  } catch {}
+}
+
+// Async loader to pull official movies list & index from local files & S3
 (function loadExtendedTollywoodDatabase() {
+  // 1. Always merge local tollywood-movies.json first so offline & CORS-restricted clients have full autocomplete
+  fetch("data/tollywood-movies.json")
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => {
+      if (data && Array.isArray(data.movies) && data.movies.length > 0) {
+        const merged = new Set([...PATTU_MOVIES, ...data.movies]);
+        PATTU_MOVIES = Array.from(merged).sort((a, b) => a.localeCompare(b));
+      }
+      if (data && data.todayMeta && data.todayMeta.movie && typeof data.day === "number") {
+        if (normalizePattuTitle(data.todayMeta.movie) !== "vinayakudu") {
+          cachePattuDayMeta(Number(data.day), data.todayMeta);
+        }
+      }
+    })
+    .catch(() => {});
+
+  // 2. Load local daily meta-data.json and register it ONLY for its exact recorded day
+  fetch("data/daily/meta-data.json")
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(meta => {
+      if (meta && meta.movie && typeof meta.day === "number") {
+        pattuDailyMeta = meta;
+        cachePattuDayMeta(Number(meta.day), meta);
+      }
+    })
+    .catch(() => {});
+
+  // 3. Also pull latest S3 movies.json when online
   fetch(`${PATTU_S3_BASE}/movies.json`)
-    .then(r => r.json())
+    .then(r => r.ok ? r.json() : Promise.reject())
     .then(movies => {
       if (Array.isArray(movies) && movies.length > 0) {
         const merged = new Set([...PATTU_MOVIES, ...movies]);
         PATTU_MOVIES = Array.from(merged).sort((a, b) => a.localeCompare(b));
       }
     })
-    .catch(() => {
-      // Offline fallback to local data/tollywood-movies.json
-      fetch("data/tollywood-movies.json")
-        .then(r => r.json())
-        .then(data => {
-          if (data && Array.isArray(data.movies) && data.movies.length > 0) {
-            const merged = new Set([...PATTU_MOVIES, ...data.movies]);
-            PATTU_MOVIES = Array.from(merged).sort((a, b) => a.localeCompare(b));
-          }
-        })
-        .catch(() => {});
-    });
+    .catch(() => {});
 })();
 
 // Pattu Game State
@@ -6636,21 +6700,85 @@ function savePattuStats(won, attemptNumber) {
   } catch {}
 }
 
-function initPattu(targetDay = null) {
-  showOnlyActiveGame("pattu");
-  loadPattuStats();
-  const todayDay = getPattuDayCount();
-  pattuCurrentDay = (typeof targetDay === "number" && targetDay >= 0) ? targetDay : todayDay;
+async function fetchPattuMetaForDay(day) {
+  const isValidMeta = (m) => m && typeof m.movie === "string" && m.movie.trim().length > 0 && !(day > 0 && normalizePattuTitle(m.movie) === "vinayakudu");
 
-  // Pre-seed with bundled offline movie for this day
-  const bundled = PATTU_BUNDLED_DAYS.find(b => b.day === pattuCurrentDay) ||
-    PATTU_BUNDLED_DAYS[Math.abs(pattuCurrentDay) % PATTU_BUNDLED_DAYS.length];
-  pattuCurrentPuzzle = {
-    movie: bundled ? bundled.movie : "Shivamani",
-    movieFromS3: true
-  };
+  // 1. If we already have verified metadata in cache with contributor info or from bundled days, check local stills first
+  const isBundledDay = PATTU_BUNDLED_DAYS.some(b => b.day === day);
+  if (isBundledDay) {
+    try {
+      const r = await fetch(`data/stills/${day}/meta-data.json`);
+      if (r.ok) {
+        const meta = await r.json();
+        if (isValidMeta(meta)) {
+          cachePattuDayMeta(day, meta);
+          return meta;
+        }
+      }
+    } catch {}
+    const bundled = PATTU_BUNDLED_DAYS.find(b => b.day === day);
+    if (bundled) return { day: bundled.day, movie: bundled.movie, contributor: "", twitterId: "" };
+  }
 
-  const applyMeta = (meta) => {
+  // 2. Check if data/daily/meta-data.json matches this exact day
+  if (pattuDailyMeta && Number(pattuDailyMeta.day) === day && isValidMeta(pattuDailyMeta)) {
+    cachePattuDayMeta(day, pattuDailyMeta);
+    return pattuDailyMeta;
+  }
+  try {
+    const rDaily = await fetch("data/daily/meta-data.json");
+    if (rDaily.ok) {
+      const dailyMeta = await rDaily.json();
+      if (dailyMeta && typeof dailyMeta.day === "number") {
+        pattuDailyMeta = dailyMeta;
+        cachePattuDayMeta(Number(dailyMeta.day), dailyMeta);
+        if (Number(dailyMeta.day) === day && isValidMeta(dailyMeta)) {
+          return dailyMeta;
+        }
+      }
+    }
+  } catch {}
+
+  // 3. Check in-memory / localStorage cache for this exact day
+  if (PATTU_META_CACHE.has(day)) {
+    const cached = PATTU_META_CACHE.get(day);
+    if (isValidMeta(cached)) return cached;
+  }
+
+  // 4. Fetch live upstream metadata for this day (direct S3 first, then CORS-safe proxy fallbacks)
+  const s3MetaUrl = `${PATTU_S3_BASE}/${day}/meta-data.json`;
+  const candidateMetaUrls = [
+    s3MetaUrl,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(s3MetaUrl)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(s3MetaUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(s3MetaUrl)}`
+  ];
+
+  for (const url of candidateMetaUrls) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        const meta = await res.json();
+        if (isValidMeta(meta)) {
+          cachePattuDayMeta(day, meta);
+          return meta;
+        }
+      }
+    } catch {}
+  }
+
+  return null;
+}
+
+function getPattuOfflineFallbackEntry(day) {
+  return PATTU_BUNDLED_DAYS.find(b => b.day === day) ||
+    PATTU_BUNDLED_DAYS[Math.abs(day) % PATTU_BUNDLED_DAYS.length] ||
+    { day: 1610, movie: "Shivamani" };
+}
+
+function syncPattuPuzzleMetadata(day, reqId = pattuInitReqId) {
+  fetchPattuMetaForDay(day).then(meta => {
+    if (reqId !== pattuInitReqId || pattuCurrentDay !== day) return;
     if (meta && meta.movie) {
       pattuCurrentPuzzle.movie = meta.movie;
       pattuCurrentPuzzle.contributor = meta.contributor || "";
@@ -6661,27 +6789,53 @@ function initPattu(targetDay = null) {
         PATTU_MOVIES.sort((a, b) => a.localeCompare(b));
       }
       renderPattuUI();
+      persistLiveState();
+    } else {
+      // Upstream metadata unreachable (e.g., offline or blocked network for unbundled day):
+      // Switch cleanly to the deterministic bundled offline day so frames and movie name always match 100%
+      const fallback = getPattuOfflineFallbackEntry(day);
+      if (fallback) {
+        pattuCurrentPuzzle.movie = fallback.movie;
+        pattuCurrentPuzzle.movieFromS3 = true;
+        if (pattuCurrentDay !== fallback.day) {
+          pattuCurrentDay = fallback.day;
+          preloadPattuPuzzle(pattuCurrentDay);
+          renderPattuFrame(pattuActiveFrame);
+        }
+        renderPattuUI();
+        persistLiveState();
+      }
     }
+  });
+}
+
+function initPattu(targetDay = null) {
+  showOnlyActiveGame("pattu");
+  loadPattuStats();
+  const todayDay = getPattuDayCount();
+  pattuCurrentDay = (typeof targetDay === "number" && !isNaN(targetDay) && targetDay >= 0) ? targetDay : todayDay;
+
+  // If offline and requested day is not bundled locally, use a bundled offline day so frames & title match
+  const isBundled = PATTU_BUNDLED_DAYS.some(b => b.day === pattuCurrentDay);
+  const isDailyCached = pattuDailyMeta && Number(pattuDailyMeta.day) === pattuCurrentDay;
+  if (!navigator.onLine && !isBundled && !isDailyCached) {
+    const offlineEntry = getPattuOfflineFallbackEntry(pattuCurrentDay);
+    pattuCurrentDay = offlineEntry.day;
+  }
+
+  const reqId = ++pattuInitReqId;
+  const cachedMeta = PATTU_META_CACHE.get(pattuCurrentDay);
+  const fallbackBundled = getPattuOfflineFallbackEntry(pattuCurrentDay);
+
+  pattuCurrentPuzzle = {
+    movie: (cachedMeta && cachedMeta.movie) ? cachedMeta.movie : fallbackBundled.movie,
+    contributor: (cachedMeta && cachedMeta.contributor) || "",
+    twitterId: (cachedMeta && cachedMeta.twitterId) || "",
+    movieFromS3: true
   };
 
-  // 1. Load local offline package metadata (instant over local host / LAN)
-  fetch(`data/stills/${pattuCurrentDay}/meta-data.json`)
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(applyMeta)
-    .catch(() => {
-      fetch("data/daily/meta-data.json")
-        .then(r => r.ok ? r.json() : Promise.reject())
-        .then(applyMeta)
-        .catch(() => {});
-    });
-
-  // 2. Fetch latest upstream metadata if online
-  if (navigator.onLine) {
-    fetch(`${PATTU_S3_BASE}/${pattuCurrentDay}/meta-data.json`)
-      .then(res => res.ok ? res.json() : Promise.reject())
-      .then(applyMeta)
-      .catch(() => {});
-  }
+  // Resolve authoritative metadata for pattuCurrentDay
+  syncPattuPuzzleMetadata(pattuCurrentDay, reqId);
 
   // Preload all 5 movie stills for this day right away
   preloadPattuPuzzle(pattuCurrentDay);
@@ -6701,6 +6855,7 @@ function initPattu(targetDay = null) {
 
   renderPattuUI();
   renderPattuFrame(1);
+  persistLiveState();
 }
 
 function renderPattuUI() {
@@ -6847,26 +7002,56 @@ const PATTU_PRELOAD_CACHE = new Map();
 
 function getPattuCandidateUrls(day, frameNum) {
   const urls = [];
-  // 1. Direct local still for this exact day (from our offline package)
-  urls.push(`data/stills/${day}/${frameNum}.jpg`);
+  // 1. Direct local still for this exact day (only if present in our bundled offline package)
+  if (PATTU_BUNDLED_DAYS.some(b => b.day === day)) {
+    urls.push(`data/stills/${day}/${frameNum}.jpg`);
+  }
 
-  // 2. Direct online S3 & fast CDN proxies for this exact day
+  // 2. Local daily folder ONLY if data/daily/meta-data.json is verified to match this exact day
+  if (pattuDailyMeta && Number(pattuDailyMeta.day) === day) {
+    urls.push(`data/daily/${frameNum}.jpg`);
+  }
+
+  // 3. Direct online S3 & fast CDN proxies for this exact day
   urls.push(`${PATTU_S3_BASE}/${day}/${frameNum}.jpg`);
   urls.push(`https://wsrv.nl/?url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
   urls.push(`https://images.weserv.nl/?url=pattukunte-pattucheera-movies.s3.amazonaws.com/${day}/${frameNum}.jpg`);
 
-  // 3. Local daily folder (if viewing today's day)
-  if (day === getPattuDayCount()) {
-    urls.push(`data/daily/${frameNum}.jpg`);
-  }
-
   // 4. Offline fallback to nearest bundled day if day is unavailable
-  const fallbackEntry = PATTU_BUNDLED_DAYS.find(b => b.day === day) ||
-    PATTU_BUNDLED_DAYS[Math.abs(day) % PATTU_BUNDLED_DAYS.length];
+  const fallbackEntry = getPattuOfflineFallbackEntry(day);
   if (fallbackEntry && fallbackEntry.day !== day) {
     urls.push(`data/stills/${fallbackEntry.day}/${frameNum}.jpg`);
   }
   return urls;
+}
+
+function alignPattuMovieWithLoadedFrameUrl(loadedUrl) {
+  if (!loadedUrl || typeof loadedUrl !== "string") return;
+  // If the image that actually loaded came from a local bundled stills folder (e.g., offline fallback),
+  // ensure pattuCurrentPuzzle.movie matches the movie of that exact bundled folder!
+  const stillsMatch = loadedUrl.match(/data\/stills\/(\d+)\/\d+\.jpg/);
+  if (stillsMatch) {
+    const loadedDay = Number(stillsMatch[1]);
+    const bundled = PATTU_BUNDLED_DAYS.find(b => b.day === loadedDay);
+    if (bundled && bundled.movie && pattuCurrentPuzzle.movie !== bundled.movie) {
+      pattuCurrentPuzzle.movie = bundled.movie;
+      pattuCurrentPuzzle.movieFromS3 = true;
+      renderPattuUI();
+      persistLiveState();
+    }
+    return;
+  }
+  // If the image loaded from data/daily/, ensure the movie matches pattuDailyMeta
+  if (loadedUrl.includes("data/daily/") && pattuDailyMeta && pattuDailyMeta.movie) {
+    if (pattuCurrentPuzzle.movie !== pattuDailyMeta.movie) {
+      pattuCurrentPuzzle.movie = pattuDailyMeta.movie;
+      pattuCurrentPuzzle.contributor = pattuDailyMeta.contributor || "";
+      pattuCurrentPuzzle.twitterId = pattuDailyMeta.twitterId || "";
+      pattuCurrentPuzzle.movieFromS3 = true;
+      renderPattuUI();
+      persistLiveState();
+    }
+  }
 }
 
 function preloadPattuPuzzle(day) {
@@ -6938,6 +7123,7 @@ function renderPattuFrame(frameNum) {
     pattuImgEl.onload = () => {
       pattuImgEl.style.display = "block";
       pattuFallbackCardEl?.classList.add("hidden");
+      alignPattuMovieWithLoadedFrameUrl(cachedUrl);
     };
     pattuImgEl.onerror = () => {
       PATTU_PRELOAD_CACHE.delete(key);
@@ -6947,6 +7133,7 @@ function renderPattuFrame(frameNum) {
     if (pattuImgEl.complete && pattuImgEl.naturalWidth > 0) {
       pattuImgEl.style.display = "block";
       pattuFallbackCardEl?.classList.add("hidden");
+      alignPattuMovieWithLoadedFrameUrl(cachedUrl);
     }
     return;
   }
@@ -6964,6 +7151,7 @@ function renderPattuFrame(frameNum) {
       pattuImgEl.style.display = "block";
       pattuFallbackCardEl?.classList.add("hidden");
       PATTU_PRELOAD_CACHE.set(key, currentUrl);
+      alignPattuMovieWithLoadedFrameUrl(currentUrl);
     };
     pattuImgEl.onerror = () => {
       if (resolved) return;
@@ -7248,7 +7436,7 @@ pattuFramePillsEl?.addEventListener("click", (e) => {
 
 // Right Edge Time Travel Button trigger
 document.getElementById("pcTimeTravelEdgeBtn")?.addEventListener("click", () => {
-  pattuTimeTravelBtn?.click();
+  openPattuTimeTravelModal();
 });
 
 // Instructions Modal
@@ -7260,7 +7448,7 @@ closePattuHelpBtn?.addEventListener("click", () => {
 });
 
 // Time Travel Modal (Interactive Calendar Date Picker)
-pattuTimeTravelBtn?.addEventListener("click", () => {
+function openPattuTimeTravelModal() {
   const todayDay = getPattuDayCount();
   const minDate = "2022-05-23";
   const maxDate = pattuDayToDateStr(todayDay);
@@ -7268,8 +7456,8 @@ pattuTimeTravelBtn?.addEventListener("click", () => {
   if (pattuTtCurrentDayText) pattuTtCurrentDayText.textContent = `#${pattuCurrentDay}`;
   if (pattuMaxDayText) pattuMaxDayText.textContent = String(todayDay);
 
-  // Default to currently viewed day (clamped between 0 and today)
-  const defaultSelectedDay = Math.min(todayDay, Math.max(0, pattuCurrentDay));
+  // Default to currently viewed day (clamped between 1 and today so it never defaults to Day 0)
+  const defaultSelectedDay = Math.min(todayDay, Math.max(1, pattuCurrentDay || todayDay));
   const defaultDateStr = pattuDayToDateStr(defaultSelectedDay);
 
   if (pattuDateInput) {
@@ -7286,8 +7474,13 @@ pattuTimeTravelBtn?.addEventListener("click", () => {
   if (pattuTtTargetDay) pattuTtTargetDay.textContent = `Day #${defaultSelectedDay}`;
   if (pattuTtFormattedDate) pattuTtFormattedDate.textContent = formatPattuDisplayDate(defaultDateStr);
   pattuTtManualWrap?.classList.add("hidden");
-  pattuTimeTravelModal?.classList.remove("hidden");
-});
+  if (pattuTimeTravelModal) {
+    pattuTimeTravelModal.classList.remove("hidden");
+    pattuTimeTravelModal.style.removeProperty("display");
+  }
+}
+
+pattuTimeTravelBtn?.addEventListener("click", openPattuTimeTravelModal);
 
 function handlePattuDateSelection() {
   const maxDay = getPattuDayCount();
@@ -7332,14 +7525,14 @@ closePattuTimeTravelBtn?.addEventListener("click", () => {
 submitPattuTimeTravelBtn?.addEventListener("click", () => {
   const maxDay = getPattuDayCount();
   const isManual = pattuTtManualWrap && !pattuTtManualWrap.classList.contains("hidden");
-  let val = isManual ? parseInt(pattuDayInput?.value, 10) : pattuDateStrToDay(pattuDateInput?.value);
+  let val = isManual ? parseInt(pattuDayInput?.value, 10) : (pattuDateInput?.value ? pattuDateStrToDay(pattuDateInput.value) : NaN);
+  if (isNaN(val) || val < 0) {
+    val = pattuDateInput?.value ? pattuDateStrToDay(pattuDateInput.value) : NaN;
+  }
   if (isNaN(val) || val < 0) {
     val = parseInt(pattuDayInput?.value, 10);
   }
-  if (isNaN(val) || val < 0) {
-    val = pattuDateStrToDay(pattuDateInput?.value);
-  }
-  if (isNaN(val) || val < 0) val = 0;
+  if (isNaN(val) || val < 0) val = pattuCurrentDay || maxDay;
   if (val > maxDay) val = maxDay;
 
   pattuTimeTravelModal?.classList.add("hidden");
@@ -7372,8 +7565,17 @@ pattuShareBtn?.addEventListener("click", () => {
 
 // Next Movie Button (loads another past day puzzle)
 pattuNextBtn?.addEventListener("click", () => {
+  if (!navigator.onLine) {
+    const otherBundled = PATTU_BUNDLED_DAYS.filter(b => b.day !== pattuCurrentDay);
+    const pick = otherBundled[Math.floor(Math.random() * otherBundled.length)] || PATTU_BUNDLED_DAYS[0];
+    initPattu(pick.day);
+    return;
+  }
   const maxDay = getPattuDayCount();
-  const randomDay = Math.floor(Math.random() * (maxDay + 1));
+  let randomDay = Math.floor(Math.random() * maxDay) + 1;
+  if (randomDay === pattuCurrentDay && maxDay > 1) {
+    randomDay = (randomDay % maxDay) + 1;
+  }
   initPattu(randomDay);
 });
 
@@ -7532,12 +7734,19 @@ function restoreLiveStateIfAny() {
       const todayDay = getPattuDayCount();
       if (s.pattu && s.pattu.day === todayDay && !s.pattu.over) {
         pattuCurrentDay = s.pattu.day;
-        pattuCurrentPuzzle = s.pattu.puzzle || PATTU_OFFLINE_PUZZLES[0];
+        const savedPuzzle = s.pattu.puzzle;
+        const isStaleVinayakudu = savedPuzzle && savedPuzzle.movie && pattuCurrentDay > 0 && normalizePattuTitle(savedPuzzle.movie) === "vinayakudu";
+        const fallbackBundled = getPattuOfflineFallbackEntry(pattuCurrentDay);
+        pattuCurrentPuzzle = (savedPuzzle && savedPuzzle.movie && !isStaleVinayakudu)
+          ? savedPuzzle
+          : { movie: fallbackBundled.movie, movieFromS3: true };
         pattuAttempt = s.pattu.attempt || 1;
         pattuActiveFrame = s.pattu.activeFrame || 1;
         pattuGuesses = Array.isArray(s.pattu.guesses) ? s.pattu.guesses : [];
         pattuOver = !!s.pattu.over;
         pattuWon = !!s.pattu.won;
+        const reqId = ++pattuInitReqId;
+        syncPattuPuzzleMetadata(pattuCurrentDay, reqId);
         preloadPattuPuzzle(pattuCurrentDay);
         showOnlyActiveGame("pattu");
         renderPattuUI();
@@ -7968,17 +8177,13 @@ function initStageDragger() {
   const pattuHudHelpBtn = document.getElementById("pattuHudHelpBtn");
 
   pattuHudTtBtn?.addEventListener("click", () => {
-    const ttModal = document.getElementById("pattuTimeTravelModal");
-    if (ttModal) {
-      ttModal.classList.remove("hidden");
-      ttModal.style.removeProperty("display");
-    }
+    openPattuTimeTravelModal();
   });
 
   pattuHudStatsBtn?.addEventListener("click", () => {
+    renderPattuStatsModal();
     const statsModal = document.getElementById("pattuStatsCustomModal");
     if (statsModal) {
-      renderPattuStatsChart();
       statsModal.classList.remove("hidden");
       statsModal.style.removeProperty("display");
     }

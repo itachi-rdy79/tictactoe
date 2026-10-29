@@ -3,7 +3,25 @@ try {
     Write-Host "Fetching latest Tollywood movie data..." -ForegroundColor Cyan
     $moviesJson = (Invoke-RestMethod -Uri "https://raw.githubusercontent.com/santoshimz/pattukunte-pattucheera/main/public/static/movies.json" -Headers @{"User-Agent"="GAP-Sync"})
     $constants = (Invoke-RestMethod -Uri "https://raw.githubusercontent.com/santoshimz/pattukunte-pattucheera/main/src/utils/constants.js" -Headers @{"User-Agent"="GAP-Sync"})
-    $meta = (Invoke-RestMethod -Uri "https://raw.githubusercontent.com/santoshimz/pattukunte-pattucheera/main/public/static/meta-data.json" -Headers @{"User-Agent"="GAP-Sync"})
+
+    $origin = [DateTimeOffset]::Parse("2022-05-22T18:30:00.000Z")
+    $now = [DateTimeOffset]::UtcNow
+    $currentDay = [Math]::Max(1, [Math]::Floor(($now - $origin).TotalSeconds / 86400))
+    $s3Base = "https://pattukunte-pattucheera-movies.s3.amazonaws.com"
+    $meta = $null
+    $resolvedDay = $currentDay
+
+    for ($d = $currentDay; $d -ge ($currentDay - 5); $d--) {
+        try {
+            $candidate = Invoke-RestMethod -Uri "$s3Base/$d/meta-data.json" -Headers @{"User-Agent"="GAP-Sync"} -ErrorAction Stop
+            if ($candidate -and $candidate.movie) {
+                $meta = $candidate
+                $resolvedDay = $d
+                $meta | Add-Member -NotePropertyName "day" -NotePropertyValue $d -Force
+                break
+            }
+        } catch {}
+    }
 
     $missing = @()
     if ($constants -match 'missingMovies\s*=\s*\[([\s\S]*?)\];') {
@@ -31,8 +49,18 @@ try {
     $allMovies = @($moviesJson) + @($missing) + @($essential) | ForEach-Object { if ($_ -and $_.Trim().Length -gt 0) { $_.Trim() } } | Select-Object -Unique | Sort-Object
 
     New-Item -ItemType Directory -Force -Path "data" | Out-Null
+    New-Item -ItemType Directory -Force -Path "data\daily" | Out-Null
+    if ($meta) {
+        $meta | ConvertTo-Json -Depth 5 | Set-Content -Path "data\daily\meta-data.json" -Encoding UTF8
+        for ($f = 1; $f -le 5; $f++) {
+            try {
+                Invoke-WebRequest -Uri "$s3Base/$resolvedDay/$f.jpg" -OutFile "data\daily\$f.jpg" -Headers @{"User-Agent"="GAP-Sync"} -ErrorAction Stop
+            } catch {}
+        }
+    }
     $output = @{
         updatedAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+        day = $resolvedDay
         count = $allMovies.Count
         todayMeta = $meta
         movies = $allMovies
