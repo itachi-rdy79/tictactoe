@@ -1504,3 +1504,126 @@ body[data-theme="light"] .level-chip {
 }
 
 
+
+/* =====================================================================================================
+   DYNAMIC GAP UI BACKGROUND & PALETTE SYNC (HOME PAGE & GAME STAGE)
+   Synchronizes Palace Escape Home Page (#screen-menu), .menu-bg, and body with GAP Light/Dark & Palettes
+   ===================================================================================================== */
+
+body[data-theme="dark"],
+html[data-theme="dark"] body,
+body[data-theme="dark"] #screen-menu,
+body[data-theme="dark"] .screen.menu,
+body[data-theme="dark"] #screen-loading,
+body[data-theme="dark"] .screen.loading {
+  background: var(--dyn-bg-dark,
+    radial-gradient(circle at 18% 22%, rgba(56, 189, 248, 0.42) 0%, transparent 45%),
+    radial-gradient(circle at 82% 78%, rgba(2, 132, 199, 0.36) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.2) 0%, transparent 60%),
+    #030f1a
+  ) !important;
+  background-attachment: fixed !important;
+  color: #f1f5f9 !important;
+  transition: background 0.35s ease, color 0.25s ease !important;
+}
+
+body[data-theme="light"],
+html[data-theme="light"] body,
+body[data-theme="light"] #screen-menu,
+body[data-theme="light"] .screen.menu,
+body[data-theme="light"] #screen-loading,
+body[data-theme="light"] .screen.loading {
+  background: var(--dyn-bg-light,
+    radial-gradient(circle at 18% 22%, #bae6fd 0%, transparent 50%),
+    radial-gradient(circle at 82% 78%, #e0f2fe 0%, transparent 50%),
+    #f0f9ff
+  ) !important;
+  background-attachment: fixed !important;
+  color: #0f172a !important;
+  transition: background 0.35s ease, color 0.25s ease !important;
+}
+
+/* Keep .menu-bg transparent so #screen-menu's fixed dynamic GAP background shines through cleanly */
+body[data-theme="dark"] .menu-bg,
+body[data-theme="light"] .menu-bg,
+#screen-menu .menu-bg {
+  background: transparent !important;
+}
+
+/* Dynamic GAP Palette Accents on Palace Escape Home Screen */
+body[data-theme="dark"] .menu-glow {
+  background: radial-gradient(circle, var(--dyn-glow, rgba(243, 210, 122, 0.5)), transparent 62%) !important;
+}
+
+body[data-theme="light"] .menu-glow {
+  background: radial-gradient(circle, var(--dyn-glow, rgba(243, 210, 122, 0.38)), transparent 62%) !important;
+}
+
+body[data-theme="dark"] .menu-sun {
+  background: repeating-conic-gradient(from 0deg, var(--dyn-glow, rgba(242, 193, 78, 0.35)) 0 9deg, transparent 9deg 18deg) !important;
+}
+
+body[data-theme="light"] .menu-sun {
+  background: repeating-conic-gradient(from 0deg, var(--dyn-glow, rgba(212, 169, 63, 0.28)) 0 9deg, transparent 9deg 18deg) !important;
+}
+
+body[data-theme="dark"] .menu-bg i,
+body[data-theme="light"] .menu-bg i {
+  background: var(--dyn-brand, var(--gold)) !important;
+  box-shadow: 0 0 10px 2px var(--dyn-glow, rgba(212, 169, 63, 0.5)) !important;
+}
+
+body[data-theme="dark"] #screen-menu .title span {
+  color: #f8fafc !important;
+  text-shadow: 0 3px 0 #d97706, 0 8px 22px var(--dyn-glow, rgba(0, 0, 0, 0.55)) !important;
+}
+
+body[data-theme="light"] #screen-menu .title span {
+  color: #0f172a !important;
+  text-shadow: 0 3px 0 #f3d27a, 0 6px 16px rgba(15, 23, 42, 0.14) !important;
+}
+
+body[data-theme="dark"] .palace-level-hub {
+  background: rgba(15, 23, 42, 0.78) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-top: 1px solid var(--dyn-brand, rgba(255, 255, 255, 0.38)) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 20px var(--dyn-glow, rgba(56, 189, 248, 0.18)), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+}
+
+body[data-theme="light"] .palace-level-hub {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  border-top: 1px solid var(--dyn-brand, #0284c7) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08), 0 0 18px var(--dyn-glow, rgba(56, 189, 248, 0.16)), inset 0 1px 1px #ffffff !important;
+}
+
+body[data-theme="dark"] .stepper-trap-name,
+body[data-theme="dark"] #btn-menu-back-gap {
+  color: var(--dyn-brand, #38bdf8) !important;
+}
+
+body[data-theme="light"] .stepper-trap-name,
+body[data-theme="light"] #btn-menu-back-gap {
+  color: var(--dyn-brand, #0284c7) !important;
+}
+
+.palace-disclaimer-credit {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 11px;
+  line-height: 1.4;
+  max-width: 420px;
+}
+
+body[data-theme="dark"] .palace-disclaimer-credit {
+  background: rgba(15, 23, 42, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #94a3b8 !important;
+}
+
+body[data-theme="light"] .palace-disclaimer-credit {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  color: #475569 !important;
+}
