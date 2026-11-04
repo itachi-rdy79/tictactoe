@@ -16,7 +16,7 @@ const storage = {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
       this.data = { ...this.data, ...saved };
-      this.data.unlocked = Math.max(1, this.data.unlocked | 0);
+      this.data.unlocked = Math.max(1, Math.min(20, this.data.unlocked | 0));
       if (this.data.completed && !this.data.aasthiUnlocked) {
         this.data.aasthiUnlocked = true;
         this.data.aasthiMilestone = Math.max(1, this.data.aasthiMilestone || 0);
@@ -106,8 +106,18 @@ async function loadImages(images, keys, onProgress = () => {}) {
   return images;
 }
 
-/** Resolves after the browser has painted once (so a tap shows its feedback before heavy work begins). */
-const nextPaint = () => new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+/** Resolves after the browser has painted once (with a 32ms safety fallback so transitions never stall). */
+const nextPaint = () =>
+  new Promise((resolve) => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      resolve();
+    };
+    setTimeout(finish, 32);
+    requestAnimationFrame(() => setTimeout(finish, 0));
+  });
 
 // ---------- device / layout ----------
 
@@ -133,6 +143,7 @@ async function boot() {
   const audio = new AudioManager(storage.data.muted);
   audio.preload(AUDIO);
   let game;
+  let actionBusy = false;
   // The in-game pictures, loaded once the menu is up and the page has finished loading.
   const assets = { ready: false, promise: null, done: null };
   assets.promise = new Promise((resolve) => (assets.done = resolve));
@@ -141,26 +152,55 @@ async function boot() {
     storage,
     handlers: {
       onPlay: async (n) => {
-        audio.unlock();
-        audio.play("click");
-        assets.warmAudio?.();
-        if (!assets.ready) {
-          ui.setPlayBusy(true);
-          await assets.promise;
-          ui.setPlayBusy(false);
+        if (actionBusy) return;
+        actionBusy = true;
+        try {
+          audio.unlock();
+          audio.play("click");
+          assets.warmAudio?.();
+          if (!assets.ready) {
+            ui.setPlayBusy(true);
+            await assets.promise;
+            ui.setPlayBusy(false);
+          }
+          await nextPaint(); // let the tap show its feedback first; the heavy level setup follows
+          game.startLevel(n);
+        } finally {
+          actionBusy = false;
         }
-        await nextPaint(); // let the tap show its feedback first; the heavy level setup follows
-        game.startLevel(n);
       },
       onRestart: async () => {
-        await nextPaint();
-        game.restartLevel();
+        if (actionBusy) return;
+        actionBusy = true;
+        try {
+          await nextPaint();
+          game.restartLevel();
+        } finally {
+          actionBusy = false;
+        }
       },
       onNext: async () => {
-        await nextPaint();
-        game.nextLevel();
+        if (actionBusy) return;
+        actionBusy = true;
+        try {
+          await nextPaint();
+          game.nextLevel();
+        } finally {
+          actionBusy = false;
+        }
+      },
+      onSkip: async () => {
+        if (actionBusy) return;
+        actionBusy = true;
+        try {
+          await nextPaint();
+          game.nextLevel();
+        } finally {
+          actionBusy = false;
+        }
       },
       onMenu: () => {
+        actionBusy = false;
         audio.play("click");
         game.toMenu();
       },
@@ -256,6 +296,7 @@ async function boot() {
   game = new Game({ renderer, ui, audio, input, storage, layout });
   window.palaceGame = game;
   window.palaceUI = ui;
+  window.palaceStorage = storage;
 
   const applyResize = () => {
     const wasPortrait = game.portrait;

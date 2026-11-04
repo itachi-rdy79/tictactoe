@@ -14,8 +14,31 @@ const TRAP_BRIEFS = {
   reverse: ["reverse", "REVERSED CONTROLS", ["Your movement controls are reversed.", "Stay calm and adjust your direction to escape."]],
   rotate: ["rotate", "MIRROR MAZE", ["The maze flips or mirrors every 10 seconds.", "Your position stays the same relative to the maze.", "Reorient yourself quickly after every flip."]],
   hiddenDoor: ["lock", "HIDDEN EXIT", ["There is no visible exit door.", "The crocodile is holding a hostage. Grab a knife and take it out.", "Free her, then lead her to the exit — your powers protect her too."]],
-  twoDoors: ["twoDoors", "TWIN DOORS", ["Two identical doors. Someone is waiting behind the first one you open.", "Rescue her and escape together through either door!", "Swipe or press any key to skip conversation."]],
+  twoDoors: ["twoDoors", "TWIN DOORS", ["Two identical doors. Someone is waiting behind the first one you open.", "Hear her out, then take her through the other door.", "You can skip the conversation after the first time."]],
   null: ["sparkles", "CLEAR PASSAGE", ["No special trap is active in this palace.", "All chasers are still in play.", "Find the glowing exit door."]],
+};
+
+const LEVEL_TRAP_NAMES = {
+  1: "Clear Passage",
+  2: "Palace Trap Round",
+  3: "Palace Trap Round",
+  4: "Dhayyam Joins · Trap Round",
+  5: "Power-Ups · Trap Round",
+  6: "Thatha Joins · Trap Round",
+  7: "High Alert · Trap Round",
+  8: "Deep Palace · Trap Round",
+  9: "Reversed Controls",
+  10: "1st Milestone · Aasthi",
+  11: "Upper Wing · Shuffle",
+  12: "4 Chasers · Double Croc",
+  13: "Double Fighter · Shuffle",
+  14: "5 Chasers · Double Dhayyam",
+  15: "Grand Hall · Shuffle",
+  16: "6 Chasers · Double Thatha",
+  17: "Royal Vault · Shuffle",
+  18: "veto Wing · Shuffle",
+  19: "Penultimate Trial",
+  20: "Final Escape · Level 20",
 };
 
 const trapBrief = (trap) => TRAP_BRIEFS[trap?.id || "null"];
@@ -42,15 +65,62 @@ export class UIManager {
     this.bannerTimer = null;
     this.modalStack = [];
     this.cdTimers = [];
+    this.toastTimers = [];
+    this.selectedLevel = Math.max(1, Math.min(20, this.storage.data.unlocked || 1));
+    this.devMode = false;
+    this.finalIsGameEnd = false;
     this.bind();
     this.buildLegend();
     this.bindIcons();
     this.buildProgress();
     this.buildFollow();
+    this.buildLevelSelector();
+    this.syncDevControls();
   }
 
   /** The quiet "follow the makers" row that sits under the buttons on the caught and level-complete cards. */
-  buildFollow() {}
+  buildFollow() {
+    if (!FOLLOW_LINKS.length) return;
+    document.querySelectorAll("[data-follow]").forEach((box) => {
+      const caption = document.createElement("p");
+      caption.className = "follow-caption";
+      caption.textContent = "Follow the makers";
+      const links = document.createElement("div");
+      links.className = "follow-links";
+      for (const { name, url } of FOLLOW_LINKS) {
+        const a = document.createElement("a");
+        a.className = "follow-link";
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.setAttribute("aria-label", `Follow ${name} on X (opens in a new tab)`);
+        a.innerHTML = icon("x");
+        const label = document.createElement("span");
+        label.textContent = name;
+        a.appendChild(label);
+        links.appendChild(a);
+      }
+      box.append(caption, links);
+    });
+  }
+
+  /**
+   * Shows or hides the follow rows. Safe no-op when FOLLOW_LINKS is empty.
+   */
+  setFollow(show) {
+    clearTimeout(this.followTimer);
+    const visible = Boolean(show && FOLLOW_LINKS.length);
+    document.querySelectorAll("[data-follow]").forEach((box) => {
+      box.classList.toggle("hidden", !visible);
+      box.classList.remove("armed");
+    });
+    if (visible) {
+      this.followTimer = setTimeout(() => {
+        document.querySelectorAll("[data-follow]").forEach((box) => box.classList.add("armed"));
+      }, 800);
+    }
+  }
+
   /** Fills every [data-icon] hook with its line icon (so the HTML carries no emoji). */
   bindIcons(root = document) {
     root.querySelectorAll("[data-icon]").forEach((el) => {
@@ -69,22 +139,14 @@ export class UIManager {
 
   bind() {
     const h = this.h;
-    $("btn-play").onclick = () => h.onPlay(this.selectedLevel || this.storage.data.unlocked || 1);
+    $("btn-play").onclick = () => {
+      const target = this.selectedLevel || Math.max(1, Math.min(20, this.storage.data.unlocked || 1));
+      h.onPlay(target);
+    };
     $("btn-start-over").onclick = () => {
       this.selectLevel(1);
       h.onPlay(1);
     };
-    $("btnLevelPrev")?.addEventListener("click", () => this.selectLevel((this.selectedLevel || 1) - 1));
-    $("btnLevelNext")?.addEventListener("click", () => this.selectLevel((this.selectedLevel || 1) + 1));
-    $("btnUnlockAll")?.addEventListener("click", () => {
-      this.storage.data.unlocked = 20;
-      this.storage.save();
-      this.buildLevelSelector();
-      this.selectLevel(this.selectedLevel || 1);
-      this.toast("All 20 Palace Levels unlocked! 🔓");
-    });
-    $("palaceHomeNavBtn")?.addEventListener("click", () => h.onMenu());
-    $("btn-hud-home")?.addEventListener("click", () => h.onMenu());
     $("btn-menu-bachelor-card").onclick = () => this.showBachelorCard();
     $("btn-howto").onclick = () => this.openModal("modal-howto");
     $("btn-menu-legend").onclick = () => this.showLegend(null);
@@ -92,43 +154,31 @@ export class UIManager {
     $("btn-mute-pause").onclick = () => h.onToggleMute();
     $("btn-legend").onclick = () => h.onInGameLegend();
     $("btn-bachelor-card").onclick = () => h.onBachelorCard();
+    if ($("btn-hud-home")) $("btn-hud-home").onclick = () => h.onMenu();
     $("btn-pause").onclick = () => h.onPause();
     $("btn-resume").onclick = () => h.onResume();
+    if ($("btn-pause-next")) $("btn-pause-next").onclick = () => h.onSkip ? h.onSkip() : h.onNext();
     $("btn-pause-restart").onclick = () => h.onRestart();
-    $("btn-pause-next")?.addEventListener("click", () => {
-      this.closeAllModals();
-      const nextLvl = (window.palaceGame?.levelNumber || this.selectedLevel || 1) + 1;
-      this.storage.data.unlocked = Math.max(this.storage.data.unlocked || 1, nextLvl);
-      this.storage.save();
-      this.selectLevel(nextLvl);
-      h.onNext();
-    });
-    $("btn-caught-skip")?.addEventListener("click", () => {
-      this.closeAllModals();
-      const nextLvl = (window.palaceGame?.levelNumber || this.selectedLevel || 1) + 1;
-      this.storage.data.unlocked = Math.max(this.storage.data.unlocked || 1, nextLvl);
-      this.storage.save();
-      this.selectLevel(nextLvl);
-      h.onNext();
-    });
-    $("btn-pause-menu").onclick = () => {
-      this.closeAllModals();
-      h.onMenu();
-    };
+    $("btn-pause-menu").onclick = () => h.onMenu();
     $("btn-restart").onclick = () => h.onRestart();
+    if ($("btn-caught-skip")) $("btn-caught-skip").onclick = () => h.onSkip ? h.onSkip() : h.onNext();
     $("btn-caught-menu").onclick = () => h.onMenu();
-    $("btn-next").onclick = () => {
-      cancelAnimationFrame(this.confettiRaf);
-      $("card-complete").classList.remove("show");
-      h.onNext();
+    $("btn-next").onclick = () => h.onNext();
+    $("btn-play-from-start").onclick = () => {
+      this.selectLevel(1);
+      h.onPlay(1);
     };
-    $("btn-play-from-start").onclick = () => h.onPlay(1);
     $("btn-game-end-menu").onclick = () => h.onMenu();
     $("btn-powers-go").onclick = () => this.closePowers();
     $("btn-trap-brief-go").onclick = () => this.closeTrapBrief();
     $("btn-keep-going").onclick = () => {
-      $("card-final").classList.remove("show");
-      h.onNext();
+      if (this.finalIsGameEnd) {
+        this.finalIsGameEnd = false;
+        $("card-final").classList.remove("show");
+        this.showGameEnd();
+      } else {
+        h.onNext();
+      }
     };
     $("btn-share").onclick = () => this.shareCard("final-card-canvas", "name-input");
     $("btn-bachelor-share").onclick = () => this.shareCard("bachelor-card-canvas", "bachelor-name-input");
@@ -257,69 +307,143 @@ export class UIManager {
     $("screen-loading").classList.remove("show");
   }
 
-  // ---------- menu & level selection ----------
+  // ---------- level selector & dev mode ----------
+
+  maxSelectableLevel() {
+    return this.devMode ? 20 : Math.max(1, Math.min(20, this.storage.data.unlocked || 1));
+  }
+
+  syncDevControls() {
+    for (const id of ["btn-pause-next", "btn-caught-skip"]) {
+      const el = $(id);
+      if (el) el.classList.toggle("hidden", !this.devMode);
+    }
+  }
 
   buildLevelSelector() {
     const grid = $("levelChipsGrid");
     if (!grid) return;
     grid.innerHTML = "";
-    const unlocked = this.storage.data.unlocked || 1;
-    const selected = this.selectedLevel || unlocked;
-    const maxLevel = 20;
-
-    for (let i = 1; i <= maxLevel; i++) {
+    for (let i = 1; i <= 20; i++) {
       const chip = document.createElement("button");
       chip.type = "button";
-      chip.className = `level-chip ${i === selected ? "active" : ""} ${i <= unlocked ? "unlocked" : "locked"}`;
+      chip.className = "level-chip";
       chip.dataset.level = String(i);
-      chip.innerHTML = `<span class="chip-num">${i}</span>`;
-      chip.title = i <= unlocked ? `Play Level ${i}` : `Level ${i} (Locked)`;
+      chip.textContent = String(i);
+      chip.setAttribute("aria-label", `Select Level ${i}`);
       chip.onclick = () => {
+        if (i > this.maxSelectableLevel()) {
+          this.toast(`Complete Level ${this.maxSelectableLevel()} first, or enable Unlock All to test.`);
+          return;
+        }
         this.selectLevel(i);
       };
       grid.appendChild(chip);
     }
-    this.updateStepperDisplay();
-  }
-
-  selectLevel(n) {
-    const max = 20;
-    this.selectedLevel = Math.max(1, Math.min(max, n));
-    const unlocked = this.storage.data.unlocked || 1;
-    if (this.selectedLevel > unlocked) {
-      this.storage.data.unlocked = this.selectedLevel;
-      this.storage.save();
+    const prevBtn = $("btnLevelPrev");
+    const nextBtn = $("btnLevelNext");
+    const unlockBtn = $("btnUnlockAll");
+    if (prevBtn) {
+      prevBtn.onclick = () => {
+        const cur = this.selectedLevel || 1;
+        const maxLv = this.maxSelectableLevel();
+        this.selectLevel(cur > 1 ? cur - 1 : maxLv);
+      };
     }
-    this.updateStepperDisplay();
-    $("btn-play-label").textContent = `PLAY · LEVEL ${this.selectedLevel}`;
-    const chips = document.querySelectorAll(".level-chip");
-    chips.forEach((c) => {
-      const lvl = parseInt(c.dataset.level, 10);
-      c.classList.toggle("active", lvl === this.selectedLevel);
-      c.classList.toggle("unlocked", lvl <= (this.storage.data.unlocked || 1));
-      c.classList.toggle("locked", lvl > (this.storage.data.unlocked || 1));
-    });
+    if (nextBtn) {
+      nextBtn.onclick = () => {
+        const cur = this.selectedLevel || 1;
+        const maxLv = this.maxSelectableLevel();
+        this.selectLevel(cur < maxLv ? cur + 1 : 1);
+      };
+    }
+    if (unlockBtn) {
+      unlockBtn.onclick = () => {
+        this.devMode = !this.devMode;
+        if (!this.devMode && this.selectedLevel > this.maxSelectableLevel()) {
+          this.selectedLevel = this.maxSelectableLevel();
+        }
+        this.syncDevControls();
+        this.refreshLevelSelector();
+        this.toast(this.devMode ? "Testing Mode: All 20 levels & skip shortcuts enabled" : "Normal Progression Mode restored");
+      };
+    }
+    this.refreshLevelSelector();
   }
 
-  updateStepperDisplay() {
-    const n = this.selectedLevel || this.storage.data.unlocked || 1;
+  /** Updates selectedLevel without modifying saved unlock progression. */
+  selectLevel(n) {
+    const maxLv = this.maxSelectableLevel();
+    this.selectedLevel = Math.max(1, Math.min(maxLv, n | 0));
+    this.refreshLevelSelector();
+  }
+
+  /** Called by Game when starting or completing a level so the selector stays in sync. */
+  syncSelectedLevel(n) {
+    const clamped = Math.max(1, Math.min(20, n | 0));
+    if (clamped <= this.maxSelectableLevel()) {
+      this.selectedLevel = clamped;
+    }
+    this.refreshLevelSelector();
+  }
+
+  refreshLevelSelector() {
+    const unlocked = Math.max(1, Math.min(20, this.storage.data.unlocked || 1));
+    const maxLv = this.maxSelectableLevel();
+    if (!this.selectedLevel || this.selectedLevel > maxLv) {
+      this.selectedLevel = unlocked;
+    }
+    const sel = this.selectedLevel;
+    const best = this.storage.data.best || {};
+
     const numEl = $("stepperLevelNum");
     const trapEl = $("stepperTrapName");
-    if (numEl) numEl.textContent = `LEVEL ${n}`;
-    const traps = [
-      "Clear Passage",
-      "Twin Doors",
-      "Long Hall",
-      "The Creature",
-      "Power-Ups",
-      "Shawl Man",
-      "Lights Out",
-      "Flooded Maze",
-      "Reversed Controls",
-      "Thatha's Treasure",
-    ];
-    if (trapEl) trapEl.textContent = traps[(n - 1) % traps.length] || `Wing ${n}`;
+    if (numEl) numEl.textContent = `LEVEL ${sel}`;
+    if (trapEl) {
+      const bestTime = best[sel] ? ` • Best ${formatTime(best[sel])}` : "";
+      trapEl.textContent = `${LEVEL_TRAP_NAMES[sel] || `Palace Wing ${sel}`}${bestTime}`;
+    }
+
+    const grid = $("levelChipsGrid");
+    if (grid) {
+      grid.querySelectorAll(".level-chip").forEach((chip) => {
+        const lv = Number(chip.dataset.level);
+        const isLocked = lv > maxLv;
+        chip.classList.toggle("active", lv === sel);
+        chip.classList.toggle("completed", Boolean(best[lv]) || lv < unlocked);
+        chip.classList.toggle("milestone", lv === 10 || lv === 20);
+        chip.classList.toggle("locked", isLocked);
+        chip.setAttribute("aria-disabled", isLocked ? "true" : "false");
+      });
+    }
+
+    const playLabel = $("btn-play-label");
+    if (playLabel && !this.playLabelSaved) {
+      if (sel === 1 && unlocked <= 1) {
+        playLabel.textContent = "PLAY · LEVEL 1";
+      } else if (sel === unlocked) {
+        playLabel.textContent = `CONTINUE · LEVEL ${sel}`;
+      } else {
+        playLabel.textContent = `PLAY · LEVEL ${sel}`;
+      }
+    }
+
+    const unlockBtn = $("btnUnlockAll");
+    if (unlockBtn) {
+      if (unlocked >= 20) {
+        unlockBtn.textContent = "All 20 Levels Unlocked ✓";
+        unlockBtn.classList.add("all-unlocked");
+      } else if (this.devMode) {
+        unlockBtn.textContent = "Dev Mode: All 20 Open (Click to Reset)";
+        unlockBtn.classList.add("all-unlocked");
+      } else {
+        unlockBtn.textContent = "Unlock All 20 Levels";
+        unlockBtn.classList.remove("all-unlocked");
+      }
+    }
   }
+
+  // ---------- menu ----------
 
   showMenu() {
     this.hideCoach();
@@ -327,10 +451,9 @@ export class UIManager {
     $("hud").classList.add("hidden");
     $("screen-menu").classList.add("show");
     $("btn-play").disabled = !!this.playLabelSaved; // enabled now that the game script is running
-    const { unlocked } = this.storage.data;
-    this.selectedLevel = this.selectedLevel || unlocked || 1;
-    this.buildLevelSelector();
-    this.selectLevel(this.selectedLevel);
+    const unlocked = Math.max(1, Math.min(20, this.storage.data.unlocked || 1));
+    if (!this.devMode) this.selectedLevel = unlocked;
+    this.refreshLevelSelector();
     $("btn-start-over").classList.toggle("hidden", unlocked <= 1);
     this.updateAasthiAccess();
   }
@@ -366,12 +489,6 @@ export class UIManager {
     if (id === "modal-legend" && this.onLegendClose) {
       const cb = this.onLegendClose;
       this.onLegendClose = null;
-      cb();
-    }
-    if (id === "modal-trap-brief" && this.trapBriefDone) {
-      clearInterval(this.lockTimer);
-      const cb = this.trapBriefDone;
-      this.trapBriefDone = null;
       cb();
     }
   }
@@ -574,7 +691,6 @@ export class UIManager {
     $("trap-brief-points").replaceChildren(...pointItems(points.slice(1)));
     this.trapBriefDone = onDone;
     this.openModal("modal-trap-brief");
-    // Every round: the Start button fills up and unlocks after a few seconds, so the instructions get read.
     if (lock) this.lockTrapBrief(trap?.id ? 4 : 3);
     else this.unlockTrapBrief();
   }
@@ -590,46 +706,32 @@ export class UIManager {
     btn.focus({ preventScroll: true });
   }
 
-  /** Locks the round's Start button for `seconds`, showing a fill and a "Start in N" count, but always allows instant click to start. */
+  /** Shows the round's Start button fill while remaining immediately clickable when the player is ready. */
   lockTrapBrief(seconds) {
     const btn = $("btn-trap-brief-go");
     const label = btn.querySelector(".btn-label") || btn;
     if (!this.briefLabel) this.briefLabel = label.textContent.trim();
     const original = this.briefLabel;
-    const caps = original === original.toUpperCase();
-    const text = (n) => (caps ? `START (${n})` : `Start (${n})`);
     clearInterval(this.lockTimer);
-    let left = seconds;
     btn.disabled = false;
-    btn.classList.remove("ready");
-    btn.classList.add("locked");
+    btn.classList.remove("locked");
+    btn.classList.add("ready");
     btn.style.setProperty("--lock-ms", `${seconds * 1000}ms`);
-    label.textContent = text(left);
-    this.lockTimer = setInterval(() => {
-      left -= 1;
-      if (left > 0) {
-        label.textContent = text(left);
-        return;
-      }
-      clearInterval(this.lockTimer);
-      label.textContent = original;
-      btn.disabled = false;
-      btn.classList.remove("locked");
-      btn.classList.add("ready");
-      setTimeout(() => btn.classList.remove("ready"), 1000);
-      btn.focus({ preventScroll: true });
-    }, 1000);
+    label.textContent = original;
+    this.lockTimer = setTimeout(() => btn.classList.remove("ready"), 1000);
+    btn.focus({ preventScroll: true });
   }
 
   closeTrapBrief() {
     clearInterval(this.lockTimer);
+    this.closeModal("modal-trap-brief");
     const cb = this.trapBriefDone;
     this.trapBriefDone = null;
-    this.closeModal("modal-trap-brief");
     cb?.();
   }
 
   showPause() {
+    this.syncDevControls();
     this.openModal("modal-pause");
   }
 
@@ -733,7 +835,6 @@ export class UIManager {
     }
   }
 
-
   /** Red edge-glow that grows as a hunting chaser gets close (v is 0-1). */
   setDanger(v) {
     const q = Math.round(v * 20) / 20;
@@ -803,10 +904,15 @@ export class UIManager {
       t.className = "toast";
       t.textContent = text;
       box.appendChild(t);
-      setTimeout(() => t.remove(), 1750);
+      const rmTimer = setTimeout(() => t.remove(), 1750);
+      this.toastTimers.push(rmTimer);
     };
-    if (delay > 0) setTimeout(show, delay * 1000);
-    else show();
+    if (delay > 0) {
+      const dTimer = setTimeout(show, delay * 1000);
+      this.toastTimers.push(dTimer);
+    } else {
+      show();
+    }
   }
 
   flash(text) {
@@ -821,6 +927,13 @@ export class UIManager {
 
   hideCards() {
     this.setDanger(0);
+    clearTimeout(this.followTimer);
+    clearInterval(this.lockTimer);
+    cancelAnimationFrame(this.countRaf);
+    cancelAnimationFrame(this.confettiRaf);
+    this.toastTimers.forEach(clearTimeout);
+    this.toastTimers = [];
+    this.showSkipHint(false);
     for (const id of ["card-caught", "card-complete", "card-final", "card-game-end"]) $(id).classList.remove("show");
     this.closeAllModals();
     this.hideBanner();
@@ -830,6 +943,7 @@ export class UIManager {
 
   showCaught({ level = 0 } = {}) {
     this.hideCoach();
+    this.syncDevControls();
     this.setFollow(level >= FOLLOW_FROM_LEVEL);
     navigator.vibrate?.([70, 40, 140]);
     $("card-caught").classList.add("show");
@@ -919,16 +1033,18 @@ export class UIManager {
   }
 
   showGameEnd() {
+    this.updateAasthiAccess();
     $("game-end-art").src = "assets/level20 success image.png"; // only fetched when the final card is about to show
     $("hud").classList.add("hidden");
     $("card-game-end").classList.add("show");
     $("btn-play-from-start").focus({ preventScroll: true });
   }
 
-  showFinal(nextLevel) {
+  showFinal(nextLevel, { isGameEnd = false } = {}) {
+    this.finalIsGameEnd = isGameEnd;
     this.updateAasthiAccess();
     $("hud").classList.add("hidden");
-    $("btn-keep-going").textContent = `KEEP ESCAPING → LEVEL ${nextLevel}`;
+    $("btn-keep-going").textContent = isGameEnd ? "FINAL ESCAPE → VICTORY 🏆" : `KEEP ESCAPING → LEVEL ${nextLevel}`;
     $("name-input").value = this.storage.data.name || "";
     $("card-final").classList.add("show");
     this.renderCard("final-card-canvas");

@@ -39,12 +39,13 @@ import { recordAttempt, awardRound } from "./aasthi.js";
 const FIRST_APPEARANCE = { crocodile: 1, creature: 4 };
 const CAUGHT_CARD_DELAY = 0.75;
 const COMPLETE_CARD_DELAY = 0.8;
+const FINAL_CAMPAIGN_LEVEL = 20;
 /** The train cannot hit the hero during the first moments of a round. */
 const TRAIN_START_GRACE = 1.5;
 const POWER_FLICKER = 0.8;
 
 /**
- * Game states: MENU | LEVEL_START | PLAYING | PAUSED | CAUGHT | LEVEL_COMPLETE | FINAL_SUCCESS
+ * Game states: MENU | LEVEL_START | PLAYING | PAUSED | CAUGHT | LEVEL_COMPLETE | NEXT_LEVEL | FINAL_SUCCESS
  */
 export class Game {
   constructor({ renderer, ui, audio, input, storage, layout }) {
@@ -63,23 +64,41 @@ export class Game {
     this.chasers = [];
     this.collectibles = [];
     this.effects = [];
+    this.prepareTimer = 0;
+    this.chaserJoinTimer = 0;
+    this.transitionLock = false;
   }
 
   // ---------- lifecycle ----------
+
+  clearLevelTimers() {
+    if (this.prepareTimer) {
+      clearTimeout(this.prepareTimer);
+      this.prepareTimer = 0;
+    }
+    if (this.chaserJoinTimer) {
+      clearTimeout(this.chaserJoinTimer);
+      this.chaserJoinTimer = 0;
+    }
+  }
 
   /**
    * Builds a level's maze ahead of time (while the player is on the menu or looking at a result card) so that
    * starting it does not have to do the work during their tap.
    */
   prepareLevel(n) {
+    if (n > FINAL_CAMPAIGN_LEVEL) return;
     const portrait = this.layout.isPortrait();
     const seed = Math.floor(Math.random() * 0x7fffffff);
     this.prepared = { n, portrait, seed, level: buildLevel(n, portrait, seed) };
   }
 
   startLevel(n, { retry = false } = {}) {
-    n = Math.max(1, n);
+    this.clearLevelTimers();
+    this.transitionLock = false;
+    n = Math.max(1, Math.min(FINAL_CAMPAIGN_LEVEL, n | 0));
     this.levelNumber = n;
+    this.ui.syncSelectedLevel?.(n);
     this.portrait = this.layout.isPortrait();
     const prep = !retry && this.prepared && this.prepared.n === n && this.prepared.portrait === this.portrait ? this.prepared : null;
     this.prepared = null;
@@ -202,8 +221,9 @@ export class Game {
       this.beginCountdown();
     } else {
       this.input.enabled = false;
-      // The instruction screen is ready immediately so players can read or tap Start right away
-      this.ui.showTrapBrief(this.trap, () => this.beginCountdown(), { lock: false });
+      // The instruction screen's Start button waits a few seconds while the traps are being learnt (levels 1-9);
+      // from level 10 on everyone knows them, so it is ready at once.
+      this.ui.showTrapBrief(this.trap, () => this.beginCountdown(), { lock: this.levelNumber <= 9 });
     }
   }
 
@@ -229,7 +249,7 @@ export class Game {
     if (!this.retry && this.levelNumber > 10 && this.levelNumber <= 16 && this.levelNumber % 2 === 0) {
       const names = { crocodile: "crocodile", creature: "Dhayyam", shawlMan: "Thatha" };
       const newest = this.chasers[this.chasers.length - 1];
-      setTimeout(() => {
+      this.chaserJoinTimer = setTimeout(() => {
         if (this.state === "PLAYING") this.ui.toast(`Another ${names[newest.type]} joins the hunt! More power-ups too.`);
       }, 900);
     }
@@ -257,18 +277,33 @@ export class Game {
   }
 
   restartLevel() {
+    if (this.transitionLock) return;
+    this.transitionLock = true;
     this.audio.play("click");
-    this.startLevel(this.levelNumber, { retry: true });
+    this.startLevel(this.levelNumber || 1, { retry: true });
   }
 
   nextLevel() {
+    if (this.transitionLock) return;
+    this.transitionLock = true;
     this.audio.play("click");
-    this.startLevel(this.levelNumber + 1);
+    if (this.levelNumber >= FINAL_CAMPAIGN_LEVEL) {
+      this.transitionLock = false;
+      this.state = "FINAL_SUCCESS";
+      this.ui.hideCards();
+      this.ui.showGameEnd();
+      return;
+    }
+    this.state = "NEXT_LEVEL";
+    this.startLevel((this.levelNumber || 1) + 1);
   }
 
   toMenu() {
+    this.clearLevelTimers();
+    this.transitionLock = false;
     this.state = "MENU";
     this.input.enabled = false;
+    this.input.reset();
     this.audio.stopMusic();
     this.audio.stopStingers();
     this.ui.hideCards();
@@ -338,7 +373,6 @@ export class Game {
       case "LEVEL_COMPLETE":
         this.completeTimer += dt;
         this.doorOpen = Math.min(1, this.doorOpen + dt * 2.5);
-        if (this.decoyOpen != null) this.decoyOpen = Math.min(1, this.decoyOpen + dt * 2.5);
         if (!this.cardShown && this.completeTimer >= COMPLETE_CARD_DELAY) {
           this.cardShown = true;
           this.showCompletionCard();
@@ -481,7 +515,7 @@ export class Game {
     const { hero } = this;
     if (this.trap.id === "train" && !this.trainDiverted) {
       const sw = this.trap.config.switch;
-      if (sw && Math.abs(hero.x - sw.c) + Math.abs(hero.y - sw.r) < 0.95) {
+      if (sw && Math.abs(hero.x - sw.c) + Math.abs(hero.y - sw.r) < 0.55) {
         this.trainDiverted = true;
         this.switchFlippedAt = this.t; // the STOP sign pops away
         this.ui.toast("Track switched — the exit is clear!");
@@ -743,12 +777,6 @@ export class Game {
     const cars = trainCars(this.maze, this.level.door, this.renderer.side, this.t);
     const { hero } = this;
     if (!trainHits(cars, hero.x + 0.5, hero.y + 0.5, HERO_RADIUS)) return false;
-    // If hero is within reach of the door, grant escape instead of penalty
-    const doorDist = Math.abs(hero.x - this.level.door.c) + Math.abs(hero.y - this.level.door.r);
-    if (doorDist <= 2.2) {
-      this.trainDiverted = true;
-      return false;
-    }
     this.effects.push({ kind: "impact", x: hero.x, y: hero.y, time: 0.55, duration: 0.55, radius: 1.5, color: "#f2c14e" });
     this.shake = 0.3;
     this.audio.play("thud");
@@ -976,7 +1004,7 @@ export class Game {
   /** A swipe, tap or key press: skips the Twin Doors conversation, but only once it has been heard in full before. */
   requestSkip() {
     const ev = this.event;
-    if (ev && ev.skippable && ev.t > 0.15) ev.skip = true;
+    if (ev && ev.skippable && ev.t > 0.5) ev.skip = true;
   }
 
   /**
@@ -1006,10 +1034,10 @@ export class Game {
     she.state = "TALKING";
     she.appear = 0;
     this.allies.push(she);
-    const talk = this.audio.duration("heroine2") || 2.5;
-    // Always allow skipping so players can advance smoothly
-    const skippable = true;
-    this.event = { type: "twin", t: 0, duration: talk + 0.4, decoy, inner, she, skippable, skip: false };
+    const talk = this.audio.duration("heroine2") || 8;
+    // The first time it is heard in full; from the second time any swipe, tap or key press skips it.
+    const skippable = !!this.storage.data.twinSeen;
+    this.event = { type: "twin", t: 0, duration: talk + 0.8, decoy, inner, she, skippable, skip: false };
     this.audio.play("heroine2");
     this.ui.showSkipHint(skippable);
     this.ui.toast("Someone is behind this door… 👀");
@@ -1021,7 +1049,7 @@ export class Game {
     this.decoyOpen = Math.min(1, ev.t * 1.8);
     ev.she.appear = Math.min(1, Math.max(0, (ev.t - 0.3) / 0.7));
     if (ev.t < ev.duration && !ev.skip) return;
-    // The conversation is over (or skipped): she joins him, and either door can be used to escape.
+    // The conversation is over (or skipped): she joins him, and the other door can open.
     this.audio.stopStingers();
     this.audio.stopDuck();
     this.ui.showSkipHint(false);
@@ -1037,7 +1065,7 @@ export class Game {
       this.storage.save();
     }
     this.hero.graceTimer = Math.max(this.hero.graceTimer, 1.5);
-    this.ui.toast("She's with you — escape through either door! 💃🚪");
+    this.ui.toast("She's with you. Now the other door! 🚪");
   }
 
   // ---------- Sudden Wells: Heroine 3 climbs out of the well ----------
@@ -1144,44 +1172,60 @@ export class Game {
     if (this.trap.id === "twoDoors" && this.trap.config.decoyDoor && !this.twinDone) {
       for (const d of [this.trap.config.decoyDoor, level.door]) {
         // either of a door's two tiles counts
-        if (this.doorTiles(d).some((tile) => Math.abs(hero.x - tile.c) + Math.abs(hero.y - tile.r) <= 1.15)) {
+        if (this.doorTiles(d).some((tile) => Math.abs(hero.x - tile.c) + Math.abs(hero.y - tile.r) <= 1.05)) {
           this.beginTwinEvent({ c: d.c, r: d.r });
           return false;
         }
       }
     }
-    // Check all exit and partner doors
-    const doorsToCheck = this.trap.config?.decoyDoor
-      ? [level.door, this.trap.config.decoyDoor]
-      : [level.door];
-    const exitTile = doorsToCheck
-      .flatMap((d) => this.doorTiles(d))
-      .find((tile) => {
-        const d = Math.abs(hero.x - tile.c) + Math.abs(hero.y - tile.r);
-        if (d <= 1.05) return true;
-        const inner = this.innerOf(tile);
-        if (Math.abs(hero.x - inner.c) + Math.abs(hero.y - inner.r) <= 0.6) {
-          const dx = tile.c - inner.c;
-          const dy = tile.r - inner.r;
-          if (!hero.dir || (DIRS[hero.dir].x === dx && DIRS[hero.dir].y === dy)) return true;
-        }
-        return false;
-      });
+    // The exit is two tiles wide: the hero leaves from whichever of the two he walks into.
+    const exitTile = this.doorTiles(level.door).find((tile) => Math.abs(hero.x - tile.c) + Math.abs(hero.y - tile.r) <= 0.55);
     if (!exitTile) return false; // the hero has to reach the door itself
 
-    // Guaranteed escape once reaching the door
-    if (!this.trainDiverted) {
-      this.trainDiverted = true;
-      this.switchFlippedAt = this.t;
-    }
     if (!this.hiddenDoorRevealed) {
-      this.hiddenDoorRevealed = true;
+      const back = this.innerOf(exitTile);
+      hero.x = back.c;
+      hero.y = back.r;
+      hero.dir = null;
+      hero.queued = null;
+      if (this.lockToastCd <= 0) {
+        this.lockToastCd = 3;
+        this.ui.toast("Rescue the hostage first to reveal the exit! 🔪");
+      }
+      return false;
     }
-    if (this.trap.id === "well") {
-      this.storyDone = true;
+
+    if (!this.trainDiverted) {
+      const back = this.innerOf(exitTile);
+      hero.x = back.c;
+      hero.y = back.r;
+      hero.dir = null;
+      hero.queued = null;
+      if (this.lockToastCd <= 0) {
+        this.lockToastCd = 3;
+        this.ui.toast("Flip the STOP switch to divert the train first! 🛑");
+      }
+      return false;
+    }
+
+    // The real exit stays shut until the round's story has been played.
+    const locked = this.trap.id === "well" && !this.storyDone ? "The exit is sealed until the stranger from the well joins you." : null;
+    if (locked) {
+      const back = this.innerOf(exitTile);
+      hero.x = back.c;
+      hero.y = back.r;
+      hero.dir = null;
+      hero.queued = null;
+      if (this.lockToastCd <= 0) {
+        this.lockToastCd = 3;
+        this.ui.toast(locked);
+      }
+      return false;
     }
     this.state = "LEVEL_COMPLETE";
-    setTimeout(() => this.prepareLevel(this.levelNumber + 1), 700); // so "Next level" is instant
+    if (this.levelNumber < FINAL_CAMPAIGN_LEVEL) {
+      this.prepareTimer = setTimeout(() => this.prepareLevel(this.levelNumber + 1), 700); // so "Next level" is instant
+    }
     this.completeTimer = 0;
     this.cardShown = false;
     this.input.enabled = false;
@@ -1193,7 +1237,7 @@ export class Game {
 
     const data = this.storage.data;
     const n = this.levelNumber;
-    data.unlocked = Math.max(data.unlocked, n + 1);
+    data.unlocked = Math.min(FINAL_CAMPAIGN_LEVEL, Math.max(data.unlocked || 1, n + 1));
     if (n >= TITLE_LEVEL) data.completed = true;
     data.completionTimes = data.completionTimes || {};
     data.completionTimes[n] = Math.round((this.retryTime + this.elapsed) * 10) / 10;
@@ -1204,15 +1248,27 @@ export class Game {
     this.roundAward = awardRound(data, n, data.completionTimes[n]);
     if (n % MILESTONE_LEVELS === 0) this.newAward = this.roundAward; // the milestone card, the first time only
     this.storage.save();
+    this.ui.syncSelectedLevel?.(data.unlocked);
     this.ui.setHud({ level: n, time: this.elapsed });
     return true;
   }
 
   showCompletionCard() {
+    if (this.levelNumber >= FINAL_CAMPAIGN_LEVEL) {
+      this.state = "FINAL_SUCCESS";
+      if (this.newAward) {
+        this.audio.play("aasthiAward");
+        this.ui.showFinal(FINAL_CAMPAIGN_LEVEL, { isGameEnd: true });
+      } else {
+        this.audio.play("levelSuccess");
+        this.ui.showGameEnd();
+      }
+      return;
+    }
     if (this.newAward) {
       this.state = "FINAL_SUCCESS";
       this.audio.play("aasthiAward");
-      this.ui.showFinal(this.levelNumber + 1);
+      this.ui.showFinal(this.levelNumber + 1, { isGameEnd: false });
     } else {
       this.audio.play("levelSuccess");
       this.ui.showLevelComplete({
